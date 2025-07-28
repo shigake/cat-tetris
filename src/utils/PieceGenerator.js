@@ -64,15 +64,30 @@ export const PIECES = {
   }
 };
 
-// Array com todas as peças para seleção aleatória
 export const PIECE_TYPES = Object.keys(PIECES);
 
-// Função para gerar uma peça aleatória
+// 7-bag generator state
+let bag = [];
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+function refillBag() {
+  bag = shuffle([...PIECE_TYPES]);
+}
+
+// Função para gerar uma peça do sistema 7-bag
 export const generateRandomPiece = () => {
-  const randomType = PIECE_TYPES[Math.floor(Math.random() * PIECE_TYPES.length)];
+  if (bag.length === 0) refillBag();
+  const type = bag.shift();
   return {
-    type: randomType,
-    ...PIECES[randomType],
+    type,
+    ...PIECES[type],
     position: { x: 3, y: 0 }
   };
 };
