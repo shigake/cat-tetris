@@ -271,6 +271,9 @@ function GameComponent() {
       actions.resetGame();
     } else if (gameState?.isPaused) {
       actions.resumeGame();
+    } else {
+      // Force start if not playing
+      actions.startGame();
     }
   };
 
@@ -284,6 +287,7 @@ function GameComponent() {
   const handleNewGame = () => {
     setCurrentScreen('game');
     actions.resetGame();
+    setTimeout(() => actions.startGame(), 100); // Ensure game starts
   };
 
   const handleBackToMenu = () => {

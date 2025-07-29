@@ -43,7 +43,7 @@ export function AIControls({
 
       {/* Main Controls */}
       <div className="flex items-center space-x-4">
-        <motion.button
+                 <motion.button
           onClick={isActive ? onDeactivate : onActivate}
           className={`px-6 py-2 rounded-lg font-bold text-sm transition-all duration-200 ${
             isActive 
@@ -54,6 +54,19 @@ export function AIControls({
           whileTap={{ scale: 0.95 }}
         >
           {isActive ? '⏹️ STOP AI' : '▶️ START AI'}
+        </motion.button>
+
+        <motion.button
+          onClick={() => {
+            console.log('🐛 Debug: Forcing game start');
+            window.gameServiceRef?.current?.restart();
+            window.gameServiceRef?.current?.resume();
+          }}
+          className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-sm"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          🐛 DEBUG START
         </motion.button>
 
         {/* Speed Control */}

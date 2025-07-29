@@ -28,6 +28,7 @@ export function useGameService() {
     try {
       const gameService = serviceContainer.resolve('gameService');
       gameServiceRef.current = gameService;
+      window.gameServiceRef = gameServiceRef; // Debug access
       gameService.initializeGame();
       setGameState(gameService.getGameState());
 
@@ -75,7 +76,15 @@ export function useGameService() {
 
   // Schedule AI moves with configurable timing
   const scheduleAIMove = useCallback((currentGameState) => {
+    console.log('🤖 Schedule AI Move called:', {
+      isAIActive,
+      hasGameState: !!currentGameState,
+      gameOver: currentGameState?.gameOver,
+      isPaused: currentGameState?.isPaused
+    });
+
     if (!isAIActive || !currentGameState || currentGameState.gameOver || currentGameState.isPaused) {
+      console.log('🤖 AI Move scheduling blocked');
       return;
     }
 
@@ -85,31 +94,47 @@ export function useGameService() {
     }
 
     const delay = Math.max(100, 1000 / aiControls.speed);
+    console.log('🤖 Scheduling AI move in', delay, 'ms');
     
     aiMoveTimeoutRef.current = setTimeout(async () => {
       try {
+        console.log('🤖 Making AI move...');
         const aiMove = await makeAIMove(currentGameState);
         
         if (aiMove && gameServiceRef.current && !gameServiceRef.current.gameOver) {
+          console.log('🤖 AI move calculated:', aiMove);
           executeAIMove(aiMove);
+        } else {
+          console.log('🤖 No AI move to execute');
         }
       } catch (error) {
         console.error('AI Move execution error:', error);
       }
     }, delay);
-  }, [isAIActive, aiControls.speed, makeAIMove]);
+  }, [isAIActive, aiControls.speed, makeAIMove, executeAIMove]);
 
   // Execute AI move in the game
   const executeAIMove = useCallback((aiMove) => {
-    if (!gameServiceRef.current || !aiMove) return;
+    if (!gameServiceRef.current || !aiMove) {
+      console.log('🤖 AI Move blocked: no gameService or aiMove');
+      return;
+    }
 
     try {
       const gameService = gameServiceRef.current;
+      console.log('🤖 Executing AI move:', aiMove, 'Game state:', {
+        isPlaying: gameService.isPlaying,
+        isPaused: gameService.isPaused,
+        gameOver: gameService.gameOver,
+        currentPiece: !!gameService.currentPiece
+      });
       
       // Move piece to target position
       if (aiMove.x !== undefined) {
         const currentX = gameService.currentPiece?.position?.x || 0;
         const deltaX = aiMove.x - currentX;
+        
+        console.log('🤖 Moving from', currentX, 'to', aiMove.x, 'delta:', deltaX);
         
         // Move horizontally
         for (let i = 0; i < Math.abs(deltaX); i++) {
@@ -123,12 +148,14 @@ export function useGameService() {
 
       // Rotate piece
       if (aiMove.rotation) {
+        console.log('🤖 Rotating', aiMove.rotation, 'times');
         for (let i = 0; i < aiMove.rotation; i++) {
           gameService.rotatePiece();
         }
       }
 
       // Hard drop
+      console.log('🤖 Hard dropping');
       gameService.hardDrop();
 
       // Record the move result for AI metrics
