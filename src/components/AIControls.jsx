@@ -58,15 +58,74 @@ export function AIControls({
 
         <motion.button
           onClick={() => {
-            console.log('🐛 Debug: Forcing game start');
-            window.gameServiceRef?.current?.restart();
-            window.gameServiceRef?.current?.resume();
+            console.log('🐛 Debug: Forcing game restart');
+            const gameService = window.gameServiceRef?.current;
+            if (gameService) {
+              console.log('🐛 Before restart:', {
+                isPlaying: gameService.isPlaying,
+                isPaused: gameService.isPaused,
+                gameOver: gameService.gameOver
+              });
+              
+              gameService.restart();
+              
+              console.log('🐛 After restart:', {
+                isPlaying: gameService.isPlaying,
+                isPaused: gameService.isPaused,
+                gameOver: gameService.gameOver
+              });
+              
+              // Force piece movement test
+              setTimeout(() => {
+                console.log('🐛 Testing piece movement...');
+                if (gameService.currentPiece) {
+                  console.log('🐛 Current piece before:', {
+                    type: gameService.currentPiece.type,
+                    position: gameService.currentPiece.position
+                  });
+                  
+                  // Test all movements
+                  gameService.movePiece('left');
+                  console.log('🐛 After left:', gameService.currentPiece.position);
+                  
+                  setTimeout(() => {
+                    gameService.movePiece('right');
+                    console.log('🐛 After right:', gameService.currentPiece.position);
+                    
+                    setTimeout(() => {
+                      gameService.movePiece('down');
+                      console.log('🐛 After down:', gameService.currentPiece.position);
+                    }, 500);
+                  }, 500);
+                }
+              }, 1000);
+            }
           }}
           className="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-bold text-sm"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          🐛 DEBUG START
+          🔧 FORCE RESTART
+        </motion.button>
+
+        <motion.button
+          onClick={() => {
+            console.log('🔄 Force refresh state');
+            const gameService = window.gameServiceRef?.current;
+            if (gameService) {
+              // Force emit game state update
+              const currentState = gameService.getGameState();
+              console.log('🔄 Current game state:', currentState);
+              
+              // Force trigger state update
+              window.dispatchEvent(new CustomEvent('tetris-force-update'));
+            }
+          }}
+          className="px-3 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          🔄 REFRESH
         </motion.button>
 
         {/* Speed Control */}

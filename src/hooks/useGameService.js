@@ -35,6 +35,12 @@ export function useGameService() {
       const handleGameStateUpdate = () => {
         if (gameServiceRef.current) {
           const newState = gameServiceRef.current.getGameState();
+          console.log('🔄 Game state updated:', {
+            isPlaying: newState.isPlaying,
+            isPaused: newState.isPaused,
+            currentPiece: newState.currentPiece?.type,
+            position: newState.currentPiece?.position
+          });
           setGameState(newState);
 
           // AI Integration: Start AI game if needed
@@ -181,8 +187,9 @@ export function useGameService() {
 
       const deltaTime = currentTime - lastTimeRef.current;
       if (deltaTime >= 16) {
+        // Call the game update for automatic piece dropping
+        gameServiceRef.current.updateGame(deltaTime);
         lastTimeRef.current = currentTime;
-        // Game logic is handled by events, no need for manual update
       }
 
       if (gameServiceRef.current.isPlaying && !gameServiceRef.current.gameOver) {
@@ -203,11 +210,20 @@ export function useGameService() {
 
   const startGame = useCallback(() => {
     if (gameServiceRef.current) {
-      // If game is over or not initialized, restart
-      if (gameServiceRef.current.gameOver || !gameServiceRef.current.isPlaying) {
-        gameServiceRef.current.restart();
-      }
-      gameServiceRef.current.resume();
+      console.log('🎮 Starting game - Current state:', {
+        isPlaying: gameServiceRef.current.isPlaying,
+        isPaused: gameServiceRef.current.isPaused,
+        gameOver: gameServiceRef.current.gameOver
+      });
+
+      // Always restart to ensure clean state
+      gameServiceRef.current.restart();
+      
+      console.log('🎮 After restart:', {
+        isPlaying: gameServiceRef.current.isPlaying,
+        isPaused: gameServiceRef.current.isPaused,
+        gameOver: gameServiceRef.current.gameOver
+      });
       
       // Initialize AI game tracking
       if (isAIActive) {
