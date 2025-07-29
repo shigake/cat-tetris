@@ -104,7 +104,7 @@ function GameScreen({
               <TetrisBoard 
                 board={gameState.board} 
                 currentPiece={gameState.currentPiece}
-                dropPreview={null}
+                dropPreview={actions.getDropPreview()}
                 gameOver={gameState.gameOver}
               />
               

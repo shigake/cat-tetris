@@ -114,9 +114,9 @@ export function useGameService() {
         // Move horizontally
         for (let i = 0; i < Math.abs(deltaX); i++) {
           if (deltaX > 0) {
-            gameService.movePieceRight();
+            gameService.movePiece('right');
           } else {
-            gameService.movePieceLeft();
+            gameService.movePiece('left');
           }
         }
       }
@@ -176,7 +176,7 @@ export function useGameService() {
 
   const startGame = useCallback(() => {
     if (gameServiceRef.current) {
-      gameServiceRef.current.startGame();
+      gameServiceRef.current.resume();
       
       // Initialize AI game tracking
       if (isAIActive) {
@@ -189,7 +189,7 @@ export function useGameService() {
 
   const pauseGame = useCallback(() => {
     if (gameServiceRef.current) {
-      gameServiceRef.current.pauseGame();
+      gameServiceRef.current.pause();
       
       // Clear AI timeout when pausing
       if (aiMoveTimeoutRef.current) {
@@ -200,7 +200,7 @@ export function useGameService() {
 
   const resumeGame = useCallback(() => {
     if (gameServiceRef.current) {
-      gameServiceRef.current.resumeGame();
+      gameServiceRef.current.resume();
       
       // Resume AI if active
       if (isAIActive) {
@@ -212,7 +212,7 @@ export function useGameService() {
 
   const resetGame = useCallback(() => {
     if (gameServiceRef.current) {
-      gameServiceRef.current.initializeGame();
+      gameServiceRef.current.restart();
       
       // Clear AI timeout
       if (aiMoveTimeoutRef.current) {
@@ -223,19 +223,19 @@ export function useGameService() {
 
   const movePieceLeft = useCallback(() => {
     if (gameServiceRef.current && !isAIActive) {
-      gameServiceRef.current.movePieceLeft();
+      gameServiceRef.current.movePiece('left');
     }
   }, [isAIActive]);
 
   const movePieceRight = useCallback(() => {
     if (gameServiceRef.current && !isAIActive) {
-      gameServiceRef.current.movePieceRight();
+      gameServiceRef.current.movePiece('right');
     }
   }, [isAIActive]);
 
   const movePieceDown = useCallback(() => {
     if (gameServiceRef.current && !isAIActive) {
-      gameServiceRef.current.movePieceDown();
+      gameServiceRef.current.movePiece('down');
     }
   }, [isAIActive]);
 
@@ -257,6 +257,13 @@ export function useGameService() {
     }
   }, [isAIActive]);
 
+  const getDropPreview = useCallback(() => {
+    if (gameServiceRef.current) {
+      return gameServiceRef.current.getDropPreview();
+    }
+    return null;
+  }, []);
+
   return {
     gameState,
     startGame,
@@ -269,6 +276,7 @@ export function useGameService() {
     rotatePiece,
     hardDrop,
     holdPiece,
+    getDropPreview,
     
     // AI Controls Export
     aiControls: {
