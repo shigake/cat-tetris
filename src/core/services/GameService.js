@@ -40,13 +40,17 @@ export class GameService extends IGameService {
     this.nextPieces = this.pieceFactory.createNextPieces(GameConfig.NEXT_PIECES_COUNT);
     this.heldPiece = null;
     this.canHold = true;
-    this.isPlaying = true;
+    this.isPlaying = false;
     this.isPaused = false;
     this.gameOver = false;
     this.lastDropTime = 0;
     this.backToBack = false;
     
     gameEvents.emit(GAME_EVENTS.GAME_INITIALIZED);
+    
+    setTimeout(() => {
+      this.isPlaying = true;
+    }, 1000);
   }
 
   movePiece(direction) {
@@ -183,8 +187,12 @@ export class GameService extends IGameService {
     if (!this.currentPiece) return null;
 
     let previewPiece = this.currentPiece;
-    while (this.board.canPlacePiece(previewPiece.move(0, 1))) {
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    while (attempts < maxAttempts && this.board.canPlacePiece(previewPiece.move(0, 1))) {
       previewPiece = previewPiece.move(0, 1);
+      attempts++;
     }
     
     return previewPiece;

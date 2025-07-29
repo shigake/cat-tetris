@@ -9,8 +9,12 @@ export function useGameService() {
   const gameServiceRef = useRef(null);
   const gameLoopRef = useRef(null);
   const lastTimeRef = useRef(0);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     const repository = new LocalStorageRepository();
     const gameService = new GameService(
       PieceFactory,
@@ -23,7 +27,9 @@ export function useGameService() {
     setGameState(gameService.getGameState());
 
     const handleGameStateUpdate = () => {
-      setGameState(gameService.getGameState());
+      if (gameServiceRef.current) {
+        setGameState(gameServiceRef.current.getGameState());
+      }
     };
 
     Object.values(GAME_EVENTS).forEach(event => {
@@ -34,6 +40,9 @@ export function useGameService() {
       Object.values(GAME_EVENTS).forEach(event => {
         gameEvents.off(event, handleGameStateUpdate);
       });
+      if (gameLoopRef.current) {
+        cancelAnimationFrame(gameLoopRef.current);
+      }
     };
   }, []);
 
@@ -48,7 +57,10 @@ export function useGameService() {
       const deltaTime = currentTime - lastTimeRef.current;
       lastTimeRef.current = currentTime;
 
-      gameServiceRef.current.updateGame(deltaTime);
+      if (gameServiceRef.current) {
+        gameServiceRef.current.updateGame(deltaTime);
+      }
+      
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 

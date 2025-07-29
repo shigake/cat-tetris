@@ -50,8 +50,14 @@ export class Board {
   canPlacePiece(piece) {
     const cells = piece.getCells();
     return cells.every(cell => {
-      if (!this.isWithinBounds(cell.x, cell.y)) return false;
-      return this.getCell(cell.x, cell.y) === null;
+      if (!this.isWithinBounds(cell.x, cell.y)) {
+        return false;
+      }
+      const boardCell = this.getCell(cell.x, cell.y);
+      if (boardCell !== null) {
+        return false;
+      }
+      return true;
     });
   }
 
@@ -85,7 +91,8 @@ export class Board {
   }
 
   isGameOver() {
-    return this.grid[0].some(cell => cell !== null);
+    const result = this.grid[0].some(cell => cell !== null);
+    return result;
   }
 
   getBoardState() {
