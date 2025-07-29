@@ -41,6 +41,8 @@ export function useAmbientMusic() {
   const startAmbientMusic = useCallback(() => {
     if (currentMusicRef.current) return;
     
+    const baseFreq = 220;
+    
     const chordProgression = [
       baseFreq,
       baseFreq * 1.25,
@@ -71,7 +73,6 @@ export function useAmbientMusic() {
     ];
 
     const oscillators = [];
-    const baseFreq = 220;
     
     bassFreqs.forEach((freq, index) => {
       setTimeout(() => {
