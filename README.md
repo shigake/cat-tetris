@@ -350,7 +350,3 @@ Este projeto está licenciado sob a **MIT License** - veja o arquivo [LICENSE](L
 Desenvolvido com ❤️ usando **React**, **Tailwind CSS** e muito ☕
 
 **Divirta-se jogando Cat Tetris!** 🐱✨
-
----
-
-*Para documentação técnica detalhada sobre a arquitetura, consulte [REFATORACAO_FINAL.md](./REFATORACAO_FINAL.md)* 
