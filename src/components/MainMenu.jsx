@@ -15,7 +15,7 @@ export default function MainMenu({
   gameState
 }) {
   const [selectedOption, setSelectedOption] = useState(0);
-  const [showParticles, setShowParticles] = useState(true);
+  const [showParticles, setShowParticles] = useState(false); // Disabled by default
   const [particleType, setParticleType] = useState('mixed');
   const [particleIntensity, setParticleIntensity] = useState('medium');
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -246,47 +246,22 @@ export default function MainMenu({
     visible: {
       opacity: 1,
       transition: {
-        duration: 0.6,
-        staggerChildren: 0.1,
-        ease: "easeOut"
+        duration: 0.3
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      y: 0,
-      scale: 1,
       transition: { 
-        duration: 0.5, 
-        ease: "easeOut"
+        duration: 0.2
       }
     }
   };
 
-  const floatingVariants = {
-    animate: {
-      y: [-4, 4, -4],
-      transition: {
-        duration: 6,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
 
-  const pulseVariants = {
-    animate: {
-      scale: [1, 1.01, 1],
-      transition: {
-        duration: 4,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
 
   const currentTheme = particleThemes.find(theme => theme.value === particleType);
 
@@ -306,14 +281,8 @@ export default function MainMenu({
         className="max-w-2xl w-full relative z-10"
       >
         <motion.div variants={itemVariants} className="text-center mb-12">
-          <motion.div
-            variants={floatingVariants}
-            animate="animate"
-            className="inline-block"
-          >
-            <motion.h1 
-              variants={pulseVariants}
-              animate="animate"
+          <div className="inline-block">
+            <h1 
               className="text-6xl md:text-8xl font-cat font-bold text-white mb-4 drop-shadow-2xl"
               style={{
                 textShadow: '0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(255,255,255,0.3)',
@@ -321,8 +290,8 @@ export default function MainMenu({
               }}
             >
               🐱 Cat Tetris 🐱
-            </motion.h1>
-          </motion.div>
+            </h1>
+          </div>
           
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -358,19 +327,11 @@ export default function MainMenu({
               key={option.id}
               onClick={option.action}
               onMouseEnter={() => handleOptionHover(index)}
-              whileHover={{ 
-                scale: option.isPrimary ? 1.02 : 1.01, 
-                y: -2,
-                transition: { duration: 0.2, ease: "easeOut" }
-              }}
-              whileTap={{ 
-                scale: 0.98,
-                transition: { duration: 0.1, ease: "easeOut" }
-              }}
+
               className={`
                 group relative overflow-hidden rounded-2xl p-6 text-left
                 bg-gradient-to-r ${selectedOption === index ? option.hoverGradient : option.gradient}
-                shadow-2xl border-2 transition-all duration-500
+                shadow-2xl border-2 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99]
                 ${selectedOption === index 
                   ? `border-white/60 shadow-2xl ${option.glow}` 
                   : 'border-white/20 hover:border-white/40'
@@ -455,57 +416,43 @@ export default function MainMenu({
           </div>
 
           <div className="flex justify-center flex-wrap gap-3">
-            <motion.button
+            <button
               onClick={() => {
                 setShowParticles(!showParticles);
                 if (soundEnabled) sounds.playMenuSelect();
               }}
-              whileHover={{ 
-                scale: 1.02,
-                transition: { duration: 0.2, ease: "easeOut" }
-              }}
-              whileTap={{ 
-                scale: 0.98,
-                transition: { duration: 0.1, ease: "easeOut" }
-              }}
-              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
-            >
-              {showParticles ? '✨ Efeitos: ON' : '💫 Efeitos: OFF'}
-            </motion.button>
+              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
+                          >
+                {showParticles ? '✨ Efeitos: ON' : '💫 Efeitos: OFF'}
+              </button>
 
-            <motion.button
+            <button
               onClick={cycleParticleType}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
               disabled={!showParticles}
             >
               {currentTheme?.icon} {currentTheme?.name}
-            </motion.button>
+            </button>
 
-            <motion.button
+            <button
               onClick={cycleParticleIntensity}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
               disabled={!showParticles}
             >
               🎚️ {particleIntensity.toUpperCase()}
-            </motion.button>
+            </button>
 
-            <motion.button
+            <button
               onClick={() => {
                 setSoundEnabled(!soundEnabled);
                 if (!soundEnabled) sounds.playMenuSelect();
               }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
             >
               {soundEnabled ? '🔊 Sons: ON' : '🔇 Sons: OFF'}
-            </motion.button>
+            </button>
 
-            <motion.button
+            <button
               onClick={() => {
                 setMusicEnabled(!musicEnabled);
                 if (!musicEnabled) {
@@ -515,12 +462,10 @@ export default function MainMenu({
                 }
                 if (soundEnabled) sounds.playMenuSelect();
               }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
             >
               {musicEnabled ? '🎵 Música: ON' : '🎶 Música: OFF'}
-            </motion.button>
+            </button>
           </div>
         </motion.div>
 
