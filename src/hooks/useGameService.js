@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
-import { useAIPlayer } from './useAIPlayer.js';
+// import { useAIPlayer } from './useAIPlayer.js';
 
 export function useGameService() {
   const [gameState, setGameState] = useState(null);
@@ -9,17 +9,22 @@ export function useGameService() {
   const gameLoopRef = useRef(null);
   const lastTimeRef = useRef(0);
   const initializedRef = useRef(false);
-  const aiMoveTimeoutRef = useRef(null);
+  // const aiMoveTimeoutRef = useRef(null);
 
-  // AI Integration
-  const {
-    isActive: isAIActive,
-    makeAIMove,
-    startAIGame,
-    endAIGame,
-    recordAIMove,
-    ...aiControls
-  } = useAIPlayer();
+  // AI Integration - TEMPORARILY DISABLED
+  const isAIActive = false;
+  const aiControls = {
+    isActive: false,
+    activateAI: () => {},
+    deactivateAI: () => {},
+    speed: 1,
+    changeSpeed: () => {},
+    metrics: {},
+    isThinking: false,
+    lastMove: null,
+    resetAIMetrics: () => {},
+    getStrategyInfo: () => null
+  };
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -42,20 +47,6 @@ export function useGameService() {
             position: newState.currentPiece?.position
           });
           setGameState(newState);
-
-          // AI Integration: Start AI game if needed
-          if (isAIActive && newState.isPlaying && !newState.isPaused && !newState.gameOver) {
-            scheduleAIMove(newState);
-          }
-
-          // Track game end for AI
-          if (newState.gameOver && isAIActive) {
-            endAIGame(
-              newState.score.value,
-              newState.score.lines,
-              Date.now() - (gameServiceRef.current.gameStartTime || Date.now())
-            );
-          }
         }
       };
 
@@ -78,9 +69,9 @@ export function useGameService() {
       console.error('Failed to initialize game service:', error);
       throw error;
     }
-  }, [isAIActive, endAIGame]);
+  }, []);
 
-  // Execute AI move in the game
+  // Execute AI move in the game - DISABLED
   const executeAIMove = useCallback((aiMove) => {
     if (!gameServiceRef.current || !aiMove) {
       console.log('🤖 AI Move blocked: no gameService or aiMove');

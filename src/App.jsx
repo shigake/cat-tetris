@@ -222,8 +222,51 @@ function GameComponent() {
   useSoundManager();
   
   const isInGame = currentScreen === 'game';
-  useKeyboardInput(actions, gameState, isInGame && !aiControls.isActive);
+  // useKeyboardInput(actions, gameState, isInGame && !aiControls.isActive);
 
+  // Direct keyboard handling (from ffa7add solution)
+  React.useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (currentScreen !== 'game' || gameState?.gameOver || aiControls.isActive) return;
+      
+      if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' ', 'Space'].includes(event.key)) {
+        event.preventDefault();
+      }
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          actions.movePieceLeft();
+          break;
+        case 'ArrowRight':
+          actions.movePieceRight();
+          break;
+        case 'ArrowDown':
+          actions.movePieceDown();
+          break;
+        case 'ArrowUp':
+          actions.rotatePiece();
+          break;
+        case ' ':
+        case 'Space':
+          actions.hardDrop();
+          break;
+        case 'Shift':
+          actions.holdPiece();
+          break;
+        case 'p':
+        case 'P':
+          if (gameState?.isPaused) {
+            actions.resumeGame();
+          } else {
+            actions.pauseGame();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentScreen, gameState, aiControls.isActive, actions]);
 
   React.useEffect(() => {
     if (gameState && !gameState.gameOver && gameState.score.points > 0 && gameState.isPlaying) {

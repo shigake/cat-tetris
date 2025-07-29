@@ -9,6 +9,13 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   const [tSpinEffect, setTSpinEffect] = useState(false);
   const [particleEffect, setParticleEffect] = useState({ isActive: false, position: { x: 0, y: 0 } });
 
+  // Debug: Log current piece changes (simplified)
+  useEffect(() => {
+    if (currentPiece) {
+      console.log('🎮 TetrisBoard updated - Piece:', currentPiece.type, 'at', currentPiece.position);
+    }
+  }, [currentPiece]);
+
   useEffect(() => {
     const checkForClearingLines = () => {
       const linesToClear = [];
@@ -100,11 +107,8 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
 
     if (currentPieceCell) {
       return (
-        <motion.div
-          key={`${x}-${y}`}
-          initial={{ scale: 0.8, opacity: 0.7 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.2 }}
+        <div
+          key={`current-${currentPieceCell.type}-${x}-${y}`}
           className="cat-block tetris-cell rounded-sm flex items-center justify-center text-sm font-bold border-2 border-white/50"
           style={{
             '--cat-color': getPieceColor(currentPieceCell.color),
@@ -114,7 +118,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
           }}
         >
           <span className="text-xs">{currentPieceCell.emoji}</span>
-        </motion.div>
+        </div>
       );
     }
 

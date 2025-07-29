@@ -116,6 +116,13 @@ export function AIControls({
               // Force emit game state update
               const currentState = gameService.getGameState();
               console.log('🔄 Current game state:', currentState);
+              console.log('🔄 Current piece details:', {
+                piece: currentState.currentPiece,
+                hasPosition: !!currentState.currentPiece?.position,
+                position: currentState.currentPiece?.position,
+                hasShape: !!currentState.currentPiece?.shape,
+                shape: currentState.currentPiece?.shape
+              });
               
               // Force trigger state update
               window.dispatchEvent(new CustomEvent('tetris-force-update'));
@@ -126,6 +133,39 @@ export function AIControls({
           whileTap={{ scale: 0.95 }}
         >
           🔄 REFRESH
+        </motion.button>
+
+        <motion.button
+          onClick={() => {
+            console.log('🧪 DIRECT TEST: Testing GameService directly');
+            const gameService = window.gameServiceRef?.current;
+            if (gameService) {
+              console.log('🧪 Current piece before:', gameService.currentPiece);
+              console.log('🧪 Game state:', {
+                isPlaying: gameService.isPlaying,
+                isPaused: gameService.isPaused,
+                gameOver: gameService.gameOver
+              });
+              
+              // Direct call without any AI interference
+              try {
+                gameService.movePiece('left');
+                console.log('🧪 After movePiece left:', gameService.currentPiece.position);
+                
+                setTimeout(() => {
+                  gameService.movePiece('right'); 
+                  console.log('🧪 After movePiece right:', gameService.currentPiece.position);
+                }, 500);
+              } catch (error) {
+                console.error('🧪 ERROR in direct test:', error);
+              }
+            }
+          }}
+          className="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold text-xs"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          🧪 DIRECT TEST
         </motion.button>
 
         {/* Speed Control */}
