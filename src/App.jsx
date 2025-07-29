@@ -9,6 +9,7 @@ import HeldPiece from './components/HeldPiece';
 import ErrorBoundary from './components/ErrorBoundary';
 import MainMenu from './components/MainMenu';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import { AIControls } from './components/AIControls';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -35,6 +36,7 @@ function LoadingSpinner() {
 function GameScreen({ 
   gameState, 
   actions, 
+  aiControls,
   onShowStats, 
   onBackToMenu,
   showStats,
@@ -102,19 +104,22 @@ function GameScreen({
               <TetrisBoard 
                 board={gameState.board} 
                 currentPiece={gameState.currentPiece}
-                dropPreview={actions.getDropPreview()}
+                dropPreview={null}
                 gameOver={gameState.gameOver}
               />
               
               <Controls 
-                onMove={actions.movePiece}
+                onMoveLeft={actions.movePieceLeft}
+                onMoveRight={actions.movePieceRight}
+                onMoveDown={actions.movePieceDown}
                 onRotate={actions.rotatePiece}
                 onHardDrop={actions.hardDrop}
-                onPause={gameState.isPaused ? actions.resume : actions.pause}
+                onPause={gameState.isPaused ? actions.resumeGame : actions.pauseGame}
                 onHold={actions.holdPiece}
                 isPaused={gameState.isPaused}
                 gameOver={gameState.gameOver}
                 canHold={gameState.canHold}
+                aiActive={aiControls.isActive}
               />
             </div>
 
@@ -124,6 +129,19 @@ function GameScreen({
                 level={gameState.score.level}
                 lines={gameState.score.lines}
                 combo={gameState.score.combo}
+              />
+              
+              <AIControls 
+                isActive={aiControls.isActive}
+                speed={aiControls.speed}
+                metrics={aiControls.metrics}
+                isThinking={aiControls.isThinking}
+                lastMove={aiControls.lastMove}
+                onActivate={aiControls.activateAI}
+                onDeactivate={aiControls.deactivateAI}
+                onSpeedChange={aiControls.changeSpeed}
+                onResetMetrics={aiControls.resetAIMetrics}
+                strategyInfo={aiControls.getStrategyInfo()}
               />
             </div>
           </div>
@@ -197,7 +215,7 @@ function GameComponent() {
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
 
-  const { gameState, actions } = useGameService();
+  const { gameState, aiControls, ...actions } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
   
@@ -250,28 +268,28 @@ function GameComponent() {
   const handleStartGame = () => {
     setCurrentScreen('game');
     if (gameState?.gameOver) {
-      actions.restart();
+      actions.resetGame();
     } else if (gameState?.isPaused) {
-      actions.resume();
+      actions.resumeGame();
     }
   };
 
   const handleContinueGame = () => {
     setCurrentScreen('game');
     if (gameState?.isPaused) {
-      actions.resume();
+      actions.resumeGame();
     }
   };
 
   const handleNewGame = () => {
     setCurrentScreen('game');
-    actions.restart();
+    actions.resetGame();
   };
 
   const handleBackToMenu = () => {
     setCurrentScreen('menu');
     if (gameState && !gameState.gameOver) {
-      actions.pause();
+      actions.pauseGame();
     }
   };
 
@@ -350,6 +368,7 @@ function GameComponent() {
     <GameScreen
       gameState={gameState}
       actions={actions}
+      aiControls={aiControls}
       onShowStats={handleShowStats}
       onBackToMenu={handleBackToMenu}
       showStats={showStats}

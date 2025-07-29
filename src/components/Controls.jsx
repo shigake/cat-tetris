@@ -1,19 +1,31 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gameOver, canHold }) => {
+const Controls = ({ 
+  onMoveLeft, 
+  onMoveRight, 
+  onMoveDown, 
+  onRotate, 
+  onHardDrop, 
+  onPause, 
+  onHold, 
+  isPaused, 
+  gameOver, 
+  canHold,
+  aiActive 
+}) => {
   const handleKeyPress = (action) => {
-    if (gameOver) return;
+    if (gameOver || aiActive) return;
     
     switch (action) {
       case 'left':
-        onMove('left');
+        onMoveLeft();
         break;
       case 'right':
-        onMove('right');
+        onMoveRight();
         break;
       case 'down':
-        onMove('down');
+        onMoveDown();
         break;
       case 'rotate':
         onRotate();
@@ -34,9 +46,18 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
     <div className="flex flex-col items-center gap-4">
       <div className="hidden lg:block">
         <div className="text-center text-white/70 text-sm mb-4">
-          <p>Use as setas para mover e girar</p>
-          <p>Espaço para drop instantâneo</p>
-          <p>Shift para guardar peça</p>
+          {aiActive ? (
+            <div className="text-purple-300 font-bold">
+              <p>🤖 AI ESTÁ JOGANDO</p>
+              <p>Controles desabilitados</p>
+            </div>
+          ) : (
+            <>
+              <p>Use as setas para mover e girar</p>
+              <p>Espaço para drop instantâneo</p>
+              <p>Shift para guardar peça</p>
+            </>
+          )}
         </div>
       </div>
 
@@ -47,7 +68,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('rotate')}
-            disabled={gameOver}
+            disabled={gameOver || aiActive}
             className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             🔄
@@ -58,7 +79,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('left')}
-            disabled={gameOver}
+            disabled={gameOver || aiActive}
             className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ⬅️
@@ -68,7 +89,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('down')}
-            disabled={gameOver}
+            disabled={gameOver || aiActive}
             className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ⬇️
@@ -78,7 +99,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('right')}
-            disabled={gameOver}
+            disabled={gameOver || aiActive}
             className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ➡️
@@ -88,7 +109,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('hardDrop')}
-            disabled={gameOver}
+            disabled={gameOver || aiActive}
             className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ⚡
@@ -98,7 +119,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('hold')}
-            disabled={gameOver || !canHold}
+            disabled={gameOver || !canHold || aiActive}
             className={`p-4 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
               canHold 
                 ? 'bg-green-500 text-white hover:bg-green-600' 
