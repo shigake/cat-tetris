@@ -223,7 +223,7 @@ function GameComponent() {
 
   // Check if there's an active game that can be continued
   React.useEffect(() => {
-    if (gameState && !gameState.gameOver && gameState.score.points > 0) {
+    if (gameState && !gameState.gameOver && gameState.score.points > 0 && gameState.isPlaying) {
       setHasActiveGame(true);
     } else {
       setHasActiveGame(false);
@@ -266,6 +266,8 @@ function GameComponent() {
     setCurrentScreen('game');
     if (gameState?.gameOver) {
       actions.restart();
+    } else if (gameState?.isPaused) {
+      actions.resume();
     }
   };
 
