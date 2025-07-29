@@ -21,14 +21,14 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }} // Faster animation
+          transition={{ duration: 0.15 }}
           className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
         >
           <motion.div
-            initial={{ scale: 0.9, y: 10 }} // Simpler animation
+            initial={{ scale: 0.9, y: 10 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, y: 10 }}
-            transition={{ duration: 0.15, ease: "easeOut" }} // Faster, simpler
+            transition={{ duration: 0.15, ease: "easeOut" }}
             className="bg-gray-900/90 p-6 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4"
           >
             <h2 className="text-2xl font-cat font-bold text-white mb-6 text-center">

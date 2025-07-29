@@ -55,15 +55,6 @@ export class Piece {
     );
   }
 
-  /**
-   * Reset piece state for object pooling
-   * @param {string} type - Piece type
-   * @param {Array} shape - Piece shape matrix
-   * @param {string} color - Piece color
-   * @param {string} emoji - Piece emoji
-   * @param {Object} position - Piece position {x, y}
-   * @param {boolean} isTSpin - T-spin flag
-   */
   reset(type, shape, color, emoji, position, isTSpin = false) {
     this.type = type;
     this.shape = shape;

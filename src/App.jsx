@@ -190,7 +190,7 @@ function GameScreen({
 }
 
 function GameComponent() {
-  const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'game'
+  const [currentScreen, setCurrentScreen] = useState('menu');
   const [showStats, setShowStats] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
@@ -206,7 +206,7 @@ function GameComponent() {
   const isInGame = currentScreen === 'game';
   useKeyboardInput(actions, gameState, isInGame);
 
-  // Check if there's an active game that can be continued
+
   React.useEffect(() => {
     if (gameState && !gameState.gameOver && gameState.score.points > 0 && gameState.isPlaying) {
       setHasActiveGame(true);

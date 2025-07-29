@@ -1,9 +1,6 @@
 import React, { memo, useMemo, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * Optimized cell component that only re-renders when its content changes
- */
 const OptimizedCell = memo(({ cell, x, y, isGhost }) => {
   const cellStyle = useMemo(() => {
     if (!cell) {
@@ -39,13 +36,8 @@ const OptimizedCell = memo(({ cell, x, y, isGhost }) => {
 
 OptimizedCell.displayName = 'OptimizedCell';
 
-/**
- * Board diffing utility - calculates which cells changed
- * Complexity: O(h*w) but only runs when board actually changes
- */
 function calculateBoardDiff(currentBoard, previousBoard) {
   if (!previousBoard) {
-    // First render - all cells are "changed"
     return Array.from({ length: currentBoard.length }, (_, y) =>
       Array.from({ length: currentBoard[y].length }, (_, x) => ({ x, y }))
     ).flat();
@@ -58,7 +50,6 @@ function calculateBoardDiff(currentBoard, previousBoard) {
       const current = currentBoard[y][x];
       const previous = previousBoard[y]?.[x];
       
-      // Deep comparison for cell content
       if (
         (current === null) !== (previous === null) ||
         (current && previous && (
@@ -75,10 +66,6 @@ function calculateBoardDiff(currentBoard, previousBoard) {
   return changes;
 }
 
-/**
- * Optimized Tetris Board with differential rendering
- * Only re-renders cells that actually changed
- */
 export const OptimizedTetrisBoard = memo(({ 
   board, 
   currentPiece, 
@@ -90,7 +77,6 @@ export const OptimizedTetrisBoard = memo(({
   const renderCountRef = useRef(0);
   const lastRenderTimeRef = useRef(0);
 
-  // Calculate board differences
   const { changedCells, renderStats } = useMemo(() => {
     const startTime = performance.now();
     const changes = calculateBoardDiff(board, previousBoardRef.current);
@@ -99,7 +85,6 @@ export const OptimizedTetrisBoard = memo(({
     renderCountRef.current++;
     lastRenderTimeRef.current = endTime - startTime;
     
-    // Store current board for next comparison
     previousBoardRef.current = board.map(row => [...row]);
     
     return {
@@ -113,7 +98,6 @@ export const OptimizedTetrisBoard = memo(({
     };
   }, [board]);
 
-  // Get ghost piece cells for rendering
   const ghostCells = useMemo(() => {
     if (!ghostPiece) return new Set();
     
@@ -124,7 +108,6 @@ export const OptimizedTetrisBoard = memo(({
     return cells;
   }, [ghostPiece]);
 
-  // Get current piece cells for rendering
   const currentPieceCells = useMemo(() => {
     if (!currentPiece) return new Set();
     
@@ -135,7 +118,6 @@ export const OptimizedTetrisBoard = memo(({
     return cells;
   }, [currentPiece]);
 
-  // Render the board with optimizations
   const boardContent = useMemo(() => {
     return board.map((row, y) => (
       <div key={y} className="flex">
@@ -144,7 +126,6 @@ export const OptimizedTetrisBoard = memo(({
           const isGhost = ghostCells.has(cellKey);
           const isCurrentPiece = currentPieceCells.has(cellKey);
           
-          // Prioritize current piece > ghost > board cell
           let displayCell = cell;
           if (isCurrentPiece && currentPiece) {
             const pieceCell = currentPiece.getCells().find(c => c.x === x && c.y === y);
@@ -170,7 +151,6 @@ export const OptimizedTetrisBoard = memo(({
 
   return (
     <div className={`relative ${className}`}>
-      {/* Performance info overlay */}
       {showPerformanceInfo && (
         <div className="absolute top-0 right-0 bg-black bg-opacity-75 text-white text-xs p-2 rounded-bl z-10">
           <div>Changed: {renderStats.changedCellCount}/{renderStats.totalCells}</div>
@@ -179,7 +159,6 @@ export const OptimizedTetrisBoard = memo(({
         </div>
       )}
       
-      {/* Board grid */}
       <div className="grid grid-cols-10 gap-px bg-gray-800 p-2 rounded-lg border-2 border-gray-600">
         {boardContent}
       </div>

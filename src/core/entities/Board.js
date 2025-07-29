@@ -65,8 +65,6 @@ export class Board {
     const newGrid = [];
     let linesCleared = 0;
     
-    // Single pass: build new grid without cleared lines
-    // O(h*w) complexity instead of O(h*w + lines_cleared*h)
     for (let y = this.height - 1; y >= 0; y--) {
       const isLineFull = this.grid[y].every(cell => cell !== null);
       
@@ -77,7 +75,6 @@ export class Board {
       }
     }
     
-    // Add empty lines at top to maintain board height
     while (newGrid.length < this.height) {
       newGrid.unshift(Array(this.width).fill(null));
     }

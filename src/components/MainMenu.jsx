@@ -209,7 +209,7 @@ export default function MainMenu({
     <div className="min-h-screen cat-bg flex items-center justify-center p-4 relative overflow-hidden">
       
       <AdvancedParticles 
-        enabled={false} // Completely disabled for better performance
+        enabled={false}
         type="mixed"
         intensity="medium"
       />

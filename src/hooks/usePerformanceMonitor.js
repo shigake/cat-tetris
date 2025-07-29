@@ -1,9 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-/**
- * Performance monitoring hook
- * Tracks FPS, memory usage, and game performance metrics
- */
 export function usePerformanceMonitor(enabled = false) {
   const [metrics, setMetrics] = useState({
     fps: 0,
@@ -18,12 +14,11 @@ export function usePerformanceMonitor(enabled = false) {
   const fpsUpdateIntervalRef = useRef(null);
   const renderStartTimeRef = useRef(0);
 
-  // FPS calculation
   const updateFPS = useCallback(() => {
     const now = performance.now();
     const delta = now - lastTimeRef.current;
     
-    if (delta >= 1000) { // Update every second
+    if (delta >= 1000) {
       const fps = Math.round((frameCountRef.current * 1000) / delta);
       const avgFrameTime = delta / frameCountRef.current;
       
@@ -38,7 +33,6 @@ export function usePerformanceMonitor(enabled = false) {
     }
   }, []);
 
-  // Memory usage monitoring
   const updateMemoryUsage = useCallback(() => {
     if (performance.memory) {
       const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
@@ -49,14 +43,12 @@ export function usePerformanceMonitor(enabled = false) {
     }
   }, []);
 
-  // Mark render start
   const markRenderStart = useCallback(() => {
     if (enabled) {
       renderStartTimeRef.current = performance.now();
     }
   }, [enabled]);
 
-  // Mark render end
   const markRenderEnd = useCallback(() => {
     if (enabled && renderStartTimeRef.current > 0) {
       const renderTime = performance.now() - renderStartTimeRef.current;
@@ -67,7 +59,6 @@ export function usePerformanceMonitor(enabled = false) {
     }
   }, [enabled]);
 
-  // Frame tick (call this every frame)
   const tick = useCallback(() => {
     if (enabled) {
       frameCountRef.current++;
@@ -75,7 +66,6 @@ export function usePerformanceMonitor(enabled = false) {
     }
   }, [enabled, updateFPS]);
 
-  // Measure game loop performance
   const measureGameLoop = useCallback((fn) => {
     if (!enabled) return fn();
     
@@ -94,7 +84,6 @@ export function usePerformanceMonitor(enabled = false) {
   useEffect(() => {
     if (!enabled) return;
 
-    // Update memory usage every 5 seconds
     const memoryInterval = setInterval(updateMemoryUsage, 5000);
 
     return () => {
@@ -102,7 +91,6 @@ export function usePerformanceMonitor(enabled = false) {
     };
   }, [enabled, updateMemoryUsage]);
 
-  // Performance warnings
   const getPerformanceWarnings = useCallback(() => {
     const warnings = [];
     

@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdvancedParticles({ 
   enabled = true, 
-  type = 'mixed', // 'mixed', 'hearts', 'stars', 'cats', 'tetris'
-  intensity = 'medium', // 'low', 'medium', 'high'
+  type = 'mixed',
+  intensity = 'medium',
   className = '' 
 }) {
   const [particles, setParticles] = useState([]);
@@ -45,8 +45,8 @@ export default function AdvancedParticles({
       emoji: getRandomParticle(),
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: 1, // Fixed size for consistency
-      duration: 6, // Longer, consistent duration
+      size: 1,
+      duration: 6,
       delay: Math.random() * 2,
       direction: Math.random() > 0.5 ? 1 : -1
     };
@@ -125,12 +125,9 @@ export default function AdvancedParticles({
         ))}
       </AnimatePresence>
 
-      {/* Special effects temporarily disabled for performance */}
     </div>
   );
 }
-
-// Specialized particle components for specific scenarios
 export function LineClearParticles({ linesCleared, onComplete }) {
   const [particles, setParticles] = useState([]);
 
@@ -209,7 +206,7 @@ export function LevelUpParticles({ show, onComplete }) {
     if (show) {
       const levelParticles = [];
       
-      // Create a burst of celebration particles
+  
       for (let i = 0; i < 40; i++) {
         levelParticles.push({
           id: i,
