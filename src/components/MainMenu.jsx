@@ -22,11 +22,11 @@ export default function MainMenu({
   const sounds = useMenuSounds();
   const music = useAmbientMusic();
 
+  // Memoize heavy calculations with fewer dependencies
   const menuOptions = useMemo(() => {
     const baseOptions = [];
 
     if (hasActiveGame) {
-      // Show continue and new game options
       baseOptions.push({
         id: 'continue',
         icon: '▶️',
@@ -35,7 +35,8 @@ export default function MainMenu({
         action: () => {
           if (soundEnabled) sounds.playGameStart();
           if (musicEnabled) music.stopAmbientMusic();
-          setTimeout(() => onStartGame(), 300);
+          // Remove setTimeout for immediate response
+          onStartGame();
         },
         gradient: 'from-emerald-500 to-green-600',
         hoverGradient: 'from-emerald-400 to-green-500',
@@ -51,14 +52,14 @@ export default function MainMenu({
         action: () => {
           if (soundEnabled) sounds.playGameStart();
           if (musicEnabled) music.stopAmbientMusic();
-          setTimeout(() => onNewGame(), 300);
+          // Remove setTimeout for immediate response
+          onNewGame();
         },
         gradient: 'from-blue-500 to-indigo-600',
         hoverGradient: 'from-blue-400 to-indigo-500',
         glow: 'shadow-blue-500/25'
       });
     } else {
-      // Show play option
       baseOptions.push({
         id: 'play',
         icon: '🎮',
@@ -67,7 +68,8 @@ export default function MainMenu({
         action: () => {
           if (soundEnabled) sounds.playGameStart();
           if (musicEnabled) music.stopAmbientMusic();
-          setTimeout(() => onStartGame(), 300);
+          // Remove setTimeout for immediate response
+          onStartGame();
         },
         gradient: 'from-green-500 to-emerald-600',
         hoverGradient: 'from-green-400 to-emerald-500',
@@ -79,10 +81,10 @@ export default function MainMenu({
     // Add other options
     baseOptions.push(
       {
-        id: 'stats',
+        id: 'statistics',
         icon: '📊',
         title: 'Estatísticas',
-        subtitle: 'Ver recordes e conquistas',
+        subtitle: 'Ver estatísticas de jogo',
         action: () => {
           if (soundEnabled) sounds.playMenuSelect();
           onShowStatistics();
@@ -111,95 +113,75 @@ export default function MainMenu({
         id: 'install',
         icon: '📱',
         title: 'Instalar App',
-        subtitle: 'Jogar offline como app nativo',
+        subtitle: 'Instalar como aplicativo',
         action: () => {
-          if (soundEnabled) sounds.playPWAInstall();
+          if (soundEnabled) sounds.playMenuSelect();
           onShowInstallPrompt();
         },
-        gradient: 'from-orange-500 to-red-600',
-        hoverGradient: 'from-orange-400 to-red-500',
-        glow: 'shadow-orange-500/25'
+        gradient: 'from-indigo-500 to-purple-600',
+        hoverGradient: 'from-indigo-400 to-purple-500',
+        glow: 'shadow-indigo-500/25'
       });
     }
 
     return baseOptions;
-  }, [
-    hasActiveGame, 
-    gameState?.score?.level, 
-    gameState?.score?.points, 
-    canInstallPWA,
-    soundEnabled,
-    musicEnabled,
-    sounds,
-    music,
-    onStartGame,
-    onNewGame,
-    onShowStatistics,
-    onShowSettings,
-    onShowInstallPrompt
-  ]);
+  }, [hasActiveGame, canInstallPWA, gameState?.score?.level, gameState?.score?.points]);
 
+  // Simplify initial setup - no timers
   useEffect(() => {
     setMenuVisible(true);
-    let soundTimer, musicTimer;
-    
-    if (soundEnabled) {
-      soundTimer = setTimeout(() => sounds.playMenuOpen(), 500);
-    }
     if (musicEnabled) {
-      musicTimer = setTimeout(() => music.startAmbientMusic(), 1000);
+      music.startAmbientMusic();
     }
-
     return () => {
-      if (soundTimer) clearTimeout(soundTimer);
-      if (musicTimer) clearTimeout(musicTimer);
-      if (musicEnabled) music.stopAmbientMusic();
+      music.stopAmbientMusic();
     };
   }, []); // Only run once on mount
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      switch (e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          if (soundEnabled) sounds.playMenuHover();
-          setSelectedOption(prev => 
-            prev === 0 ? menuOptions.length - 1 : prev - 1
-          );
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          if (soundEnabled) sounds.playMenuHover();
-          setSelectedOption(prev => 
-            prev === menuOptions.length - 1 ? 0 : prev + 1
-          );
-          break;
-        case 'Enter':
-        case ' ':
-          e.preventDefault();
-          menuOptions[selectedOption]?.action();
-          break;
-        case 'Escape':
-          e.preventDefault();
-          if (soundEnabled) sounds.playMenuBack();
-          break;
-        case 'm':
-        case 'M':
-          e.preventDefault();
-          setMusicEnabled(!musicEnabled);
-          if (!musicEnabled) {
-            music.startAmbientMusic();
-          } else {
-            music.stopAmbientMusic();
-          }
-          if (soundEnabled) sounds.playMenuSelect();
-          break;
-      }
-    };
+  // Simplify keyboard handling with stable references
+  const handleKeyDown = useCallback((e) => {
+    switch (e.key) {
+      case 'ArrowUp':
+        e.preventDefault();
+        if (soundEnabled) sounds.playMenuHover();
+        setSelectedOption(prev => 
+          prev === 0 ? menuOptions.length - 1 : prev - 1
+        );
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        if (soundEnabled) sounds.playMenuHover();
+        setSelectedOption(prev => 
+          prev === menuOptions.length - 1 ? 0 : prev + 1
+        );
+        break;
+      case 'Enter':
+      case ' ':
+        e.preventDefault();
+        menuOptions[selectedOption]?.action();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        if (soundEnabled) sounds.playMenuBack();
+        break;
+      case 'm':
+      case 'M':
+        e.preventDefault();
+        setMusicEnabled(!musicEnabled);
+        if (!musicEnabled) {
+          music.startAmbientMusic();
+        } else {
+          music.stopAmbientMusic();
+        }
+        if (soundEnabled) sounds.playMenuSelect();
+        break;
+    }
+  }, [selectedOption, menuOptions, soundEnabled, musicEnabled, sounds, music]);
 
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, menuOptions.length, soundEnabled, musicEnabled, music, sounds]);
+  }, [handleKeyDown]);
 
   const handleOptionHover = useCallback((index) => {
     if (selectedOption !== index) {
@@ -234,7 +216,7 @@ export default function MainMenu({
     <div className="min-h-screen cat-bg flex items-center justify-center p-4 relative overflow-hidden">
       
       <AdvancedParticles 
-        enabled={false} // Disabled by default
+        enabled={false} // Completely disabled for better performance
         type="mixed"
         intensity="medium"
       />

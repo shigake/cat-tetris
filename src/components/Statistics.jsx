@@ -13,14 +13,15 @@ const Statistics = ({ stats, onClose }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }} // Faster animation
       className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.8, y: 20 }}
+        initial={{ scale: 0.9, y: 10 }} // Simpler animation
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.8, y: 20 }}
-        transition={{ type: "spring", damping: 15 }}
+        exit={{ scale: 0.9, y: 10 }}
+        transition={{ duration: 0.15, ease: "easeOut" }} // Faster, simpler
         className="bg-gray-900/95 p-6 rounded-xl border-2 border-white/20 shadow-2xl min-w-[350px] max-w-md mx-4"
         onClick={(e) => e.stopPropagation()}
       >
