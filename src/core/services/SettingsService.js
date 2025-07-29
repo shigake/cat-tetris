@@ -2,6 +2,7 @@ import { ISettingsService } from '../../interfaces/ISettingsService.js';
 
 export class SettingsService extends ISettingsService {
   constructor() {
+    super();
     this.storageKey = 'cat-tetris-settings';
     this.defaultSettings = {
       volume: 80,

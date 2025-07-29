@@ -2,6 +2,7 @@ import { IStatisticsService } from '../../interfaces/IStatisticsService.js';
 
 export class StatisticsService extends IStatisticsService {
   constructor() {
+    super();
     this.stats = {
       playTime: 0,
       piecesPlaced: 0,

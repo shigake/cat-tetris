@@ -16,9 +16,15 @@ export function registerServices(container = new DIContainer()) {
   
   container.registerSingleton('scoringService', () => new ScoringService());
   
-  container.registerSingleton('pieceFactory', () => new PieceFactory());
+  container.registerSingleton('pieceFactory', () => {
+    const factory = new PieceFactory();
+    return factory;
+  });
   
-  container.registerSingleton('movementStrategyFactory', () => new MovementStrategyFactory());
+  container.registerSingleton('movementStrategyFactory', () => {
+    const factory = new MovementStrategyFactory();
+    return factory;
+  });
   
   container.registerSingleton('keyboardInputService', () => new KeyboardInputService());
   

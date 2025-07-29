@@ -2,6 +2,7 @@ import { IKeyboardInputService } from '../../interfaces/IKeyboardInputService.js
 
 export class KeyboardInputService extends IKeyboardInputService {
   constructor() {
+    super();
     this.keyMappings = {
       'ArrowLeft': 'moveLeft',
       'ArrowRight': 'moveRight',

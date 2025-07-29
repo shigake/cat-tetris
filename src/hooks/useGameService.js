@@ -94,6 +94,14 @@ export function useGameService() {
 
   return {
     gameState,
+    movePiece,
+    rotatePiece,
+    holdPiece,
+    hardDrop,
+    pause,
+    resume,
+    restart,
+    getDropPreview,
     actions: {
       movePiece,
       rotatePiece,
