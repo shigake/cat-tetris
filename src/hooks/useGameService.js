@@ -74,45 +74,6 @@ export function useGameService() {
     }
   }, [isAIActive, endAIGame]);
 
-  // Schedule AI moves with configurable timing
-  const scheduleAIMove = useCallback((currentGameState) => {
-    console.log('🤖 Schedule AI Move called:', {
-      isAIActive,
-      hasGameState: !!currentGameState,
-      gameOver: currentGameState?.gameOver,
-      isPaused: currentGameState?.isPaused
-    });
-
-    if (!isAIActive || !currentGameState || currentGameState.gameOver || currentGameState.isPaused) {
-      console.log('🤖 AI Move scheduling blocked');
-      return;
-    }
-
-    // Clear any existing timeout
-    if (aiMoveTimeoutRef.current) {
-      clearTimeout(aiMoveTimeoutRef.current);
-    }
-
-    const delay = Math.max(100, 1000 / aiControls.speed);
-    console.log('🤖 Scheduling AI move in', delay, 'ms');
-    
-    aiMoveTimeoutRef.current = setTimeout(async () => {
-      try {
-        console.log('🤖 Making AI move...');
-        const aiMove = await makeAIMove(currentGameState);
-        
-        if (aiMove && gameServiceRef.current && !gameServiceRef.current.gameOver) {
-          console.log('🤖 AI move calculated:', aiMove);
-          executeAIMove(aiMove);
-        } else {
-          console.log('🤖 No AI move to execute');
-        }
-      } catch (error) {
-        console.error('AI Move execution error:', error);
-      }
-    }, delay);
-  }, [isAIActive, aiControls.speed, makeAIMove, executeAIMove]);
-
   // Execute AI move in the game
   const executeAIMove = useCallback((aiMove) => {
     if (!gameServiceRef.current || !aiMove) {
@@ -172,6 +133,45 @@ export function useGameService() {
       console.error('Failed to execute AI move:', error);
     }
   }, [recordAIMove]);
+
+  // Schedule AI moves with configurable timing
+  const scheduleAIMove = useCallback((currentGameState) => {
+    console.log('🤖 Schedule AI Move called:', {
+      isAIActive,
+      hasGameState: !!currentGameState,
+      gameOver: currentGameState?.gameOver,
+      isPaused: currentGameState?.isPaused
+    });
+
+    if (!isAIActive || !currentGameState || currentGameState.gameOver || currentGameState.isPaused) {
+      console.log('🤖 AI Move scheduling blocked');
+      return;
+    }
+
+    // Clear any existing timeout
+    if (aiMoveTimeoutRef.current) {
+      clearTimeout(aiMoveTimeoutRef.current);
+    }
+
+    const delay = Math.max(100, 1000 / aiControls.speed);
+    console.log('🤖 Scheduling AI move in', delay, 'ms');
+    
+    aiMoveTimeoutRef.current = setTimeout(async () => {
+      try {
+        console.log('🤖 Making AI move...');
+        const aiMove = await makeAIMove(currentGameState);
+        
+        if (aiMove && gameServiceRef.current && !gameServiceRef.current.gameOver) {
+          console.log('🤖 AI move calculated:', aiMove);
+          executeAIMove(aiMove);
+        } else {
+          console.log('🤖 No AI move to execute');
+        }
+      } catch (error) {
+        console.error('AI Move execution error:', error);
+      }
+    }, delay);
+  }, [isAIActive, aiControls.speed, makeAIMove]);
 
   useEffect(() => {
     if (!gameServiceRef.current) return;
