@@ -246,34 +246,32 @@ export default function MainMenu({
     visible: {
       opacity: 1,
       transition: {
-        duration: 1,
-        staggerChildren: 0.15
+        duration: 0.6,
+        staggerChildren: 0.1,
+        ease: "easeOut"
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.8 },
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: { 
-        duration: 0.8, 
-        ease: "easeOut",
-        type: "spring",
-        damping: 20,
-        stiffness: 100
+        duration: 0.5, 
+        ease: "easeOut"
       }
     }
   };
 
   const floatingVariants = {
     animate: {
-      y: [-15, 15, -15],
-      rotate: [-3, 3, -3],
+      y: [-8, 8, -8],
+      rotate: [-1, 1, -1],
       transition: {
-        duration: 6,
+        duration: 4,
         repeat: Infinity,
         ease: "easeInOut"
       }
@@ -282,9 +280,9 @@ export default function MainMenu({
 
   const pulseVariants = {
     animate: {
-      scale: [1, 1.05, 1],
+      scale: [1, 1.02, 1],
       transition: {
-        duration: 2,
+        duration: 3,
         repeat: Infinity,
         ease: "easeInOut"
       }
@@ -362,11 +360,14 @@ export default function MainMenu({
               onClick={option.action}
               onMouseEnter={() => handleOptionHover(index)}
               whileHover={{ 
-                scale: option.isPrimary ? 1.05 : 1.03, 
-                y: option.isPrimary ? -6 : -4,
-                rotateY: selectedOption === index ? 2 : 0
+                scale: option.isPrimary ? 1.02 : 1.01, 
+                y: -2,
+                transition: { duration: 0.2, ease: "easeOut" }
               }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ 
+                scale: 0.98,
+                transition: { duration: 0.1, ease: "easeOut" }
+              }}
               className={`
                 group relative overflow-hidden rounded-2xl p-6 text-left
                 bg-gradient-to-r ${selectedOption === index ? option.hoverGradient : option.gradient}
@@ -387,13 +388,13 @@ export default function MainMenu({
                 <motion.div
                   className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold"
                   animate={{
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, 0]
+                    scale: [1, 1.05, 1]
                   }}
                   transition={{
-                    duration: 2,
+                    duration: 3,
                     repeat: Infinity,
-                    repeatDelay: 3
+                    repeatDelay: 2,
+                    ease: "easeInOut"
                   }}
                 >
                   ⭐
@@ -402,13 +403,12 @@ export default function MainMenu({
               
               {selectedOption === index && (
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-white/20 to-white/5 rounded-2xl"
-                  animate={{
-                    opacity: [0.3, 0.6, 0.3]
-                  }}
+                  className="absolute inset-0 bg-gradient-to-r from-white/15 to-white/5 rounded-2xl"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.4 }}
                   transition={{
-                    duration: 2,
-                    repeat: Infinity
+                    duration: 0.3,
+                    ease: "easeOut"
                   }}
                 />
               )}
@@ -417,13 +417,14 @@ export default function MainMenu({
                 <motion.div 
                   className="text-4xl mr-4 transition-transform duration-300"
                   animate={selectedOption === index ? {
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 10, 0]
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, 0]
                   } : {}}
                   transition={{
-                    duration: 0.6,
+                    duration: 1.5,
                     repeat: selectedOption === index ? Infinity : 0,
-                    repeatDelay: 2
+                    repeatDelay: 2,
+                    ease: "easeInOut"
                   }}
                 >
                   {option.icon}
@@ -441,12 +442,12 @@ export default function MainMenu({
                 <motion.div 
                   className="text-white/60 group-hover:text-white transition-all duration-300"
                   animate={selectedOption === index ? {
-                    x: [0, 5, 0],
-                    scale: [1, 1.1, 1]
+                    x: [0, 3, 0]
                   } : {}}
                   transition={{
-                    duration: 1,
-                    repeat: selectedOption === index ? Infinity : 0
+                    duration: 2,
+                    repeat: selectedOption === index ? Infinity : 0,
+                    ease: "easeInOut"
                   }}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -487,8 +488,14 @@ export default function MainMenu({
                 setShowParticles(!showParticles);
                 if (soundEnabled) sounds.playMenuSelect();
               }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ 
+                scale: 1.02,
+                transition: { duration: 0.2, ease: "easeOut" }
+              }}
+              whileTap={{ 
+                scale: 0.98,
+                transition: { duration: 0.1, ease: "easeOut" }
+              }}
               className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
             >
               {showParticles ? '✨ Efeitos: ON' : '💫 Efeitos: OFF'}
@@ -547,18 +554,18 @@ export default function MainMenu({
 
         <motion.div
           variants={itemVariants}
-          className="absolute -top-20 -right-20 text-9xl opacity-5 pointer-events-none"
+          className="absolute -top-20 -right-20 text-8xl opacity-10 pointer-events-none"
           animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         >
           🎮
         </motion.div>
 
         <motion.div
           variants={itemVariants}
-          className="absolute -bottom-20 -left-20 text-7xl opacity-5 pointer-events-none"
+          className="absolute -bottom-20 -left-20 text-6xl opacity-10 pointer-events-none"
           animate={{ rotate: -360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
         >
           🐱
         </motion.div>

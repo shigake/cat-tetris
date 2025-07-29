@@ -20,10 +20,10 @@ export default function AdvancedParticles({
 
   const getParticleCount = useCallback(() => {
     switch (intensity) {
-      case 'low': return 15;
-      case 'medium': return 30;
-      case 'high': return 50;
-      default: return 30;
+      case 'low': return 8;
+      case 'medium': return 15;
+      case 'high': return 25;
+      default: return 15;
     }
   }, [intensity]);
 
@@ -45,11 +45,11 @@ export default function AdvancedParticles({
       emoji: getRandomParticle(),
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: 0.8 + Math.random() * 1.2,
-      duration: 3 + Math.random() * 4,
-      delay: Math.random() * 2,
+      size: 0.9 + Math.random() * 0.6, // Reduced size variation
+      duration: 4 + Math.random() * 2, // Shorter, more consistent duration
+      delay: Math.random() * 1, // Reduced delay
       direction: Math.random() > 0.5 ? 1 : -1,
-      rotationSpeed: 0.5 + Math.random() * 1.5
+      rotationSpeed: 0.3 + Math.random() * 0.4 // Slower rotation
     };
   }, [particleId, getRandomParticle]);
 
@@ -105,18 +105,17 @@ export default function AdvancedParticles({
               y: 0
             }}
             animate={{
-              opacity: [0, 0.8, 0.6, 0],
-              scale: [0, 1, 1.2, 0.8, 0],
-              rotate: [0, particle.direction * 360 * particle.rotationSpeed],
-              y: [-20, -40, -60, -80],
-              x: [0, particle.direction * 10, particle.direction * 20, particle.direction * 15]
+              opacity: [0, 0.7, 0],
+              scale: [0, 1, 0],
+              y: [0, -60],
+              x: [0, particle.direction * 15]
             }}
             transition={{
               duration: particle.duration,
               delay: particle.delay,
               ease: "easeOut",
               repeat: Infinity,
-              repeatDelay: 1 + Math.random() * 3
+              repeatDelay: 2 + Math.random() * 2
             }}
             onAnimationComplete={() => {
               if (Math.random() > 0.7) {
