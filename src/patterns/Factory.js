@@ -6,43 +6,100 @@ import { RightMovementStrategy } from './strategies/RightMovementStrategy.js';
 import { DownMovementStrategy } from './strategies/DownMovementStrategy.js';
 import { RotateMovementStrategy } from './strategies/RotateMovementStrategy.js';
 import { HardDropMovementStrategy } from './strategies/HardDropMovementStrategy.js';
+import { PieceBuilder } from './builder/PieceBuilder.js';
 
 export class PieceFactory extends IPieceFactory {
-  static createPiece(type, position = { x: 3, y: 0 }) {
-    const config = PIECES[type];
+  constructor() {
+    super();
+    this.pieceConfigs = PIECES;
+  }
+
+  createPiece(type, position = { x: 3, y: 0 }) {
+    const config = this.pieceConfigs[type];
     if (!config) {
       throw new Error(`Tipo de peça inválido: ${type}`);
     }
 
-    return {
-      type,
-      shape: config.shape,
-      color: config.color,
-      emoji: config.emoji,
-      name: config.name,
-      position: { ...position }
-    };
+    return new PieceBuilder()
+      .setType(type)
+      .setShape(config.shape)
+      .setColor(config.color)
+      .setEmoji(config.emoji)
+      .setPosition(position.x, position.y)
+      .build();
   }
 
-  static createRandomPiece() {
-    return originalGenerateRandomPiece();
+  createRandomPiece() {
+    const pieceData = originalGenerateRandomPiece();
+    return new PieceBuilder()
+      .setType(pieceData.type)
+      .setShape(pieceData.shape)
+      .setColor(pieceData.color)
+      .setEmoji(pieceData.emoji)
+      .setPosition(pieceData.position.x, pieceData.position.y)
+      .build();
   }
 
-  static createNextPieces(count = 3) {
-    return originalGenerateNextPieces(count);
+  createNextPieces(count = 3) {
+    const piecesData = originalGenerateNextPieces(count);
+    return piecesData.map(pieceData => 
+      new PieceBuilder()
+        .setType(pieceData.type)
+        .setShape(pieceData.shape)
+        .setColor(pieceData.color)
+        .setEmoji(pieceData.emoji)
+        .setPosition(pieceData.position.x, pieceData.position.y)
+        .build()
+    );
+  }
+
+  registerPieceType(type, config) {
+    this.pieceConfigs[type] = config;
+  }
+
+  getPieceTypes() {
+    return Object.keys(this.pieceConfigs);
   }
 }
 
 export class MovementStrategyFactory {
-  static createStrategy(type) {
-    const strategies = {
-      left: new LeftMovementStrategy(),
-      right: new RightMovementStrategy(),
-      down: new DownMovementStrategy(),
-      rotate: new RotateMovementStrategy(),
-      hardDrop: new HardDropMovementStrategy()
-    };
+  constructor() {
+    this.strategies = new Map();
+    this.registerDefaultStrategies();
+  }
 
-    return strategies[type] || strategies.down;
+  registerDefaultStrategies() {
+    this.strategies.set('left', () => new LeftMovementStrategy());
+    this.strategies.set('right', () => new RightMovementStrategy());
+    this.strategies.set('down', () => new DownMovementStrategy());
+    this.strategies.set('rotate', () => new RotateMovementStrategy());
+    this.strategies.set('hardDrop', () => new HardDropMovementStrategy());
+  }
+
+  createStrategy(type) {
+    const strategyFactory = this.strategies.get(type);
+    if (!strategyFactory) {
+      throw new Error(`Strategy type '${type}' not found`);
+    }
+    return strategyFactory();
+  }
+
+  registerStrategy(type, strategyFactory) {
+    if (typeof strategyFactory !== 'function') {
+      throw new Error('Strategy factory must be a function');
+    }
+    this.strategies.set(type, strategyFactory);
+  }
+
+  unregisterStrategy(type) {
+    this.strategies.delete(type);
+  }
+
+  getAvailableStrategies() {
+    return Array.from(this.strategies.keys());
+  }
+
+  hasStrategy(type) {
+    return this.strategies.has(type);
   }
 } 

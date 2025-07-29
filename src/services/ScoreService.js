@@ -1,21 +1,12 @@
-export class ScoreService {
+class ScoreService {
   constructor() {
-    this.highScoreKey = 'catTetrisHighScore';
-  }
-
-  calculateScore(linesCleared, level, combo = 0) {
-    const basePoints = [0, 100, 300, 500, 800];
-    const points = basePoints[linesCleared] || 0;
-    const levelMultiplier = level;
-    const comboBonus = combo * 50;
-    
-    return (points * levelMultiplier) + comboBonus;
+    this.HIGH_SCORE_KEY = 'tetris_high_score';
   }
 
   getHighScore() {
     try {
-      const saved = localStorage.getItem('cat-tetris-high-score');
-      return saved ? parseInt(saved) : 0;
+      const stored = localStorage.getItem(this.HIGH_SCORE_KEY);
+      return stored ? parseInt(stored, 10) : 0;
     } catch (error) {
       return 0;
     }
@@ -23,9 +14,9 @@ export class ScoreService {
 
   saveHighScore(score) {
     try {
-      const currentHigh = this.getHighScore();
-      if (score > currentHigh) {
-        localStorage.setItem('cat-tetris-high-score', score.toString());
+      const currentHighScore = this.getHighScore();
+      if (score > currentHighScore) {
+        localStorage.setItem(this.HIGH_SCORE_KEY, score.toString());
         return true;
       }
       return false;
@@ -34,16 +25,12 @@ export class ScoreService {
     }
   }
 
-  isNewRecord(score) {
-    return score > this.getHighScore();
-  }
-
-  getLevel(score) {
-    return Math.floor(score / 1000) + 1;
-  }
-
-  getDropTime(level) {
-    return Math.max(50, 1000 - (level - 1) * 100);
+  clearHighScore() {
+    try {
+      localStorage.removeItem(this.HIGH_SCORE_KEY);
+    } catch (error) {
+      // Silent fail
+    }
   }
 }
 

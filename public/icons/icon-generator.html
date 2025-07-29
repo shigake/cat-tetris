@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cat Tetris Icon Generator</title>
+</head>
+<body>
+    <h1>Cat Tetris PWA Icon Generator</h1>
+    <canvas id="canvas" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="downloadIcons()">Download All Icons</button>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function createIcon(size) {
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Cat emoji
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🐱', size/2, size/2);
+            
+            // Tetris blocks decoration
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            const blockSize = size * 0.08;
+            
+            // Top blocks
+            ctx.fillRect(size * 0.1, size * 0.1, blockSize, blockSize);
+            ctx.fillRect(size * 0.2, size * 0.1, blockSize, blockSize);
+            ctx.fillRect(size * 0.8, size * 0.1, blockSize, blockSize);
+            
+            // Bottom blocks  
+            ctx.fillRect(size * 0.1, size * 0.8, blockSize, blockSize);
+            ctx.fillRect(size * 0.8, size * 0.8, blockSize, blockSize);
+            ctx.fillRect(size * 0.9, size * 0.8, blockSize, blockSize);
+        }
+        
+        function downloadIcon(size) {
+            createIcon(size);
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadIcons() {
+            const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+            sizes.forEach((size, index) => {
+                setTimeout(() => downloadIcon(size), index * 500);
+            });
+        }
+        
+        // Show initial 512x512 icon
+        createIcon(512);
+    </script>
+</body>
+</html> 

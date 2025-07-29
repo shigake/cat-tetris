@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const GameOverScreen = ({ score, onRestart }) => {
+const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
   const getMotivationalMessage = (score) => {
     if (score < 1000) return "Não desista! Cada tentativa te torna melhor! 😸";
     if (score < 5000) return "Bom trabalho! Continue praticando! 😺";
@@ -72,19 +72,23 @@ const GameOverScreen = ({ score, onRestart }) => {
             transition={{ delay: 0.6 }}
             className="space-y-3"
           >
-            <button
+            <motion.button
               onClick={onRestart}
-              className="w-full bg-gradient-to-r from-cat-pink to-cat-purple text-white font-bold py-3 px-6 rounded-lg hover:from-cat-purple hover:to-cat-pink transition-all duration-300 transform hover:scale-105 shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300 shadow-lg"
             >
               🎮 Jogar Novamente
-            </button>
+            </motion.button>
             
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-gray-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
+            <motion.button
+              onClick={onBackToMenu}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-400 hover:to-cyan-500 transition-all duration-300 shadow-lg"
             >
-              🔄 Reiniciar Jogo
-            </button>
+              🏠 Voltar ao Menu
+            </motion.button>
           </motion.div>
           
           <motion.div

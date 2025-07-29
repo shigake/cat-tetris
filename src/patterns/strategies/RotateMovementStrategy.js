@@ -1,4 +1,5 @@
 import { BaseMovementStrategy } from './BaseMovementStrategy.js';
+import { GameConfig } from '../../config/GameConfig.js';
 
 export class RotateMovementStrategy extends BaseMovementStrategy {
   execute(piece, board) {
@@ -11,16 +12,10 @@ export class RotateMovementStrategy extends BaseMovementStrategy {
     
     if (this.isValidMove(rotated, board, rotated.position)) {
       isTSpin = this.detectTSpin(rotated, board);
-      return { ...rotated, isTSpin };
+      return rotated.setTSpin(isTSpin);
     }
 
-    const kicks = [
-      { x: -1, y: 0 },
-      { x: 1, y: 0 },
-      { x: 0, y: -1 },
-      { x: -1, y: -1 },
-      { x: 1, y: -1 }
-    ];
+    const kicks = GameConfig.KICK_OFFSETS;
 
     for (const kick of kicks) {
       const kickedPosition = {
@@ -29,9 +24,9 @@ export class RotateMovementStrategy extends BaseMovementStrategy {
       };
       
       if (this.isValidMove(rotated, board, kickedPosition)) {
-        const kickedPiece = { ...rotated, position: kickedPosition };
+        const kickedPiece = rotated.move(kick.x, kick.y);
         isTSpin = this.detectTSpin(kickedPiece, board);
-        return { ...kickedPiece, isTSpin };
+        return kickedPiece.setTSpin(isTSpin);
       }
     }
 
@@ -43,7 +38,8 @@ export class RotateMovementStrategy extends BaseMovementStrategy {
 
     const corners = this.getCornerPositions(piece);
     const filledCorners = corners.filter(corner => 
-      corner.x < 0 || corner.x >= 10 || corner.y < 0 || corner.y >= 20 || 
+      corner.x < 0 || corner.x >= GameConfig.BOARD_WIDTH || 
+      corner.y < 0 || corner.y >= GameConfig.BOARD_HEIGHT || 
       (board[corner.y] && board[corner.y][corner.x])
     );
 
@@ -70,9 +66,6 @@ export class RotateMovementStrategy extends BaseMovementStrategy {
       return piece;
     }
 
-    const rotated = piece.shape[0].map((_, index) =>
-      piece.shape.map(row => row[index]).reverse()
-    );
-    return { ...piece, shape: rotated };
+    return piece.rotate();
   }
 } 
