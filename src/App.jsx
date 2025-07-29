@@ -36,14 +36,9 @@ function GameScreen({
   gameState, 
   actions, 
   onShowStats, 
-  onShowSettings, 
   onBackToMenu,
   showStats,
-  showSettings,
   setShowStats,
-  setShowSettings,
-  handleSettingsChange,
-  settings,
   statistics
 }) {
   return (
@@ -72,7 +67,15 @@ function GameScreen({
           </h1>
           <p className="text-white/80 text-lg">Jogue com seus amigos felinos!</p>
           
-          <div className="flex justify-center gap-4 mt-4">
+          <div className="flex gap-4 mb-6">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onBackToMenu}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+            >
+              🏠 Menu
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -80,14 +83,6 @@ function GameScreen({
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
               📊 Estatísticas
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onShowSettings}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              ⚙️ Configurações
             </motion.button>
           </div>
         </div>
@@ -185,19 +180,6 @@ function GameScreen({
               <Statistics 
                 stats={statistics || {}}
                 onClose={() => setShowStats(false)}
-              />
-            </Suspense>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showSettings && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <SettingsMenu 
-                isOpen={true}
-                settings={settings || {}}
-                onSettingsChange={handleSettingsChange}
-                onClose={() => setShowSettings(false)}
               />
             </Suspense>
           )}
@@ -370,14 +352,9 @@ function GameComponent() {
       gameState={gameState}
       actions={actions}
       onShowStats={handleShowStats}
-      onShowSettings={handleShowSettings}
       onBackToMenu={handleBackToMenu}
       showStats={showStats}
-      showSettings={showSettings}
       setShowStats={setShowStats}
-      setShowSettings={setShowSettings}
-      handleSettingsChange={handleSettingsChange}
-      settings={settings}
       statistics={statistics}
     />
   );
