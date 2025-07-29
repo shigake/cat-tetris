@@ -62,22 +62,28 @@ export class Board {
   }
 
   clearLines() {
-    const linesToClear = [];
+    const newGrid = [];
+    let linesCleared = 0;
     
-    for (let y = 0; y < this.height; y++) {
-      if (this.grid[y].every(cell => cell !== null)) {
-        linesToClear.push(y);
+    // Single pass: build new grid without cleared lines
+    // O(h*w) complexity instead of O(h*w + lines_cleared*h)
+    for (let y = this.height - 1; y >= 0; y--) {
+      const isLineFull = this.grid[y].every(cell => cell !== null);
+      
+      if (!isLineFull) {
+        newGrid.unshift(this.grid[y]);
+      } else {
+        linesCleared++;
       }
     }
-
-    if (linesToClear.length > 0) {
-      linesToClear.forEach(lineY => {
-        this.grid.splice(lineY, 1);
-        this.grid.unshift(Array(this.width).fill(null));
-      });
+    
+    // Add empty lines at top to maintain board height
+    while (newGrid.length < this.height) {
+      newGrid.unshift(Array(this.width).fill(null));
     }
-
-    return linesToClear.length;
+    
+    this.grid = newGrid;
+    return linesCleared;
   }
 
   getFilledRows() {
