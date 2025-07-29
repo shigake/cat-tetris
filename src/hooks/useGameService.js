@@ -1,7 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { GameService } from '../core/services/GameService.js';
-import { LocalStorageRepository } from '../core/repositories/LocalStorageRepository.js';
-import { PieceFactory, MovementStrategyFactory } from '../patterns/Factory.js';
+import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
 
 export function useGameService() {
@@ -15,36 +13,35 @@ export function useGameService() {
     if (initializedRef.current) return;
     initializedRef.current = true;
 
-    const repository = new LocalStorageRepository();
-    const gameService = new GameService(
-      PieceFactory,
-      MovementStrategyFactory,
-      repository
-    );
-    
-    gameServiceRef.current = gameService;
-    gameService.initializeGame();
-    setGameState(gameService.getGameState());
+    try {
+      const gameService = serviceContainer.resolve('gameService');
+      gameServiceRef.current = gameService;
+      gameService.initializeGame();
+      setGameState(gameService.getGameState());
 
-    const handleGameStateUpdate = () => {
-      if (gameServiceRef.current) {
-        const newState = gameServiceRef.current.getGameState();
-        setGameState(newState);
-      }
-    };
+      const handleGameStateUpdate = () => {
+        if (gameServiceRef.current) {
+          const newState = gameServiceRef.current.getGameState();
+          setGameState(newState);
+        }
+      };
 
-    Object.values(GAME_EVENTS).forEach(event => {
-      gameEvents.on(event, handleGameStateUpdate);
-    });
-
-    return () => {
       Object.values(GAME_EVENTS).forEach(event => {
-        gameEvents.off(event, handleGameStateUpdate);
+        gameEvents.on(event, handleGameStateUpdate);
       });
-      if (gameLoopRef.current) {
-        cancelAnimationFrame(gameLoopRef.current);
-      }
-    };
+
+      return () => {
+        Object.values(GAME_EVENTS).forEach(event => {
+          gameEvents.off(event, handleGameStateUpdate);
+        });
+        if (gameLoopRef.current) {
+          cancelAnimationFrame(gameLoopRef.current);
+        }
+      };
+    } catch (error) {
+      console.error('Failed to initialize game service:', error);
+      throw error;
+    }
   }, []);
 
   useEffect(() => {
@@ -74,64 +71,38 @@ export function useGameService() {
     };
   }, []);
 
-  const movePiece = useCallback((direction) => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.movePiece(direction);
-    }
+  const createGameAction = useCallback((actionName) => {
+    return (...args) => {
+      if (gameServiceRef.current && typeof gameServiceRef.current[actionName] === 'function') {
+        try {
+          return gameServiceRef.current[actionName](...args);
+        } catch (error) {
+          console.error(`Error executing ${actionName}:`, error);
+        }
+      }
+    };
   }, []);
 
-  const rotatePiece = useCallback(() => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.rotatePiece();
-    }
-  }, []);
-
-  const holdPiece = useCallback(() => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.holdPiece();
-    }
-  }, []);
-
-  const hardDrop = useCallback(() => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.hardDrop();
-    }
-  }, []);
-
-  const pause = useCallback(() => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.pause();
-    }
-  }, []);
-
-  const resume = useCallback(() => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.resume();
-    }
-  }, []);
-
-  const restart = useCallback(() => {
-    if (gameServiceRef.current) {
-      gameServiceRef.current.restart();
-    }
-  }, []);
-
-  const getDropPreview = useCallback(() => {
-    if (gameServiceRef.current) {
-      return gameServiceRef.current.getDropPreview();
-    }
-    return null;
-  }, []);
+  const movePiece = useCallback(createGameAction('movePiece'), [createGameAction]);
+  const rotatePiece = useCallback(createGameAction('rotatePiece'), [createGameAction]);
+  const holdPiece = useCallback(createGameAction('holdPiece'), [createGameAction]);
+  const hardDrop = useCallback(createGameAction('hardDrop'), [createGameAction]);
+  const pause = useCallback(createGameAction('pause'), [createGameAction]);
+  const resume = useCallback(createGameAction('resume'), [createGameAction]);
+  const restart = useCallback(createGameAction('restart'), [createGameAction]);
+  const getDropPreview = useCallback(createGameAction('getDropPreview'), [createGameAction]);
 
   return {
     gameState,
-    movePiece,
-    rotatePiece,
-    holdPiece,
-    hardDrop,
-    pause,
-    resume,
-    restart,
-    getDropPreview
+    actions: {
+      movePiece,
+      rotatePiece,
+      holdPiece,
+      hardDrop,
+      pause,
+      resume,
+      restart,
+      getDropPreview
+    }
   };
 } 

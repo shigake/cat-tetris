@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TetrisBoard from './components/TetrisBoard';
 import Scoreboard from './components/Scoreboard';
@@ -10,113 +10,29 @@ import Statistics from './components/Statistics';
 import SettingsMenu from './components/SettingsMenu';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useGameService } from './hooks/useGameService';
+import { useSettings } from './hooks/useSettings';
+import { useStatistics } from './hooks/useStatistics';
+import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 
 function GameComponent() {
-  const { 
-    gameState, 
-    movePiece, 
-    rotatePiece, 
-    hardDrop, 
-    holdPiece, 
-    pause, 
-    resume, 
-    restart, 
-    getDropPreview 
-  } = useGameService();
+  const { gameState, actions } = useGameService();
+  const { settings, updateSettings } = useSettings();
+  const { statistics } = useStatistics();
   
   useSoundManager();
+  useKeyboardInput(actions, gameState);
   
   const [showStats, setShowStats] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState({
-    volume: 80,
-    gameSpeed: 'normal',
-    soundEnabled: true,
-    particlesEnabled: true
-  });
 
-  const [stats, setStats] = useState({
-    playTime: 0,
-    piecesPlaced: 0,
-    linesCleared: 0,
-    tSpins: 0,
-    backToBack: 0,
-    maxCombo: 0,
-    tetrisCount: 0,
-    linesPerSecond: 0
-  });
-
-  useEffect(() => {
-    if (gameState?.isPlaying && !gameState?.gameOver && !gameState?.isPaused) {
-      const timer = setInterval(() => {
-        setStats(prev => ({
-          ...prev,
-          playTime: prev.playTime + 1
-        }));
-      }, 1000);
-      return () => clearInterval(timer);
+  const handleSettingsChange = async (newSettings) => {
+    try {
+      await updateSettings(newSettings);
+    } catch (error) {
+      console.error('Failed to update settings:', error);
     }
-  }, [gameState?.isPlaying, gameState?.gameOver, gameState?.isPaused]);
-
-  const handleSettingsChange = (newSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem('cat-tetris-settings', JSON.stringify(newSettings));
   };
-
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('cat-tetris-settings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (
-        ['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' ', 'Space'].includes(event.key)
-      ) {
-        event.preventDefault();
-      }
-
-      if (gameState?.gameOver) return;
-
-      switch (event.key) {
-        case 'ArrowLeft':
-          movePiece('left');
-          break;
-        case 'ArrowRight':
-          movePiece('right');
-          break;
-        case 'ArrowDown':
-          movePiece('down');
-          break;
-        case 'ArrowUp':
-          rotatePiece();
-          break;
-        case ' ':
-        case 'Space':
-          hardDrop();
-          break;
-        case 'Shift':
-          holdPiece();
-          break;
-        case 'p':
-        case 'P':
-          if (gameState?.isPaused) {
-            resume();
-          } else {
-            pause();
-          }
-          break;
-        default:
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [movePiece, rotatePiece, hardDrop, holdPiece, pause, resume, gameState]);
 
   if (!gameState) {
     return (
@@ -175,16 +91,16 @@ function GameComponent() {
               <TetrisBoard 
                 board={gameState.board} 
                 currentPiece={gameState.currentPiece}
-                dropPreview={getDropPreview()}
+                dropPreview={actions.getDropPreview()}
                 gameOver={gameState.gameOver}
               />
               
               <Controls 
-                onMove={movePiece}
-                onRotate={rotatePiece}
-                onHardDrop={hardDrop}
-                onPause={gameState.isPaused ? resume : pause}
-                onHold={holdPiece}
+                onMove={actions.movePiece}
+                onRotate={actions.rotatePiece}
+                onHardDrop={actions.hardDrop}
+                onPause={gameState.isPaused ? actions.resume : actions.pause}
+                onHold={actions.holdPiece}
                 isPaused={gameState.isPaused}
                 gameOver={gameState.gameOver}
                 canHold={gameState.canHold}
@@ -201,44 +117,39 @@ function GameComponent() {
             </div>
           </div>
 
-          <div className="lg:hidden flex flex-col gap-6 items-center">
-            <div className="flex flex-col items-center">
-              <TetrisBoard 
-                board={gameState.board} 
-                currentPiece={gameState.currentPiece}
-                dropPreview={getDropPreview()}
-                gameOver={gameState.gameOver}
-              />
-              
-              <Controls 
-                onMove={movePiece}
-                onRotate={rotatePiece}
-                onHardDrop={hardDrop}
-                onPause={gameState.isPaused ? resume : pause}
-                onHold={holdPiece}
-                isPaused={gameState.isPaused}
-                gameOver={gameState.gameOver}
+          <div className="flex lg:hidden flex-col gap-4 w-full max-w-md">
+            <div className="flex gap-4">
+              <HeldPiece 
+                heldPiece={gameState.heldPiece}
                 canHold={gameState.canHold}
               />
+              <NextPieces pieces={gameState.nextPieces} />
             </div>
-
-            <div className="flex flex-row gap-3 justify-center max-w-full overflow-x-auto">
-              <Scoreboard 
-                score={gameState.score.points}
-                level={gameState.score.level}
-                lines={gameState.score.lines}
-                combo={gameState.score.combo}
-              />
-              
-              <div className="flex flex-col gap-3">
-                <HeldPiece 
-                  heldPiece={gameState.heldPiece}
-                  canHold={gameState.canHold}
-                />
-                
-                <NextPieces pieces={gameState.nextPieces} />
-              </div>
-            </div>
+            
+            <TetrisBoard 
+              board={gameState.board} 
+              currentPiece={gameState.currentPiece}
+              dropPreview={actions.getDropPreview()}
+              gameOver={gameState.gameOver}
+            />
+            
+            <Scoreboard 
+              score={gameState.score.points}
+              level={gameState.score.level}
+              lines={gameState.score.lines}
+              combo={gameState.score.combo}
+            />
+            
+            <Controls 
+              onMove={actions.movePiece}
+              onRotate={actions.rotatePiece}
+              onHardDrop={actions.hardDrop}
+              onPause={gameState.isPaused ? actions.resume : actions.pause}
+              onHold={actions.holdPiece}
+              isPaused={gameState.isPaused}
+              gameOver={gameState.gameOver}
+              canHold={gameState.canHold}
+            />
           </div>
         </div>
 
@@ -246,30 +157,29 @@ function GameComponent() {
           {gameState.gameOver && (
             <GameOverScreen 
               score={gameState.score.points}
-              onRestart={restart}
+              onRestart={actions.restart}
             />
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {showStats && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="mt-6"
-            >
-              <Statistics stats={stats} />
-            </motion.div>
+          {showStats && statistics && (
+            <Statistics 
+              stats={statistics}
+              onClose={() => setShowStats(false)}
+            />
           )}
         </AnimatePresence>
 
-        <SettingsMenu
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-          settings={settings}
-          onSettingsChange={handleSettingsChange}
-        />
+        <AnimatePresence>
+          {showSettings && settings && (
+            <SettingsMenu 
+              settings={settings}
+              onSettingsChange={handleSettingsChange}
+              onClose={() => setShowSettings(false)}
+            />
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
