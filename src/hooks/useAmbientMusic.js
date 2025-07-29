@@ -78,7 +78,7 @@ export function useAmbientMusic() {
       setTimeout(() => {
         const chordOscs = playChord([freq, freq * 1.5, freq * 2], 0, 7);
         oscillators.push(...chordOscs);
-      }, chordIndex * 8000);
+      }, index * 8000);
     });
     
     melodyFreqs.forEach((freq, i) => {
