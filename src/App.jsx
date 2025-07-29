@@ -201,13 +201,6 @@ function GameComponent() {
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
   
-  // Debug logs - temporary
-  console.log('Menu Debug:', {
-    showSettings,
-    settings: !!settings,
-    settingsData: settings
-  });
-  
   useSoundManager();
   
   const isInGame = currentScreen === 'game';
@@ -328,16 +321,14 @@ function GameComponent() {
         </AnimatePresence>
 
         <AnimatePresence>
-          {showSettings && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <SettingsMenu 
-                isOpen={true}
-                settings={settings || {}}
-                onSettingsChange={handleSettingsChange}
-                onClose={() => setShowSettings(false)}
-              />
-            </Suspense>
-          )}
+          <Suspense fallback={<LoadingSpinner />}>
+            <SettingsMenu 
+              isOpen={showSettings}
+              settings={settings || {}}
+              onSettingsChange={handleSettingsChange}
+              onClose={() => setShowSettings(false)}
+            />
+          </Suspense>
         </AnimatePresence>
 
         {showPWAPrompt && (
