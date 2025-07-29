@@ -1,5 +1,11 @@
 # 🐱 **Cat Tetris** 
 
+## 🌐 **[🎮 JOGAR AGORA - CLIQUE AQUI! 🎮](https://shigake.github.io/cat-tetris/)**
+
+> **✨ Acesse o jogo diretamente no seu navegador:** https://shigake.github.io/cat-tetris/
+
+---
+
 Um jogo de Tetris profissional com tema de gatos, desenvolvido com **React 18** e arquitetura limpa baseada em **SOLID Principles** e **Design Patterns**.
 
 ## 🎮 **Funcionalidades**
