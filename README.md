@@ -28,18 +28,21 @@ Um jogo de Tetris profissional com tema de gatos, desenvolvido com **React 18** 
 - Persistência de recordes no localStorage
 
 ### 🎵 **Sistema de Áudio**
-- Sons temáticos de miados
-- Efeitos sonoros para limpeza de linhas
-- Som de game over
-- Controle de volume configurável
+- **Música ambiente**: Sistema de áudio generativo
+- **Sons temáticos de miados**: Efeitos sonoros únicos
+- **Efeitos para limpeza de linhas**: Feedback auditivo
+- **Som de game over**: Notificação de fim de jogo
+- **Controle de volume configurável**: Ajustes personalizáveis
 
 ### ✨ **Recursos Avançados**
-- **Drop Preview**: Sombra mostrando posição final
+- **Drop Preview**: Sombra mostrando posição final (ghost piece)
 - **Hold System**: Guardar peças para uso estratégico
 - **Next Pieces**: Visualização das próximas 3 peças
-- **Estatísticas detalhadas** de jogo
-- **Configurações personalizáveis**
-- **Error Boundary** para tratamento de erros
+- **Estatísticas detalhadas**: Métricas completas de performance
+- **Configurações personalizáveis**: Ajustes de volume, velocidade e efeitos
+- **Error Boundary**: Tratamento robusto de erros
+- **PWA Support**: Instalável como app nativo
+- **Performance Monitoring**: Sistema de monitoramento em tempo real
 
 ## 🚀 **Como Executar**
 
@@ -60,7 +63,7 @@ npm install
 npm run dev
 
 # Acesse no navegador
-http://localhost:3000
+http://localhost:5173
 ```
 
 ### **Build para Produção**
@@ -89,9 +92,9 @@ Este projeto implementa uma **arquitetura limpa** e **escalável** seguindo os p
 
 ### **⚛️ React Patterns**
 - **Custom Hooks**: Lógica reutilizável e separação de responsabilidades
-- **Context API**: Gerenciamento de estado global
 - **Error Boundaries**: Tratamento robusto de erros
 - **Compound Components**: Componentização modular
+- **Memoization**: Otimização de re-renders com React.memo
 
 ## 📁 **Estrutura do Projeto**
 
@@ -99,6 +102,7 @@ Este projeto implementa uma **arquitetura limpa** e **escalável** seguindo os p
 src/
 ├── components/              # 🎨 Componentes React
 │   ├── TetrisBoard.jsx      # Tabuleiro principal
+│   ├── OptimizedTetrisBoard.jsx # Tabuleiro otimizado com diffing
 │   ├── Scoreboard.jsx       # Placar e estatísticas
 │   ├── Controls.jsx         # Controles mobile
 │   ├── GameOverScreen.jsx   # Tela de game over
@@ -106,7 +110,10 @@ src/
 │   ├── HeldPiece.jsx        # Peça guardada
 │   ├── Statistics.jsx       # Estatísticas detalhadas
 │   ├── SettingsMenu.jsx     # Menu de configurações
+│   ├── MainMenu.jsx         # Menu principal
+│   ├── PWAInstallPrompt.jsx # Prompt de instalação PWA
 │   ├── ParticleEffect.jsx   # Efeitos visuais
+│   ├── AdvancedParticles.jsx # Sistema avançado de partículas
 │   └── ErrorBoundary.jsx    # Tratamento de erros
 │
 ├── core/                    # 🎯 Lógica de negócio
@@ -145,12 +152,19 @@ src/
 │
 ├── hooks/                   # ⚛️ Custom Hooks
 │   ├── useGameService.js    # Hook principal do jogo
-│   ├── useGameEngine.js     # Motor do jogo
+│   ├── useAmbientMusic.js   # Sistema de música ambiente
+│   ├── useGameSounds.js     # Efeitos sonoros do jogo
+│   ├── useMenuSounds.js     # Sons do menu
+│   ├── useKeyboardInput.js  # Controles de teclado
+│   ├── useStatistics.js     # Estatísticas do jogo
+│   ├── useSettings.js       # Configurações do usuário
+│   ├── usePerformanceMonitor.js # Monitoramento de performance
 │   └── useSoundManager.js   # Gerenciamento de som
 │
 ├── utils/                   # 🛠️ Utilitários
 │   ├── GameLogic.js         # Lógica auxiliar
 │   ├── PieceGenerator.js    # Geração de peças
+│   ├── PiecePool.js         # Pool de objetos para performance
 │   └── soundUtils.js        # Utilitários de som
 │
 ├── config/                  # ⚙️ Configurações
@@ -161,9 +175,7 @@ src/
 │   ├── IGameState.js        # Interface de estado
 │   └── IMovementStrategy.js # Interface de estratégias
 │
-├── contexts/                # 🌐 React Context
-│   └── GameContext.jsx      # Contexto global
-│
+
 ├── services/                # 🎵 Serviços externos
 │   ├── ScoreService.js      # Serviço de pontuação
 │   └── SoundService.js      # Serviço de som
@@ -314,9 +326,12 @@ Substitua os arquivos em `public/sounds/`:
 - ✅ **60 FPS** garantidos com requestAnimationFrame
 - ✅ **Código limpo** sem console.logs ou comentários desnecessários
 - ✅ **Arquitetura escalável** com design patterns
-- ✅ **Error handling** robusto
-- ✅ **Memory efficient** com cleanup adequado
+- ✅ **Error handling** robusto com Error Boundaries
+- ✅ **Memory efficient** com object pooling e cleanup adequado
 - ✅ **Mobile optimized** com touch events
+- ✅ **Big O optimized** - Algoritmos analisados e otimizados
+- ✅ **Bundle size** - 314KB (98KB gzipped)
+- ✅ **Performance monitoring** - Métricas em tempo real disponíveis
 
 ## 📄 **Licença**
 
