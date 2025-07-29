@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TetrisBoard from './components/TetrisBoard';
 import Scoreboard from './components/Scoreboard';
@@ -6,14 +6,30 @@ import Controls from './components/Controls';
 import GameOverScreen from './components/GameOverScreen';
 import NextPieces from './components/NextPieces';
 import HeldPiece from './components/HeldPiece';
-import Statistics from './components/Statistics';
-import SettingsMenu from './components/SettingsMenu';
 import ErrorBoundary from './components/ErrorBoundary';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
+
+const Statistics = lazy(() => import('./components/Statistics'));
+const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
+
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center p-8">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        className="text-4xl"
+      >
+        🐱
+      </motion.div>
+    </div>
+  );
+}
 
 function GameComponent() {
   const { gameState, actions } = useGameService();
@@ -117,7 +133,7 @@ function GameComponent() {
             </div>
           </div>
 
-          <div className="flex lg:hidden flex-col gap-4 w-full max-w-md">
+          <div className="flex lg:hidden flex-col gap-4 w-full max-w-md" data-testid="mobile-layout">
             <div className="flex gap-4">
               <HeldPiece 
                 heldPiece={gameState.heldPiece}
@@ -164,23 +180,29 @@ function GameComponent() {
 
         <AnimatePresence>
           {showStats && statistics && (
-            <Statistics 
-              stats={statistics}
-              onClose={() => setShowStats(false)}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Statistics 
+                stats={statistics}
+                onClose={() => setShowStats(false)}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {showSettings && settings && (
-            <SettingsMenu 
-              settings={settings}
-              onSettingsChange={handleSettingsChange}
-              onClose={() => setShowSettings(false)}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              <SettingsMenu 
+                settings={settings}
+                onSettingsChange={handleSettingsChange}
+                onClose={() => setShowSettings(false)}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
       </motion.div>
+      
+      <PWAInstallPrompt />
     </div>
   );
 }
