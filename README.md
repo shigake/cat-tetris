@@ -339,10 +339,6 @@ Substitua os arquivos em `public/sounds/`:
 - ✅ **Bundle size** - 314KB (98KB gzipped)
 - ✅ **Performance monitoring** - Métricas em tempo real disponíveis
 
-## 📄 **Licença**
-
-Este projeto está licenciado sob a **MIT License** - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
 ---
 
 ## 🌟 **Créditos**
