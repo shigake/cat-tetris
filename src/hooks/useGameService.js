@@ -28,7 +28,8 @@ export function useGameService() {
 
     const handleGameStateUpdate = () => {
       if (gameServiceRef.current) {
-        setGameState(gameServiceRef.current.getGameState());
+        const newState = gameServiceRef.current.getGameState();
+        setGameState(newState);
       }
     };
 

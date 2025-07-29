@@ -99,13 +99,17 @@ export function generateRandomPiece() {
   }
   
   const pieceType = bag[bagIndex++];
+  let position = { x: 3, y: 0 };
+  if (pieceType === 'I') {
+    position = { x: 3, y: -2 };
+  }
   return {
     type: pieceType,
     shape: PIECES[pieceType].shape,
     color: PIECES[pieceType].color,
     emoji: PIECES[pieceType].emoji,
     name: PIECES[pieceType].name,
-    position: { x: 3, y: 0 }
+    position
   };
 }
 

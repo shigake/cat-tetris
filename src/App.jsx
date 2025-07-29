@@ -71,6 +71,53 @@ function GameComponent() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (
+        ['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' ', 'Space'].includes(event.key)
+      ) {
+        event.preventDefault();
+      }
+
+      if (gameState?.gameOver) return;
+
+      switch (event.key) {
+        case 'ArrowLeft':
+          movePiece('left');
+          break;
+        case 'ArrowRight':
+          movePiece('right');
+          break;
+        case 'ArrowDown':
+          movePiece('down');
+          break;
+        case 'ArrowUp':
+          rotatePiece();
+          break;
+        case ' ':
+        case 'Space':
+          hardDrop();
+          break;
+        case 'Shift':
+          holdPiece();
+          break;
+        case 'p':
+        case 'P':
+          if (gameState?.isPaused) {
+            resume();
+          } else {
+            pause();
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [movePiece, rotatePiece, hardDrop, holdPiece, pause, resume, gameState]);
+
   if (!gameState) {
     return (
       <div className="min-h-screen cat-bg flex items-center justify-center">

@@ -13,7 +13,7 @@ export class DownMovementStrategy extends BaseMovementStrategy {
       return piece;
     }
 
-    return { ...piece, position: newPosition };
+    return piece.move(0, 1);
   }
 
   getSoftDropPoints() {

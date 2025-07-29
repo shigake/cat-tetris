@@ -1,6 +1,7 @@
 {
   "name": "cat-tetris",
   "version": "1.0.0",
+  "type": "module",
   "description": "Um jogo de Tetris com tema de gatos feito em React e Tailwind CSS",
   "main": "index.js",
   "scripts": {

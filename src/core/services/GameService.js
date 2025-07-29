@@ -40,24 +40,20 @@ export class GameService extends IGameService {
     this.nextPieces = this.pieceFactory.createNextPieces(GameConfig.NEXT_PIECES_COUNT);
     this.heldPiece = null;
     this.canHold = true;
-    this.isPlaying = false;
+    this.isPlaying = true;
     this.isPaused = false;
     this.gameOver = false;
     this.lastDropTime = 0;
     this.backToBack = false;
     
     gameEvents.emit(GAME_EVENTS.GAME_INITIALIZED);
-    
-    setTimeout(() => {
-      this.isPlaying = true;
-    }, 1000);
   }
 
   movePiece(direction) {
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
     const strategy = this.movementStrategyFactory.createStrategy(direction);
-    const result = strategy.execute(this.currentPiece, this.board);
+    const result = strategy.execute(this.currentPiece, this.board.grid);
 
     if (result !== this.currentPiece) {
       this.currentPiece = result;
@@ -77,7 +73,7 @@ export class GameService extends IGameService {
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
     const strategy = this.movementStrategyFactory.createStrategy('rotate');
-    const result = strategy.execute(this.currentPiece, this.board);
+    const result = strategy.execute(this.currentPiece, this.board.grid);
 
     if (result !== this.currentPiece) {
       this.currentPiece = result;
@@ -149,13 +145,14 @@ export class GameService extends IGameService {
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
     const strategy = this.movementStrategyFactory.createStrategy('hardDrop');
-    const result = strategy.execute(this.currentPiece, this.board);
+    const result = strategy.execute(this.currentPiece, this.board.grid);
     
     this.currentPiece = result.piece;
     this.score.addPoints(result.dropDistance);
     
-    this.placePiece();
-    gameEvents.emit(GAME_EVENTS.HARD_DROP, { dropDistance: result.dropDistance });
+          this.placePiece();
+      gameEvents.emit(GAME_EVENTS.HARD_DROP, { dropDistance: result.dropDistance });
+      gameEvents.emit(GAME_EVENTS.PIECE_MOVED, { direction: 'hardDrop', piece: this.currentPiece });
   }
 
   updateGame(deltaTime) {
