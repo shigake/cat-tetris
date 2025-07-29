@@ -201,6 +201,13 @@ function GameComponent() {
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
   
+  // Debug logs - temporary
+  console.log('Menu Debug:', {
+    showSettings,
+    settings: !!settings,
+    settingsData: settings
+  });
+  
   useSoundManager();
   
   const isInGame = currentScreen === 'game';
@@ -321,10 +328,11 @@ function GameComponent() {
         </AnimatePresence>
 
         <AnimatePresence>
-          {showSettings && settings && (
+          {showSettings && (
             <Suspense fallback={<LoadingSpinner />}>
               <SettingsMenu 
-                settings={settings}
+                isOpen={true}
+                settings={settings || {}}
                 onSettingsChange={handleSettingsChange}
                 onClose={() => setShowSettings(false)}
               />
