@@ -42,7 +42,9 @@ function GameScreen({
   showSettings,
   setShowStats,
   setShowSettings,
-  handleSettingsChange 
+  handleSettingsChange,
+  settings,
+  statistics
 }) {
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4">
@@ -375,6 +377,8 @@ function GameComponent() {
       setShowStats={setShowStats}
       setShowSettings={setShowSettings}
       handleSettingsChange={handleSettingsChange}
+      settings={settings}
+      statistics={statistics}
     />
   );
 }
