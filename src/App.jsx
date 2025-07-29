@@ -7,6 +7,7 @@ import GameOverScreen from './components/GameOverScreen';
 import NextPieces from './components/NextPieces';
 import HeldPiece from './components/HeldPiece';
 import ErrorBoundary from './components/ErrorBoundary';
+import MainMenu from './components/MainMenu';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
@@ -31,41 +32,38 @@ function LoadingSpinner() {
   );
 }
 
-function GameComponent() {
-  const { gameState, actions } = useGameService();
-  const { settings, updateSettings } = useSettings();
-  const { statistics } = useStatistics();
-  
-  useSoundManager();
-  useKeyboardInput(actions, gameState);
-  
-  const [showStats, setShowStats] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-
-  const handleSettingsChange = async (newSettings) => {
-    try {
-      await updateSettings(newSettings);
-    } catch (error) {
-      console.error('Failed to update settings:', error);
-    }
-  };
-
-  if (!gameState) {
-    return (
-      <div className="min-h-screen cat-bg flex items-center justify-center">
-        <div className="text-white text-xl">Carregando...</div>
-      </div>
-    );
-  }
-
+function GameScreen({ 
+  gameState, 
+  actions, 
+  onShowStats, 
+  onShowSettings, 
+  onBackToMenu,
+  showStats,
+  showSettings,
+  setShowStats,
+  setShowSettings,
+  handleSettingsChange 
+}) {
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="game-container rounded-2xl p-6 shadow-2xl"
+        className="game-container rounded-2xl p-6 shadow-2xl relative"
       >
+        <motion.button
+          onClick={onBackToMenu}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="absolute top-4 left-4 z-10 bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors backdrop-blur-sm"
+          title="Voltar ao Menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </motion.button>
+
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-6xl font-cat font-bold text-white mb-2">
             🐱 Cat Tetris 🐱
@@ -76,7 +74,7 @@ function GameComponent() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowStats(!showStats)}
+              onClick={onShowStats}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
               📊 Estatísticas
@@ -84,7 +82,7 @@ function GameComponent() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowSettings(true)}
+              onClick={onShowSettings}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
             >
               ⚙️ Configurações
@@ -174,9 +172,130 @@ function GameComponent() {
             <GameOverScreen 
               score={gameState.score.points}
               onRestart={actions.restart}
+              onBackToMenu={onBackToMenu}
             />
           )}
         </AnimatePresence>
+
+        <AnimatePresence>
+          {showStats && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <Statistics 
+                stats={{}}
+                onClose={() => setShowStats(false)}
+              />
+            </Suspense>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showSettings && (
+            <Suspense fallback={<LoadingSpinner />}>
+              <SettingsMenu 
+                settings={{}}
+                onSettingsChange={handleSettingsChange}
+                onClose={() => setShowSettings(false)}
+              />
+            </Suspense>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
+function GameComponent() {
+  const [currentScreen, setCurrentScreen] = useState('menu'); // 'menu' | 'game'
+  const [showStats, setShowStats] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showPWAPrompt, setShowPWAPrompt] = useState(false);
+  const [canInstallPWA, setCanInstallPWA] = useState(false);
+
+  const { gameState, actions } = useGameService();
+  const { settings, updateSettings } = useSettings();
+  const { statistics } = useStatistics();
+  
+  useSoundManager();
+  
+  const isInGame = currentScreen === 'game';
+  useKeyboardInput(actions, gameState, isInGame);
+
+  React.useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setCanInstallPWA(true);
+    };
+
+    const handleAppInstalled = () => {
+      setCanInstallPWA(false);
+      setShowPWAPrompt(false);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setCanInstallPWA(false);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleSettingsChange = async (newSettings) => {
+    try {
+      await updateSettings(newSettings);
+    } catch (error) {
+      console.error('Failed to update settings:', error);
+    }
+  };
+
+  const handleStartGame = () => {
+    setCurrentScreen('game');
+    if (gameState?.gameOver) {
+      actions.restart();
+    }
+  };
+
+  const handleBackToMenu = () => {
+    setCurrentScreen('menu');
+    if (gameState && !gameState.gameOver) {
+      actions.pause();
+    }
+  };
+
+  const handleShowStats = () => {
+    if (currentScreen === 'menu') {
+      setShowStats(true);
+    } else {
+      setShowStats(!showStats);
+    }
+  };
+
+  const handleShowSettings = () => {
+    if (currentScreen === 'menu') {
+      setShowSettings(true);
+    } else {
+      setShowSettings(!showSettings);
+    }
+  };
+
+  const handleShowInstallPrompt = () => {
+    setShowPWAPrompt(true);
+  };
+
+  if (currentScreen === 'menu') {
+    return (
+      <>
+        <MainMenu
+          onStartGame={handleStartGame}
+          onShowSettings={() => setShowSettings(true)}
+          onShowStatistics={() => setShowStats(true)}
+          onShowInstallPrompt={handleShowInstallPrompt}
+          canInstallPWA={canInstallPWA}
+        />
 
         <AnimatePresence>
           {showStats && statistics && (
@@ -200,10 +319,35 @@ function GameComponent() {
             </Suspense>
           )}
         </AnimatePresence>
-      </motion.div>
-      
-      <PWAInstallPrompt />
-    </div>
+
+        {showPWAPrompt && (
+          <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} />
+        )}
+      </>
+    );
+  }
+
+  if (!gameState) {
+    return (
+      <div className="min-h-screen cat-bg flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
+
+  return (
+    <GameScreen
+      gameState={gameState}
+      actions={actions}
+      onShowStats={handleShowStats}
+      onShowSettings={handleShowSettings}
+      onBackToMenu={handleBackToMenu}
+      showStats={showStats}
+      showSettings={showSettings}
+      setShowStats={setShowStats}
+      setShowSettings={setShowSettings}
+      handleSettingsChange={handleSettingsChange}
+    />
   );
 }
 

@@ -1,9 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
-export function useKeyboardInput(gameActions, gameState) {
+export function useKeyboardInput(gameActions, gameState, isActive = true) {
   const setupKeyboardHandlers = useCallback(() => {
-    if (!gameActions) return () => {};
+    if (!gameActions || !isActive) return () => {};
 
     try {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
@@ -66,7 +66,7 @@ export function useKeyboardInput(gameActions, gameState) {
       console.error('Failed to setup keyboard handlers:', error);
       return () => {};
     }
-  }, [gameActions, gameState]);
+  }, [gameActions, gameState, isActive]);
 
   useEffect(() => {
     const cleanup = setupKeyboardHandlers();
