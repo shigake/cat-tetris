@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Statistics = ({ stats }) => {
+const Statistics = ({ stats, onClose }) => {
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -10,14 +10,31 @@ const Statistics = ({ stats }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[250px]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={onClose}
     >
-      <h2 className="text-2xl font-cat font-bold text-white mb-4 text-center">
-        📊 Estatísticas
-      </h2>
+      <motion.div
+        initial={{ scale: 0.8, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.8, y: 20 }}
+        transition={{ type: "spring", damping: 15 }}
+        className="bg-gray-900/95 p-6 rounded-xl border-2 border-white/20 shadow-2xl min-w-[350px] max-w-md mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-cat font-bold text-white">
+            📊 Estatísticas
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-white/60 hover:text-white text-xl"
+          >
+            ✕
+          </button>
+        </div>
       
       <div className="space-y-3">
         <div className="flex justify-between items-center">
@@ -76,6 +93,7 @@ const Statistics = ({ stats }) => {
           </span>
         </div>
       </div>
+    </motion.div>
     </motion.div>
   );
 };

@@ -192,6 +192,7 @@ function GameScreen({
           {showSettings && (
             <Suspense fallback={<LoadingSpinner />}>
               <SettingsMenu 
+                isOpen={true}
                 settings={settings || {}}
                 onSettingsChange={handleSettingsChange}
                 onClose={() => setShowSettings(false)}
@@ -215,16 +216,6 @@ function GameComponent() {
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
-  
-  // Debug logs - temporary
-  console.log('App Debug:', { 
-    showStats, 
-    showSettings, 
-    statistics: !!statistics, 
-    settings: !!settings,
-    statisticsData: statistics,
-    settingsData: settings
-  });
   
   useSoundManager();
   
