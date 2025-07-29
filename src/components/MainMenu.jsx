@@ -22,7 +22,6 @@ export default function MainMenu({
   const sounds = useMenuSounds();
   const music = useAmbientMusic();
 
-  // Memoize heavy calculations with fewer dependencies
   const menuOptions = useMemo(() => {
     const baseOptions = [];
 
@@ -35,7 +34,6 @@ export default function MainMenu({
         action: () => {
           if (soundEnabled) sounds.playGameStart();
           if (musicEnabled) music.stopAmbientMusic();
-          // Remove setTimeout for immediate response
           onStartGame();
         },
         gradient: 'from-emerald-500 to-green-600',
@@ -52,7 +50,6 @@ export default function MainMenu({
         action: () => {
           if (soundEnabled) sounds.playGameStart();
           if (musicEnabled) music.stopAmbientMusic();
-          // Remove setTimeout for immediate response
           onNewGame();
         },
         gradient: 'from-blue-500 to-indigo-600',
@@ -68,7 +65,6 @@ export default function MainMenu({
         action: () => {
           if (soundEnabled) sounds.playGameStart();
           if (musicEnabled) music.stopAmbientMusic();
-          // Remove setTimeout for immediate response
           onStartGame();
         },
         gradient: 'from-green-500 to-emerald-600',
@@ -78,7 +74,6 @@ export default function MainMenu({
       });
     }
 
-    // Add other options
     baseOptions.push(
       {
         id: 'statistics',
@@ -127,7 +122,6 @@ export default function MainMenu({
     return baseOptions;
   }, [hasActiveGame, canInstallPWA, gameState?.score?.level, gameState?.score?.points]);
 
-  // Simplify initial setup - no timers
   useEffect(() => {
     setMenuVisible(true);
     if (musicEnabled) {
@@ -136,9 +130,8 @@ export default function MainMenu({
     return () => {
       music.stopAmbientMusic();
     };
-  }, []); // Only run once on mount
+  }, []);
 
-  // Simplify keyboard handling with stable references
   const handleKeyDown = useCallback((e) => {
     switch (e.key) {
       case 'ArrowUp':

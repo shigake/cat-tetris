@@ -57,7 +57,6 @@ export function useGameService() {
 
       if (gameServiceRef.current) {
         const currentGameState = gameServiceRef.current.getGameState();
-        // Only update game if it's not paused and not game over
         if (!currentGameState.isPaused && !currentGameState.gameOver) {
           gameServiceRef.current.updateGame(deltaTime);
         }
@@ -82,6 +81,7 @@ export function useGameService() {
           return gameServiceRef.current[actionName](...args);
         } catch (error) {
           console.error(`Error executing ${actionName}:`, error);
+          throw error;
         }
       }
     };
@@ -89,32 +89,27 @@ export function useGameService() {
 
   const movePiece = useCallback(createGameAction('movePiece'), [createGameAction]);
   const rotatePiece = useCallback(createGameAction('rotatePiece'), [createGameAction]);
-  const holdPiece = useCallback(createGameAction('holdPiece'), [createGameAction]);
   const hardDrop = useCallback(createGameAction('hardDrop'), [createGameAction]);
+  const holdPiece = useCallback(createGameAction('holdPiece'), [createGameAction]);
+  const getDropPreview = useCallback(createGameAction('getDropPreview'), [createGameAction]);
   const pause = useCallback(createGameAction('pause'), [createGameAction]);
   const resume = useCallback(createGameAction('resume'), [createGameAction]);
   const restart = useCallback(createGameAction('restart'), [createGameAction]);
-  const getDropPreview = useCallback(createGameAction('getDropPreview'), [createGameAction]);
+  const saveGame = useCallback(createGameAction('saveGame'), [createGameAction]);
+  const loadGame = useCallback(createGameAction('loadGame'), [createGameAction]);
 
-  return {
-    gameState,
+  const actions = {
     movePiece,
     rotatePiece,
-    holdPiece,
     hardDrop,
+    holdPiece,
+    getDropPreview,
     pause,
     resume,
     restart,
-    getDropPreview,
-    actions: {
-      movePiece,
-      rotatePiece,
-      holdPiece,
-      hardDrop,
-      pause,
-      resume,
-      restart,
-      getDropPreview
-    }
+    saveGame,
+    loadGame
   };
+
+  return { gameState, actions };
 } 

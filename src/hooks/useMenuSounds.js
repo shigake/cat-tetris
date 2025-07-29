@@ -1,75 +1,75 @@
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 
 export function useMenuSounds() {
-  const audioContextRef = useRef(null);
-
-  const initAudioContext = useCallback(() => {
-    if (!audioContextRef.current) {
-      try {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      } catch (error) {
-        console.warn('Web Audio API not supported:', error);
-      }
-    }
-    return audioContextRef.current;
+  const createOscillator = useCallback((frequency, duration, type = 'sine') => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    oscillator.type = type;
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
   }, []);
 
-  const playTone = useCallback((frequency, duration = 100, volume = 0.1) => {
-    const audioContext = initAudioContext();
-    if (!audioContext) return;
-
-    try {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      oscillator.type = 'sine';
-
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
-
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + duration / 1000);
-    } catch (error) {
-      console.warn('Failed to play sound:', error);
-    }
-  }, [initAudioContext]);
-
   const playMenuHover = useCallback(() => {
-    playTone(800, 50, 0.05);
-  }, [playTone]);
+    createOscillator(523, 0.1);
+  }, [createOscillator]);
 
   const playMenuSelect = useCallback(() => {
-    playTone(1200, 100, 0.08);
-    setTimeout(() => playTone(1600, 80, 0.06), 50);
-  }, [playTone]);
+    createOscillator(659, 0.2);
+    setTimeout(() => createOscillator(784, 0.15), 50);
+  }, [createOscillator]);
 
   const playMenuBack = useCallback(() => {
-    playTone(600, 150, 0.08);
-  }, [playTone]);
+    createOscillator(440, 0.15);
+    setTimeout(() => createOscillator(330, 0.1), 80);
+  }, [createOscillator]);
 
   const playMenuOpen = useCallback(() => {
-    playTone(800, 100, 0.06);
-    setTimeout(() => playTone(1000, 100, 0.06), 80);
-    setTimeout(() => playTone(1200, 100, 0.06), 160);
-  }, [playTone]);
+    createOscillator(392, 0.1);
+    setTimeout(() => createOscillator(494, 0.1), 100);
+    setTimeout(() => createOscillator(588, 0.15), 200);
+  }, [createOscillator]);
 
   const playGameStart = useCallback(() => {
-    playTone(440, 150, 0.1);
-    setTimeout(() => playTone(554, 150, 0.1), 100);
-    setTimeout(() => playTone(659, 200, 0.1), 200);
-  }, [playTone]);
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    const playChord = (frequencies, startTime, duration = 0.3) => {
+      frequencies.forEach(freq => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+        oscillator.type = 'triangle';
+        
+        gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + startTime + duration);
+        
+        oscillator.start(audioContext.currentTime + startTime);
+        oscillator.stop(audioContext.currentTime + startTime + duration);
+      });
+    };
+
+    const notes = [523, 659, 784, 1047];
+    playChord(notes, 0, 0.5);
+  }, []);
 
   const playPWAInstall = useCallback(() => {
-    const notes = [523, 659, 784, 1047]; // C, E, G, C (major chord)
-    notes.forEach((note, index) => {
-      setTimeout(() => playTone(note, 200, 0.08), index * 100);
-    });
-  }, [playTone]);
+    createOscillator(698, 0.15);
+    setTimeout(() => createOscillator(880, 0.15), 100);
+    setTimeout(() => createOscillator(1047, 0.2), 200);
+  }, [createOscillator]);
 
   return {
     playMenuHover,
