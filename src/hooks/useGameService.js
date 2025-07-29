@@ -154,8 +154,8 @@ export function useGameService() {
 
       const deltaTime = currentTime - lastTimeRef.current;
       if (deltaTime >= 16) {
-        gameServiceRef.current.update(deltaTime);
         lastTimeRef.current = currentTime;
+        // Game logic is handled by events, no need for manual update
       }
 
       if (gameServiceRef.current.isPlaying && !gameServiceRef.current.gameOver) {
@@ -176,6 +176,10 @@ export function useGameService() {
 
   const startGame = useCallback(() => {
     if (gameServiceRef.current) {
+      // If game is over or not initialized, restart
+      if (gameServiceRef.current.gameOver || !gameServiceRef.current.isPlaying) {
+        gameServiceRef.current.restart();
+      }
       gameServiceRef.current.resume();
       
       // Initialize AI game tracking

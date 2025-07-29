@@ -9,15 +9,15 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
 
       const handleMoveLeft = () => {
-        if (!gameState?.gameOver) gameActions.movePiece('left');
+        if (!gameState?.gameOver) gameActions.movePieceLeft();
       };
 
       const handleMoveRight = () => {
-        if (!gameState?.gameOver) gameActions.movePiece('right');
+        if (!gameState?.gameOver) gameActions.movePieceRight();
       };
 
       const handleMoveDown = () => {
-        if (!gameState?.gameOver) gameActions.movePiece('down');
+        if (!gameState?.gameOver) gameActions.movePieceDown();
       };
 
       const handleRotate = () => {

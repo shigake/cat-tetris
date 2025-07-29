@@ -222,7 +222,7 @@ function GameComponent() {
   useSoundManager();
   
   const isInGame = currentScreen === 'game';
-  useKeyboardInput(actions, gameState, isInGame);
+  useKeyboardInput(actions, gameState, isInGame && !aiControls.isActive);
 
 
   React.useEffect(() => {
