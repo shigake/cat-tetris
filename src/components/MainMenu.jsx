@@ -15,9 +15,6 @@ export default function MainMenu({
   gameState
 }) {
   const [selectedOption, setSelectedOption] = useState(0);
-  const [showParticles, setShowParticles] = useState(false); // Disabled by default
-  const [particleType, setParticleType] = useState('mixed');
-  const [particleIntensity, setParticleIntensity] = useState('medium');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [musicEnabled, setMusicEnabled] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -142,15 +139,6 @@ export default function MainMenu({
     onShowInstallPrompt
   ]);
 
-  const particleThemes = useMemo(() => [
-    { name: 'Misto', value: 'mixed', icon: '🎭' },
-    { name: 'Corações', value: 'hearts', icon: '❤️' },
-    { name: 'Estrelas', value: 'stars', icon: '⭐' },
-    { name: 'Gatos', value: 'cats', icon: '🐱' },
-    { name: 'Tetris', value: 'tetris', icon: '🟩' },
-    { name: 'Magia', value: 'magic', icon: '✨' }
-  ], []);
-
   useEffect(() => {
     setMenuVisible(true);
     let soundTimer, musicTimer;
@@ -195,12 +183,6 @@ export default function MainMenu({
           e.preventDefault();
           if (soundEnabled) sounds.playMenuBack();
           break;
-        case 'p':
-        case 'P':
-          e.preventDefault();
-          setShowParticles(!showParticles);
-          if (soundEnabled) sounds.playMenuSelect();
-          break;
         case 'm':
         case 'M':
           e.preventDefault();
@@ -217,7 +199,7 @@ export default function MainMenu({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, menuOptions.length, soundEnabled, showParticles, musicEnabled, music, sounds]);
+  }, [selectedOption, menuOptions.length, soundEnabled, musicEnabled, music, sounds]);
 
   const handleOptionHover = useCallback((index) => {
     if (selectedOption !== index) {
@@ -225,21 +207,6 @@ export default function MainMenu({
       setSelectedOption(index);
     }
   }, [selectedOption, soundEnabled, sounds]);
-
-  const cycleParticleType = useCallback(() => {
-    const currentIndex = particleThemes.findIndex(theme => theme.value === particleType);
-    const nextIndex = (currentIndex + 1) % particleThemes.length;
-    setParticleType(particleThemes[nextIndex].value);
-    if (soundEnabled) sounds.playMenuSelect();
-  }, [particleThemes, particleType, soundEnabled, sounds]);
-
-  const cycleParticleIntensity = useCallback(() => {
-    const intensities = ['low', 'medium', 'high'];
-    const currentIndex = intensities.indexOf(particleIntensity);
-    const nextIndex = (currentIndex + 1) % intensities.length;
-    setParticleIntensity(intensities[nextIndex]);
-    if (soundEnabled) sounds.playMenuSelect();
-  }, [particleIntensity, soundEnabled, sounds]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -263,15 +230,13 @@ export default function MainMenu({
 
 
 
-  const currentTheme = particleThemes.find(theme => theme.value === particleType);
-
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4 relative overflow-hidden">
       
       <AdvancedParticles 
-        enabled={showParticles}
-        type={particleType}
-        intensity={particleIntensity}
+        enabled={false} // Disabled by default
+        type="mixed"
+        intensity="medium"
       />
 
       <motion.div
@@ -396,7 +361,7 @@ export default function MainMenu({
           variants={itemVariants}
           className="text-center mt-8 space-y-4"
         >
-          <div className="flex justify-center space-x-6 text-white/60 text-sm">
+          <div className="flex flex-wrap justify-center gap-6 text-xs text-white/30 mb-4">
             <span className="flex items-center gap-2">
               <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">↑↓</kbd>
               Navegar
@@ -406,42 +371,12 @@ export default function MainMenu({
               Selecionar
             </span>
             <span className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">P</kbd>
-              Partículas
-            </span>
-            <span className="flex items-center gap-2">
               <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">M</kbd>
               Música
             </span>
           </div>
 
           <div className="flex justify-center flex-wrap gap-3">
-            <button
-              onClick={() => {
-                setShowParticles(!showParticles);
-                if (soundEnabled) sounds.playMenuSelect();
-              }}
-              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
-                          >
-                {showParticles ? '✨ Efeitos: ON' : '💫 Efeitos: OFF'}
-              </button>
-
-            <button
-              onClick={cycleParticleType}
-              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
-              disabled={!showParticles}
-            >
-              {currentTheme?.icon} {currentTheme?.name}
-            </button>
-
-            <button
-              onClick={cycleParticleIntensity}
-              className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"
-              disabled={!showParticles}
-            >
-              🎚️ {particleIntensity.toUpperCase()}
-            </button>
-
             <button
               onClick={() => {
                 setSoundEnabled(!soundEnabled);
