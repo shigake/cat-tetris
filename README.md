@@ -61,10 +61,24 @@ Um jogo de Tetris divertido e fofo com tema de gatos, desenvolvido em React e Ta
 ## 🛠️ Tecnologias Utilizadas
 
 - **React 18** - Framework principal
+- **Context API + useReducer** - Gerenciamento de estado
 - **Tailwind CSS** - Estilização
 - **Framer Motion** - Animações
 - **react-use-sound** - Sistema de som
 - **Vite** - Build tool
+
+## 🏗️ Design Patterns Implementados
+
+Este projeto utiliza design patterns conhecidos do mercado para garantir código escalável e manutenível:
+
+- **🎯 State Management Pattern** - Context API + useReducer para estado global
+- **👁️ Observer Pattern** - Event emitter para comunicação entre componentes
+- **🏭 Factory Pattern** - Criação centralizada de peças e estratégias
+- **🎯 Strategy Pattern** - Algoritmos intercambiáveis para movimentos
+- **📝 Command Pattern** - Encapsulamento de ações do jogo
+- **🎣 Custom Hooks Pattern** - Lógica reutilizável e separação de responsabilidades
+
+📖 **Veja a documentação completa:** [DESIGN_PATTERNS.md](./DESIGN_PATTERNS.md)
 
 ## 📱 Responsividade
 
@@ -135,10 +149,21 @@ src/
 │   ├── Scoreboard.jsx
 │   ├── Controls.jsx
 │   ├── GameOverScreen.jsx
-│   └── NextPieces.jsx
+│   ├── NextPieces.jsx
+│   └── HeldPiece.jsx
+├── contexts/           # Gerenciamento de estado
+│   └── GameContext.jsx
+├── hooks/              # Custom hooks
+│   ├── useGameEngine.js
+│   └── useSoundManager.js
+├── patterns/           # Design patterns
+│   ├── Observer.js
+│   ├── Factory.js
+│   └── Command.js
 ├── utils/              # Lógica do jogo
 │   ├── GameLogic.js
-│   └── PieceGenerator.js
+│   ├── PieceGenerator.js
+│   └── soundUtils.js
 ├── App.jsx             # Componente principal
 ├── main.jsx           # Ponto de entrada
 └── index.css          # Estilos globais

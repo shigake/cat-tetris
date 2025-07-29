@@ -1,62 +1,82 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  margin: 0;
-  font-family: 'Fredoka', 'Comic Sans MS', cursive, sans-serif;
+  font-family: 'Fredoka', sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 .cat-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+}
+
+.cat-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: 
-    radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(135, 206, 235, 0.3) 0%, transparent 50%);
+    radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(135, 206, 235, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .game-container {
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.cat-block {
-  background: linear-gradient(45deg, var(--cat-color), var(--cat-color-light));
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.tetris-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 20px);
+  grid-template-rows: repeat(20, 20px);
+  gap: 1px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.tetris-cell {
+  width: 20px;
+  height: 20px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
   transition: all 0.2s ease;
 }
 
-.cat-block:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+.cat-block {
+  position: relative;
+  overflow: hidden;
 }
 
-@keyframes meow {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+.cat-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+  animation: shine 2s infinite;
 }
 
-.meow-animation {
-  animation: meow 0.3s ease-in-out;
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
-@keyframes line-clear {
-  0% { opacity: 1; transform: scaleY(1); }
-  50% { opacity: 0.5; transform: scaleY(0.1); }
-  100% { opacity: 0; transform: scaleY(0); }
-}
-
-.line-clear-animation {
-  animation: line-clear 0.5s ease-out;
-}
-
-/* Scrollbar personalizada */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -67,30 +87,24 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 182, 193, 0.8);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 182, 193, 1);
+  background: rgba(255, 255, 255, 0.5);
 }
 
-/* Grid do Tetris */
-.tetris-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 24px);
-  grid-template-rows: repeat(20, 24px);
-  gap: 0;
-  width: 240px;
-  height: 480px;
-  padding: 0;
-  margin: 0;
-}
-
-.tetris-cell {
-  width: 24px;
-  height: 24px;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@media (max-width: 768px) {
+  .tetris-grid {
+    grid-template-columns: repeat(10, 18px);
+    grid-template-rows: repeat(20, 18px);
+    gap: 1px;
+  }
+  
+  .tetris-cell {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
 } 

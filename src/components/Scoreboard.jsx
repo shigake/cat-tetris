@@ -1,110 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { scoreService } from '../services/ScoreService';
 
 const Scoreboard = ({ score, level, lines, combo }) => {
   const [highScore, setHighScore] = useState(0);
 
-  // Carregar recorde do localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('cat-tetris-highscore');
-    if (saved) {
-      setHighScore(parseInt(saved));
-    }
+    setHighScore(scoreService.getHighScore());
   }, []);
 
-  // Salvar recorde quando necessário
   useEffect(() => {
-    if (score > highScore) {
+    if (scoreService.saveHighScore(score)) {
       setHighScore(score);
-      localStorage.setItem('cat-tetris-highscore', score.toString());
     }
-  }, [score, highScore]);
-
-  const formatNumber = (num) => {
-    return num.toString().padStart(6, '0');
-  };
+  }, [score]);
 
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="bg-white/10 backdrop-blur-sm rounded-xl p-3 lg:p-4 border border-white/20"
+      transition={{ duration: 0.5 }}
+      className="bg-gray-900/50 p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[200px]"
     >
-      <h2 className="text-lg lg:text-xl font-cat font-bold text-white mb-3 lg:mb-4 text-center">
+      <h2 className="text-2xl font-cat font-bold text-white mb-4 text-center">
         📊 Pontuação
       </h2>
       
-      <div className="space-y-2 lg:space-y-3">
-        {/* Pontuação Atual */}
-        <div className="bg-gradient-to-r from-cat-pink to-cat-purple rounded-lg p-3">
-          <div className="text-sm text-white/80">Pontuação</div>
-          <motion.div
-            key={score}
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            className="text-2xl font-bold text-white font-mono"
-          >
-            {formatNumber(score)}
-          </motion.div>
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <span className="text-white/80">Pontos:</span>
+          <span className="text-yellow-400 font-bold text-lg">
+            {score.toLocaleString()}
+          </span>
         </div>
-
-        {/* Recorde */}
-        <div className="bg-gradient-to-r from-cat-yellow to-cat-orange rounded-lg p-3">
-          <div className="text-sm text-white/80">Recorde</div>
-          <div className="text-xl font-bold text-white font-mono">
-            {formatNumber(highScore)}
-          </div>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-white/80">Recorde:</span>
+          <span className="text-green-400 font-bold text-lg">
+            {highScore.toLocaleString()}
+          </span>
         </div>
-
-        {/* Nível */}
-        <div className="bg-gradient-to-r from-cat-blue to-cat-green rounded-lg p-3">
-          <div className="text-sm text-white/80">Nível</div>
-          <motion.div
-            key={level}
-            initial={{ scale: 1.2, rotate: 5 }}
-            animate={{ scale: 1, rotate: 0 }}
-            className="text-xl font-bold text-white"
-          >
-            {level} 🐱
-          </motion.div>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-white/80">Nível:</span>
+          <span className="text-blue-400 font-bold text-lg">
+            {level}
+          </span>
         </div>
-
-        {/* Linhas */}
-        <div className="bg-gradient-to-r from-cat-green to-cat-blue rounded-lg p-3">
-          <div className="text-sm text-white/80">Linhas</div>
-          <div className="text-xl font-bold text-white">
-            {lines} 📏
-          </div>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-white/80">Linhas:</span>
+          <span className="text-purple-400 font-bold text-lg">
+            {lines}
+          </span>
         </div>
-
-        {/* Combo */}
+        
         {combo > 0 && (
           <motion.div
-            initial={{ scale: 0 }}
+            initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
-            className="bg-gradient-to-r from-cat-red to-cat-pink rounded-lg p-3"
+            className="flex justify-between items-center bg-orange-500/20 p-2 rounded-lg border border-orange-400/30"
           >
-            <div className="text-sm text-white/80">Combo</div>
-            <div className="text-xl font-bold text-white animate-pulse">
-              {combo}x 🔥
-            </div>
+            <span className="text-white/90">Combo:</span>
+            <span className="text-orange-400 font-bold text-lg">
+              {combo}x
+            </span>
           </motion.div>
         )}
       </div>
-
-      {/* Próximo nível */}
-      <div className="mt-4 text-center">
-        <div className="text-xs text-white/60">
-          Próximo nível em {1000 - (score % 1000)} pontos
-        </div>
-        <div className="w-full bg-white/20 rounded-full h-2 mt-1">
-          <motion.div
-            className="bg-gradient-to-r from-cat-pink to-cat-purple h-2 rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${(score % 1000) / 10}%` }}
-            transition={{ duration: 0.5 }}
-          />
+      
+      <div className="mt-4 pt-4 border-t border-white/20">
+        <div className="text-center text-white/60 text-sm">
+          <p>🎯 Objetivo: Limpar linhas!</p>
+          <p>⚡ Combos dão pontos extras</p>
         </div>
       </div>
     </motion.div>

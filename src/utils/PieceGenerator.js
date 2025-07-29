@@ -1,128 +1,138 @@
-// Definição das peças do Tetris com tema de gatos
+export const PIECE_TYPES = {
+  I: 'I',
+  O: 'O',
+  T: 'T',
+  S: 'S',
+  Z: 'Z',
+  J: 'J',
+  L: 'L'
+};
+
 export const PIECES = {
-  I: {
+  [PIECE_TYPES.I]: {
     shape: [
-      [1, 1, 1, 1]
+      [0, 0, 0, 0],
+      [1, 1, 1, 1],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0]
     ],
-    color: 'cat-blue',
+    color: '#00f5ff',
     emoji: '🐱',
-    name: 'Gato Azul'
+    name: 'I-Piece'
   },
-  O: {
+  [PIECE_TYPES.O]: {
     shape: [
       [1, 1],
       [1, 1]
     ],
-    color: 'cat-yellow',
+    color: '#ffff00',
     emoji: '😺',
-    name: 'Gato Amarelo'
+    name: 'O-Piece'
   },
-  T: {
+  [PIECE_TYPES.T]: {
     shape: [
       [0, 1, 0],
-      [1, 1, 1]
+      [1, 1, 1],
+      [0, 0, 0]
     ],
-    color: 'cat-purple',
+    color: '#a000f0',
     emoji: '😸',
-    name: 'Gato Roxo'
+    name: 'T-Piece'
   },
-  S: {
+  [PIECE_TYPES.S]: {
     shape: [
       [0, 1, 1],
-      [1, 1, 0]
+      [1, 1, 0],
+      [0, 0, 0]
     ],
-    color: 'cat-green',
-    emoji: '😻',
-    name: 'Gato Verde'
+    color: '#00f000',
+    emoji: '😹',
+    name: 'S-Piece'
   },
-  Z: {
+  [PIECE_TYPES.Z]: {
     shape: [
       [1, 1, 0],
-      [0, 1, 1]
+      [0, 1, 1],
+      [0, 0, 0]
     ],
-    color: 'cat-red',
-    emoji: '😽',
-    name: 'Gato Vermelho'
+    color: '#f00000',
+    emoji: '😻',
+    name: 'Z-Piece'
   },
-  J: {
+  [PIECE_TYPES.J]: {
     shape: [
       [1, 0, 0],
-      [1, 1, 1]
+      [1, 1, 1],
+      [0, 0, 0]
     ],
-    color: 'cat-orange',
-    emoji: '😹',
-    name: 'Gato Laranja'
+    color: '#0000f0',
+    emoji: '😼',
+    name: 'J-Piece'
   },
-  L: {
+  [PIECE_TYPES.L]: {
     shape: [
       [0, 0, 1],
-      [1, 1, 1]
+      [1, 1, 1],
+      [0, 0, 0]
     ],
-    color: 'cat-pink',
-    emoji: '😿',
-    name: 'Gato Rosa'
+    color: '#ff7f00',
+    emoji: '😽',
+    name: 'L-Piece'
   }
 };
 
-export const PIECE_TYPES = Object.keys(PIECES);
-
-// 7-bag generator state
 let bag = [];
-
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
+let bagIndex = 0;
 
 function refillBag() {
-  bag = shuffle([...PIECE_TYPES]);
+  bag = Object.keys(PIECES);
+  for (let i = bag.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [bag[i], bag[j]] = [bag[j], bag[i]];
+  }
+  bagIndex = 0;
 }
 
-// Função para gerar uma peça do sistema 7-bag
-export const generateRandomPiece = () => {
-  if (bag.length === 0) refillBag();
-  const type = bag.shift();
+export function generateRandomPiece() {
+  if (bagIndex >= bag.length) {
+    refillBag();
+  }
+  
+  const pieceType = bag[bagIndex++];
   return {
-    type,
-    ...PIECES[type],
+    type: pieceType,
+    shape: PIECES[pieceType].shape,
+    color: PIECES[pieceType].color,
+    emoji: PIECES[pieceType].emoji,
+    name: PIECES[pieceType].name,
     position: { x: 3, y: 0 }
   };
-};
+}
 
-// Função para gerar as próximas peças
-export const generateNextPieces = (count = 3) => {
+export function generateNextPieces(count = 3) {
   const pieces = [];
   for (let i = 0; i < count; i++) {
     pieces.push(generateRandomPiece());
   }
   return pieces;
-};
+}
 
-// Função para rotacionar uma peça
-export const rotatePiece = (piece) => {
+export function rotatePiece(piece) {
   const rotated = piece.shape[0].map((_, index) =>
     piece.shape.map(row => row[index]).reverse()
   );
-  
-  return {
-    ...piece,
-    shape: rotated
-  };
-};
+  return { ...piece, shape: rotated };
+}
 
-// Função para obter a cor CSS da peça
-export const getPieceColor = (pieceType) => {
-  const colors = {
-    'cat-blue': '#87CEEB',
-    'cat-yellow': '#FFD700',
-    'cat-purple': '#DDA0DD',
-    'cat-green': '#98FB98',
-    'cat-red': '#FF6B6B',
-    'cat-orange': '#FFA500',
-    'cat-pink': '#FFB6C1'
+export function getPieceColor(color) {
+  const colorMap = {
+    '#00f5ff': '#00f5ff',
+    '#ffff00': '#ffff00',
+    '#a000f0': '#a000f0',
+    '#00f000': '#00f000',
+    '#f00000': '#f00000',
+    '#0000f0': '#0000f0',
+    '#ff7f00': '#ff7f00'
   };
-  return colors[pieceType] || '#F0F0F0';
-}; 
+  return colorMap[color] || color;
+} 

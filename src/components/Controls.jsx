@@ -2,126 +2,131 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gameOver, canHold }) => {
-  const buttonClass = "w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white/30 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
+  const handleKeyPress = (action) => {
+    if (gameOver) return;
+    
+    switch (action) {
+      case 'left':
+        onMove('left');
+        break;
+      case 'right':
+        onMove('right');
+        break;
+      case 'down':
+        onMove('down');
+        break;
+      case 'rotate':
+        onRotate();
+        break;
+      case 'hardDrop':
+        onHardDrop();
+        break;
+      case 'hold':
+        onHold();
+        break;
+      case 'pause':
+        onPause();
+        break;
+    }
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="mt-6"
-    >
-      {/* Controles de Desktop */}
-      <div className="hidden md:block">
+    <div className="flex flex-col items-center gap-4">
+      <div className="hidden lg:block">
         <div className="text-center text-white/70 text-sm mb-4">
-          <p>Controles do Teclado:</p>
-          <p>← → Mover | ↑ Girar | ↓ Acelerar | Espaço Drop | Shift Hold | P Pausar</p>
+          <p>Use as setas para mover e girar</p>
+          <p>Espaço para drop instantâneo</p>
+          <p>Shift para guardar peça</p>
         </div>
       </div>
 
-      {/* Controles Mobile */}
-      <div className="md:hidden">
-        <div className="text-center text-white/70 text-sm mb-4">
-          <p>Controles Touch:</p>
-        </div>
-        
-        {/* Botão de Hold */}
-        <div className="flex justify-center mb-4">
+      <div className="lg:hidden">
+        <div className="grid grid-cols-3 gap-3 max-w-xs">
+          <div></div>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className={`w-16 h-12 rounded-full backdrop-blur-sm border border-white/30 flex items-center justify-center text-white transition-all duration-200 active:scale-95 ${
+            onClick={() => handleKeyPress('rotate')}
+            disabled={gameOver}
+            className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            🔄
+          </motion.button>
+          <div></div>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleKeyPress('left')}
+            disabled={gameOver}
+            className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ⬅️
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleKeyPress('down')}
+            disabled={gameOver}
+            className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ⬇️
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleKeyPress('right')}
+            disabled={gameOver}
+            className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ➡️
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleKeyPress('hardDrop')}
+            disabled={gameOver}
+            className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ⚡
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => handleKeyPress('hold')}
+            disabled={gameOver || !canHold}
+            className={`p-4 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
               canHold 
-                ? 'bg-gradient-to-r from-cat-purple to-cat-pink' 
-                : 'bg-gray-500/50'
+                ? 'bg-green-500 text-white hover:bg-green-600' 
+                : 'bg-gray-500 text-white'
             }`}
-            onClick={onHold}
-            disabled={gameOver || isPaused || !canHold}
           >
             💾
           </motion.button>
         </div>
-        
-        {/* Botões de movimento */}
-        <div className="flex justify-center items-center gap-4 mb-4">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={buttonClass}
-            onClick={() => onMove('left')}
-            disabled={gameOver || isPaused}
-          >
-            ←
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={buttonClass}
-            onClick={() => onMove('right')}
-            disabled={gameOver || isPaused}
-          >
-            →
-          </motion.button>
-        </div>
 
-        {/* Botões centrais */}
-        <div className="flex justify-center items-center gap-4 mb-4">
+        <div className="mt-4 flex justify-center">
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={buttonClass}
-            onClick={() => onRotate()}
-            disabled={gameOver || isPaused}
-          >
-            🔄
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-16 h-16 rounded-full bg-gradient-to-r from-cat-red to-cat-pink border-2 border-white/30 flex items-center justify-center text-white hover:from-cat-pink hover:to-cat-red transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => onHardDrop()}
-            disabled={gameOver || isPaused}
-          >
-            ⬇️
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={buttonClass}
-            onClick={() => onMove('down')}
-            disabled={gameOver || isPaused}
-          >
-            ↓
-          </motion.button>
-        </div>
-
-        {/* Botão de pausa */}
-        <div className="flex justify-center">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={`w-20 h-12 rounded-full backdrop-blur-sm border border-white/30 flex items-center justify-center text-white transition-all duration-200 active:scale-95 ${
-              isPaused 
-                ? 'bg-gradient-to-r from-cat-green to-cat-blue' 
-                : 'bg-gradient-to-r from-cat-yellow to-cat-orange'
-            }`}
-            onClick={onPause}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleKeyPress('pause')}
             disabled={gameOver}
+            className="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPaused ? '▶️' : '⏸️'}
+            {isPaused ? '▶️ Continuar' : '⏸️ Pausar'}
           </motion.button>
         </div>
-      </div>
 
-      {/* Instruções adicionais */}
-      <div className="mt-4 text-center text-white/50 text-xs">
-        <p>Combine linhas para ganhar pontos!</p>
-        <p>Quanto mais linhas de uma vez, mais pontos! 🐱</p>
+        <div className="mt-4 text-center text-white/60 text-xs">
+          <p>🎮 Controles touch-friendly</p>
+          <p>💡 Use a sombra para planejar!</p>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -1,24 +1,36 @@
-// Utilitários para lidar com sons
-export const createMockSound = () => {
-  return () => {
-    // Função vazia para quando não há arquivo de som
-    console.log('Som simulado tocado');
-  };
-};
+export function playSound(soundName) {
+  const audio = new Audio(SOUND_URLS[soundName]);
+  audio.volume = 0.3;
+  audio.play().catch(() => {});
+}
 
-// URLs de som padrão (você pode substituir por arquivos reais)
+export function playSoundWithVolume(soundName, volume = 0.3) {
+  const audio = new Audio(SOUND_URLS[soundName]);
+  audio.volume = volume;
+  audio.play().catch(() => {});
+}
+
 export const SOUND_URLS = {
-  meow: '/sounds/meow.mp3',
-  lineClear: '/sounds/line-clear.mp3',
-  gameOver: '/sounds/game-over.mp3'
+  'meow': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+  'line-clear': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+  'game-over': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav'
 };
 
-// Função para verificar se um arquivo de som existe
-export const checkSoundFile = async (url) => {
+export function playSoundWithFallback(soundName) {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
-    return response.ok;
-  } catch {
-    return false;
+    const audio = new Audio(SOUND_URLS[soundName] || SOUND_URLS['meow']);
+    audio.volume = 0.2;
+    audio.play().catch(() => {});
+  } catch (error) {
+    console.log(`Som ${soundName} não disponível`);
   }
-}; 
+}
+
+export function checkSoundFile(soundName) {
+  return new Promise((resolve) => {
+    const audio = new Audio(`/sounds/${soundName}.mp3`);
+    audio.addEventListener('canplaythrough', () => resolve(true));
+    audio.addEventListener('error', () => resolve(false));
+    audio.load();
+  });
+} 
