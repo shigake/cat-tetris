@@ -469,13 +469,6 @@ export default function MainMenu({
           </div>
         </motion.div>
 
-        <div className="absolute -top-20 -right-20 text-6xl opacity-5 pointer-events-none">
-          🎮
-        </div>
-
-        <div className="absolute -bottom-20 -left-20 text-5xl opacity-5 pointer-events-none">
-          🐱
-        </div>
       </motion.div>
     </div>
   );

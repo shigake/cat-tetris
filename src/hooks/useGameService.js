@@ -56,7 +56,11 @@ export function useGameService() {
       lastTimeRef.current = currentTime;
 
       if (gameServiceRef.current) {
-        gameServiceRef.current.updateGame(deltaTime);
+        const currentGameState = gameServiceRef.current.getGameState();
+        // Only update game if it's not paused and not game over
+        if (!currentGameState.isPaused && !currentGameState.gameOver) {
+          gameServiceRef.current.updateGame(deltaTime);
+        }
       }
       
       gameLoopRef.current = requestAnimationFrame(gameLoop);
