@@ -72,7 +72,7 @@ const Statistics = ({ stats }) => {
         <div className="flex justify-between items-center">
           <span className="text-white/80">LPS (Linhas/seg):</span>
           <span className="text-pink-400 font-bold">
-            {stats.linesPerSecond.toFixed(2)}
+            {(typeof stats.linesPerSecond === 'number' ? stats.linesPerSecond : 0).toFixed(2)}
           </span>
         </div>
       </div>

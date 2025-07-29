@@ -53,7 +53,7 @@ export class StatisticsService extends IStatisticsService {
 
   calculateLinesPerSecond() {
     if (this.stats.playTime > 0) {
-      this.stats.linesPerSecond = (this.stats.linesCleared / this.stats.playTime).toFixed(2);
+      this.stats.linesPerSecond = this.stats.linesCleared / this.stats.playTime;
     } else {
       this.stats.linesPerSecond = 0;
     }
