@@ -1,74 +1,142 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
+import { useAmbientMusic } from '../hooks/useAmbientMusic';
+import AdvancedParticles from './AdvancedParticles';
 
 export default function MainMenu({ 
   onStartGame, 
+  onNewGame,
   onShowSettings, 
   onShowStatistics, 
   onShowInstallPrompt,
-  canInstallPWA 
+  canInstallPWA,
+  hasActiveGame,
+  gameState
 }) {
   const [selectedOption, setSelectedOption] = useState(0);
   const [showParticles, setShowParticles] = useState(true);
+  const [particleType, setParticleType] = useState('mixed');
+  const [particleIntensity, setParticleIntensity] = useState('medium');
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [musicEnabled, setMusicEnabled] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
 
   const sounds = useMenuSounds();
+  const music = useAmbientMusic();
 
-  const menuOptions = [
-    {
-      id: 'play',
-      icon: '🎮',
-      title: 'Jogar',
-      subtitle: 'Começar uma nova partida',
-      action: () => {
-        if (soundEnabled) sounds.playGameStart();
-        setTimeout(() => onStartGame(), 300);
+  const getMenuOptions = () => {
+    const baseOptions = [];
+
+    if (hasActiveGame) {
+      // Show continue and new game options
+      baseOptions.push({
+        id: 'continue',
+        icon: '▶️',
+        title: 'Continuar Jogo',
+        subtitle: `Nível ${gameState?.score?.level || 1} • ${gameState?.score?.points?.toLocaleString() || 0} pts`,
+        action: () => {
+          if (soundEnabled) sounds.playGameStart();
+          if (musicEnabled) music.stopAmbientMusic();
+          setTimeout(() => onStartGame(), 300);
+        },
+        gradient: 'from-emerald-500 to-green-600',
+        hoverGradient: 'from-emerald-400 to-green-500',
+        glow: 'shadow-emerald-500/25',
+        isPrimary: true
+      });
+
+      baseOptions.push({
+        id: 'new',
+        icon: '🆕',
+        title: 'Novo Jogo',
+        subtitle: 'Começar uma nova partida',
+        action: () => {
+          if (soundEnabled) sounds.playGameStart();
+          if (musicEnabled) music.stopAmbientMusic();
+          setTimeout(() => onNewGame(), 300);
+        },
+        gradient: 'from-blue-500 to-indigo-600',
+        hoverGradient: 'from-blue-400 to-indigo-500',
+        glow: 'shadow-blue-500/25'
+      });
+    } else {
+      // Show play option
+      baseOptions.push({
+        id: 'play',
+        icon: '🎮',
+        title: 'Jogar',
+        subtitle: 'Começar uma nova partida',
+        action: () => {
+          if (soundEnabled) sounds.playGameStart();
+          if (musicEnabled) music.stopAmbientMusic();
+          setTimeout(() => onStartGame(), 300);
+        },
+        gradient: 'from-green-500 to-emerald-600',
+        hoverGradient: 'from-green-400 to-emerald-500',
+        glow: 'shadow-green-500/25',
+        isPrimary: true
+      });
+    }
+
+    // Add other options
+    baseOptions.push(
+      {
+        id: 'stats',
+        icon: '📊',
+        title: 'Estatísticas',
+        subtitle: 'Ver recordes e conquistas',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowStatistics();
+        },
+        gradient: 'from-purple-500 to-violet-600',
+        hoverGradient: 'from-purple-400 to-violet-500',
+        glow: 'shadow-purple-500/25'
       },
-      gradient: 'from-green-500 to-emerald-600',
-      hoverGradient: 'from-green-400 to-emerald-500',
-      glow: 'shadow-green-500/25'
-    },
-    {
-      id: 'stats',
-      icon: '📊',
-      title: 'Estatísticas',
-      subtitle: 'Ver recordes e conquistas',
-      action: () => {
-        if (soundEnabled) sounds.playMenuSelect();
-        onShowStatistics();
-      },
-      gradient: 'from-blue-500 to-cyan-600',
-      hoverGradient: 'from-blue-400 to-cyan-500',
-      glow: 'shadow-blue-500/25'
-    },
-    {
-      id: 'settings',
-      icon: '⚙️',
-      title: 'Configurações',
-      subtitle: 'Ajustar volume e controles',
-      action: () => {
-        if (soundEnabled) sounds.playMenuSelect();
-        onShowSettings();
-      },
-      gradient: 'from-purple-500 to-violet-600',
-      hoverGradient: 'from-purple-400 to-violet-500',
-      glow: 'shadow-purple-500/25'
-    },
-    ...(canInstallPWA ? [{
-      id: 'install',
-      icon: '📱',
-      title: 'Instalar App',
-      subtitle: 'Jogar offline como app nativo',
-      action: () => {
-        if (soundEnabled) sounds.playPWAInstall();
-        onShowInstallPrompt();
-      },
-      gradient: 'from-orange-500 to-red-600',
-      hoverGradient: 'from-orange-400 to-red-500',
-      glow: 'shadow-orange-500/25'
-    }] : [])
+      {
+        id: 'settings',
+        icon: '⚙️',
+        title: 'Configurações',
+        subtitle: 'Ajustar volume e controles',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowSettings();
+        },
+        gradient: 'from-gray-500 to-slate-600',
+        hoverGradient: 'from-gray-400 to-slate-500',
+        glow: 'shadow-gray-500/25'
+      }
+    );
+
+    if (canInstallPWA) {
+      baseOptions.push({
+        id: 'install',
+        icon: '📱',
+        title: 'Instalar App',
+        subtitle: 'Jogar offline como app nativo',
+        action: () => {
+          if (soundEnabled) sounds.playPWAInstall();
+          onShowInstallPrompt();
+        },
+        gradient: 'from-orange-500 to-red-600',
+        hoverGradient: 'from-orange-400 to-red-500',
+        glow: 'shadow-orange-500/25'
+      });
+    }
+
+    return baseOptions;
+  };
+
+  const menuOptions = getMenuOptions();
+
+  const particleThemes = [
+    { name: 'Misto', value: 'mixed', icon: '🎭' },
+    { name: 'Corações', value: 'hearts', icon: '❤️' },
+    { name: 'Estrelas', value: 'stars', icon: '⭐' },
+    { name: 'Gatos', value: 'cats', icon: '🐱' },
+    { name: 'Tetris', value: 'tetris', icon: '🟩' },
+    { name: 'Magia', value: 'magic', icon: '✨' }
   ];
 
   useEffect(() => {
@@ -76,7 +144,14 @@ export default function MainMenu({
     if (soundEnabled) {
       setTimeout(() => sounds.playMenuOpen(), 500);
     }
-  }, [sounds, soundEnabled]);
+    if (musicEnabled) {
+      setTimeout(() => music.startAmbientMusic(), 1000);
+    }
+
+    return () => {
+      if (musicEnabled) music.stopAmbientMusic();
+    };
+  }, [sounds, soundEnabled, music, musicEnabled]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -104,18 +179,50 @@ export default function MainMenu({
           e.preventDefault();
           if (soundEnabled) sounds.playMenuBack();
           break;
+        case 'p':
+        case 'P':
+          e.preventDefault();
+          setShowParticles(!showParticles);
+          if (soundEnabled) sounds.playMenuSelect();
+          break;
+        case 'm':
+        case 'M':
+          e.preventDefault();
+          setMusicEnabled(!musicEnabled);
+          if (!musicEnabled) {
+            music.startAmbientMusic();
+          } else {
+            music.stopAmbientMusic();
+          }
+          if (soundEnabled) sounds.playMenuSelect();
+          break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, menuOptions, sounds, soundEnabled]);
+  }, [selectedOption, menuOptions, sounds, soundEnabled, showParticles, musicEnabled, music]);
 
   const handleOptionHover = (index) => {
     if (selectedOption !== index) {
       if (soundEnabled) sounds.playMenuHover();
       setSelectedOption(index);
     }
+  };
+
+  const cycleParticleType = () => {
+    const currentIndex = particleThemes.findIndex(theme => theme.value === particleType);
+    const nextIndex = (currentIndex + 1) % particleThemes.length;
+    setParticleType(particleThemes[nextIndex].value);
+    if (soundEnabled) sounds.playMenuSelect();
+  };
+
+  const cycleParticleIntensity = () => {
+    const intensities = ['low', 'medium', 'high'];
+    const currentIndex = intensities.indexOf(particleIntensity);
+    const nextIndex = (currentIndex + 1) % intensities.length;
+    setParticleIntensity(intensities[nextIndex]);
+    if (soundEnabled) sounds.playMenuSelect();
   };
 
   const containerVariants = {
@@ -168,55 +275,16 @@ export default function MainMenu({
     }
   };
 
+  const currentTheme = particleThemes.find(theme => theme.value === particleType);
+
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4 relative overflow-hidden">
       
-      {showParticles && (
-        <div className="absolute inset-0 pointer-events-none">
-          {[...Array(30)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/30 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                scale: [0, 1, 0],
-                opacity: [0, 0.8, 0],
-                y: [0, -30, -60],
-              }}
-              transition={{
-                duration: 4 + Math.random() * 3,
-                repeat: Infinity,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
-          
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={`cat-${i}`}
-              className="absolute text-4xl opacity-10"
-              style={{
-                left: `${10 + Math.random() * 80}%`,
-                top: `${10 + Math.random() * 80}%`,
-              }}
-              animate={{
-                rotate: [0, 360],
-                scale: [0.8, 1.2, 0.8],
-              }}
-              transition={{
-                duration: 15 + i * 3,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-            >
-              🐱
-            </motion.div>
-          ))}
-        </div>
-      )}
+      <AdvancedParticles 
+        enabled={showParticles}
+        type={particleType}
+        intensity={particleIntensity}
+      />
 
       <motion.div
         variants={containerVariants}
@@ -255,6 +323,16 @@ export default function MainMenu({
             <p className="text-lg text-white/70 drop-shadow-md">
               Empilhe blocos com seus amigos felinos 🐾
             </p>
+            {hasActiveGame && (
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+                className="text-sm text-yellow-300 mt-2 drop-shadow-md"
+              >
+                ✨ Você tem um jogo em andamento!
+              </motion.p>
+            )}
           </motion.div>
         </motion.div>
 
@@ -268,8 +346,8 @@ export default function MainMenu({
               onClick={option.action}
               onMouseEnter={() => handleOptionHover(index)}
               whileHover={{ 
-                scale: 1.03, 
-                y: -4,
+                scale: option.isPrimary ? 1.05 : 1.03, 
+                y: option.isPrimary ? -6 : -4,
                 rotateY: selectedOption === index ? 2 : 0
               }}
               whileTap={{ scale: 0.97 }}
@@ -281,12 +359,30 @@ export default function MainMenu({
                   ? `border-white/60 shadow-2xl ${option.glow}` 
                   : 'border-white/20 hover:border-white/40'
                 }
+                ${option.isPrimary ? 'ring-2 ring-yellow-400/30' : ''}
               `}
               style={{
                 transform: selectedOption === index ? 'perspective(1000px) rotateX(2deg)' : 'none'
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {option.isPrimary && (
+                <motion.div
+                  className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, 0]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 3
+                  }}
+                >
+                  ⭐
+                </motion.div>
+              )}
               
               {selectedOption === index && (
                 <motion.div
@@ -350,22 +446,26 @@ export default function MainMenu({
           variants={itemVariants}
           className="text-center mt-8 space-y-4"
         >
-          <div className="flex justify-center space-x-8 text-white/60">
+          <div className="flex justify-center space-x-6 text-white/60 text-sm">
             <span className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-white/20 rounded text-sm backdrop-blur-sm">↑↓</kbd>
+              <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">↑↓</kbd>
               Navegar
             </span>
             <span className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-white/20 rounded text-sm backdrop-blur-sm">Enter</kbd>
+              <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">Enter</kbd>
               Selecionar
             </span>
             <span className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-white/20 rounded text-sm backdrop-blur-sm">Esc</kbd>
-              Sair
+              <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">P</kbd>
+              Partículas
+            </span>
+            <span className="flex items-center gap-2">
+              <kbd className="px-2 py-1 bg-white/20 rounded text-xs backdrop-blur-sm">M</kbd>
+              Música
             </span>
           </div>
 
-          <div className="flex justify-center space-x-6">
+          <div className="flex justify-center flex-wrap gap-3">
             <motion.button
               onClick={() => {
                 setShowParticles(!showParticles);
@@ -379,6 +479,26 @@ export default function MainMenu({
             </motion.button>
 
             <motion.button
+              onClick={cycleParticleType}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+              disabled={!showParticles}
+            >
+              {currentTheme?.icon} {currentTheme?.name}
+            </motion.button>
+
+            <motion.button
+              onClick={cycleParticleIntensity}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+              disabled={!showParticles}
+            >
+              🎚️ {particleIntensity.toUpperCase()}
+            </motion.button>
+
+            <motion.button
               onClick={() => {
                 setSoundEnabled(!soundEnabled);
                 if (!soundEnabled) sounds.playMenuSelect();
@@ -388,6 +508,23 @@ export default function MainMenu({
               className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
             >
               {soundEnabled ? '🔊 Sons: ON' : '🔇 Sons: OFF'}
+            </motion.button>
+
+            <motion.button
+              onClick={() => {
+                setMusicEnabled(!musicEnabled);
+                if (!musicEnabled) {
+                  music.startAmbientMusic();
+                } else {
+                  music.stopAmbientMusic();
+                }
+                if (soundEnabled) sounds.playMenuSelect();
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="text-white/40 hover:text-white/70 transition-colors text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm"
+            >
+              {musicEnabled ? '🎵 Música: ON' : '🎶 Música: OFF'}
             </motion.button>
           </div>
         </motion.div>

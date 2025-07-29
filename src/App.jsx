@@ -210,6 +210,7 @@ function GameComponent() {
   const [showSettings, setShowSettings] = useState(false);
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
+  const [hasActiveGame, setHasActiveGame] = useState(false);
 
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -219,6 +220,15 @@ function GameComponent() {
   
   const isInGame = currentScreen === 'game';
   useKeyboardInput(actions, gameState, isInGame);
+
+  // Check if there's an active game that can be continued
+  React.useEffect(() => {
+    if (gameState && !gameState.gameOver && gameState.score.points > 0) {
+      setHasActiveGame(true);
+    } else {
+      setHasActiveGame(false);
+    }
+  }, [gameState]);
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -259,6 +269,18 @@ function GameComponent() {
     }
   };
 
+  const handleContinueGame = () => {
+    setCurrentScreen('game');
+    if (gameState?.isPaused) {
+      actions.resume();
+    }
+  };
+
+  const handleNewGame = () => {
+    setCurrentScreen('game');
+    actions.restart();
+  };
+
   const handleBackToMenu = () => {
     setCurrentScreen('menu');
     if (gameState && !gameState.gameOver) {
@@ -290,11 +312,14 @@ function GameComponent() {
     return (
       <>
         <MainMenu
-          onStartGame={handleStartGame}
+          onStartGame={hasActiveGame ? handleContinueGame : handleStartGame}
+          onNewGame={handleNewGame}
           onShowSettings={() => setShowSettings(true)}
           onShowStatistics={() => setShowStats(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
+          hasActiveGame={hasActiveGame}
+          gameState={gameState}
         />
 
         <AnimatePresence>
