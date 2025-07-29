@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
 import { useAmbientMusic } from '../hooks/useAmbientMusic';
@@ -25,7 +25,7 @@ export default function MainMenu({
   const sounds = useMenuSounds();
   const music = useAmbientMusic();
 
-  const getMenuOptions = () => {
+  const menuOptions = useMemo(() => {
     const baseOptions = [];
 
     if (hasActiveGame) {
@@ -126,32 +126,48 @@ export default function MainMenu({
     }
 
     return baseOptions;
-  };
+  }, [
+    hasActiveGame, 
+    gameState?.score?.level, 
+    gameState?.score?.points, 
+    canInstallPWA,
+    soundEnabled,
+    musicEnabled,
+    sounds,
+    music,
+    onStartGame,
+    onNewGame,
+    onShowStatistics,
+    onShowSettings,
+    onShowInstallPrompt
+  ]);
 
-  const menuOptions = getMenuOptions();
-
-  const particleThemes = [
+  const particleThemes = useMemo(() => [
     { name: 'Misto', value: 'mixed', icon: '🎭' },
     { name: 'Corações', value: 'hearts', icon: '❤️' },
     { name: 'Estrelas', value: 'stars', icon: '⭐' },
     { name: 'Gatos', value: 'cats', icon: '🐱' },
     { name: 'Tetris', value: 'tetris', icon: '🟩' },
     { name: 'Magia', value: 'magic', icon: '✨' }
-  ];
+  ], []);
 
   useEffect(() => {
     setMenuVisible(true);
+    let soundTimer, musicTimer;
+    
     if (soundEnabled) {
-      setTimeout(() => sounds.playMenuOpen(), 500);
+      soundTimer = setTimeout(() => sounds.playMenuOpen(), 500);
     }
     if (musicEnabled) {
-      setTimeout(() => music.startAmbientMusic(), 1000);
+      musicTimer = setTimeout(() => music.startAmbientMusic(), 1000);
     }
 
     return () => {
+      if (soundTimer) clearTimeout(soundTimer);
+      if (musicTimer) clearTimeout(musicTimer);
       if (musicEnabled) music.stopAmbientMusic();
     };
-  }, [sounds, soundEnabled, music, musicEnabled]);
+  }, []); // Only run once on mount
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -201,29 +217,29 @@ export default function MainMenu({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedOption, menuOptions, sounds, soundEnabled, showParticles, musicEnabled, music]);
+  }, [selectedOption, menuOptions.length, soundEnabled, showParticles, musicEnabled, music, sounds]);
 
-  const handleOptionHover = (index) => {
+  const handleOptionHover = useCallback((index) => {
     if (selectedOption !== index) {
       if (soundEnabled) sounds.playMenuHover();
       setSelectedOption(index);
     }
-  };
+  }, [selectedOption, soundEnabled, sounds]);
 
-  const cycleParticleType = () => {
+  const cycleParticleType = useCallback(() => {
     const currentIndex = particleThemes.findIndex(theme => theme.value === particleType);
     const nextIndex = (currentIndex + 1) % particleThemes.length;
     setParticleType(particleThemes[nextIndex].value);
     if (soundEnabled) sounds.playMenuSelect();
-  };
+  }, [particleThemes, particleType, soundEnabled, sounds]);
 
-  const cycleParticleIntensity = () => {
+  const cycleParticleIntensity = useCallback(() => {
     const intensities = ['low', 'medium', 'high'];
     const currentIndex = intensities.indexOf(particleIntensity);
     const nextIndex = (currentIndex + 1) % intensities.length;
     setParticleIntensity(intensities[nextIndex]);
     if (soundEnabled) sounds.playMenuSelect();
-  };
+  }, [particleIntensity, soundEnabled, sounds]);
 
   const containerVariants = {
     hidden: { opacity: 0 },

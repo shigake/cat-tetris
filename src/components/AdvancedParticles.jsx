@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdvancedParticles({ 
@@ -10,24 +10,24 @@ export default function AdvancedParticles({
   const [particles, setParticles] = useState([]);
   const [particleId, setParticleId] = useState(0);
 
-  const particleTypes = {
+  const particleTypes = useMemo(() => ({
     hearts: ['❤️', '💖', '💕', '💗', '🧡', '💛', '💚', '💙', '💜'],
     stars: ['⭐', '🌟', '✨', '💫', '🌠', '⚡', '🔥', '💎', '🌈'],
     cats: ['🐱', '😸', '😺', '😻', '😽', '🙀', '😿', '😾', '🐈'],
     tetris: ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '🟫', '⬛', '⬜'],
     magic: ['✨', '🌟', '💫', '🔮', '🎭', '🎪', '🎨', '🎭', '🦄']
-  };
+  }), []);
 
-  const getParticleCount = () => {
+  const getParticleCount = useCallback(() => {
     switch (intensity) {
       case 'low': return 15;
       case 'medium': return 30;
       case 'high': return 50;
       default: return 30;
     }
-  };
+  }, [intensity]);
 
-  const getRandomParticle = () => {
+  const getRandomParticle = useCallback(() => {
     if (type === 'mixed') {
       const types = Object.keys(particleTypes);
       const randomType = types[Math.floor(Math.random() * types.length)];
@@ -37,9 +37,9 @@ export default function AdvancedParticles({
       const particles = particleTypes[type] || particleTypes.cats;
       return particles[Math.floor(Math.random() * particles.length)];
     }
-  };
+  }, [type, particleTypes]);
 
-  const generateParticle = () => {
+  const generateParticle = useCallback(() => {
     return {
       id: particleId,
       emoji: getRandomParticle(),
@@ -51,7 +51,7 @@ export default function AdvancedParticles({
       direction: Math.random() > 0.5 ? 1 : -1,
       rotationSpeed: 0.5 + Math.random() * 1.5
     };
-  };
+  }, [particleId, getRandomParticle]);
 
   useEffect(() => {
     if (!enabled) {
@@ -71,9 +71,9 @@ export default function AdvancedParticles({
     
     setParticles(newParticles);
     setParticleId(count);
-  }, [enabled, type, intensity]);
+  }, [enabled, type, intensity, getParticleCount, generateParticle]);
 
-  const refreshParticle = (id) => {
+  const refreshParticle = useCallback((id) => {
     setParticles(prev => 
       prev.map(p => 
         p.id === id 
@@ -81,7 +81,7 @@ export default function AdvancedParticles({
           : p
       )
     );
-  };
+  }, [generateParticle]);
 
   if (!enabled) return null;
 
@@ -201,10 +201,12 @@ export function LineClearParticles({ linesCleared, onComplete }) {
       
       setParticles(newParticles);
       
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setParticles([]);
         if (onComplete) onComplete();
       }, 2000);
+
+      return () => clearTimeout(timer);
     }
   }, [linesCleared, onComplete]);
 
@@ -271,10 +273,12 @@ export function LevelUpParticles({ show, onComplete }) {
       
       setParticles(levelParticles);
       
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setParticles([]);
         if (onComplete) onComplete();
       }, 3000);
+
+      return () => clearTimeout(timer);
     }
   }, [show, onComplete]);
 
