@@ -8,7 +8,6 @@ class ScoreService {
       const stored = localStorage.getItem(this.HIGH_SCORE_KEY);
       return stored ? parseInt(stored, 10) : 0;
     } catch (error) {
-      console.warn('Failed to get high score from localStorage:', error);
       return 0;
     }
   }
@@ -22,7 +21,6 @@ class ScoreService {
       }
       return false;
     } catch (error) {
-      console.warn('Failed to save high score to localStorage:', error);
       return false;
     }
   }
@@ -31,7 +29,7 @@ class ScoreService {
     try {
       localStorage.removeItem(this.HIGH_SCORE_KEY);
     } catch (error) {
-      console.warn('Failed to clear high score from localStorage:', error);
+      // Silent fail
     }
   }
 }
