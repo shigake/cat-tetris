@@ -6,7 +6,7 @@ export class HardDropMovementStrategy extends BaseMovementStrategy {
       return { piece, dropDistance: 0 };
     }
 
-    let droppedPiece = { ...piece };
+    let droppedPiece = piece;
     let dropDistance = 0;
 
     while (true) {
@@ -16,7 +16,7 @@ export class HardDropMovementStrategy extends BaseMovementStrategy {
       };
 
       if (this.isValidMove(droppedPiece, board, newPosition)) {
-        droppedPiece.position = newPosition;
+        droppedPiece = droppedPiece.move(0, 1);
         dropDistance++;
       } else {
         break;

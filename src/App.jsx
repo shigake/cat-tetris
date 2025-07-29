@@ -9,13 +9,22 @@ import HeldPiece from './components/HeldPiece';
 import Statistics from './components/Statistics';
 import SettingsMenu from './components/SettingsMenu';
 import ErrorBoundary from './components/ErrorBoundary';
-import { GameProvider, useGame } from './contexts/GameContext';
-import { useGameEngine } from './hooks/useGameEngine';
+import { useGameService } from './hooks/useGameService';
 import { useSoundManager } from './hooks/useSoundManager';
 
 function GameComponent() {
-  const gameState = useGame();
-  const { initializeGame, movePiece, rotatePiece, hardDrop, holdPiece, getDropPreview } = useGameEngine();
+  const { 
+    gameState, 
+    movePiece, 
+    rotatePiece, 
+    hardDrop, 
+    holdPiece, 
+    pause, 
+    resume, 
+    restart, 
+    getDropPreview 
+  } = useGameService();
+  
   useSoundManager();
   
   const [showStats, setShowStats] = useState(false);
@@ -39,11 +48,7 @@ function GameComponent() {
   });
 
   useEffect(() => {
-    initializeGame();
-  }, []);
-
-  useEffect(() => {
-    if (gameState.isPlaying && !gameState.gameOver && !gameState.isPaused) {
+    if (gameState?.isPlaying && !gameState?.gameOver && !gameState?.isPaused) {
       const timer = setInterval(() => {
         setStats(prev => ({
           ...prev,
@@ -52,7 +57,7 @@ function GameComponent() {
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [gameState.isPlaying, gameState.gameOver, gameState.isPaused]);
+  }, [gameState?.isPlaying, gameState?.gameOver, gameState?.isPaused]);
 
   const handleSettingsChange = (newSettings) => {
     setSettings(newSettings);
@@ -65,6 +70,14 @@ function GameComponent() {
       setSettings(JSON.parse(savedSettings));
     }
   }, []);
+
+  if (!gameState) {
+    return (
+      <div className="min-h-screen cat-bg flex items-center justify-center">
+        <div className="text-white text-xl">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4">
@@ -123,7 +136,7 @@ function GameComponent() {
                 onMove={movePiece}
                 onRotate={rotatePiece}
                 onHardDrop={hardDrop}
-                onPause={() => gameState.actions.setPaused(!gameState.isPaused)}
+                onPause={gameState.isPaused ? resume : pause}
                 onHold={holdPiece}
                 isPaused={gameState.isPaused}
                 gameOver={gameState.gameOver}
@@ -133,10 +146,10 @@ function GameComponent() {
 
             <div className="flex flex-col gap-6 min-w-[200px]">
               <Scoreboard 
-                score={gameState.score}
-                level={gameState.level}
-                lines={gameState.lines}
-                combo={gameState.combo}
+                score={gameState.score.points}
+                level={gameState.score.level}
+                lines={gameState.score.lines}
+                combo={gameState.score.combo}
               />
             </div>
           </div>
@@ -154,7 +167,7 @@ function GameComponent() {
                 onMove={movePiece}
                 onRotate={rotatePiece}
                 onHardDrop={hardDrop}
-                onPause={() => gameState.actions.setPaused(!gameState.isPaused)}
+                onPause={gameState.isPaused ? resume : pause}
                 onHold={holdPiece}
                 isPaused={gameState.isPaused}
                 gameOver={gameState.gameOver}
@@ -164,10 +177,10 @@ function GameComponent() {
 
             <div className="flex flex-row gap-3 justify-center max-w-full overflow-x-auto">
               <Scoreboard 
-                score={gameState.score}
-                level={gameState.level}
-                lines={gameState.lines}
-                combo={gameState.combo}
+                score={gameState.score.points}
+                level={gameState.score.level}
+                lines={gameState.score.lines}
+                combo={gameState.score.combo}
               />
               
               <div className="flex flex-col gap-3">
@@ -185,8 +198,8 @@ function GameComponent() {
         <AnimatePresence>
           {gameState.gameOver && (
             <GameOverScreen 
-              score={gameState.score}
-              onRestart={initializeGame}
+              score={gameState.score.points}
+              onRestart={restart}
             />
           )}
         </AnimatePresence>
@@ -218,9 +231,7 @@ function GameComponent() {
 function App() {
   return (
     <ErrorBoundary>
-      <GameProvider>
-        <GameComponent />
-      </GameProvider>
+      <GameComponent />
     </ErrorBoundary>
   );
 }

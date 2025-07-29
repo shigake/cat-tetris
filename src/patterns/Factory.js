@@ -6,6 +6,7 @@ import { RightMovementStrategy } from './strategies/RightMovementStrategy.js';
 import { DownMovementStrategy } from './strategies/DownMovementStrategy.js';
 import { RotateMovementStrategy } from './strategies/RotateMovementStrategy.js';
 import { HardDropMovementStrategy } from './strategies/HardDropMovementStrategy.js';
+import { PieceBuilder } from './builder/PieceBuilder.js';
 
 export class PieceFactory extends IPieceFactory {
   static createPiece(type, position = { x: 3, y: 0 }) {
@@ -14,22 +15,37 @@ export class PieceFactory extends IPieceFactory {
       throw new Error(`Tipo de peça inválido: ${type}`);
     }
 
-    return {
-      type,
-      shape: config.shape,
-      color: config.color,
-      emoji: config.emoji,
-      name: config.name,
-      position: { ...position }
-    };
+    return new PieceBuilder()
+      .setType(type)
+      .setShape(config.shape)
+      .setColor(config.color)
+      .setEmoji(config.emoji)
+      .setPosition(position.x, position.y)
+      .build();
   }
 
   static createRandomPiece() {
-    return originalGenerateRandomPiece();
+    const pieceData = originalGenerateRandomPiece();
+    return new PieceBuilder()
+      .setType(pieceData.type)
+      .setShape(pieceData.shape)
+      .setColor(pieceData.color)
+      .setEmoji(pieceData.emoji)
+      .setPosition(pieceData.position.x, pieceData.position.y)
+      .build();
   }
 
   static createNextPieces(count = 3) {
-    return originalGenerateNextPieces(count);
+    const piecesData = originalGenerateNextPieces(count);
+    return piecesData.map(pieceData => 
+      new PieceBuilder()
+        .setType(pieceData.type)
+        .setShape(pieceData.shape)
+        .setColor(pieceData.color)
+        .setEmoji(pieceData.emoji)
+        .setPosition(pieceData.position.x, pieceData.position.y)
+        .build()
+    );
   }
 }
 

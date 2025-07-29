@@ -33,10 +33,12 @@ export class GameEventEmitter {
 export const gameEvents = new GameEventEmitter();
 
 export const GAME_EVENTS = {
+  GAME_INITIALIZED: 'game_initialized',
   PIECE_MOVED: 'piece_moved',
   PIECE_ROTATED: 'piece_rotated',
   PIECE_PLACED: 'piece_placed',
   PIECE_HELD: 'piece_held',
+  HARD_DROP: 'hard_drop',
   LINE_CLEARED: 'line_cleared',
   T_SPIN: 't_spin',
   SCORE_UPDATED: 'score_updated',

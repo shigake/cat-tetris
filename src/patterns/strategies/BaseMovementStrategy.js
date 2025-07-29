@@ -1,5 +1,5 @@
 import { IMovementStrategy } from '../../interfaces/IMovementStrategy.js';
-import { BOARD_WIDTH, BOARD_HEIGHT } from '../../utils/GameLogic.js';
+import { GameConfig } from '../../config/GameConfig.js';
 
 export class BaseMovementStrategy extends IMovementStrategy {
   execute(piece, board) {
@@ -17,7 +17,7 @@ export class BaseMovementStrategy extends IMovementStrategy {
     };
 
     if (this.isValidMove(piece, board, newPosition)) {
-      return { ...piece, position: newPosition };
+      return piece.move(deltaX, deltaY);
     }
     return piece;
   }
@@ -33,7 +33,8 @@ export class BaseMovementStrategy extends IMovementStrategy {
         if (!cell) return true;
         const boardX = position.x + x;
         const boardY = position.y + y;
-        return boardX >= 0 && boardX < BOARD_WIDTH && boardY >= 0 && boardY < BOARD_HEIGHT && 
+        return boardX >= 0 && boardX < GameConfig.BOARD_WIDTH && 
+               boardY >= 0 && boardY < GameConfig.BOARD_HEIGHT && 
                board[boardY] && Array.isArray(board[boardY]) && !board[boardY][boardX];
       });
     });
