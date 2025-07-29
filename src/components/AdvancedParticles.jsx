@@ -20,10 +20,10 @@ export default function AdvancedParticles({
 
   const getParticleCount = useCallback(() => {
     switch (intensity) {
-      case 'low': return 8;
-      case 'medium': return 15;
-      case 'high': return 25;
-      default: return 15;
+      case 'low': return 5;
+      case 'medium': return 8;
+      case 'high': return 12;
+      default: return 8;
     }
   }, [intensity]);
 
@@ -45,11 +45,10 @@ export default function AdvancedParticles({
       emoji: getRandomParticle(),
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: 0.9 + Math.random() * 0.6, // Reduced size variation
-      duration: 4 + Math.random() * 2, // Shorter, more consistent duration
-      delay: Math.random() * 1, // Reduced delay
-      direction: Math.random() > 0.5 ? 1 : -1,
-      rotationSpeed: 0.3 + Math.random() * 0.4 // Slower rotation
+      size: 1, // Fixed size for consistency
+      duration: 6, // Longer, consistent duration
+      delay: Math.random() * 2,
+      direction: Math.random() > 0.5 ? 1 : -1
     };
   }, [particleId, getRandomParticle]);
 
@@ -105,17 +104,15 @@ export default function AdvancedParticles({
               y: 0
             }}
             animate={{
-              opacity: [0, 0.7, 0],
-              scale: [0, 1, 0],
-              y: [0, -60],
-              x: [0, particle.direction * 15]
+              opacity: [0, 0.6, 0],
+              y: [0, -50]
             }}
             transition={{
               duration: particle.duration,
               delay: particle.delay,
-              ease: "easeOut",
+              ease: "linear",
               repeat: Infinity,
-              repeatDelay: 2 + Math.random() * 2
+              repeatDelay: 3
             }}
             onAnimationComplete={() => {
               if (Math.random() > 0.7) {
@@ -128,52 +125,7 @@ export default function AdvancedParticles({
         ))}
       </AnimatePresence>
 
-      {/* Special effects for certain types */}
-      {type === 'magic' && (
-        <motion.div
-          className="absolute inset-0"
-          animate={{
-            background: [
-              'radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.1) 0%, transparent 50%)',
-              'radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%)',
-              'radial-gradient(circle at 40% 40%, rgba(135, 206, 235, 0.1) 0%, transparent 50%)',
-              'radial-gradient(circle at 60% 60%, rgba(255, 105, 180, 0.1) 0%, transparent 50%)'
-            ]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      )}
-
-      {type === 'tetris' && (
-        <>
-          {/* Falling tetris blocks animation */}
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={`tetris-bg-${i}`}
-              className="absolute opacity-5"
-              style={{
-                left: `${10 + i * 12}%`,
-                fontSize: '2rem'
-              }}
-              animate={{
-                y: ['100vh', '-10vh']
-              }}
-              transition={{
-                duration: 8 + i,
-                repeat: Infinity,
-                delay: i * 2,
-                ease: "linear"
-              }}
-            >
-              {particleTypes.tetris[i % particleTypes.tetris.length]}
-            </motion.div>
-          ))}
-        </>
-      )}
+      {/* Special effects temporarily disabled for performance */}
     </div>
   );
 }

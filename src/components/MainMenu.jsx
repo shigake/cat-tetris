@@ -268,10 +268,9 @@ export default function MainMenu({
 
   const floatingVariants = {
     animate: {
-      y: [-8, 8, -8],
-      rotate: [-1, 1, -1],
+      y: [-4, 4, -4],
       transition: {
-        duration: 4,
+        duration: 6,
         repeat: Infinity,
         ease: "easeInOut"
       }
@@ -280,9 +279,9 @@ export default function MainMenu({
 
   const pulseVariants = {
     animate: {
-      scale: [1, 1.02, 1],
+      scale: [1, 1.01, 1],
       transition: {
-        duration: 3,
+        duration: 4,
         repeat: Infinity,
         ease: "easeInOut"
       }
@@ -385,20 +384,9 @@ export default function MainMenu({
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               {option.isPrimary && (
-                <motion.div
-                  className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold"
-                  animate={{
-                    scale: [1, 1.05, 1]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatDelay: 2,
-                    ease: "easeInOut"
-                  }}
-                >
+                <div className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">
                   ⭐
-                </motion.div>
+                </div>
               )}
               
               {selectedOption === index && (
@@ -414,21 +402,13 @@ export default function MainMenu({
               )}
               
               <div className="relative flex items-center">
-                <motion.div 
-                  className="text-4xl mr-4 transition-transform duration-300"
-                  animate={selectedOption === index ? {
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, 0]
-                  } : {}}
-                  transition={{
-                    duration: 1.5,
-                    repeat: selectedOption === index ? Infinity : 0,
-                    repeatDelay: 2,
-                    ease: "easeInOut"
-                  }}
+                <div 
+                  className={`text-4xl mr-4 transition-all duration-300 ${
+                    selectedOption === index ? 'transform scale-105' : ''
+                  }`}
                 >
                   {option.icon}
-                </motion.div>
+                </div>
                 
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-yellow-200 transition-colors duration-300">
@@ -439,21 +419,13 @@ export default function MainMenu({
                   </p>
                 </div>
 
-                <motion.div 
-                  className="text-white/60 group-hover:text-white transition-all duration-300"
-                  animate={selectedOption === index ? {
-                    x: [0, 3, 0]
-                  } : {}}
-                  transition={{
-                    duration: 2,
-                    repeat: selectedOption === index ? Infinity : 0,
-                    ease: "easeInOut"
-                  }}
-                >
+                <div className={`text-white/60 group-hover:text-white transition-all duration-300 ${
+                  selectedOption === index ? 'transform translate-x-1' : ''
+                }`}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z"/>
                   </svg>
-                </motion.div>
+                </div>
               </div>
             </motion.button>
           ))}
@@ -552,23 +524,13 @@ export default function MainMenu({
           </div>
         </motion.div>
 
-        <motion.div
-          variants={itemVariants}
-          className="absolute -top-20 -right-20 text-8xl opacity-10 pointer-events-none"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        >
+        <div className="absolute -top-20 -right-20 text-6xl opacity-5 pointer-events-none">
           🎮
-        </motion.div>
+        </div>
 
-        <motion.div
-          variants={itemVariants}
-          className="absolute -bottom-20 -left-20 text-6xl opacity-10 pointer-events-none"
-          animate={{ rotate: -360 }}
-          transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-        >
+        <div className="absolute -bottom-20 -left-20 text-5xl opacity-5 pointer-events-none">
           🐱
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );
