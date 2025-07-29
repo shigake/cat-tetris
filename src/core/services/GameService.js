@@ -173,11 +173,14 @@ export class GameService extends IGameService {
 
   resume() {
     this.isPaused = false;
+    this.isPlaying = true;
     gameEvents.emit(GAME_EVENTS.GAME_RESUMED);
   }
 
   restart() {
     this.initializeGame();
+    this.isPlaying = true;
+    this.isPaused = false;
   }
 
   getDropPreview() {
