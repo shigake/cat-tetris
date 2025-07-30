@@ -55,12 +55,15 @@ export class KeyboardInputService extends IKeyboardInputService {
   }
 
   handleKeyDown = (event) => {
+    console.log('KeyboardInputService handleKeyDown:', event.key);
     if (this.preventDefaultKeys.includes(event.key)) {
       event.preventDefault();
     }
 
     const action = this.keyMappings[event.key];
+    console.log('KeyboardInputService action:', action);
     if (action && this.handlers.has(action)) {
+      console.log('KeyboardInputService executing handlers for:', action);
       this.handlers.get(action).forEach(handler => {
         try {
           handler(event);
@@ -68,6 +71,8 @@ export class KeyboardInputService extends IKeyboardInputService {
           console.error(`Error executing handler for action ${action}:`, error);
         }
       });
+    } else {
+      console.log('KeyboardInputService: no action or handlers for key:', event.key);
     }
   }
 

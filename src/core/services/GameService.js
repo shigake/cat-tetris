@@ -50,6 +50,11 @@ export class GameService extends IGameService {
   }
 
   movePiece(direction) {
+    console.log('GameService movePiece called:', direction, { 
+      hasCurrentPiece: !!this.currentPiece, 
+      gameOver: this.gameOver, 
+      isPaused: this.isPaused 
+    });
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
     const strategy = this.movementStrategyFactory.createStrategy(direction);
@@ -70,6 +75,11 @@ export class GameService extends IGameService {
   }
 
   rotatePiece() {
+    console.log('GameService rotatePiece called:', { 
+      hasCurrentPiece: !!this.currentPiece, 
+      gameOver: this.gameOver, 
+      isPaused: this.isPaused 
+    });
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
     const strategy = this.movementStrategyFactory.createStrategy('rotate');
