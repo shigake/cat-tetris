@@ -2,7 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
 export function useSettings() {
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState({
+    volume: 80,
+    gameSpeed: 'normal',
+    soundEnabled: true,
+    particlesEnabled: true
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -10,11 +15,22 @@ export function useSettings() {
     try {
       const settingsService = serviceContainer.resolve('settingsService');
       const currentSettings = settingsService.getSettings();
-      setSettings(currentSettings);
+      setSettings(currentSettings || {
+        volume: 80,
+        gameSpeed: 'normal',
+        soundEnabled: true,
+        particlesEnabled: true
+      });
       setLoading(false);
     } catch (err) {
       setError(err.message);
       setLoading(false);
+      setSettings({
+        volume: 80,
+        gameSpeed: 'normal',
+        soundEnabled: true,
+        particlesEnabled: true
+      });
     }
   }, []);
 

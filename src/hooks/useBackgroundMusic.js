@@ -42,7 +42,6 @@ export function useBackgroundMusic() {
       setIsPlaying(true);
       setCurrentTrack('background');
     } catch (error) {
-      console.warn('Failed to play background music MP3, using fallback:', error);
       playCheerfulMelody();
     }
   }, [stopMusic]);
@@ -60,7 +59,6 @@ export function useBackgroundMusic() {
       setIsPlaying(true);
       setCurrentTrack('game');
     } catch (error) {
-      console.warn('Failed to play game music MP3, using fallback:', error);
       playEnergeticMelody();
     }
   }, [stopMusic]);
@@ -152,7 +150,7 @@ export function useBackgroundMusic() {
       setIsPlaying(true);
       setCurrentTrack('cheerful-fallback');
     } catch (error) {
-      console.error('Error playing cheerful melody:', error);
+      
     }
   }, [stopMusic]);
 
@@ -242,7 +240,7 @@ export function useBackgroundMusic() {
       setIsPlaying(true);
       setCurrentTrack('energetic-fallback');
     } catch (error) {
-      console.error('Error playing energetic melody:', error);
+      
     }
   }, [stopMusic]);
 

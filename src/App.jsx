@@ -409,7 +409,11 @@ function GameComponent() {
     if (settings?.soundEnabled) {
       startGameMusic?.();
     }
-    onStartGame();
+    if (gameState?.gameOver) {
+      actions.restart();
+    } else if (gameState?.isPaused) {
+      actions.resume();
+    }
   };
 
   const handleContinueGame = () => {
@@ -417,7 +421,9 @@ function GameComponent() {
     if (settings?.soundEnabled) {
       startGameMusic?.();
     }
-    onContinueGame();
+    if (gameState?.isPaused) {
+      actions.resume();
+    }
   };
 
   const handleNewGame = () => {
@@ -425,7 +431,7 @@ function GameComponent() {
     if (settings?.soundEnabled) {
       startGameMusic?.();
     }
-    onNewGame();
+    actions.restart();
   };
 
   const handleBackToMenu = () => {
@@ -433,7 +439,9 @@ function GameComponent() {
     if (settings?.soundEnabled) {
       startBackgroundMusic?.();
     }
-    onBackToMenu();
+    if (gameState && !gameState.gameOver) {
+      actions.pause();
+    }
   };
 
   const handleShowStats = () => {
