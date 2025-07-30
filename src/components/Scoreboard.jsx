@@ -20,37 +20,37 @@ const Scoreboard = ({ score, level, lines, combo }) => {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[200px]"
+      className="bg-gray-900/50 p-2 lg:p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[140px] lg:min-w-[200px]"
     >
-      <h2 className="text-2xl font-cat font-bold text-white mb-4 text-center">
-        📊 Pontuação
+      <h2 className="text-lg lg:text-2xl font-cat font-bold text-white mb-2 lg:mb-4 text-center">
+        📊 <span className="hidden lg:inline">Pontuação</span>
       </h2>
       
-      <div className="space-y-3">
+      <div className="space-y-1 lg:space-y-3">
         <div className="flex justify-between items-center">
-          <span className="text-white/80">Pontos:</span>
-          <span className="text-yellow-400 font-bold text-lg">
+          <span className="text-white/80 text-sm lg:text-base">Pontos:</span>
+          <span className="text-yellow-400 font-bold text-sm lg:text-lg">
             {score.toLocaleString()}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-white/80">Recorde:</span>
-          <span className="text-green-400 font-bold text-lg">
+          <span className="text-white/80 text-sm lg:text-base">Recorde:</span>
+          <span className="text-green-400 font-bold text-sm lg:text-lg">
             {highScore.toLocaleString()}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-white/80">Nível:</span>
-          <span className="text-blue-400 font-bold text-lg">
+          <span className="text-white/80 text-sm lg:text-base">Nível:</span>
+          <span className="text-blue-400 font-bold text-sm lg:text-lg">
             {level}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-white/80">Linhas:</span>
-          <span className="text-purple-400 font-bold text-lg">
+          <span className="text-white/80 text-sm lg:text-base">Linhas:</span>
+          <span className="text-purple-400 font-bold text-sm lg:text-lg">
             {lines}
           </span>
         </div>

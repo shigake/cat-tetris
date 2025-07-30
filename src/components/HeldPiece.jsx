@@ -6,8 +6,8 @@ const HeldPiece = ({ heldPiece, canHold }) => {
   const renderHeldPiece = () => {
     if (!heldPiece) {
       return (
-        <div className="bg-gray-800/50 p-4 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center">
-          <span className="text-white/40 text-sm">Vazio</span>
+        <div className="bg-gray-800/50 p-2 lg:p-4 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center">
+          <span className="text-white/40 text-xs lg:text-sm">Vazio</span>
         </div>
       );
     }
@@ -62,11 +62,11 @@ const HeldPiece = ({ heldPiece, canHold }) => {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[220px]"
+      className="bg-gray-900/50 p-2 lg:p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[100px] lg:min-w-[220px]"
     >
-      <h2 className="text-xl font-cat font-bold text-white mb-4 text-center flex items-center justify-center gap-2">
+      <h2 className="text-sm lg:text-xl font-cat font-bold text-white mb-2 lg:mb-4 text-center flex items-center justify-center gap-1 lg:gap-2">
         <span>💾</span>
-        <span>Peça Guardada</span>
+        <span className="hidden lg:inline">Peça Guardada</span>
       </h2>
       
       <div className="space-y-3">
@@ -85,7 +85,7 @@ const HeldPiece = ({ heldPiece, canHold }) => {
         </div>
       </div>
       
-      <div className="mt-4 pt-4 border-t border-white/20">
+      <div className="mt-2 lg:mt-4 pt-2 lg:pt-4 border-t border-white/20 hidden lg:block">
         <div className="text-center text-white/60 text-sm space-y-1">
           <p className="flex items-center justify-center gap-1">
             <span>💾</span>
