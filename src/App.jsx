@@ -42,7 +42,10 @@ function GameScreen({
   onBackToMenu,
   showStats,
   setShowStats,
-  statistics
+  statistics,
+  isGamepadActive,
+  controllerCount,
+  getGamepadInfo
 }) {
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4">
@@ -435,6 +438,9 @@ function GameComponent() {
       showStats={showStats}
       setShowStats={setShowStats}
       statistics={statistics}
+      isGamepadActive={isGamepadActive}
+      controllerCount={controllerCount}
+      getGamepadInfo={getGamepadInfo}
     />
   );
 }
