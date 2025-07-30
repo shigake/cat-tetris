@@ -48,6 +48,49 @@ function GameScreen({
   controllerCount,
   getGamepadInfo
 }) {
+  const [actionCooldowns, setActionCooldowns] = React.useState({
+    hardDrop: false,
+    hold: false,
+    pause: false
+  });
+
+  const handleHardDropWithDelay = React.useCallback(() => {
+    if (actionCooldowns.hardDrop || gameState?.gameOver) return;
+    
+    actions.hardDrop();
+    setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
+    
+    setTimeout(() => {
+      setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
+    }, 300);
+  }, [actions, actionCooldowns.hardDrop, gameState?.gameOver]);
+
+  const handleHoldWithDelay = React.useCallback(() => {
+    if (actionCooldowns.hold || gameState?.gameOver || !gameState?.canHold) return;
+    
+    actions.holdPiece();
+    setActionCooldowns(prev => ({ ...prev, hold: true }));
+    
+    setTimeout(() => {
+      setActionCooldowns(prev => ({ ...prev, hold: false }));
+    }, 500);
+  }, [actions, actionCooldowns.hold, gameState?.gameOver, gameState?.canHold]);
+
+  const handlePauseWithDelay = React.useCallback(() => {
+    if (actionCooldowns.pause || gameState?.gameOver) return;
+    
+    if (gameState?.isPaused) {
+      actions.resume();
+    } else {
+      actions.pause();
+    }
+    
+    setActionCooldowns(prev => ({ ...prev, pause: true }));
+    
+    setTimeout(() => {
+      setActionCooldowns(prev => ({ ...prev, pause: false }));
+    }, 300);
+  }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
   return (
     <div className="min-h-screen cat-bg flex items-center justify-center p-4">
       <motion.div
@@ -328,12 +371,6 @@ function GameComponent() {
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
-  const [actionCooldowns, setActionCooldowns] = useState({
-    hardDrop: false,
-    hold: false,
-    pause: false
-  });
-
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
@@ -462,44 +499,6 @@ function GameComponent() {
       actions.pause();
     }
   };
-
-  const handleHardDropWithDelay = React.useCallback(() => {
-    if (actionCooldowns.hardDrop || gameState?.gameOver) return;
-    
-    actions.hardDrop();
-    setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
-    
-    setTimeout(() => {
-      setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
-    }, 300);
-  }, [actions, actionCooldowns.hardDrop, gameState?.gameOver]);
-
-  const handleHoldWithDelay = React.useCallback(() => {
-    if (actionCooldowns.hold || gameState?.gameOver || !gameState?.canHold) return;
-    
-    actions.holdPiece();
-    setActionCooldowns(prev => ({ ...prev, hold: true }));
-    
-    setTimeout(() => {
-      setActionCooldowns(prev => ({ ...prev, hold: false }));
-    }, 500);
-  }, [actions, actionCooldowns.hold, gameState?.gameOver, gameState?.canHold]);
-
-  const handlePauseWithDelay = React.useCallback(() => {
-    if (actionCooldowns.pause || gameState?.gameOver) return;
-    
-    if (gameState?.isPaused) {
-      actions.resume();
-    } else {
-      actions.pause();
-    }
-    
-    setActionCooldowns(prev => ({ ...prev, pause: true }));
-    
-    setTimeout(() => {
-      setActionCooldowns(prev => ({ ...prev, pause: false }));
-    }, 300);
-  }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
 
   const handleShowStats = () => {
     if (currentScreen === 'menu') {
