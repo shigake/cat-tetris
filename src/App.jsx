@@ -447,7 +447,7 @@ function GameComponent() {
   }, []);
 
   const handleSettingsChange = (newSettings) => {
-    setSettings(newSettings);
+    updateSettings(newSettings);
     
     if (newSettings.soundEnabled) {
       if (currentScreen === 'menu') {
