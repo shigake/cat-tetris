@@ -17,6 +17,7 @@ import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 import { useGamepad } from './hooks/useGamepad';
 import GamepadIndicator from './components/GamepadIndicator';
+import { getPieceColor } from './utils/PieceGenerator';
 
 const Statistics = lazy(() => import('./components/Statistics'));
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
@@ -134,70 +135,73 @@ function GameScreen({
             </div>
           </div>
 
-          {/* 📱 MOBILE LAYOUT OTIMIZADO */}
+          {/* 📱 MOBILE LAYOUT ULTRA LIMPO */}
           <div className="flex lg:hidden flex-col w-full h-full" data-testid="mobile-layout">
-            {/* 📊 Informações compactas no topo */}
-            <div className="flex justify-between items-center mb-2 px-2">
-              <div className="flex gap-2">
-                <HeldPiece 
-                  heldPiece={gameState.heldPiece}
-                  canHold={gameState.canHold}
-                />
-                <NextPieces pieces={gameState.nextPieces} />
+            {/* 📊 Info bar SUPER compacta */}
+            <div className="flex justify-between items-center mb-2 px-2 bg-black/30 rounded-lg mx-2 py-1">
+              {/* Score e Level apenas */}
+              <div className="text-white text-sm">
+                <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()}</span>
+                <span className="text-white/60 ml-2">Nv.{gameState.score.level}</span>
               </div>
               
-              <div className="flex-shrink-0">
-                <Scoreboard 
-                  score={gameState.score.points}
-                  level={gameState.score.level}
-                  lines={gameState.score.lines}
-                  combo={gameState.score.combo}
-                />
+              {/* Próxima peça APENAS */}
+              <div className="flex items-center gap-2">
+                {gameState.heldPiece && (
+                  <div className="text-xs text-white/60">💾</div>
+                )}
+                <div className="text-xs text-white/60">Próxima:</div>
+                <div className="bg-gray-800/50 p-1 rounded">
+                  {gameState.nextPieces[0] && (
+                    <div className="grid gap-0.5" style={{
+                      gridTemplateColumns: `repeat(${Math.max(...gameState.nextPieces[0].shape.map(row => row.length))}, 8px)`,
+                      gridTemplateRows: `repeat(${gameState.nextPieces[0].shape.length}, 8px)`
+                    }}>
+                      {gameState.nextPieces[0].shape.map((row, y) =>
+                        row.map((cell, x) => (
+                          <div
+                            key={`next-${x}-${y}`}
+                            className={`w-2 h-2 border border-gray-600/30 ${
+                              cell ? `bg-${getPieceColor(gameState.nextPieces[0].type)}-500` : 'bg-transparent'
+                            }`}
+                          />
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
-            {/* 🎮 ÁREA PRINCIPAL DE JOGO - Layout Horizontal */}
-            <div className="flex items-center justify-center flex-1 relative px-2">
-              {/* 🎯 Controles ESQUERDA (movimento) */}
-              <div className="flex flex-col gap-2 mr-3">
+            {/* 🎮 ÁREA PRINCIPAL DE JOGO - Layout Horizontal Simplificado */}
+            <div className="flex items-center justify-center flex-1 relative px-1">
+              {/* 🎯 Controles ESQUERDA (movimento básico) */}
+              <div className="flex flex-col gap-1 mr-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onTouchStart={() => actions.rotatePiece()}
                   onClick={() => actions.rotatePiece()}
                   disabled={gameState.gameOver}
-                  className="bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 touch-manipulation"
+                  className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 touch-manipulation text-lg"
                 >
                   🔄
                 </motion.button>
                 
-                <div className="grid grid-rows-3 gap-1">
-                  <div></div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onTouchStart={() => actions.movePiece('left')}
-                    onClick={() => actions.movePiece('left')}
-                    disabled={gameState.gameOver}
-                    className="bg-gray-600 text-white p-3 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation"
-                  >
-                    ⬅️
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onTouchStart={() => actions.movePiece('down')}
-                    onClick={() => actions.movePiece('down')}
-                    disabled={gameState.gameOver}
-                    className="bg-gray-600 text-white p-3 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation"
-                  >
-                    ⬇️
-                  </motion.button>
-                </div>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onTouchStart={() => actions.movePiece('left')}
+                  onClick={() => actions.movePiece('left')}
+                  disabled={gameState.gameOver}
+                  className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
+                >
+                  ⬅️
+                </motion.button>
               </div>
               
               {/* 🎯 TABULEIRO CENTRAL */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 mx-1">
                 <TetrisBoard 
                   board={gameState.board} 
                   currentPiece={gameState.currentPiece}
@@ -206,60 +210,67 @@ function GameScreen({
                 />
               </div>
               
-              {/* 🎯 Controles DIREITA (ações) */}
-              <div className="flex flex-col gap-2 ml-3">
+              {/* 🎯 Controles DIREITA (ações essenciais) */}
+              <div className="flex flex-col gap-1 ml-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onTouchStart={() => actions.hardDrop()}
                   onClick={() => actions.hardDrop()}
                   disabled={gameState.gameOver}
-                  className="bg-red-500 text-white p-3 rounded-full shadow-lg hover:bg-red-600 disabled:opacity-50 touch-manipulation"
+                  className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 disabled:opacity-50 touch-manipulation text-lg"
                 >
                   ⚡
                 </motion.button>
                 
-                <div className="grid grid-rows-3 gap-1">
-                  <div></div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onTouchStart={() => actions.movePiece('right')}
-                    onClick={() => actions.movePiece('right')}
-                    disabled={gameState.gameOver}
-                    className="bg-gray-600 text-white p-3 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation"
-                  >
-                    ➡️
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onTouchStart={() => actions.holdPiece()}
-                    onClick={() => actions.holdPiece()}
-                    disabled={gameState.gameOver || !gameState.canHold}
-                    className={`p-3 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
-                      gameState.canHold 
-                        ? 'bg-green-500 text-white hover:bg-green-600' 
-                        : 'bg-gray-500 text-white'
-                    }`}
-                  >
-                    💾
-                  </motion.button>
-                </div>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onTouchStart={() => actions.movePiece('right')}
+                  onClick={() => actions.movePiece('right')}
+                  disabled={gameState.gameOver}
+                  className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
+                >
+                  ➡️
+                </motion.button>
               </div>
             </div>
             
-            {/* 🎮 Botão de pausa na parte inferior */}
-            <div className="flex justify-center py-2">
+            {/* 🎮 Controles secundários */}
+            <div className="flex justify-center gap-2 py-2 px-2">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onTouchStart={() => actions.movePiece('down')}
+                onClick={() => actions.movePiece('down')}
+                disabled={gameState.gameOver}
+                className="bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-gray-600 disabled:opacity-50 touch-manipulation"
+              >
+                ⬇️ Acelerar
+              </motion.button>
+              
+              {gameState.canHold && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onTouchStart={() => actions.holdPiece()}
+                  onClick={() => actions.holdPiece()}
+                  disabled={gameState.gameOver || !gameState.canHold}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-500 disabled:opacity-50 touch-manipulation"
+                >
+                  💾 Guardar
+                </motion.button>
+              )}
+              
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onTouchStart={() => gameState.isPaused ? actions.resume() : actions.pause()}
                 onClick={() => gameState.isPaused ? actions.resume() : actions.pause()}
                 disabled={gameState.gameOver}
-                className="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-yellow-600 disabled:opacity-50 touch-manipulation"
+                className="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-yellow-600 disabled:opacity-50 touch-manipulation"
               >
-                {gameState.isPaused ? '▶️ Continuar' : '⏸️ Pausar'}
+                {gameState.isPaused ? '▶️' : '⏸️'}
               </motion.button>
             </div>
           </div>
