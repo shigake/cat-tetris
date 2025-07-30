@@ -5,6 +5,32 @@ export function useBackgroundMusic() {
   const gameAudioRef = useRef(null);
   const currentMusicRef = useRef(null);
 
+  // 🛑 DEFINIR stopMusic PRIMEIRO para evitar erro de hoisting
+  const stopMusic = useCallback(() => {
+    // 🛑 Parar música MP3
+    if (currentMusicRef.current) {
+      currentMusicRef.current.pause();
+      currentMusicRef.current.currentTime = 0;
+      currentMusicRef.current = null;
+    }
+    
+    // 🛑 Parar todos os oscillators
+    if (window.currentOscillators) {
+      window.currentOscillators.forEach(osc => {
+        try { osc.stop(); } catch {}
+      });
+      window.currentOscillators = [];
+    }
+    
+    // 🛑 Cancelar todos os loops de música
+    if (window.currentMusicLoop) {
+      clearTimeout(window.currentMusicLoop);
+      window.currentMusicLoop = null;
+    }
+    
+    console.log('🎵 Música parada completamente');
+  }, []);
+
   const initializeAudio = useCallback(() => {
     if (!backgroundAudioRef.current) {
       backgroundAudioRef.current = new Audio('/sounds/background-music.mp3');
@@ -66,31 +92,6 @@ export function useBackgroundMusic() {
       playEnergeticMelody();
     }
   }, [initializeAudio, stopMusic]);
-
-  const stopMusic = useCallback(() => {
-    // 🛑 Parar música MP3
-    if (currentMusicRef.current) {
-      currentMusicRef.current.pause();
-      currentMusicRef.current.currentTime = 0;
-      currentMusicRef.current = null;
-    }
-    
-    // 🛑 Parar todos os oscillators
-    if (window.currentOscillators) {
-      window.currentOscillators.forEach(osc => {
-        try { osc.stop(); } catch {}
-      });
-      window.currentOscillators = [];
-    }
-    
-    // 🛑 Cancelar todos os loops de música
-    if (window.currentMusicLoop) {
-      clearTimeout(window.currentMusicLoop);
-      window.currentMusicLoop = null;
-    }
-    
-    console.log('🎵 Música parada completamente');
-  }, []);
 
   // 🎵 Fallback cheerful melody using Web Audio API
   const playCheerfulMelody = useCallback(() => {
