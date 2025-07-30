@@ -15,6 +15,8 @@ import { useStatistics } from './hooks/useStatistics';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
+import { useGamepad } from './hooks/useGamepad';
+import GamepadIndicator from './components/GamepadIndicator';
 
 const Statistics = lazy(() => import('./components/Statistics'));
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
@@ -185,6 +187,13 @@ function GameScreen({
             </Suspense>
           )}
         </AnimatePresence>
+
+        {/* 🎮 Gamepad Indicator */}
+        <GamepadIndicator
+          isConnected={isGamepadActive}
+          controllerCount={controllerCount}
+          gamepadInfo={getGamepadInfo()}
+        />
       </motion.div>
     </div>
   );
@@ -202,6 +211,12 @@ function GameComponent() {
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
   const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
+  const { 
+    isGamepadActive, 
+    controllerCount, 
+    processGamepadInput, 
+    getGamepadInfo 
+  } = useGamepad();
   
   useSoundManager();
   
@@ -234,7 +249,20 @@ function GameComponent() {
       // Cleanup quando componente desmonta
       stopMusic();
     };
-  }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
+     }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
+
+  // 🎮 Gamepad input processing
+  React.useEffect(() => {
+    if (!isGamepadActive || currentScreen !== 'game') return;
+
+    const gamepadInterval = setInterval(() => {
+      processGamepadInput(actions);
+    }, 50); // Check gamepad input every 50ms
+
+    return () => {
+      clearInterval(gamepadInterval);
+    };
+  }, [isGamepadActive, currentScreen, processGamepadInput, actions]);
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
