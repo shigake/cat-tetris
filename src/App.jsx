@@ -254,13 +254,13 @@ function GameComponent() {
     };
      }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
 
-  // 🎮 Gamepad input processing
+  // 🎮 Gamepad input processing - MAIS RESPONSIVO
   React.useEffect(() => {
     if (!isGamepadActive || currentScreen !== 'game') return;
 
     const gamepadInterval = setInterval(() => {
       processGamepadInput(actions);
-    }, 50); // Check gamepad input every 50ms
+    }, 16); // Check gamepad input every 16ms (~60fps) para fluidez máxima
 
     return () => {
       clearInterval(gamepadInterval);

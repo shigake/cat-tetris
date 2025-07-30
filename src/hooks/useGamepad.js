@@ -4,8 +4,10 @@ export function useGamepad() {
   const [connectedGamepads, setConnectedGamepads] = useState([]);
   const [isGamepadActive, setIsGamepadActive] = useState(false);
   const lastInputTimeRef = useRef(0);
-  const inputDelayRef = useRef(150); // ms delay between inputs
+  const inputDelayRef = useRef(100); // ms delay between inputs (mais rápido)
   const lastButtonStatesRef = useRef(new Map());
+  const continuousInputRef = useRef(new Map()); // Para inputs contínuos
+  const firstInputDelayRef = useRef(200); // Delay inicial antes de repetir
 
   // 🎮 Gamepad button mapping for different controllers
   const BUTTON_MAPPINGS = {
@@ -111,7 +113,7 @@ export function useGamepad() {
       const stickDirections = getStickDirection(gamepad);
       const lastButtonStates = lastButtonStatesRef.current.get(i) || {};
 
-      // 🎮 Movement actions (D-pad and left stick)
+      // 🎮 Movement actions (D-pad and left stick) - CONTINUOUS INPUT
       const checkMovement = (action, buttonIndices, stickKey) => {
         // Check D-pad buttons
         const buttonPressed = buttonIndices.some(btnIndex => 
@@ -120,41 +122,74 @@ export function useGamepad() {
         
         // Check analog stick
         const stickPressed = stickKey && stickDirections[stickKey];
+        const isPressed = buttonPressed || stickPressed;
         
-        if (buttonPressed || stickPressed) {
-          const actionKey = `${action}_${i}`;
+        const actionKey = `${action}_${i}`;
+        const continuousKey = `${actionKey}_continuous`;
+        
+        if (isPressed) {
+          // 🎮 PRIMEIRA VEZ pressionando
           if (!lastButtonStates[actionKey]) {
-            console.log(`🎮 Gamepad ${i}: ${action}`);
+            console.log(`🎮 Gamepad ${i}: ${action} (primeira vez)`);
+            executeMovementAction(action, gameActions, gamepad);
             
-            switch (action) {
-              case 'moveLeft':
-                gameActions.movePiece('left');
-                break;
-              case 'moveRight':
-                gameActions.movePiece('right');
-                break;
-              case 'moveDown':
-                gameActions.movePiece('down');
-                break;
-              case 'hardDrop':
-                gameActions.hardDrop();
-                // Stronger haptic feedback for hard drop
-                if (gamepad.vibrationActuator) {
-                  gamepad.vibrationActuator.playEffect('dual-rumble', {
-                    duration: 100,
-                    strongMagnitude: 0.7,
-                    weakMagnitude: 0.3,
-                  });
-                }
-                break;
-            }
-            
-            lastInputTimeRef.current = now;
             lastButtonStates[actionKey] = true;
+            continuousInputRef.current.set(continuousKey, {
+              lastTime: now,
+              firstInput: true
+            });
+            
+          } else {
+            // 🎮 SEGURAR botão - input contínuo
+            const continuousData = continuousInputRef.current.get(continuousKey);
+            if (continuousData) {
+              const timeSinceLastInput = now - continuousData.lastTime;
+              const requiredDelay = continuousData.firstInput ? firstInputDelayRef.current : inputDelayRef.current;
+              
+              if (timeSinceLastInput >= requiredDelay) {
+                console.log(`🎮 Gamepad ${i}: ${action} (repetindo)`);
+                executeMovementAction(action, gameActions, gamepad);
+                
+                continuousInputRef.current.set(continuousKey, {
+                  lastTime: now,
+                  firstInput: false
+                });
+              }
+            }
           }
         } else {
-          const actionKey = `${action}_${i}`;
+          // 🎮 Botão SOLTO - resetar estado
+          if (lastButtonStates[actionKey]) {
+            console.log(`🎮 Gamepad ${i}: ${action} (solto)`);
+          }
           lastButtonStates[actionKey] = false;
+          continuousInputRef.current.delete(continuousKey);
+        }
+      };
+
+      // 🎮 Executar ação de movimento
+      const executeMovementAction = (action, gameActions, gamepad) => {
+        switch (action) {
+          case 'moveLeft':
+            gameActions.movePiece('left');
+            break;
+          case 'moveRight':
+            gameActions.movePiece('right');
+            break;
+          case 'moveDown':
+            gameActions.movePiece('down');
+            break;
+          case 'hardDrop':
+            gameActions.hardDrop();
+            // Stronger haptic feedback for hard drop
+            if (gamepad.vibrationActuator) {
+              gamepad.vibrationActuator.playEffect('dual-rumble', {
+                duration: 100,
+                strongMagnitude: 0.7,
+                weakMagnitude: 0.3,
+              });
+            }
+            break;
         }
       };
 
@@ -225,12 +260,39 @@ export function useGamepad() {
     inputDelayRef.current = Math.max(50, Math.min(500, delay));
   }, []);
 
+  // 🎮 Set movement speed (presets for different play styles)
+  const setMovementSpeed = useCallback((speed) => {
+    switch (speed) {
+      case 'slow':
+        inputDelayRef.current = 150;
+        firstInputDelayRef.current = 300;
+        break;
+      case 'normal':
+        inputDelayRef.current = 100;
+        firstInputDelayRef.current = 200;
+        break;
+      case 'fast':
+        inputDelayRef.current = 80;
+        firstInputDelayRef.current = 150;
+        break;
+      case 'ultra':
+        inputDelayRef.current = 60;
+        firstInputDelayRef.current = 120;
+        break;
+      default:
+        inputDelayRef.current = 100;
+        firstInputDelayRef.current = 200;
+    }
+    console.log(`🎮 Movement speed set to: ${speed} (repeat: ${inputDelayRef.current}ms, initial: ${firstInputDelayRef.current}ms)`);
+  }, []);
+
   return {
     isGamepadActive,
     connectedGamepads: connectedGamepads.length,
     processGamepadInput,
     getGamepadInfo,
     setInputDelay,
+    setMovementSpeed,
     
     // Helper functions
     isControllerConnected: isGamepadActive,
