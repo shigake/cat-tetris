@@ -135,24 +135,20 @@ function GameScreen({
             </div>
           </div>
 
-          {/* 📱 MOBILE LAYOUT ULTRA LIMPO */}
           <div className="flex lg:hidden flex-col w-full h-full" data-testid="mobile-layout">
-            {/* 📊 Info bar SUPER compacta */}
             <div className="flex justify-between items-center mb-2 px-2 bg-black/30 rounded-lg mx-2 py-1">
-              {/* Score e Level apenas */}
               <div className="text-white text-sm">
                 <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()}</span>
                 <span className="text-white/60 ml-2">Nv.{gameState.score.level}</span>
               </div>
               
-              {/* Próxima peça APENAS */}
               <div className="flex items-center gap-2">
                 {gameState.heldPiece && (
                   <div className="text-xs text-white/60">💾</div>
                 )}
                 <div className="text-xs text-white/60">Próxima:</div>
                 <div className="bg-gray-800/50 p-1 rounded">
-                  {gameState.nextPieces[0] && (
+                  {gameState.nextPieces[0] ? (
                     <div className="grid gap-0.5" style={{
                       gridTemplateColumns: `repeat(${Math.max(...gameState.nextPieces[0].shape.map(row => row.length))}, 8px)`,
                       gridTemplateRows: `repeat(${gameState.nextPieces[0].shape.length}, 8px)`
@@ -161,21 +157,28 @@ function GameScreen({
                         row.map((cell, x) => (
                           <div
                             key={`next-${x}-${y}`}
-                            className={`w-2 h-2 border border-gray-600/30 ${
-                              cell ? `bg-${getPieceColor(gameState.nextPieces[0].type)}-500` : 'bg-transparent'
-                            }`}
-                          />
+                            className="w-2 h-2 rounded-sm"
+                            style={{
+                              backgroundColor: cell ? getPieceColor(gameState.nextPieces[0].color) : 'transparent',
+                              border: cell ? '1px solid rgba(255,255,255,0.3)' : 'none'
+                            }}
+                          >
+                            {cell && gameState.nextPieces[0].emoji ? (
+                              <span className="text-[6px] leading-none block text-center">{gameState.nextPieces[0].emoji}</span>
+                            ) : null}
+                          </div>
                         ))
                       )}
                     </div>
-                  )}
-                </div>
+                  ) : (
+                    <div className="w-8 h-6 flex items-center justify-center">
+                      <span className="text-xs text-white/40">?</span>
+                    </div>
+                  )}</div>
               </div>
             </div>
             
-            {/* 🎮 ÁREA PRINCIPAL DE JOGO - Layout Horizontal Simplificado */}
             <div className="flex items-center justify-center flex-1 relative px-1">
-              {/* 🎯 Controles ESQUERDA (movimento básico) */}
               <div className="flex flex-col gap-1 mr-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -200,7 +203,6 @@ function GameScreen({
                 </motion.button>
               </div>
               
-              {/* 🎯 TABULEIRO CENTRAL */}
               <div className="flex-shrink-0 mx-1">
                 <TetrisBoard 
                   board={gameState.board} 
@@ -210,7 +212,6 @@ function GameScreen({
                 />
               </div>
               
-              {/* 🎯 Controles DIREITA (ações essenciais) */}
               <div className="flex flex-col gap-1 ml-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -236,7 +237,6 @@ function GameScreen({
               </div>
             </div>
             
-            {/* 🎮 Controles secundários */}
             <div className="flex justify-center gap-2 py-2 px-2">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -297,7 +297,6 @@ function GameScreen({
           )}
         </AnimatePresence>
 
-        {/* 🎮 Gamepad Indicator */}
         <GamepadIndicator
           isConnected={isGamepadActive}
           controllerCount={controllerCount}
@@ -341,37 +340,31 @@ function GameComponent() {
     }
   }, [gameState]);
 
-  // 🎵 Controlar música baseado na tela atual e configurações
   React.useEffect(() => {
-    if (!settings?.soundEnabled) {
+    if (startBackgroundMusic && stopMusic && settings?.soundEnabled) {
+      if (currentScreen === 'menu') {
+        startBackgroundMusic();
+      } else if (currentScreen === 'game') {
+        startGameMusic();
+      }
+    } else {
       stopMusic();
-      return;
-    }
-
-    if (currentScreen === 'menu') {
-      startBackgroundMusic();
-    } else if (currentScreen === 'game') {
-      startGameMusic();
     }
 
     return () => {
-      // Cleanup quando componente desmonta
       stopMusic();
     };
-     }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
+  }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
 
-  // 🎮 Gamepad input processing - MAIS RESPONSIVO
   React.useEffect(() => {
-    if (!isGamepadActive || currentScreen !== 'game') return;
+    if (isGamepadActive && currentScreen === 'game') {
+      const gamepadInterval = setInterval(() => {
+        processGamepadInput();
+      }, 16);
 
-    const gamepadInterval = setInterval(() => {
-      processGamepadInput(actions);
-    }, 16); // Check gamepad input every 16ms (~60fps) para fluidez máxima
-
-    return () => {
-      clearInterval(gamepadInterval);
-    };
-  }, [isGamepadActive, currentScreen, processGamepadInput, actions]);
+      return () => clearInterval(gamepadInterval);
+    }
+  }, [isGamepadActive, currentScreen, processGamepadInput]);
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -397,71 +390,50 @@ function GameComponent() {
     };
   }, []);
 
-  const handleSettingsChange = async (newSettings) => {
-    try {
-      await updateSettings(newSettings);
-      
-      // 🎵 Controlar música baseado nas configurações
-      if (newSettings.soundEnabled) {
-        if (currentScreen === 'menu') {
-          startBackgroundMusic();
-        } else if (currentScreen === 'game') {
-          startGameMusic();
-        }
-      } else {
-        stopMusic();
+  const handleSettingsChange = (newSettings) => {
+    setSettings(newSettings);
+    
+    if (newSettings.soundEnabled) {
+      if (currentScreen === 'menu') {
+        startBackgroundMusic?.();
+      } else if (currentScreen === 'game') {
+        startGameMusic?.();
       }
-    } catch (error) {
-      console.error('Failed to update settings:', error);
+    } else {
+      stopMusic?.();
     }
   };
 
   const handleStartGame = () => {
     setCurrentScreen('game');
-    if (gameState?.gameOver) {
-      actions.restart();
-    } else if (gameState?.isPaused) {
-      actions.resume();
-    }
-    
-    // 🎮 Iniciar música de jogo se som estiver habilitado
     if (settings?.soundEnabled) {
-      startGameMusic();
+      startGameMusic?.();
     }
+    onStartGame();
   };
 
   const handleContinueGame = () => {
     setCurrentScreen('game');
-    if (gameState?.isPaused) {
-      actions.resume();
-    }
-    
-    // 🎮 Continuar música de jogo se som estiver habilitado
     if (settings?.soundEnabled) {
-      startGameMusic();
+      startGameMusic?.();
     }
+    onContinueGame();
   };
 
   const handleNewGame = () => {
     setCurrentScreen('game');
-    actions.restart();
-    
-    // 🎮 Iniciar música de jogo se som estiver habilitado
     if (settings?.soundEnabled) {
-      startGameMusic();
+      startGameMusic?.();
     }
+    onNewGame();
   };
 
   const handleBackToMenu = () => {
     setCurrentScreen('menu');
-    if (gameState && !gameState.gameOver) {
-      actions.pause();
-    }
-    
-    // 🏠 Voltar para música ambiente se som estiver habilitado
     if (settings?.soundEnabled) {
-      startBackgroundMusic();
+      startBackgroundMusic?.();
     }
+    onBackToMenu();
   };
 
   const handleShowStats = () => {

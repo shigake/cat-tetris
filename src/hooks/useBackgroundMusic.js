@@ -1,253 +1,258 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 export function useBackgroundMusic() {
-  const backgroundAudioRef = useRef(null);
-  const gameAudioRef = useRef(null);
-  const currentMusicRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const audioRef = useRef(null);
+  const oscillatorsRef = useRef([]);
+  const loopTimeoutRef = useRef(null);
 
-  // 🛑 DEFINIR stopMusic PRIMEIRO para evitar erro de hoisting
   const stopMusic = useCallback(() => {
-    // 🛑 Parar música MP3
-    if (currentMusicRef.current) {
-      currentMusicRef.current.pause();
-      currentMusicRef.current.currentTime = 0;
-      currentMusicRef.current = null;
-    }
-    
-    // 🛑 Parar todos os oscillators
-    if (window.currentOscillators) {
-      window.currentOscillators.forEach(osc => {
-        try { osc.stop(); } catch {}
-      });
-      window.currentOscillators = [];
-    }
-    
-    // 🛑 Cancelar todos os loops de música
-    if (window.currentMusicLoop) {
-      clearTimeout(window.currentMusicLoop);
-      window.currentMusicLoop = null;
-    }
-    
-    console.log('🎵 Música parada completamente');
-  }, []);
-
-  const initializeAudio = useCallback(() => {
-    if (!backgroundAudioRef.current) {
-      backgroundAudioRef.current = new Audio('/sounds/background-music.mp3');
-      backgroundAudioRef.current.loop = true;
-      backgroundAudioRef.current.volume = 0.3;
-      backgroundAudioRef.current.preload = 'auto';
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
 
-    if (!gameAudioRef.current) {
-      gameAudioRef.current = new Audio('/sounds/game-music.mp3');
-      gameAudioRef.current.loop = true;
-      gameAudioRef.current.volume = 0.4;
-      gameAudioRef.current.preload = 'auto';
+    oscillatorsRef.current.forEach(oscillator => {
+      try {
+        oscillator.stop();
+      } catch (e) {}
+    });
+    oscillatorsRef.current = [];
+
+    if (loopTimeoutRef.current) {
+      clearTimeout(loopTimeoutRef.current);
+      loopTimeoutRef.current = null;
     }
+
+    setIsPlaying(false);
+    setCurrentTrack(null);
   }, []);
 
   const startBackgroundMusic = useCallback(async () => {
     try {
-      // 🛑 SEMPRE parar qualquer música anterior primeiro!
       stopMusic();
-      
-      initializeAudio();
 
-      // Use a simple upbeat melody with Web Audio API as fallback
-      if (!backgroundAudioRef.current || backgroundAudioRef.current.error) {
-        console.log('🎵 Using fallback cheerful melody');
-        playCheerfulMelody();
-        return;
-      }
+      const audio = new Audio('/cat-tetris/sounds/background-music.mp3');
+      audio.loop = true;
+      audio.volume = 0.3;
+      audioRef.current = audio;
 
-      currentMusicRef.current = backgroundAudioRef.current;
-      await backgroundAudioRef.current.play();
-      console.log('🎵 Música de fundo MP3 iniciada');
+      await audio.play();
+      setIsPlaying(true);
+      setCurrentTrack('background');
     } catch (error) {
-      console.log('🎵 Fallback to cheerful melody due to:', error.message);
+      console.warn('Failed to play background music MP3, using fallback:', error);
       playCheerfulMelody();
     }
-  }, [initializeAudio, stopMusic]);
+  }, [stopMusic]);
 
   const startGameMusic = useCallback(async () => {
     try {
-      // 🛑 SEMPRE parar qualquer música anterior primeiro!
       stopMusic();
-      
-      initializeAudio();
 
-      // Use energetic melody with Web Audio API as fallback
-      if (!gameAudioRef.current || gameAudioRef.current.error) {
-        console.log('🎮 Using fallback energetic melody');
-        playEnergeticMelody();
-        return;
-      }
+      const audio = new Audio('/cat-tetris/sounds/game-music.mp3');
+      audio.loop = true;
+      audio.volume = 0.4;
+      audioRef.current = audio;
 
-      currentMusicRef.current = gameAudioRef.current;
-      await gameAudioRef.current.play();
-      console.log('🎮 Música de jogo MP3 iniciada');
+      await audio.play();
+      setIsPlaying(true);
+      setCurrentTrack('game');
     } catch (error) {
-      console.log('🎮 Fallback to energetic melody due to:', error.message);
+      console.warn('Failed to play game music MP3, using fallback:', error);
       playEnergeticMelody();
     }
-  }, [initializeAudio, stopMusic]);
+  }, [stopMusic]);
 
-  // 🎵 Fallback cheerful melody using Web Audio API
   const playCheerfulMelody = useCallback(() => {
-    // 🛑 IMPORTANTE: Parar qualquer música anterior primeiro!
-    if (window.currentOscillators) {
-      window.currentOscillators.forEach(osc => {
-        try { osc.stop(); } catch {}
-      });
-      window.currentOscillators = [];
-    }
+    stopMusic();
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillators = [];
-    
-    // Happy major scale melody - C major pentatonic
-    const happyNotes = [
-      523.25, // C5
-      587.33, // D5
-      659.25, // E5
-      783.99, // G5
-      880.00, // A5
-      1046.50, // C6
-      880.00, // A5
-      783.99, // G5
-    ];
-
-    const playNote = (frequency, startTime, duration = 0.8) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      oscillator.type = 'triangle'; // Softer than sine
-      
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
-      gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + startTime + 0.1);
-      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration - 0.1);
-      
-      oscillator.start(audioContext.currentTime + startTime);
-      oscillator.stop(audioContext.currentTime + startTime + duration);
-      
-      return oscillator;
-    };
-
-    // Play the happy melody
-    happyNotes.forEach((note, index) => {
-      const oscillator = playNote(note, index * 0.6, 0.8);
-      oscillators.push(oscillator);
-    });
-
-    // Add harmony
-    setTimeout(() => {
-      const harmonyNotes = [261.63, 329.63, 392.00]; // C-E-G chord
-      harmonyNotes.forEach(note => {
-        const osc = playNote(note, 0, 4);
-        oscillators.push(osc);
-      });
-    }, 500);
-
-    // 🔄 Loop the melody (só se não houver música MP3 tocando)
-    const loopTimeout = setTimeout(() => {
-      if (!currentMusicRef.current && window.currentOscillators === oscillators) {
-        playCheerfulMelody();
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
       }
-    }, 6000);
-    
-    // 🗂️ Guardar referência do timeout para poder cancelar
-    window.currentMusicLoop = loopTimeout;
 
-    window.currentOscillators = oscillators;
-  }, []);
+      const notes = [
+        { freq: 523.25, duration: 0.4 }, // C5
+        { freq: 587.33, duration: 0.4 }, // D5
+        { freq: 659.25, duration: 0.4 }, // E5
+        { freq: 698.46, duration: 0.4 }, // F5
+        { freq: 783.99, duration: 0.6 }, // G5
+        { freq: 659.25, duration: 0.4 }, // E5
+        { freq: 523.25, duration: 0.8 }, // C5
+        
+        { freq: 587.33, duration: 0.4 }, // D5
+        { freq: 659.25, duration: 0.4 }, // E5
+        { freq: 698.46, duration: 0.4 }, // F5
+        { freq: 783.99, duration: 0.6 }, // G5
+        { freq: 880.00, duration: 0.4 }, // A5
+        { freq: 783.99, duration: 0.8 }, // G5
+        
+        { freq: 659.25, duration: 0.4 }, // E5
+        { freq: 698.46, duration: 0.4 }, // F5
+        { freq: 783.99, duration: 0.4 }, // G5
+        { freq: 880.00, duration: 0.6 }, // A5
+        { freq: 987.77, duration: 0.4 }, // B5
+        { freq: 1046.5, duration: 0.8 }  // C6
+      ];
 
-  // 🎮 Fallback energetic melody for game
+      let startTime = audioContext.currentTime;
+
+      notes.forEach((note, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(note.freq, startTime);
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + note.duration);
+
+        oscillatorsRef.current.push(oscillator);
+
+        if (index < notes.length - 1) {
+          const harmonyOsc = audioContext.createOscillator();
+          const harmonyGain = audioContext.createGain();
+
+          harmonyOsc.connect(harmonyGain);
+          harmonyGain.connect(audioContext.destination);
+
+          harmonyOsc.frequency.setValueAtTime(note.freq * 1.25, startTime);
+          harmonyOsc.type = 'triangle';
+
+          harmonyGain.gain.setValueAtTime(0, startTime);
+          harmonyGain.gain.linearRampToValueAtTime(0.05, startTime + 0.05);
+          harmonyGain.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+
+          harmonyOsc.start(startTime);
+          harmonyOsc.stop(startTime + note.duration);
+
+          oscillatorsRef.current.push(harmonyOsc);
+        }
+
+        startTime += note.duration;
+      });
+
+      loopTimeoutRef.current = setTimeout(() => {
+        if (!audioRef.current) {
+          playCheerfulMelody();
+        }
+      }, startTime * 1000 + 1000);
+
+      setIsPlaying(true);
+      setCurrentTrack('cheerful-fallback');
+    } catch (error) {
+      console.error('Error playing cheerful melody:', error);
+    }
+  }, [stopMusic]);
+
   const playEnergeticMelody = useCallback(() => {
-    // 🛑 IMPORTANTE: Parar qualquer música anterior primeiro!
-    if (window.currentOscillators) {
-      window.currentOscillators.forEach(osc => {
-        try { osc.stop(); } catch {}
-      });
-      window.currentOscillators = [];
-    }
+    stopMusic();
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillators = [];
-    
-    // Energetic gaming melody
-    const gameNotes = [
-      659.25, // E5
-      659.25, // E5
-      783.99, // G5
-      1046.50, // C6
-      783.99, // G5
-      659.25, // E5
-      523.25, // C5
-      587.33, // D5
-    ];
-
-    const playNote = (frequency, startTime, duration = 0.4) => {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      oscillator.type = 'square'; // More energetic for gaming
-      
-      gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
-      gainNode.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + startTime + 0.05);
-      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration - 0.05);
-      
-      oscillator.start(audioContext.currentTime + startTime);
-      oscillator.stop(audioContext.currentTime + startTime + duration);
-      
-      return oscillator;
-    };
-
-    // Play energetic melody
-    gameNotes.forEach((note, index) => {
-      const oscillator = playNote(note, index * 0.3, 0.4);
-      oscillators.push(oscillator);
-    });
-
-    // Add bass line
-    const bassNotes = [130.81, 164.81, 196.00, 146.83]; // C3, E3, G3, D3
-    bassNotes.forEach((note, index) => {
-      const osc = playNote(note, index * 0.6, 0.6);
-      oscillators.push(osc);
-    });
-
-    // 🔄 Loop faster for energy (só se não houver música MP3 tocando)
-    const loopTimeout = setTimeout(() => {
-      if (!currentMusicRef.current && window.currentOscillators === oscillators) {
-        playEnergeticMelody();
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
       }
-    }, 3000);
-    
-    // 🗂️ Guardar referência do timeout para poder cancelar
-    window.currentMusicLoop = loopTimeout;
 
-    window.currentOscillators = oscillators;
-  }, []);
+      const notes = [
+        { freq: 261.63, duration: 0.2 }, // C4
+        { freq: 329.63, duration: 0.2 }, // E4
+        { freq: 392.00, duration: 0.2 }, // G4
+        { freq: 523.25, duration: 0.3 }, // C5
+        { freq: 392.00, duration: 0.1 }, // G4
+        { freq: 523.25, duration: 0.3 }, // C5
+        
+        { freq: 293.66, duration: 0.2 }, // D4
+        { freq: 369.99, duration: 0.2 }, // F#4
+        { freq: 440.00, duration: 0.2 }, // A4
+        { freq: 587.33, duration: 0.3 }, // D5
+        { freq: 440.00, duration: 0.1 }, // A4
+        { freq: 587.33, duration: 0.3 }, // D5
+        
+        { freq: 329.63, duration: 0.2 }, // E4
+        { freq: 415.30, duration: 0.2 }, // G#4
+        { freq: 493.88, duration: 0.2 }, // B4
+        { freq: 659.25, duration: 0.4 }, // E5
+        { freq: 493.88, duration: 0.2 }, // B4
+        { freq: 659.25, duration: 0.4 }  // E5
+      ];
 
-  useEffect(() => {
-    initializeAudio();
-    
-    return () => {
-      stopMusic();
-    };
-  }, [initializeAudio, stopMusic]);
+      let startTime = audioContext.currentTime;
+
+      notes.forEach((note, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(note.freq, startTime);
+        oscillator.type = 'square';
+
+        gainNode.gain.setValueAtTime(0, startTime);
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.02);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+
+        oscillator.start(startTime);
+        oscillator.stop(startTime + note.duration);
+
+        oscillatorsRef.current.push(oscillator);
+
+        if (index % 2 === 0) {
+          const bassOsc = audioContext.createOscillator();
+          const bassGain = audioContext.createGain();
+
+          bassOsc.connect(bassGain);
+          bassGain.connect(audioContext.destination);
+
+          bassOsc.frequency.setValueAtTime(note.freq * 0.5, startTime);
+          bassOsc.type = 'sawtooth';
+
+          bassGain.gain.setValueAtTime(0, startTime);
+          bassGain.gain.linearRampToValueAtTime(0.08, startTime + 0.02);
+          bassGain.gain.exponentialRampToValueAtTime(0.01, startTime + note.duration);
+
+          bassOsc.start(startTime);
+          bassOsc.stop(startTime + note.duration);
+
+          oscillatorsRef.current.push(bassOsc);
+        }
+
+        startTime += note.duration;
+      });
+
+      loopTimeoutRef.current = setTimeout(() => {
+        if (!audioRef.current) {
+          playEnergeticMelody();
+        }
+      }, startTime * 1000 + 500);
+
+      setIsPlaying(true);
+      setCurrentTrack('energetic-fallback');
+    } catch (error) {
+      console.error('Error playing energetic melody:', error);
+    }
+  }, [stopMusic]);
 
   return {
+    isPlaying,
+    currentTrack,
     startBackgroundMusic,
     startGameMusic,
-    stopMusic
+    stopMusic,
+    playCheerfulMelody,
+    playEnergeticMelody
   };
 } 
