@@ -216,10 +216,14 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onTouchStart={() => actions.hardDrop()}
-                  onClick={() => actions.hardDrop()}
-                  disabled={gameState.gameOver}
-                  className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 disabled:opacity-50 touch-manipulation text-lg"
+                  onTouchStart={handleHardDropWithDelay}
+                  onClick={handleHardDropWithDelay}
+                  disabled={gameState.gameOver || actionCooldowns.hardDrop}
+                  className={`text-white p-4 rounded-full shadow-lg disabled:opacity-50 touch-manipulation text-lg ${
+                    actionCooldowns.hardDrop 
+                      ? 'bg-red-400' 
+                      : 'bg-red-500 hover:bg-red-600'
+                  }`}
                 >
                   ⚡
                 </motion.button>
@@ -253,10 +257,16 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onTouchStart={() => actions.holdPiece()}
-                  onClick={() => actions.holdPiece()}
-                  disabled={gameState.gameOver || !gameState.canHold}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-500 disabled:opacity-50 touch-manipulation"
+                  onTouchStart={handleHoldWithDelay}
+                  onClick={handleHoldWithDelay}
+                  disabled={gameState.gameOver || !gameState.canHold || actionCooldowns.hold}
+                  className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
+                    actionCooldowns.hold
+                      ? 'bg-green-400'
+                      : gameState.canHold 
+                        ? 'bg-green-600 hover:bg-green-500'
+                        : 'bg-gray-500'
+                  }`}
                 >
                   💾 Guardar
                 </motion.button>
@@ -265,10 +275,14 @@ function GameScreen({
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onTouchStart={() => gameState.isPaused ? actions.resume() : actions.pause()}
-                onClick={() => gameState.isPaused ? actions.resume() : actions.pause()}
-                disabled={gameState.gameOver}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-yellow-600 disabled:opacity-50 touch-manipulation"
+                onTouchStart={handlePauseWithDelay}
+                onClick={handlePauseWithDelay}
+                disabled={gameState.gameOver || actionCooldowns.pause}
+                className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
+                  actionCooldowns.pause
+                    ? 'bg-yellow-400'
+                    : 'bg-yellow-500 hover:bg-yellow-600'
+                }`}
               >
                 {gameState.isPaused ? '▶️' : '⏸️'}
               </motion.button>
@@ -314,6 +328,11 @@ function GameComponent() {
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
+  const [actionCooldowns, setActionCooldowns] = useState({
+    hardDrop: false,
+    hold: false,
+    pause: false
+  });
 
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -443,6 +462,44 @@ function GameComponent() {
       actions.pause();
     }
   };
+
+  const handleHardDropWithDelay = React.useCallback(() => {
+    if (actionCooldowns.hardDrop || gameState?.gameOver) return;
+    
+    actions.hardDrop();
+    setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
+    
+    setTimeout(() => {
+      setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
+    }, 300);
+  }, [actions, actionCooldowns.hardDrop, gameState?.gameOver]);
+
+  const handleHoldWithDelay = React.useCallback(() => {
+    if (actionCooldowns.hold || gameState?.gameOver || !gameState?.canHold) return;
+    
+    actions.holdPiece();
+    setActionCooldowns(prev => ({ ...prev, hold: true }));
+    
+    setTimeout(() => {
+      setActionCooldowns(prev => ({ ...prev, hold: false }));
+    }, 500);
+  }, [actions, actionCooldowns.hold, gameState?.gameOver, gameState?.canHold]);
+
+  const handlePauseWithDelay = React.useCallback(() => {
+    if (actionCooldowns.pause || gameState?.gameOver) return;
+    
+    if (gameState?.isPaused) {
+      actions.resume();
+    } else {
+      actions.pause();
+    }
+    
+    setActionCooldowns(prev => ({ ...prev, pause: true }));
+    
+    setTimeout(() => {
+      setActionCooldowns(prev => ({ ...prev, pause: false }));
+    }, 300);
+  }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
 
   const handleShowStats = () => {
     if (currentScreen === 'menu') {
