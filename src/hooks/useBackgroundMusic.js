@@ -23,11 +23,10 @@ export function useBackgroundMusic() {
 
   const startBackgroundMusic = useCallback(async () => {
     try {
-      initializeAudio();
+      // 🛑 SEMPRE parar qualquer música anterior primeiro!
+      stopMusic();
       
-      if (currentMusicRef.current) {
-        currentMusicRef.current.pause();
-      }
+      initializeAudio();
 
       // Use a simple upbeat melody with Web Audio API as fallback
       if (!backgroundAudioRef.current || backgroundAudioRef.current.error) {
@@ -38,19 +37,19 @@ export function useBackgroundMusic() {
 
       currentMusicRef.current = backgroundAudioRef.current;
       await backgroundAudioRef.current.play();
+      console.log('🎵 Música de fundo MP3 iniciada');
     } catch (error) {
       console.log('🎵 Fallback to cheerful melody due to:', error.message);
       playCheerfulMelody();
     }
-  }, [initializeAudio]);
+  }, [initializeAudio, stopMusic]);
 
   const startGameMusic = useCallback(async () => {
     try {
-      initializeAudio();
+      // 🛑 SEMPRE parar qualquer música anterior primeiro!
+      stopMusic();
       
-      if (currentMusicRef.current) {
-        currentMusicRef.current.pause();
-      }
+      initializeAudio();
 
       // Use energetic melody with Web Audio API as fallback
       if (!gameAudioRef.current || gameAudioRef.current.error) {
@@ -61,30 +60,48 @@ export function useBackgroundMusic() {
 
       currentMusicRef.current = gameAudioRef.current;
       await gameAudioRef.current.play();
+      console.log('🎮 Música de jogo MP3 iniciada');
     } catch (error) {
       console.log('🎮 Fallback to energetic melody due to:', error.message);
       playEnergeticMelody();
     }
-  }, [initializeAudio]);
+  }, [initializeAudio, stopMusic]);
 
   const stopMusic = useCallback(() => {
+    // 🛑 Parar música MP3
     if (currentMusicRef.current) {
       currentMusicRef.current.pause();
       currentMusicRef.current.currentTime = 0;
       currentMusicRef.current = null;
     }
     
-    // Stop any Web Audio API oscillators
+    // 🛑 Parar todos os oscillators
     if (window.currentOscillators) {
       window.currentOscillators.forEach(osc => {
         try { osc.stop(); } catch {}
       });
       window.currentOscillators = [];
     }
+    
+    // 🛑 Cancelar todos os loops de música
+    if (window.currentMusicLoop) {
+      clearTimeout(window.currentMusicLoop);
+      window.currentMusicLoop = null;
+    }
+    
+    console.log('🎵 Música parada completamente');
   }, []);
 
   // 🎵 Fallback cheerful melody using Web Audio API
   const playCheerfulMelody = useCallback(() => {
+    // 🛑 IMPORTANTE: Parar qualquer música anterior primeiro!
+    if (window.currentOscillators) {
+      window.currentOscillators.forEach(osc => {
+        try { osc.stop(); } catch {}
+      });
+      window.currentOscillators = [];
+    }
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const oscillators = [];
     
@@ -135,18 +152,29 @@ export function useBackgroundMusic() {
       });
     }, 500);
 
-    // Loop the melody
-    setTimeout(() => {
-      if (!currentMusicRef.current) {
+    // 🔄 Loop the melody (só se não houver música MP3 tocando)
+    const loopTimeout = setTimeout(() => {
+      if (!currentMusicRef.current && window.currentOscillators === oscillators) {
         playCheerfulMelody();
       }
     }, 6000);
+    
+    // 🗂️ Guardar referência do timeout para poder cancelar
+    window.currentMusicLoop = loopTimeout;
 
     window.currentOscillators = oscillators;
   }, []);
 
   // 🎮 Fallback energetic melody for game
   const playEnergeticMelody = useCallback(() => {
+    // 🛑 IMPORTANTE: Parar qualquer música anterior primeiro!
+    if (window.currentOscillators) {
+      window.currentOscillators.forEach(osc => {
+        try { osc.stop(); } catch {}
+      });
+      window.currentOscillators = [];
+    }
+
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const oscillators = [];
     
@@ -195,12 +223,15 @@ export function useBackgroundMusic() {
       oscillators.push(osc);
     });
 
-    // Loop faster for energy
-    setTimeout(() => {
-      if (!currentMusicRef.current) {
+    // 🔄 Loop faster for energy (só se não houver música MP3 tocando)
+    const loopTimeout = setTimeout(() => {
+      if (!currentMusicRef.current && window.currentOscillators === oscillators) {
         playEnergeticMelody();
       }
     }, 3000);
+    
+    // 🗂️ Guardar referência do timeout para poder cancelar
+    window.currentMusicLoop = loopTimeout;
 
     window.currentOscillators = oscillators;
   }, []);
