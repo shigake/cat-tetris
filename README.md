@@ -59,7 +59,7 @@ Um jogo de Tetris profissional com tema de gatos, desenvolvido com **React 18** 
 ### **Instalação & Execução**
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/cat-tetris.git
+git clone https://github.com/shigake/cat-tetris.git
 cd cat-tetris
 
 # Instale as dependências
