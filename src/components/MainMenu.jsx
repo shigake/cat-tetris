@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
-import { useAmbientMusic } from '../hooks/useAmbientMusic';
 import AdvancedParticles from './AdvancedParticles';
 
 export default function MainMenu({ 
@@ -20,7 +19,6 @@ export default function MainMenu({
   const [menuVisible, setMenuVisible] = useState(false);
 
   const sounds = useMenuSounds();
-  const music = useAmbientMusic();
 
   const menuOptions = useMemo(() => {
     const baseOptions = [];
@@ -33,7 +31,6 @@ export default function MainMenu({
         subtitle: `Nível ${gameState?.score?.level || 1} • ${gameState?.score?.points?.toLocaleString() || 0} pts`,
         action: () => {
           if (soundEnabled) sounds.playGameStart();
-          if (musicEnabled) music.stopAmbientMusic();
           onStartGame();
         },
         gradient: 'from-emerald-500 to-green-600',
@@ -49,7 +46,6 @@ export default function MainMenu({
         subtitle: 'Começar uma nova partida',
         action: () => {
           if (soundEnabled) sounds.playGameStart();
-          if (musicEnabled) music.stopAmbientMusic();
           onNewGame();
         },
         gradient: 'from-blue-500 to-indigo-600',
@@ -64,7 +60,6 @@ export default function MainMenu({
         subtitle: 'Começar uma nova partida',
         action: () => {
           if (soundEnabled) sounds.playGameStart();
-          if (musicEnabled) music.stopAmbientMusic();
           onStartGame();
         },
         gradient: 'from-green-500 to-emerald-600',
@@ -124,12 +119,6 @@ export default function MainMenu({
 
   useEffect(() => {
     setMenuVisible(true);
-    if (musicEnabled) {
-      music.startAmbientMusic();
-    }
-    return () => {
-      music.stopAmbientMusic();
-    };
   }, []);
 
   const handleKeyDown = useCallback((e) => {
@@ -161,15 +150,10 @@ export default function MainMenu({
       case 'M':
         e.preventDefault();
         setMusicEnabled(!musicEnabled);
-        if (!musicEnabled) {
-          music.startAmbientMusic();
-        } else {
-          music.stopAmbientMusic();
-        }
         if (soundEnabled) sounds.playMenuSelect();
         break;
     }
-  }, [selectedOption, menuOptions, soundEnabled, musicEnabled, sounds, music]);
+  }, [selectedOption, menuOptions, soundEnabled, musicEnabled, sounds]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -365,11 +349,6 @@ export default function MainMenu({
             <button
               onClick={() => {
                 setMusicEnabled(!musicEnabled);
-                if (!musicEnabled) {
-                  music.startAmbientMusic();
-                } else {
-                  music.stopAmbientMusic();
-                }
                 if (soundEnabled) sounds.playMenuSelect();
               }}
               className="text-white/40 hover:text-white/70 transition-all duration-200 text-sm px-3 py-1 rounded-lg bg-white/10 backdrop-blur-sm hover:scale-105 active:scale-95"

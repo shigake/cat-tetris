@@ -14,6 +14,7 @@ import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
+import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 
 const Statistics = lazy(() => import('./components/Statistics'));
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
@@ -200,6 +201,7 @@ function GameComponent() {
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
+  const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
   
   useSoundManager();
   
@@ -214,6 +216,25 @@ function GameComponent() {
       setHasActiveGame(false);
     }
   }, [gameState]);
+
+  // 🎵 Controlar música baseado na tela atual e configurações
+  React.useEffect(() => {
+    if (!settings?.soundEnabled) {
+      stopMusic();
+      return;
+    }
+
+    if (currentScreen === 'menu') {
+      startBackgroundMusic();
+    } else if (currentScreen === 'game') {
+      startGameMusic();
+    }
+
+    return () => {
+      // Cleanup quando componente desmonta
+      stopMusic();
+    };
+  }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -242,6 +263,17 @@ function GameComponent() {
   const handleSettingsChange = async (newSettings) => {
     try {
       await updateSettings(newSettings);
+      
+      // 🎵 Controlar música baseado nas configurações
+      if (newSettings.soundEnabled) {
+        if (currentScreen === 'menu') {
+          startBackgroundMusic();
+        } else if (currentScreen === 'game') {
+          startGameMusic();
+        }
+      } else {
+        stopMusic();
+      }
     } catch (error) {
       console.error('Failed to update settings:', error);
     }
@@ -254,6 +286,11 @@ function GameComponent() {
     } else if (gameState?.isPaused) {
       actions.resume();
     }
+    
+    // 🎮 Iniciar música de jogo se som estiver habilitado
+    if (settings?.soundEnabled) {
+      startGameMusic();
+    }
   };
 
   const handleContinueGame = () => {
@@ -261,17 +298,32 @@ function GameComponent() {
     if (gameState?.isPaused) {
       actions.resume();
     }
+    
+    // 🎮 Continuar música de jogo se som estiver habilitado
+    if (settings?.soundEnabled) {
+      startGameMusic();
+    }
   };
 
   const handleNewGame = () => {
     setCurrentScreen('game');
     actions.restart();
+    
+    // 🎮 Iniciar música de jogo se som estiver habilitado
+    if (settings?.soundEnabled) {
+      startGameMusic();
+    }
   };
 
   const handleBackToMenu = () => {
     setCurrentScreen('menu');
     if (gameState && !gameState.gameOver) {
       actions.pause();
+    }
+    
+    // 🏠 Voltar para música ambiente se som estiver habilitado
+    if (settings?.soundEnabled) {
+      startBackgroundMusic();
     }
   };
 
