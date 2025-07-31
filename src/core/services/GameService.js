@@ -81,6 +81,18 @@ export class GameService extends IGameService {
     }
   }
 
+  rotatePieceLeft() {
+    if (!this.currentPiece || this.gameOver || this.isPaused) return;
+
+    const strategy = this.movementStrategyFactory.createStrategy('rotateLeft');
+    const result = strategy.execute(this.currentPiece, this.board.grid);
+
+    if (result !== this.currentPiece) {
+      this.currentPiece = result;
+      gameEvents.emit(GAME_EVENTS.PIECE_ROTATED, { piece: result });
+    }
+  }
+
   placePiece() {
     if (!this.currentPiece) return;
 

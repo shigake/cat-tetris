@@ -89,6 +89,7 @@ export function useGameService() {
 
   const movePiece = useCallback(createGameAction('movePiece'), [createGameAction]);
   const rotatePiece = useCallback(createGameAction('rotatePiece'), [createGameAction]);
+  const rotatePieceLeft = useCallback(createGameAction('rotatePieceLeft'), [createGameAction]);
   const hardDrop = useCallback(createGameAction('hardDrop'), [createGameAction]);
   const holdPiece = useCallback(createGameAction('holdPiece'), [createGameAction]);
   const getDropPreview = useCallback(createGameAction('getDropPreview'), [createGameAction]);
@@ -101,6 +102,7 @@ export function useGameService() {
   const actions = {
     movePiece,
     rotatePiece,
+    rotatePieceLeft,
     hardDrop,
     holdPiece,
     getDropPreview,

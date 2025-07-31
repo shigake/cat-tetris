@@ -94,7 +94,7 @@ export const useGamepad = (gameActions = null) => {
     if (!gamepad) return;
 
     const now = Date.now();
-    const { movePiece, rotatePiece, hardDrop, holdPiece, pause } = gameActions;
+    const { movePiece, rotatePiece, rotatePieceLeft, hardDrop, holdPiece, pause } = gameActions;
     
     if (!movePiece) {
       return;
@@ -151,12 +151,14 @@ export const useGamepad = (gameActions = null) => {
     const currentButtonStates = {};
     
     [
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM, action: () => hardDrop?.() },
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_RIGHT, action: () => rotatePiece?.() },
+      { button: BUTTON_MAPPINGS.DPAD_UP, action: () => hardDrop?.() },
+      { button: BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM, action: () => rotatePiece?.() },
+      { button: BUTTON_MAPPINGS.FACE_BUTTON_RIGHT, action: () => rotatePieceLeft?.() },
       { button: BUTTON_MAPPINGS.FACE_BUTTON_LEFT, action: () => rotatePiece?.() },
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_TOP, action: () => holdPiece?.() },
-      { button: BUTTON_MAPPINGS.BUTTON_START, action: () => pause?.() },
-      { button: BUTTON_MAPPINGS.BUTTON_BACK, action: () => pause?.() }
+      { button: BUTTON_MAPPINGS.FACE_BUTTON_TOP, action: () => rotatePiece?.() },
+      { button: BUTTON_MAPPINGS.BUMPER_LEFT, action: () => holdPiece?.() },
+      { button: BUTTON_MAPPINGS.BUMPER_RIGHT, action: () => holdPiece?.() },
+      { button: BUTTON_MAPPINGS.BUTTON_START, action: () => pause?.() }
     ].forEach(({ button, action }) => {
       const pressed = gamepad.buttons[button]?.pressed;
       const wasPressed = lastButtonStatesRef.current[button];
@@ -167,7 +169,7 @@ export const useGamepad = (gameActions = null) => {
         action();
         
         if (gamepad.vibrationActuator) {
-          const intensity = button === BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM ? 0.3 : 0.1;
+          const intensity = button === BUTTON_MAPPINGS.DPAD_UP ? 0.3 : 0.1;
           gamepad.vibrationActuator.playEffect('dual-rumble', {
             duration: 50,
             strongMagnitude: intensity,
