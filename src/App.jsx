@@ -380,7 +380,7 @@ function GameComponent() {
     controllerCount, 
     processGamepadInput, 
     getGamepadInfo 
-  } = useGamepad();
+  } = useGamepad(actions);
   
   useSoundManager();
   
