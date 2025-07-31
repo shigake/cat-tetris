@@ -3,40 +3,72 @@ import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
 export function useKeyboardInput(gameActions, gameState, isActive = true) {
   const setupKeyboardHandlers = useCallback(() => {
-    if (!gameActions || !isActive) return () => {};
+    console.log('useKeyboardInput setup:', { gameActions, gameState, isActive });
+    if (!gameActions || !isActive) {
+      console.log('useKeyboardInput: skipping setup - no actions or not active');
+      return () => {};
+    }
 
     try {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
+      console.log('useKeyboardInput: keyboardService resolved');
 
       const handleMoveLeft = () => {
-        if (!gameState?.gameOver) gameActions.movePiece('left');
+        console.log('handleMoveLeft called');
+        if (!gameState?.gameOver) {
+          console.log('calling gameActions.movePiece(left)');
+          gameActions.movePiece('left');
+        }
       };
 
       const handleMoveRight = () => {
-        if (!gameState?.gameOver) gameActions.movePiece('right');
+        console.log('handleMoveRight called');
+        if (!gameState?.gameOver) {
+          console.log('calling gameActions.movePiece(right)');
+          gameActions.movePiece('right');
+        }
       };
 
       const handleMoveDown = () => {
-        if (!gameState?.gameOver) gameActions.movePiece('down');
+        console.log('handleMoveDown called');
+        if (!gameState?.gameOver) {
+          console.log('calling gameActions.movePiece(down)');
+          gameActions.movePiece('down');
+        }
       };
 
       const handleRotate = () => {
-        if (!gameState?.gameOver) gameActions.rotatePiece();
+        console.log('handleRotate called');
+        if (!gameState?.gameOver) {
+          console.log('calling gameActions.rotatePiece()');
+          gameActions.rotatePiece();
+        }
       };
 
       const handleHardDrop = () => {
-        if (!gameState?.gameOver) gameActions.hardDrop();
+        console.log('handleHardDrop called');
+        if (!gameState?.gameOver) {
+          console.log('calling gameActions.hardDrop()');
+          gameActions.hardDrop();
+        }
       };
 
       const handleHold = () => {
-        if (!gameState?.gameOver) gameActions.holdPiece();
+        console.log('handleHold called');
+        if (!gameState?.gameOver) {
+          console.log('calling gameActions.holdPiece()');
+          gameActions.holdPiece();
+        }
       };
 
       const handlePause = () => {
+        console.log('handlePause called');
         if (!gameState?.gameOver) {
           if (gameState?.isPaused) {
+            console.log('calling gameActions.resume()');
             gameActions.resume();
           } else {
+            console.log('calling gameActions.pause()');
             gameActions.pause();
           }
         }
