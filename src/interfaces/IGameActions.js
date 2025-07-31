@@ -2,6 +2,7 @@ export class IGameActions {
   initializeGame(board, currentPiece, nextPieces) { throw new Error('Must be implemented'); }
   movePiece(piece) { throw new Error('Must be implemented'); }
   rotatePiece(piece) { throw new Error('Must be implemented'); }
+  rotatePieceLeft(piece) { throw new Error('Must be implemented'); }
   placePiece(board, nextPiece, nextPieces) { throw new Error('Must be implemented'); }
   holdPiece(heldPiece, currentPiece) { throw new Error('Must be implemented'); }
   clearLines(board, linesCleared) { throw new Error('Must be implemented'); }

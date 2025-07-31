@@ -5,6 +5,7 @@ import { LeftMovementStrategy } from './strategies/LeftMovementStrategy.js';
 import { RightMovementStrategy } from './strategies/RightMovementStrategy.js';
 import { DownMovementStrategy } from './strategies/DownMovementStrategy.js';
 import { RotateMovementStrategy } from './strategies/RotateMovementStrategy.js';
+import { RotateLeftMovementStrategy } from './strategies/RotateLeftMovementStrategy.js';
 import { HardDropMovementStrategy } from './strategies/HardDropMovementStrategy.js';
 import { PieceBuilder } from './builder/PieceBuilder.js';
 
@@ -73,6 +74,7 @@ export class MovementStrategyFactory {
     this.strategies.set('right', () => new RightMovementStrategy());
     this.strategies.set('down', () => new DownMovementStrategy());
     this.strategies.set('rotate', () => new RotateMovementStrategy());
+    this.strategies.set('rotateLeft', () => new RotateLeftMovementStrategy());
     this.strategies.set('hardDrop', () => new HardDropMovementStrategy());
   }
 
