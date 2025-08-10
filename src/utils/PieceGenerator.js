@@ -83,11 +83,40 @@ export const PIECES = {
 
 let bag = [];
 let bagIndex = 0;
+let seeded = false;
+let rngState = 0;
+
+function seededRandom() {
+  if (!seeded) return Math.random();
+  // Mulberry32 PRNG
+  rngState |= 0; rngState = (rngState + 0x6D2B79F5) | 0;
+  let t = Math.imul(rngState ^ (rngState >>> 15), 1 | rngState);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+export function seedRng(seed) {
+  if (typeof seed === 'number') {
+    rngState = seed | 0;
+    seeded = true;
+  } else if (typeof seed === 'string') {
+    // Simple string hash
+    let h = 2166136261;
+    for (let i = 0; i < seed.length; i++) {
+      h ^= seed.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    rngState = h | 0;
+    seeded = true;
+  } else {
+    seeded = false;
+  }
+}
 
 function refillBag() {
   bag = Object.keys(PIECES);
   for (let i = bag.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(seededRandom() * (i + 1));
     [bag[i], bag[j]] = [bag[j], bag[i]];
   }
   bagIndex = 0;

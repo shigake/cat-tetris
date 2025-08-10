@@ -113,5 +113,5 @@ export function useGameService() {
     loadGame
   };
 
-  return { gameState, actions };
+  return { gameState, actions, gameServiceRef };
 } 

@@ -10,6 +10,11 @@ import ErrorBoundary from './components/ErrorBoundary';
 import MainMenu from './components/MainMenu';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { useGameService } from './hooks/useGameService';
+import { AiPresets, Difficulty, Personality, mergePolicy } from './ai/AiPolicies.js';
+import AiMatchOrchestrator from './ai/AiMatchOrchestrator.js';
+import { seedRng } from './utils/PieceGenerator.js';
+import { serviceContainer } from './core/container/ServiceRegistration.js';
+import { GameService } from './core/services/GameService.js';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
@@ -46,7 +51,9 @@ function GameScreen({
   statistics,
   isGamepadActive,
   controllerCount,
-  getGamepadInfo
+  getGamepadInfo,
+  aiTelemetry,
+  aiGameState
 }) {
   const [actionCooldowns, setActionCooldowns] = React.useState({
     hardDrop: false,
@@ -175,7 +182,41 @@ function GameScreen({
                 lines={gameState.score.lines}
                 combo={gameState.score.combo}
               />
+              {aiTelemetry && (
+                <div className="bg-gray-900/50 p-3 rounded-xl border-2 border-white/20 text-white text-xs">
+                  <div>IA: {aiTelemetry.apm} APM</div>
+                  <div>Decisão: {aiTelemetry.lastDecisionMs?.toFixed?.(3) ?? aiTelemetry.lastDecisionMs}ms (avg {aiTelemetry.avgDecisionMs?.toFixed?.(3) ?? aiTelemetry.avgDecisionMs}ms)</div>
+                  <div>Nós: {Math.round(aiTelemetry.nodeCount)} (avg {Math.round(aiTelemetry.avgNodeCount)})</div>
+                  <div>Profundidade: {aiTelemetry.effectiveDepth}</div>
+                </div>
+              )}
             </div>
+
+            {aiGameState && (
+              <div className="flex lg:flex-row flex-col gap-6 items-start justify-center w-full border-l border-white/20 pl-6">
+                <div className="flex flex-col gap-6 min-w-[200px]">
+                  <HeldPiece heldPiece={aiGameState.heldPiece} canHold={aiGameState.canHold} />
+                  <NextPieces pieces={aiGameState.nextPieces} />
+                </div>
+                <div className="flex flex-col items-center">
+                  <TetrisBoard 
+                    board={aiGameState.board}
+                    currentPiece={aiGameState.currentPiece}
+                    dropPreview={null}
+                    gameOver={aiGameState.gameOver}
+                  />
+                  <div className="text-white/60 text-sm mt-2">👾 IA</div>
+                </div>
+                <div className="flex flex-col gap-6 min-w-[200px]">
+                  <Scoreboard 
+                    score={aiGameState.score.points}
+                    level={aiGameState.score.level}
+                    lines={aiGameState.score.lines}
+                    combo={aiGameState.score.combo}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex lg:hidden flex-col w-full h-full" data-testid="mobile-layout">
@@ -371,9 +412,25 @@ function GameComponent() {
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
-  const { gameState, actions } = useGameService();
+  const { gameState, actions, gameServiceRef } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
+  const [aiMode, setAiMode] = useState('none'); // 'none' | 'solo' | 'versus'
+  const [difficulty, setDifficulty] = useState(Difficulty.Normal);
+  const [personality, setPersonality] = useState(Personality.GatoEquilibrado);
+  const orchestratorRef = React.useRef(null);
+  const [aiTelemetry, setAiTelemetry] = useState(null);
+  const aiServiceRef = React.useRef(null);
+  const [aiGameState, setAiGameState] = useState(null);
+
+  React.useEffect(() => {
+    if (!orchestratorRef.current) return;
+    const interval = setInterval(() => {
+      setAiTelemetry(orchestratorRef.current?.getTelemetry());
+    }, 500);
+    return () => clearInterval(interval);
+  }, [orchestratorRef.current]);
+
   const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
   const { 
     isGamepadActive, 
@@ -385,7 +442,52 @@ function GameComponent() {
   useSoundManager();
   
   const isInGame = currentScreen === 'game';
-  useKeyboardInput(actions, gameState, isInGame);
+  useKeyboardInput(actions, gameState, isInGame && aiMode !== 'solo');
+
+  // Fallback: se o usuário entrou no modo IA e o orquestrador não iniciou por algum motivo, inicia aqui
+  React.useEffect(() => {
+    if (currentScreen !== 'game') return;
+    if (aiMode === 'solo' && gameServiceRef.current && !orchestratorRef.current) {
+      try {
+        seedRng(1337);
+        const policy = mergePolicy(difficulty, personality);
+        orchestratorRef.current = new AiMatchOrchestrator(gameServiceRef.current, policy, { isVersus: false });
+        orchestratorRef.current.start();
+      } catch (e) {
+        console.error('Falha ao iniciar IA Solo:', e);
+      }
+    }
+    if (aiMode === 'versus' && !orchestratorRef.current) {
+      try {
+        const pieceFactory = serviceContainer.resolve('pieceFactory');
+        const movementStrategyFactory = serviceContainer.resolve('movementStrategyFactory');
+        const gameRepository = serviceContainer.resolve('gameRepository');
+        const scoringService = serviceContainer.resolve('scoringService');
+        if (!aiServiceRef.current) {
+          seedRng(2024);
+          aiServiceRef.current = new GameService(pieceFactory, movementStrategyFactory, gameRepository, scoringService);
+          aiServiceRef.current.initializeGame();
+          setAiGameState(aiServiceRef.current.getGameState());
+          let last = performance.now();
+          const loop = (t) => {
+            const dt = t - last; last = t;
+            const gs = aiServiceRef.current?.getGameState();
+            if (gs && !gs.isPaused && !gs.gameOver) {
+              aiServiceRef.current.updateGame(dt);
+              setAiGameState(aiServiceRef.current.getGameState());
+            }
+            requestAnimationFrame(loop);
+          };
+          requestAnimationFrame(loop);
+        }
+        const policy = mergePolicy(difficulty, personality);
+        orchestratorRef.current = new AiMatchOrchestrator(aiServiceRef.current, policy, { isVersus: true, opponentService: gameServiceRef.current });
+        orchestratorRef.current.start();
+      } catch (e) {
+        console.error('Falha ao iniciar Versus IA:', e);
+      }
+    }
+  }, [aiMode, currentScreen, gameServiceRef, difficulty, personality]);
 
 
   React.useEffect(() => {
@@ -490,8 +592,27 @@ function GameComponent() {
     actions.restart();
   };
 
+  const startAISolo = () => {
+    // Seed RNG for reproducibility
+    seedRng(1337);
+    setAiMode('solo');
+    setCurrentScreen('game');
+    const policy = mergePolicy(difficulty, personality);
+    // start or restart orchestrator
+    if (orchestratorRef.current) orchestratorRef.current.stop();
+    orchestratorRef.current = new AiMatchOrchestrator(gameServiceRef.current, policy, { isVersus: false });
+    orchestratorRef.current.start();
+  };
+
+  const stopAI = () => {
+    orchestratorRef.current?.stop();
+    orchestratorRef.current = null;
+    setAiMode('none');
+  };
+
   const handleBackToMenu = () => {
     setCurrentScreen('menu');
+    stopAI();
     if (settings?.soundEnabled) {
       startBackgroundMusic?.();
     }
@@ -532,6 +653,43 @@ function GameComponent() {
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
           gameState={gameState}
+          onStartAI={startAISolo}
+          onStartVersusAI={() => {
+            // Initialize separate AI board and orchestrator (versus)
+            seedRng(2024);
+            setAiMode('versus');
+            setCurrentScreen('game');
+            const policy = mergePolicy(difficulty, personality);
+            try {
+              const pieceFactory = serviceContainer.resolve('pieceFactory');
+              const movementStrategyFactory = serviceContainer.resolve('movementStrategyFactory');
+              const gameRepository = serviceContainer.resolve('gameRepository');
+              const scoringService = serviceContainer.resolve('scoringService');
+              aiServiceRef.current = new GameService(pieceFactory, movementStrategyFactory, gameRepository, scoringService);
+              aiServiceRef.current.initializeGame();
+              setAiGameState(aiServiceRef.current.getGameState());
+              let last = performance.now();
+              const loop = (t) => {
+                const dt = t - last; last = t;
+                const gs = aiServiceRef.current?.getGameState();
+                if (gs && !gs.isPaused && !gs.gameOver) {
+                  aiServiceRef.current.updateGame(dt);
+                  setAiGameState(aiServiceRef.current.getGameState());
+                }
+                requestAnimationFrame(loop);
+              };
+              requestAnimationFrame(loop);
+              if (orchestratorRef.current) orchestratorRef.current.stop();
+              orchestratorRef.current = new AiMatchOrchestrator(aiServiceRef.current, policy, { isVersus: true, opponentService: gameServiceRef.current });
+              orchestratorRef.current.start();
+            } catch (e) {
+              console.error('Failed to init versus AI:', e);
+            }
+          }}
+          difficulty={difficulty}
+          personality={personality}
+          onChangeDifficulty={setDifficulty}
+          onChangePersonality={setPersonality}
         />
 
         <AnimatePresence>
@@ -583,6 +741,7 @@ function GameComponent() {
       isGamepadActive={isGamepadActive}
       controllerCount={controllerCount}
       getGamepadInfo={getGamepadInfo}
+      aiTelemetry={aiMode !== 'none' ? aiTelemetry : null}
     />
   );
 }

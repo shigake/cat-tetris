@@ -11,7 +11,13 @@ export default function MainMenu({
   onShowInstallPrompt,
   canInstallPWA,
   hasActiveGame,
-  gameState
+  gameState,
+  onStartAI,
+  onStartVersusAI,
+  difficulty,
+  personality,
+  onChangeDifficulty,
+  onChangePersonality
 }) {
   const [selectedOption, setSelectedOption] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -82,6 +88,32 @@ export default function MainMenu({
         gradient: 'from-purple-500 to-violet-600',
         hoverGradient: 'from-purple-400 to-violet-500',
         glow: 'shadow-purple-500/25'
+      },
+      {
+        id: 'watch-ai',
+        icon: '🤖',
+        title: 'Assistir IA',
+        subtitle: 'IA tenta bater o recorde',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onStartAI?.();
+        },
+        gradient: 'from-emerald-500 to-teal-600',
+        hoverGradient: 'from-emerald-400 to-teal-500',
+        glow: 'shadow-emerald-500/25'
+      },
+      {
+        id: 'versus-ai',
+        icon: '⚔️',
+        title: 'Humano vs IA',
+        subtitle: 'Duelos com garbage lines',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onStartVersusAI?.();
+        },
+        gradient: 'from-rose-500 to-red-600',
+        hoverGradient: 'from-rose-400 to-red-500',
+        glow: 'shadow-rose-500/25'
       },
       {
         id: 'settings',
@@ -246,6 +278,33 @@ export default function MainMenu({
           variants={itemVariants}
           className="grid gap-4 md:gap-6"
         >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+            <div className="bg-white/10 rounded-xl p-3 border border-white/20">
+              <label className="block text-white/80 text-sm mb-1">Dificuldade</label>
+              <select
+                className="w-full bg-black/30 text-white p-2 rounded-lg border border-white/20"
+                value={difficulty}
+                onChange={(e) => onChangeDifficulty?.(e.target.value)}
+              >
+                <option value="Easy">Easy</option>
+                <option value="Normal">Normal</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 border border-white/20">
+              <label className="block text-white/80 text-sm mb-1">Personalidade</label>
+              <select
+                className="w-full bg-black/30 text-white p-2 rounded-lg border border-white/20"
+                value={personality}
+                onChange={(e) => onChangePersonality?.(e.target.value)}
+              >
+                <option value="GatoPreguicoso">Gato Preguiçoso</option>
+                <option value="GatoEquilibrado">Gato Equilibrado</option>
+                <option value="GatoAgressivo">Gato Agressivo</option>
+              </select>
+            </div>
+          </div>
+
           {menuOptions.map((option, index) => (
             <motion.button
               key={option.id}
