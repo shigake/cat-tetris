@@ -15,6 +15,7 @@ import AiMatchOrchestrator from './ai/AiMatchOrchestrator.js';
 import { seedRng } from './utils/PieceGenerator.js';
 import { serviceContainer } from './core/container/ServiceRegistration.js';
 import { GameService } from './core/services/GameService.js';
+import { gameEvents, GAME_EVENTS } from './patterns/Observer.js';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
@@ -422,14 +423,14 @@ function GameComponent() {
   const [aiTelemetry, setAiTelemetry] = useState(null);
   const aiServiceRef = React.useRef(null);
   const [aiGameState, setAiGameState] = useState(null);
+  const aiRafRef = React.useRef(0);
 
   React.useEffect(() => {
-    if (!orchestratorRef.current) return;
     const interval = setInterval(() => {
       setAiTelemetry(orchestratorRef.current?.getTelemetry());
     }, 500);
     return () => clearInterval(interval);
-  }, [orchestratorRef.current]);
+  }, []);
 
   const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
   const { 
@@ -444,50 +445,19 @@ function GameComponent() {
   const isInGame = currentScreen === 'game';
   useKeyboardInput(actions, gameState, isInGame && aiMode !== 'solo');
 
-  // Fallback: se o usuário entrou no modo IA e o orquestrador não iniciou por algum motivo, inicia aqui
+  // Garantir que no menu nada rode: pausa jogo e para IA
   React.useEffect(() => {
-    if (currentScreen !== 'game') return;
-    if (aiMode === 'solo' && gameServiceRef.current && !orchestratorRef.current) {
+    if (currentScreen === 'menu') {
       try {
-        seedRng(1337);
-        const policy = mergePolicy(difficulty, personality);
-        orchestratorRef.current = new AiMatchOrchestrator(gameServiceRef.current, policy, { isVersus: false });
-        orchestratorRef.current.start();
-      } catch (e) {
-        console.error('Falha ao iniciar IA Solo:', e);
-      }
-    }
-    if (aiMode === 'versus' && !orchestratorRef.current) {
-      try {
-        const pieceFactory = serviceContainer.resolve('pieceFactory');
-        const movementStrategyFactory = serviceContainer.resolve('movementStrategyFactory');
-        const gameRepository = serviceContainer.resolve('gameRepository');
-        const scoringService = serviceContainer.resolve('scoringService');
-        if (!aiServiceRef.current) {
-          seedRng(2024);
-          aiServiceRef.current = new GameService(pieceFactory, movementStrategyFactory, gameRepository, scoringService);
-          aiServiceRef.current.initializeGame();
-          setAiGameState(aiServiceRef.current.getGameState());
-          let last = performance.now();
-          const loop = (t) => {
-            const dt = t - last; last = t;
-            const gs = aiServiceRef.current?.getGameState();
-            if (gs && !gs.isPaused && !gs.gameOver) {
-              aiServiceRef.current.updateGame(dt);
-              setAiGameState(aiServiceRef.current.getGameState());
-            }
-            requestAnimationFrame(loop);
-          };
-          requestAnimationFrame(loop);
+        stopAI();
+        if (gameState && !gameState.isPaused) {
+          actions.pause?.();
         }
-        const policy = mergePolicy(difficulty, personality);
-        orchestratorRef.current = new AiMatchOrchestrator(aiServiceRef.current, policy, { isVersus: true, opponentService: gameServiceRef.current });
-        orchestratorRef.current.start();
-      } catch (e) {
-        console.error('Falha ao iniciar Versus IA:', e);
-      }
+      } catch {}
     }
-  }, [aiMode, currentScreen, gameServiceRef, difficulty, personality]);
+  }, [currentScreen]);
+
+  // (removido) auto-start da IA por efeito para evitar duplicações
 
 
   React.useEffect(() => {
@@ -523,6 +493,8 @@ function GameComponent() {
       return () => clearInterval(gamepadInterval);
     }
   }, [isGamepadActive, currentScreen, processGamepadInput]);
+
+  // sem auto-restart da IA aqui para evitar flicker
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -593,20 +565,29 @@ function GameComponent() {
   };
 
   const startAISolo = () => {
-    // Seed RNG for reproducibility
+    // Seed RNG para reprodutibilidade
     seedRng(1337);
-    setAiMode('solo');
-    setCurrentScreen('game');
+    // parar qualquer IA em andamento
+    stopAI();
+    // reiniciar o jogo UMA vez
+    actions.restart();
+    // iniciar IA solo
     const policy = mergePolicy(difficulty, personality);
-    // start or restart orchestrator
-    if (orchestratorRef.current) orchestratorRef.current.stop();
     orchestratorRef.current = new AiMatchOrchestrator(gameServiceRef.current, policy, { isVersus: false });
     orchestratorRef.current.start();
+    setAiMode('solo');
+    setCurrentScreen('game');
   };
 
   const stopAI = () => {
     orchestratorRef.current?.stop();
     orchestratorRef.current = null;
+    if (aiRafRef.current) {
+      cancelAnimationFrame(aiRafRef.current);
+      aiRafRef.current = 0;
+    }
+    aiServiceRef.current = null;
+    setAiGameState(null);
     setAiMode('none');
   };
 
@@ -655,10 +636,9 @@ function GameComponent() {
           gameState={gameState}
           onStartAI={startAISolo}
           onStartVersusAI={() => {
-            // Initialize separate AI board and orchestrator (versus)
+            // Inicializar Versus com dois tabuleiros (Humano x IA)
+            stopAI();
             seedRng(2024);
-            setAiMode('versus');
-            setCurrentScreen('game');
             const policy = mergePolicy(difficulty, personality);
             try {
               const pieceFactory = serviceContainer.resolve('pieceFactory');
@@ -671,17 +651,21 @@ function GameComponent() {
               let last = performance.now();
               const loop = (t) => {
                 const dt = t - last; last = t;
-                const gs = aiServiceRef.current?.getGameState();
+                const gs = aiServiceRef.current?.getGameState?.();
                 if (gs && !gs.isPaused && !gs.gameOver) {
                   aiServiceRef.current.updateGame(dt);
                   setAiGameState(aiServiceRef.current.getGameState());
                 }
-                requestAnimationFrame(loop);
+                aiRafRef.current = requestAnimationFrame(loop);
               };
-              requestAnimationFrame(loop);
+              aiRafRef.current = requestAnimationFrame(loop);
+              // restart no humano para começar parelho
+              actions.restart();
               if (orchestratorRef.current) orchestratorRef.current.stop();
               orchestratorRef.current = new AiMatchOrchestrator(aiServiceRef.current, policy, { isVersus: true, opponentService: gameServiceRef.current });
               orchestratorRef.current.start();
+              setAiMode('versus');
+              setCurrentScreen('game');
             } catch (e) {
               console.error('Failed to init versus AI:', e);
             }
@@ -742,6 +726,7 @@ function GameComponent() {
       controllerCount={controllerCount}
       getGamepadInfo={getGamepadInfo}
       aiTelemetry={aiMode !== 'none' ? aiTelemetry : null}
+      aiGameState={aiGameState}
     />
   );
 }

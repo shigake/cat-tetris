@@ -24,9 +24,9 @@ const baseWeights = {
 };
 
 export const AiPresets = {
-  Easy: { depth: 1, weights: { ...baseWeights, holes: 8, aggregateHeight: 0.6, bumpiness: 0.5 }, garbageFactor: 0.8, speedMs: 140, nodeBudget: 120, timeBudgetMs: 0.5 },
-  Normal: { depth: 2, weights: { ...baseWeights }, garbageFactor: 1.0, speedMs: 110, nodeBudget: 240, timeBudgetMs: 0.7 },
-  Hard: { depth: 3, weights: { ...baseWeights, holes: 8.5, rowTransitions: 0.4, colTransitions: 0.4 }, garbageFactor: 1.2, speedMs: 90, nodeBudget: 480, timeBudgetMs: 0.9 },
+  Easy: { depth: 1, weights: { ...baseWeights, holes: 8, aggregateHeight: 0.6, bumpiness: 0.5 }, garbageFactor: 0.8, speedMs: 220, nodeBudget: 120, timeBudgetMs: 0.5 },
+  Normal: { depth: 2, weights: { ...baseWeights }, garbageFactor: 1.0, speedMs: 160, nodeBudget: 240, timeBudgetMs: 0.7 },
+  Hard: { depth: 3, weights: { ...baseWeights, holes: 8.5, rowTransitions: 0.4, colTransitions: 0.4 }, garbageFactor: 1.2, speedMs: 120, nodeBudget: 480, timeBudgetMs: 0.9 },
   Personalities: {
     GatoPreguicoso: { tweak: { aggregateHeight: +0.2, holes: -1.0, bumpiness: +0.2, speedMs: +20 } },
     GatoEquilibrado: { tweak: {} },

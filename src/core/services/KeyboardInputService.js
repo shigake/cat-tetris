@@ -41,17 +41,18 @@ export class KeyboardInputService extends IKeyboardInputService {
   }
 
   startListening() {
-    if (!this.isListening) {
-      window.addEventListener('keydown', this.handleKeyDown);
-      this.isListening = true;
-    }
+    if (this.isListening) return;
+    if (this._listening) return;
+    this._listening = true;
+    window.addEventListener('keydown', this.handleKeyDown);
+    this.isListening = true;
   }
 
   stopListening() {
-    if (this.isListening) {
-      window.removeEventListener('keydown', this.handleKeyDown);
-      this.isListening = false;
-    }
+    if (!this.isListening) return;
+    window.removeEventListener('keydown', this.handleKeyDown);
+    this.isListening = false;
+    this._listening = false;
   }
 
   handleKeyDown = (event) => {

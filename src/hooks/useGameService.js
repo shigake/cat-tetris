@@ -65,6 +65,9 @@ export function useGameService() {
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
+    if (gameLoopRef.current) {
+      cancelAnimationFrame(gameLoopRef.current);
+    }
     gameLoopRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
@@ -72,6 +75,12 @@ export function useGameService() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
+  }, []);
+
+  useEffect(() => {
+    const onInit = () => { lastTimeRef.current = 0; };
+    gameEvents.on(GAME_EVENTS.GAME_INITIALIZED, onInit);
+    return () => gameEvents.off(GAME_EVENTS.GAME_INITIALIZED, onInit);
   }, []);
 
   const createGameAction = useCallback((actionName) => {

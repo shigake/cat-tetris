@@ -246,16 +246,20 @@ function generatePlacements(board, piece, weights) {
       if (dx < 0) { for (let i = 0; i < -dx; i++) plan.push('left'); }
       if (dx > 0) { for (let i = 0; i < dx; i++) plan.push('right'); }
 
-      // Start at y=0; set piece position and drop until collision
-      let ghost = rotated.reset(rotated.type, rotated.shape, rotated.color, rotated.emoji, { x, y: 0 }, rotated.isTSpin);
-      // If initial position invalid, try pushing up until valid or give up
-      let adjust = 0; let validStart = board.canPlacePiece(ghost);
-      while (!validStart && adjust < 4) {
-        ghost = ghost.move(0, -1);
-        validStart = board.canPlacePiece(ghost);
-        adjust++;
+      // Start at current piece Y and nudge downward until legal spawn
+      let ghost = rotated.reset(
+        rotated.type,
+        rotated.shape,
+        rotated.color,
+        rotated.emoji,
+        { x, y: piece.position.y },
+        rotated.isTSpin
+      );
+      let guard = 0;
+      while (!board.canPlacePiece(ghost) && guard++ < 6) {
+        ghost = ghost.move(0, 1);
       }
-      if (!validStart) continue;
+      if (!board.canPlacePiece(ghost)) continue;
       let placed = false;
       let safety = 0;
       while (safety++ < 50) {
@@ -273,7 +277,8 @@ function generatePlacements(board, piece, weights) {
       temp.placePiece(ghost);
       const lines = temp.clearLines();
       const score = evaluateGrid(temp.grid, lines, weights);
-      plan.push('hardDrop');
+      // Prefer soft drop sequence for visibility: move horizontally then soft drops to settle; lock will happen via gravity
+      // Small sequence: apply horizontal moves; let game loop handle down. As fallback include one hardDrop at the end if no lines cleared occur frequently
       results.push({ plan, grid: temp.grid, linesCleared: lines, score, finalPiece: ghost });
     }
   }

@@ -1,4 +1,5 @@
 import { TetrisAI } from './TetrisAI.js';
+import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
 
 /** Simple orchestrator that observes a given GameService-like API */
 export class AiMatchOrchestrator {
@@ -21,6 +22,11 @@ export class AiMatchOrchestrator {
   start() {
     if (this.enabled) return;
     this.enabled = true;
+    this.plan = [];
+    this.lastKnownStateKey = '';
+    this._onInit = () => { this.plan = []; this.lastKnownStateKey = ''; };
+    gameEvents.on(GAME_EVENTS.GAME_INITIALIZED, this._onInit);
+    console.log('[AI] start orchestrator');
     this.tick();
   }
 
@@ -30,6 +36,13 @@ export class AiMatchOrchestrator {
       clearTimeout(this.timer);
       this.timer = null;
     }
+    this.plan = [];
+    this.lastKnownStateKey = '';
+    if (this._onInit) {
+      gameEvents.off(GAME_EVENTS.GAME_INITIALIZED, this._onInit);
+      this._onInit = null;
+    }
+    console.log('[AI] stop orchestrator');
   }
 
   getTelemetry() {
@@ -53,16 +66,12 @@ export class AiMatchOrchestrator {
   }
 
   // Recompute when state diverges (e.g., garbage, locking, etc.)
-  shouldReplan(state) {
+  computeKey(state) {
     // Be robust to gravity: ignore Y to avoid replanning every frame
     const bottomRows = state.board.slice(-4);
     const rowSig = bottomRows.map(r => (Array.isArray(r) ? r.map(c => (c ? 1 : 0)).join('') : '')).join('/');
-    const key = `${state.currentPiece?.type ?? 'none'}|x:${state.currentPiece?.position?.x ?? -1}|${rowSig}`;
-    if (this.lastKnownStateKey !== key) {
-      this.lastKnownStateKey = key;
-      return true;
-    }
-    return false;
+    // Ignore current X while a plan exists; only replan on board change or piece/hold/next swap
+    return `${state.currentPiece?.type ?? 'none'}|hold:${state.heldPiece?.type ?? 'none'}|next:${state.nextPieces?.[0]?.type ?? 'none'}|${rowSig}`;
   }
 
   buildSnapshot() {
@@ -80,11 +89,18 @@ export class AiMatchOrchestrator {
     const snapshot = this.buildSnapshot();
     const plan = this.ai.decide(snapshot, this.policy);
     this.plan = plan;
+    // Update key baseline after deciding
+    try {
+      const state = this.gameService.getGameState();
+      this.lastKnownStateKey = this.computeKey(state);
+    } catch {}
+    console.log('[AI] decide plan size=', plan.length);
   }
 
   executeNext() {
     if (this.plan.length === 0) return;
     const action = this.plan.shift();
+    console.log('[AI] exec', action);
     switch(action) {
       case 'left': this.gameService.movePiece('left'); break;
       case 'right': this.gameService.movePiece('right'); break;
@@ -126,8 +142,13 @@ export class AiMatchOrchestrator {
       this.prevAILines = aiLines;
       this.prevOppLines = oppLines;
     }
-    if (this.plan.length === 0 || this.shouldReplan(state)) {
+    const currentKey = this.computeKey(state);
+    if (this.plan.length === 0 || currentKey !== this.lastKnownStateKey) {
+      const prevKey = this.lastKnownStateKey;
       this.decide();
+      if (prevKey !== this.lastKnownStateKey) {
+        console.log('[AI] replan due to key change');
+      }
     }
     // Emit uma sequência de ações por tick para evitar travas visuais (move + drop mais rápido)
     const stepsPerTick = Math.max(1, Math.floor((100 / (this.policy.speedMs || 100))));
