@@ -351,7 +351,7 @@ function GameScreen({
         <AnimatePresence>
           {gameState.gameOver && (
             <GameOverScreen 
-              score={gameState.score.points}
+              score={gameState.score}
               onRestart={actions.restart}
               onBackToMenu={onBackToMenu}
             />

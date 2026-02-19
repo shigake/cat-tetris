@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useShop } from '../hooks/useShop';
 import { useCurrency } from '../hooks/useCurrency';
+import { showToast } from './ToastNotification';
 
 /**
  * ShopPanel - Loja de temas
@@ -10,22 +11,16 @@ function ShopPanel({ onClose }) {
   const { themes, equippedTheme, loading, purchaseTheme, equipTheme, getStats } = useShop();
   const { currency } = useCurrency();
   const [selectedTheme, setSelectedTheme] = useState(null);
-  const [notification, setNotification] = useState(null);
 
   const stats = getStats();
-
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
-  };
 
   const handlePurchase = (themeId) => {
     const result = purchaseTheme(themeId);
     
     if (result.success) {
-      showNotification(`✅ ${result.theme.name} comprado!`, 'success');
+      showToast(`✅ ${result.theme.name} comprado com sucesso!`, 'success');
     } else {
-      showNotification(`❌ ${result.error}`, 'error');
+      showToast(`❌ ${result.error}`, 'error');
     }
   };
 
@@ -33,9 +28,9 @@ function ShopPanel({ onClose }) {
     const result = equipTheme(themeId);
     
     if (result.success) {
-      showNotification(`🎨 ${result.theme.name} equipado!`, 'success');
+      showToast(`🎨 ${result.theme.name} equipado!`, 'success');
     } else {
-      showNotification(`❌ ${result.error}`, 'error');
+      showToast(`❌ ${result.error}`, 'error');
     }
   };
 
