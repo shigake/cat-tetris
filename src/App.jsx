@@ -17,6 +17,7 @@ import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
 import Tutorial from './components/Tutorial';
+import ToastNotification from './components/ToastNotification';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -679,6 +680,7 @@ function App() {
   return (
     <ErrorBoundary>
       <GameComponent />
+      <ToastNotification />
     </ErrorBoundary>
   );
 }

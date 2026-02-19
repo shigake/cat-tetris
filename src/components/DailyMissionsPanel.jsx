@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMissions } from '../hooks/useMissions';
 import Celebration from './Celebration';
+import { showToast } from './ToastNotification';
 
 /**
  * DailyMissionsPanel - Mostra missões diárias do jogador
@@ -14,8 +15,8 @@ function DailyMissionsPanel({ onClose }) {
   const handleClaim = (missionId) => {
     const result = claimReward(missionId);
     if (result.success) {
-      // Show notification (pode adicionar toast aqui)
-      console.log(`✅ Recompensa coletada: +${result.reward} 🐟`);
+      // Show toast notification
+      showToast(`✅ Recompensa coletada: +${result.reward} 🐟`, 'success');
       
       // Check if all missions are now claimed
       const updatedStats = getMissionsStats();
@@ -24,7 +25,7 @@ function DailyMissionsPanel({ onClose }) {
         setTimeout(() => setShowCelebration(false), 3000);
       }
     } else {
-      console.error('Erro ao coletar recompensa:', result.error);
+      showToast(`❌ ${result.error}`, 'error');
     }
   };
 
