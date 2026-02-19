@@ -127,24 +127,6 @@ function ShopPanel({ onClose }) {
           </div>
         </div>
 
-        {/* Notification */}
-        <AnimatePresence>
-          {notification && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className={`mb-4 p-3 rounded-lg text-center font-bold ${
-                notification.type === 'success' 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-red-600 text-white'
-              }`}
-            >
-              {notification.message}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Themes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {themes.map((theme, index) => {
