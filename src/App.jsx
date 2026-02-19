@@ -16,6 +16,7 @@ import AchievementNotification from './components/AchievementNotification';
 import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
+import MultiplayerPanel from './components/MultiplayerPanel';
 import Tutorial from './components/Tutorial';
 import ToastNotification from './components/ToastNotification';
 import { useGameService } from './hooks/useGameService';
@@ -391,6 +392,7 @@ function GameComponent() {
   const [showShop, setShowShop] = useState(false);
   const [showGameModes, setShowGameModes] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showMultiplayer, setShowMultiplayer] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
   
   const { gameState, actions } = useGameService();
@@ -563,6 +565,7 @@ function GameComponent() {
           onShowShop={() => setShowShop(true)}
           onShowMissions={() => setShowMissions(true)}
           onShowAchievements={() => setShowAchievements(true)}
+          onShowMultiplayer={() => setShowMultiplayer(true)}
           onShowTutorial={() => setShowTutorial(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
@@ -585,6 +588,19 @@ function GameComponent() {
           {showLeaderboard && (
             <LeaderboardPanel 
               onClose={() => setShowLeaderboard(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showMultiplayer && (
+            <MultiplayerPanel 
+              onClose={() => setShowMultiplayer(false)}
+              onStartMatch={(match) => {
+                setShowMultiplayer(false);
+                // TODO: Iniciar modo multiplayer
+                console.log('Starting multiplayer match:', match);
+              }}
             />
           )}
         </AnimatePresence>

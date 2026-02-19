@@ -14,6 +14,8 @@ import { ShopService } from '../services/ShopService.js';
 import { GameModesService } from '../services/GameModesService.js';
 import { LeaderboardService } from '../services/LeaderboardService.js';
 import { ShareService } from '../services/ShareService.js';
+import { AIOpponentService } from '../services/AIOpponentService.js';
+import { MultiplayerService } from '../services/MultiplayerService.js';
 
 export function registerServices(container = new DIContainer()) {
   container.registerSingleton('gameRepository', () => new LocalStorageRepository());
@@ -85,6 +87,17 @@ export function registerServices(container = new DIContainer()) {
     'shareService',
     (playerStatsService) => new ShareService(playerStatsService),
     ['playerStatsService']
+  );
+  
+  container.registerSingleton(
+    'aiOpponentService',
+    () => new AIOpponentService()
+  );
+  
+  container.registerSingleton(
+    'multiplayerService',
+    (gameRepository) => new MultiplayerService(gameRepository),
+    ['gameRepository']
   );
   
   container.registerSingleton(

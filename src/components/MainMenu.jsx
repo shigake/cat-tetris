@@ -14,6 +14,7 @@ export default function MainMenu({
   onShowShop,
   onShowMissions,
   onShowAchievements,
+  onShowMultiplayer,
   onShowTutorial,
   onShowInstallPrompt,
   canInstallPWA,
@@ -89,6 +90,19 @@ export default function MainMenu({
         gradient: 'from-yellow-500 to-orange-600',
         hoverGradient: 'from-yellow-400 to-orange-500',
         glow: 'shadow-yellow-500/25'
+      },
+      {
+        id: 'multiplayer',
+        icon: '🎮',
+        title: 'Multiplayer',
+        subtitle: '1v1 e vs IA',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowMultiplayer();
+        },
+        gradient: 'from-purple-500 to-pink-600',
+        hoverGradient: 'from-purple-400 to-pink-500',
+        glow: 'shadow-purple-500/25'
       },
       {
         id: 'modes',
