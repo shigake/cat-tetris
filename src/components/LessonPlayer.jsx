@@ -136,33 +136,6 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
     }
   }, [mode, isInitialized, gameState, lesson, getValidationState, practiceState.complete, onComplete]);
 
-  // Demonstração automática
-  useEffect(() => {
-    if (mode !== 'demonstration') return;
-
-    const narration = lesson.demonstration.narration;
-    if (demonstrationStep >= narration.length) {
-      // Terminou demonstração
-      setTimeout(() => {
-        setMode('practice');
-      }, 2000);
-      return;
-    }
-
-    const currentNarration = narration[demonstrationStep];
-    const nextNarration = narration[demonstrationStep + 1];
-    
-    const delay = nextNarration 
-      ? nextNarration.time - currentNarration.time
-      : 3000;
-
-    const timer = setTimeout(() => {
-      setDemonstrationStep(demonstrationStep + 1);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [mode, demonstrationStep, lesson]);
-
   // Sistema de hints
   useEffect(() => {
     if (mode !== 'practice') return;
@@ -199,14 +172,6 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
     }
   }, [mode, lesson, practiceState, onComplete]);
 
-  const handleSkipDemo = () => {
-    setMode('practice');
-  };
-
-  const currentNarration = mode === 'demonstration' && demonstrationStep < lesson.demonstration.narration.length
-    ? lesson.demonstration.narration[demonstrationStep].text
-    : null;
-
   return (
     <div className="fixed inset-0 bg-black/95 z-50 flex flex-col">
       {/* Header */}
@@ -228,7 +193,8 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
             <div className="text-right text-white/80">
               <div className="text-sm uppercase">Modo</div>
               <div className="text-lg font-bold">
-                {mode === 'demonstration' ? '🎬 Demonstração' : '🎮 Prática'}
+                {mode === 'introduction' ? '📖 Introdução' :
+                 mode === 'demonstration' ? '🎬 Demonstração' : '🎮 Prática'}
               </div>
             </div>
             
@@ -243,49 +209,176 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
         <div className="max-w-7xl w-full">
           <AnimatePresence mode="wait">
+            {/* TELA DE INTRODUÇÃO */}
+            {mode === 'introduction' && (
+              <motion.div
+                key="intro"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="max-w-4xl mx-auto"
+              >
+                {/* Objetivo da Lição */}
+                <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl p-8 mb-8 text-center">
+                  <div className="text-6xl mb-4">🎯</div>
+                  <h3 className="text-3xl font-bold text-white mb-4">O que você vai aprender</h3>
+                  <p className="text-2xl text-white/90 leading-relaxed">
+                    {lesson.practice.objective}
+                  </p>
+                </div>
+
+                {/* Explicação Detalhada */}
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 mb-8">
+                  <h4 className="text-2xl font-bold text-white mb-4">💡 Como funciona</h4>
+                  <div className="text-xl text-white/80 leading-relaxed space-y-4">
+                    {lesson.demonstration.narration.map((narr, idx) => (
+                      <p key={idx} className="flex items-start gap-3">
+                        <span className="text-purple-400 font-bold">{idx + 1}.</span>
+                        <span>{narr.text}</span>
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Botões de Ação */}
+                <div className="flex gap-4 justify-center">
+                  {hasDemoAvailable && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setMode('demonstration');
+                        startDemonstration();
+                      }}
+                      className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 
+                               text-white px-8 py-4 rounded-xl font-bold text-xl shadow-2xl flex items-center gap-3"
+                    >
+                      <span className="text-3xl">🎬</span>
+                      <span>Ver Demonstração (CPU joga)</span>
+                    </motion.button>
+                  )}
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setMode('practice')}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 
+                             text-white px-8 py-4 rounded-xl font-bold text-xl shadow-2xl flex items-center gap-3"
+                  >
+                    <span className="text-3xl">🎮</span>
+                    <span>Ir Direto para Prática</span>
+                  </motion.button>
+                </div>
+
+                {/* Dica */}
+                <div className="mt-8 text-center text-white/60 text-lg">
+                  <p>💡 Recomendamos ver a demonstração primeiro para entender a técnica</p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* TELA DE DEMONSTRAÇÃO */}
             {mode === 'demonstration' && (
               <motion.div
                 key="demo"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="text-center"
+                className="flex flex-col items-center gap-6"
               >
-                {/* Narration */}
-                <motion.div
-                  key={demonstrationStep}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 mb-8 max-w-3xl mx-auto"
-                >
-                  <p className="text-3xl text-white leading-relaxed">
-                    {currentNarration}
-                  </p>
-                </motion.div>
+                {/* Narração Atual */}
+                {demonstrationState.currentNarration && (
+                  <motion.div
+                    key={demonstrationState.currentNarration}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 max-w-3xl"
+                  >
+                    <div className="text-xl text-white leading-relaxed">
+                      {demonstrationState.currentNarration}
+                    </div>
+                  </motion.div>
+                )}
 
-                {/* Demo Board Preview */}
-                <div className="bg-gray-900/50 rounded-xl p-6 max-w-md mx-auto">
-                  <div className="text-white/60 mb-4">
-                    🎬 Demonstração em andamento...
+                {/* Board de Demonstração */}
+                {gameState && isInitialized && (
+                  <div className="bg-gray-900/50 rounded-xl p-6">
+                    <div className="text-white/80 mb-4 text-center">
+                      <span className="text-2xl">🎬</span>
+                      <span className="ml-2 text-lg font-bold">CPU jogando...</span>
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      {/* Hold */}
+                      <HeldPiece heldPiece={gameState.heldPiece} />
+
+                      {/* Board */}
+                      <TetrisBoard
+                        board={gameState.board}
+                        currentPiece={gameState.currentPiece}
+                        dropPreview={gameState.dropPreview}
+                        clearingLines={gameState.clearingLines || []}
+                      />
+
+                      {/* Next + Score */}
+                      <div className="flex flex-col gap-4">
+                        <NextPieces nextPieces={gameState.nextPieces || []} />
+                        <Scoreboard score={gameState.score} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="h-64 bg-black/30 rounded-lg flex items-center justify-center">
-                    <span className="text-6xl animate-pulse">🎮</span>
+                )}
+
+                {/* Controles de Demonstração */}
+                <div className="flex items-center gap-4">
+                  {demonstrationState.isPlaying ? (
+                    demonstrationState.isPaused ? (
+                      <button
+                        onClick={resumeDemonstration}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
+                      >
+                        ▶️ Continuar
+                      </button>
+                    ) : (
+                      <button
+                        onClick={pauseDemonstration}
+                        className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
+                      >
+                        ⏸️ Pausar
+                      </button>
+                    )
+                  ) : null}
+
+                  <button
+                    onClick={() => {
+                      stopDemonstration();
+                      setMode('practice');
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
+                  >
+                    ⏭️ Ir para Prática
+                  </button>
+
+                  {/* Progress Bar */}
+                  <div className="flex-1 bg-gray-700 rounded-full h-3 overflow-hidden">
+                    <motion.div
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${demonstrationState.progress * 100}%` }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                  <div className="text-white/80 font-mono">
+                    {Math.round(demonstrationState.progress * 100)}%
                   </div>
                 </div>
-
-                {/* Skip button */}
-                <button
-                  onClick={handleSkipDemo}
-                  className="mt-8 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg transition-colors"
-                >
-                  ⏭️ Pular Demonstração
-                </button>
               </motion.div>
             )}
 
+            {/* TELA DE PRÁTICA */}
             {mode === 'practice' && (
               <motion.div
                 key="practice"
