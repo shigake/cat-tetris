@@ -12,6 +12,7 @@ import { AchievementsService } from '../services/AchievementsService.js';
 import { PlayerStatsService } from '../services/PlayerStatsService.js';
 import { ShopService } from '../services/ShopService.js';
 import { GameModesService } from '../services/GameModesService.js';
+import { LeaderboardService } from '../services/LeaderboardService.js';
 
 export function registerServices(container = new DIContainer()) {
   container.registerSingleton('gameRepository', () => new LocalStorageRepository());
@@ -70,6 +71,13 @@ export function registerServices(container = new DIContainer()) {
     'gameModesService',
     (gameRepository) => new GameModesService(gameRepository),
     ['gameRepository']
+  );
+  
+  container.registerSingleton(
+    'leaderboardService',
+    (gameRepository, playerStatsService) => 
+      new LeaderboardService(gameRepository, playerStatsService),
+    ['gameRepository', 'playerStatsService']
   );
   
   container.registerSingleton(

@@ -9,6 +9,7 @@ export default function MainMenu({
   onNewGame,
   onShowSettings, 
   onShowStatistics,
+  onShowLeaderboard,
   onShowGameModes,
   onShowShop,
   onShowMissions,
@@ -75,6 +76,19 @@ export default function MainMenu({
     }
 
     baseOptions.push(
+      {
+        id: 'leaderboard',
+        icon: '🏆',
+        title: 'Ranking',
+        subtitle: 'Competição mundial',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowLeaderboard();
+        },
+        gradient: 'from-yellow-500 to-orange-600',
+        hoverGradient: 'from-yellow-400 to-orange-500',
+        glow: 'shadow-yellow-500/25'
+      },
       {
         id: 'modes',
         icon: '🎯',

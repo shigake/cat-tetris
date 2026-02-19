@@ -15,6 +15,7 @@ import AchievementsPanel from './components/AchievementsPanel';
 import AchievementNotification from './components/AchievementNotification';
 import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
+import LeaderboardPanel from './components/LeaderboardPanel';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -27,6 +28,7 @@ import { useAchievements } from './hooks/useAchievements';
 import { usePlayerStats } from './hooks/usePlayerStats';
 import { useShop } from './hooks/useShop';
 import { useGameModes } from './hooks/useGameModes';
+import { useLeaderboard } from './hooks/useLeaderboard';
 import GamepadIndicator from './components/GamepadIndicator';
 import { getPieceColor } from './utils/PieceGenerator';
 
@@ -386,6 +388,7 @@ function GameComponent() {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showGameModes, setShowGameModes] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -403,7 +406,8 @@ function GameComponent() {
   useAchievements();
   usePlayerStats();
   useShop();
-  useGameModes(); // Initialize game modes
+  useGameModes();
+  useLeaderboard(); // Initialize leaderboard
   
   useSoundManager();
   
@@ -551,6 +555,7 @@ function GameComponent() {
           onNewGame={handleNewGame}
           onShowSettings={() => setShowSettings(true)}
           onShowStatistics={() => setShowStats(true)}
+          onShowLeaderboard={() => setShowLeaderboard(true)}
           onShowGameModes={() => setShowGameModes(true)}
           onShowShop={() => setShowShop(true)}
           onShowMissions={() => setShowMissions(true)}
@@ -569,6 +574,14 @@ function GameComponent() {
                 onClose={() => setShowStats(false)}
               />
             </Suspense>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showLeaderboard && (
+            <LeaderboardPanel 
+              onClose={() => setShowLeaderboard(false)}
+            />
           )}
         </AnimatePresence>
 
