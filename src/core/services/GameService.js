@@ -40,7 +40,7 @@ export class GameService extends IGameService {
     this.nextPieces = this.pieceFactory.createNextPieces(GameConfig.NEXT_PIECES_COUNT);
     this.heldPiece = null;
     this.canHold = true;
-    this.isPlaying = true;
+    this.isPlaying = false; // ✅ NÃO iniciar automaticamente!
     this.isPaused = false;
     this.gameOver = false;
     this.lastDropTime = 0;
