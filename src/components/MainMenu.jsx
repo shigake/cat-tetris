@@ -16,6 +16,7 @@ export default function MainMenu({
   onShowAchievements,
   onShowMultiplayer,
   onShowTutorial,
+  onShowTutorialHub,
   onShowInstallPrompt,
   canInstallPWA,
   hasActiveGame,
@@ -155,6 +156,19 @@ export default function MainMenu({
         gradient: 'from-yellow-500 to-amber-600',
         hoverGradient: 'from-yellow-400 to-amber-500',
         glow: 'shadow-yellow-500/25'
+      },
+      {
+        id: 'tutorial',
+        icon: '📚',
+        title: 'Tutorial Educativo',
+        subtitle: 'Aprenda do básico ao PRO',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowTutorialHub();
+        },
+        gradient: 'from-indigo-500 to-blue-600',
+        hoverGradient: 'from-indigo-400 to-blue-500',
+        glow: 'shadow-indigo-500/25'
       },
       {
         id: 'statistics',

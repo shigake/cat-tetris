@@ -18,7 +18,9 @@ import GameModesPanel from './components/GameModesPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
 import MultiplayerPanel from './components/MultiplayerPanel';
 import Tutorial from './components/Tutorial';
+import TutorialHub from './components/TutorialHub';
 import ToastNotification from './components/ToastNotification';
+import { serviceContainer } from './core/container/ServiceRegistration';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -394,6 +396,7 @@ function GameComponent() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showMultiplayer, setShowMultiplayer] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
+  const [showTutorialHub, setShowTutorialHub] = useState(false);
   
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -567,6 +570,7 @@ function GameComponent() {
           onShowAchievements={() => setShowAchievements(true)}
           onShowMultiplayer={() => setShowMultiplayer(true)}
           onShowTutorial={() => setShowTutorial(true)}
+          onShowTutorialHub={() => setShowTutorialHub(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
@@ -634,6 +638,19 @@ function GameComponent() {
           {showAchievements && (
             <AchievementsPanel 
               onClose={() => setShowAchievements(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showTutorialHub && (
+            <TutorialHub
+              tutorialService={serviceContainer.resolve('tutorialService')}
+              onClose={() => setShowTutorialHub(false)}
+              onLessonComplete={(result) => {
+                console.log('Lesson completed:', result);
+                // TODO: Award coins and XP
+              }}
             />
           )}
         </AnimatePresence>
