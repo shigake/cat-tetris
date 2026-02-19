@@ -9,6 +9,10 @@ import HeldPiece from './components/HeldPiece';
 import ErrorBoundary from './components/ErrorBoundary';
 import MainMenu from './components/MainMenu';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import CurrencyDisplay from './components/CurrencyDisplay';
+import DailyMissionsPanel from './components/DailyMissionsPanel';
+import AchievementsPanel from './components/AchievementsPanel';
+import AchievementNotification from './components/AchievementNotification';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -16,6 +20,9 @@ import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 import { useGamepad } from './hooks/useGamepad';
+import { useMissions } from './hooks/useMissions';
+import { useAchievements } from './hooks/useAchievements';
+import { usePlayerStats } from './hooks/usePlayerStats';
 import GamepadIndicator from './components/GamepadIndicator';
 import { getPieceColor } from './utils/PieceGenerator';
 
@@ -371,6 +378,9 @@ function GameComponent() {
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
+  const [showMissions, setShowMissions] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
@@ -381,6 +391,11 @@ function GameComponent() {
     processGamepadInput, 
     getGamepadInfo 
   } = useGamepad(actions);
+  
+  // Initialize progression hooks
+  useMissions();
+  useAchievements();
+  usePlayerStats();
   
   useSoundManager();
   
@@ -528,6 +543,8 @@ function GameComponent() {
           onNewGame={handleNewGame}
           onShowSettings={() => setShowSettings(true)}
           onShowStatistics={() => setShowStats(true)}
+          onShowMissions={() => setShowMissions(true)}
+          onShowAchievements={() => setShowAchievements(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
@@ -546,6 +563,22 @@ function GameComponent() {
         </AnimatePresence>
 
         <AnimatePresence>
+          {showMissions && (
+            <DailyMissionsPanel 
+              onClose={() => setShowMissions(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showAchievements && (
+            <AchievementsPanel 
+              onClose={() => setShowAchievements(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
           <Suspense fallback={<LoadingSpinner />}>
             <SettingsMenu 
               isOpen={showSettings}
@@ -559,6 +592,9 @@ function GameComponent() {
         {showPWAPrompt && (
           <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} />
         )}
+        
+        {/* Achievement notifications (global) */}
+        <AchievementNotification />
       </>
     );
   }

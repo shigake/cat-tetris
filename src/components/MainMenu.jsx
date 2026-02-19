@@ -2,12 +2,15 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
 import AdvancedParticles from './AdvancedParticles';
+import CurrencyDisplay from './CurrencyDisplay';
 
 export default function MainMenu({ 
   onStartGame, 
   onNewGame,
   onShowSettings, 
-  onShowStatistics, 
+  onShowStatistics,
+  onShowMissions,
+  onShowAchievements,
   onShowInstallPrompt,
   canInstallPWA,
   hasActiveGame,
@@ -70,6 +73,32 @@ export default function MainMenu({
     }
 
     baseOptions.push(
+      {
+        id: 'missions',
+        icon: '📋',
+        title: 'Missões Diárias',
+        subtitle: 'Complete missões e ganhe recompensas',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowMissions();
+        },
+        gradient: 'from-amber-500 to-orange-600',
+        hoverGradient: 'from-amber-400 to-orange-500',
+        glow: 'shadow-amber-500/25'
+      },
+      {
+        id: 'achievements',
+        icon: '🏆',
+        title: 'Conquistas',
+        subtitle: 'Desbloqueie conquistas',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowAchievements();
+        },
+        gradient: 'from-yellow-500 to-amber-600',
+        hoverGradient: 'from-yellow-400 to-amber-500',
+        glow: 'shadow-yellow-500/25'
+      },
       {
         id: 'statistics',
         icon: '📊',
@@ -197,6 +226,11 @@ export default function MainMenu({
         type="mixed"
         intensity="medium"
       />
+
+      {/* Currency Display - Fixed top right */}
+      <div className="fixed top-4 right-4 z-50">
+        <CurrencyDisplay />
+      </div>
 
       <motion.div
         variants={containerVariants}
