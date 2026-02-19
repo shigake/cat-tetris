@@ -173,6 +173,206 @@ export const DEMONSTRATIONS = {
       { action: 'move', params: { direction: 'right' }, delayMs: 200 },
       { action: 'hardDrop', delayMs: 600 }
     ]
+  },
+
+  // LIÇÕES INTERMEDIÁRIAS ADICIONAIS
+  'lesson-7-tspin-mini': {
+    metadata: {
+      lessonId: 'lesson-7-tspin-mini',
+      title: 'T-Spin Mini',
+      description: 'Variação menor do T-Spin',
+      duration: 18000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 },
+      { action: 'wait', delayMs: 400 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'hardDrop', delayMs: 400 }
+    ]
+  },
+
+  'lesson-8-tspin-double': {
+    metadata: {
+      lessonId: 'lesson-8-tspin-double',
+      title: 'T-Spin Double',
+      description: 'T-Spin que limpa 2 linhas',
+      duration: 20000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 },
+      { action: 'wait', delayMs: 500 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'wait', delayMs: 500 },
+      { action: 'hardDrop', delayMs: 400 }
+    ]
+  },
+
+  'lesson-10-back-to-back': {
+    metadata: {
+      lessonId: 'lesson-10-back-to-back',
+      title: 'Back-to-Back Chain',
+      description: 'Encadear Tetris e T-Spins para bônus',
+      duration: 22000
+    },
+    steps: [
+      // Tetris 1
+      { action: 'wait', delayMs: 500 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 800 },
+      
+      // T-Spin (B2B!)
+      { action: 'wait', delayMs: 400 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'hardDrop', delayMs: 400 }
+    ]
+  },
+
+  'lesson-11-downstacking': {
+    metadata: {
+      lessonId: 'lesson-11-downstacking',
+      title: 'Downstacking',
+      description: 'Técnica de limpar pilhas altas',
+      duration: 25000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'hardDrop', delayMs: 500 }
+    ]
+  },
+
+  // LIÇÕES AVANÇADAS
+  'lesson-12-tspin-triple': {
+    metadata: {
+      lessonId: 'lesson-12-tspin-triple',
+      title: 'T-Spin Triple',
+      description: 'T-Spin que limpa 3 linhas',
+      duration: 25000
+    },
+    steps: [
+      { action: 'wait', delayMs: 1000 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 },
+      { action: 'wait', delayMs: 500 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'hardDrop', delayMs: 400 }
+    ]
+  },
+
+  'lesson-13-4wide': {
+    metadata: {
+      lessonId: 'lesson-13-4wide',
+      title: 'Técnica 4-Wide',
+      description: 'Manter coluna de 4 espaços para combos',
+      duration: 30000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 }
+    ]
+  },
+
+  'lesson-14-perfect-clear': {
+    metadata: {
+      lessonId: 'lesson-14-perfect-clear',
+      title: 'Perfect Clear',
+      description: 'Limpar todo o tabuleiro',
+      duration: 20000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'hardDrop', delayMs: 500 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 500 }
+    ]
+  },
+
+  // OPENERS PROFISSIONAIS
+  'lesson-16-tki-opener': {
+    metadata: {
+      lessonId: 'lesson-16-tki-opener',
+      title: 'TKI Opener',
+      description: 'Opener profissional TKI-3',
+      duration: 35000
+    },
+    steps: [
+      { action: 'wait', delayMs: 1000 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 },
+      { action: 'wait', delayMs: 400 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 }
+    ]
+  },
+
+  'lesson-17-tspin-stacking': {
+    metadata: {
+      lessonId: 'lesson-17-tspin-stacking',
+      title: 'T-Spin Stacking',
+      description: 'Empilhar para múltiplos T-Spins',
+      duration: 40000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 },
+      { action: 'wait', delayMs: 400 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'hardDrop', delayMs: 600 },
+      { action: 'wait', delayMs: 400 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 600 }
+    ]
   }
 };
 
