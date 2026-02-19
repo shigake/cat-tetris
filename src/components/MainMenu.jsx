@@ -9,6 +9,7 @@ export default function MainMenu({
   onNewGame,
   onShowSettings, 
   onShowStatistics,
+  onShowShop,
   onShowMissions,
   onShowAchievements,
   onShowInstallPrompt,
@@ -73,6 +74,19 @@ export default function MainMenu({
     }
 
     baseOptions.push(
+      {
+        id: 'shop',
+        icon: '🛍️',
+        title: 'Loja',
+        subtitle: 'Compre temas com seus peixes',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowShop();
+        },
+        gradient: 'from-pink-500 to-rose-600',
+        hoverGradient: 'from-pink-400 to-rose-500',
+        glow: 'shadow-pink-500/25'
+      },
       {
         id: 'missions',
         icon: '📋',
