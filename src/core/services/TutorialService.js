@@ -599,9 +599,428 @@ export class TutorialService {
           badge: 'tsd_master',
           unlocks: [12]
         }
-      }
+      },
 
-      // TODO: Adicionar lessons 12-21 (continuação)
+      // ========================================
+      // MÓDULO 3: AVANÇADO (continuação - lessons 12-18)
+      // ========================================
+      {
+        id: 12,
+        module: LESSON_MODULES.ADVANCED,
+        title: '🌀 T-Spin Triple',
+        description: 'O T-spin mais poderoso: 1200 pontos!',
+        difficulty: 'advanced',
+        estimatedTime: '12 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '💎 T-SPIN TRIPLE = 1200 pontos + B2B!' },
+            { time: 3000, text: '🏗️ SETUP: Buraco vertical de 3 linhas' },
+            { time: 6000, text: '⚠️ DIFÍCIL: Requer setup perfeito' },
+            { time: 9000, text: '🏆 Técnica de jogadores PRO' }
+          ]
+        },
+        
+        practice: {
+          type: 'mastery',
+          objective: 'Execute 2 T-spin Triples',
+          targetCount: 2,
+          
+          validation: (state) => {
+            const tsts = state.tspinTriplesExecuted || 0;
+            return {
+              complete: tsts >= 2,
+              progress: tsts,
+              feedback: tsts >= 2 ? '💎 LENDÁRIO!' : `${tsts}/2 TST executados`
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 1000,
+          xp: 600,
+          badge: 'tst_master',
+          unlocks: [13]
+        }
+      },
+
+      {
+        id: 13,
+        module: LESSON_MODULES.ADVANCED,
+        title: '🎯 4-Wide Combo',
+        description: 'Combo infinito com coluna de 4',
+        difficulty: 'advanced',
+        estimatedTime: '15 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '🎯 4-WIDE = Técnica de combo infinito' },
+            { time: 3000, text: '📐 SETUP: Deixe 4 colunas vazias' },
+            { time: 6000, text: '🔄 MANUTENÇÃO: Sempre limpe 1 linha' },
+            { time: 9000, text: '💰 RESULTADO: Combos de 20+ linhas' },
+            { time: 12000, text: '⚠️ RISCO: Um erro = quebra o setup' }
+          ]
+        },
+        
+        practice: {
+          type: 'challenge',
+          objective: 'Mantenha 4-wide por 15 linhas',
+          target4WideLines: 15,
+          
+          validation: (state) => {
+            const fourWideLines = state.fourWideCount || 0;
+            return {
+              complete: fourWideLines >= 15,
+              progress: fourWideLines,
+              feedback: `${fourWideLines}/15 linhas em 4-wide`
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 1200,
+          xp: 700,
+          badge: 'four_wide_master',
+          unlocks: [14]
+        }
+      },
+
+      {
+        id: 14,
+        module: LESSON_MODULES.ADVANCED,
+        title: '✨ Perfect Clear',
+        description: 'Limpe o tabuleiro 100% = BÔNUS MASSIVO',
+        difficulty: 'advanced',
+        estimatedTime: '10 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '✨ PERFECT CLEAR = Tabuleiro 100% vazio' },
+            { time: 3000, text: '💰 BÔNUS: +3000 pontos!' },
+            { time: 6000, text: '🎯 QUANDO: Primeiras 10-12 peças' },
+            { time: 9000, text: '📚 Requer memorização de patterns' }
+          ]
+        },
+        
+        practice: {
+          type: 'challenge',
+          objective: 'Consiga 1 Perfect Clear',
+          targetPCs: 1,
+          
+          validation: (state) => {
+            const pcs = state.perfectClearsCount || 0;
+            return {
+              complete: pcs >= 1,
+              progress: pcs,
+              feedback: pcs >= 1 ? '✨ PERFEITO!' : 'Tente limpar TUDO'
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 1500,
+          xp: 800,
+          badge: 'perfect_clear',
+          unlocks: [15]
+        }
+      },
+
+      {
+        id: 15,
+        module: LESSON_MODULES.ADVANCED,
+        title: '🚀 DT Cannon',
+        description: 'Opener profissional para ataque rápido',
+        difficulty: 'advanced',
+        estimatedTime: '20 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '🚀 DT CANNON = Opener usado em torneios' },
+            { time: 3000, text: '💥 PODER: 6+ linhas de ataque instantâneo' },
+            { time: 6000, text: '📐 SETUP: Sequência específica de peças' },
+            { time: 9000, text: '🧠 MEMORIZAÇÃO: Requer prática repetida' }
+          ]
+        },
+        
+        practice: {
+          type: 'mastery',
+          objective: 'Execute o DT Cannon completo',
+          targetDTCannons: 1,
+          
+          validation: (state) => {
+            const dtCannons = state.dtCannonsExecuted || 0;
+            return {
+              complete: dtCannons >= 1,
+              progress: dtCannons,
+              feedback: dtCannons >= 1 ? '🚀 OPENER PRO!' : 'Siga o pattern exato'
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 2000,
+          xp: 1000,
+          badge: 'dt_cannon_master',
+          unlocks: [16]
+        }
+      },
+
+      {
+        id: 16,
+        module: LESSON_MODULES.ADVANCED,
+        title: '⚡ TKI Opener',
+        description: 'Outro opener poderoso para início rápido',
+        difficulty: 'advanced',
+        estimatedTime: '20 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '⚡ TKI = Opener alternativo ao DT' },
+            { time: 3000, text: '🎯 VANTAGEM: Mais flexível que DT' },
+            { time: 6000, text: '💪 PODER: Setup para T-spin Double' },
+            { time: 9000, text: '🌟 POPULAR: Usado em competições' }
+          ]
+        },
+        
+        practice: {
+          type: 'mastery',
+          objective: 'Execute o TKI Opener',
+          targetTKIs: 1,
+          
+          validation: (state) => {
+            const tkis = state.tkiOpenersExecuted || 0;
+            return {
+              complete: tkis >= 1,
+              progress: tkis,
+              feedback: tkis >= 1 ? '⚡ TKI MASTER!' : 'Continue tentando'
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 2000,
+          xp: 1000,
+          badge: 'tki_master',
+          unlocks: [17]
+        }
+      },
+
+      {
+        id: 17,
+        module: LESSON_MODULES.ADVANCED,
+        title: '🔄 T-Spin Stacking',
+        description: 'Mantenha oportunidades de T-spin continuamente',
+        difficulty: 'advanced',
+        estimatedTime: '18 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '🔄 STACKING = Manter setups de T-spin' },
+            { time: 3000, text: '🎯 OBJETIVO: Nunca perder oportunidades' },
+            { time: 6000, text: '🏗️ TÉCNICA: "Overhang" e "Imperial"' },
+            { time: 9000, text: '💎 RESULTADO: T-spins a cada 3-4 peças' }
+          ]
+        },
+        
+        practice: {
+          type: 'challenge',
+          objective: 'Faça 10 T-spins em 1 jogo',
+          targetTSpins: 10,
+          
+          validation: (state) => {
+            const tspins = state.tspinsInGame || 0;
+            return {
+              complete: tspins >= 10,
+              progress: tspins,
+              feedback: `${tspins}/10 T-spins em sequência`
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 1800,
+          xp: 900,
+          badge: 'tspin_stacker',
+          unlocks: [18],
+          achievement: 'advanced_complete'
+        }
+      },
+
+      // ========================================
+      // MÓDULO 4: PROFISSIONAL (lessons 18-21)
+      // ========================================
+      {
+        id: 18,
+        module: LESSON_MODULES.PRO,
+        title: '⚡ Speed Techniques',
+        description: 'Otimização DAS e ARR para velocidade máxima',
+        difficulty: 'pro',
+        estimatedTime: '25 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '⚡ SPEED = DAS + ARR optimization' },
+            { time: 3000, text: '🎮 DAS (Delayed Auto Shift): Tempo até repeat' },
+            { time: 6000, text: '🔁 ARR (Auto Repeat Rate): Velocidade do repeat' },
+            { time: 9000, text: '💡 FINESSE: Menor número de inputs' },
+            { time: 12000, text: '🏆 PRO: <20 PPS (peças por segundo)' }
+          ]
+        },
+        
+        practice: {
+          type: 'speed_trial',
+          objective: 'Limpe 40 linhas em <2 minutos',
+          targetTime: 120, // segundos
+          targetLines: 40,
+          
+          validation: (state) => {
+            const time = state.elapsedSeconds || 0;
+            const lines = state.linesCleared || 0;
+            return {
+              complete: lines >= 40 && time <= 120,
+              progress: lines,
+              feedback: lines >= 40 
+                ? `✅ ${time}s - ${time <= 120 ? 'SUB-2MIN!' : 'Continue treinando'}`
+                : `${lines}/40 linhas (${time}s)`
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 3000,
+          xp: 1500,
+          badge: 'speed_demon',
+          unlocks: [19]
+        }
+      },
+
+      {
+        id: 19,
+        module: LESSON_MODULES.PRO,
+        title: '🛡️ Reading Garbage',
+        description: 'Defenda contra linhas de ataque (garbage)',
+        difficulty: 'pro',
+        estimatedTime: '15 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '🛡️ GARBAGE = Linhas cinzas enviadas pelo oponente' },
+            { time: 3000, text: '🔑 DEFESA: Limpar linhas cancela garbage' },
+            { time: 6000, text: '💡 TÉCNICA: Downstack + combos' },
+            { time: 9000, text: '⚡ CONTRA-ATAQUE: B2B enquanto defende' }
+          ]
+        },
+        
+        practice: {
+          type: 'survival',
+          objective: 'Sobreviva 3 ondas de garbage',
+          garbageWaves: 3,
+          
+          validation: (state) => {
+            const waves = state.garbageWavesSurvived || 0;
+            return {
+              complete: waves >= 3,
+              progress: waves,
+              feedback: waves >= 3 ? '🛡️ DEFENSE MASTER!' : `${waves}/3 ondas`
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 2500,
+          xp: 1200,
+          badge: 'garbage_master',
+          unlocks: [20]
+        }
+      },
+
+      {
+        id: 20,
+        module: LESSON_MODULES.PRO,
+        title: '🎯 Multiplayer Strategy',
+        description: 'Táticas para vencer vs IA e jogadores reais',
+        difficulty: 'pro',
+        estimatedTime: '30 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '🎯 MULTIPLAYER = Tática + Execução' },
+            { time: 3000, text: '📊 OPENER: Ataque rápido (DT/TKI)' },
+            { time: 6000, text: '⚡ MID-GAME: Manter pressão constante' },
+            { time: 9000, text: '🛡️ DEFENSE: Downstack sob ataque' },
+            { time: 12000, text: '💀 KILL: Spike final com T-spin Triple' }
+          ]
+        },
+        
+        practice: {
+          type: 'vs_ai',
+          objective: 'Vença IA no modo HARD',
+          aiDifficulty: 'hard',
+          
+          validation: (state) => {
+            const won = state.defeatedAI;
+            return {
+              complete: won,
+              progress: won ? 1 : 0,
+              feedback: won ? '🏆 VITÓRIA!' : 'Continue lutando'
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 3500,
+          xp: 1800,
+          badge: 'multiplayer_master',
+          unlocks: [21]
+        }
+      },
+
+      {
+        id: 21,
+        module: LESSON_MODULES.PRO,
+        title: '🏆 Final Challenge',
+        description: 'Teste final: Prove que é um mestre do Tetris',
+        difficulty: 'pro',
+        estimatedTime: '45 min',
+        
+        demonstration: {
+          narration: [
+            { time: 0, text: '🏆 FINAL CHALLENGE = Teste de TUDO' },
+            { time: 3000, text: '✅ Você aprendeu 20 lessons' },
+            { time: 6000, text: '💎 Agora mostre seu domínio' },
+            { time: 9000, text: '🎯 OBJETIVO: 100K pontos + T-spin Triple' }
+          ]
+        },
+        
+        practice: {
+          type: 'final_exam',
+          objective: 'Alcance 100.000 pontos E execute 1 T-spin Triple',
+          targetScore: 100000,
+          requiresTST: true,
+          
+          validation: (state) => {
+            const score = state.score || 0;
+            const hasTST = state.tspinTriplesExecuted >= 1;
+            return {
+              complete: score >= 100000 && hasTST,
+              progress: score,
+              feedback: !hasTST 
+                ? '⚠️ Falta T-spin Triple!'
+                : score >= 100000
+                ? '👑 MESTRE DO TETRIS!'
+                : `${score.toLocaleString()}/100K pts`
+            };
+          }
+        },
+        
+        rewards: {
+          fishCoins: 10000,
+          xp: 5000,
+          badge: 'tetris_master',
+          unlocks: [],
+          achievement: 'tutorial_master'
+        }
+      }
     ];
   }
 
