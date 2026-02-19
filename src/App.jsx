@@ -13,6 +13,7 @@ import CurrencyDisplay from './components/CurrencyDisplay';
 import DailyMissionsPanel from './components/DailyMissionsPanel';
 import AchievementsPanel from './components/AchievementsPanel';
 import AchievementNotification from './components/AchievementNotification';
+import MultiplayerGame from './components/MultiplayerGame';
 import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
@@ -399,6 +400,7 @@ function GameComponent() {
   const [showTutorial, setShowTutorial] = useState(true);
   const [showTutorialHub, setShowTutorialHub] = useState(false);
   const [rewardNotification, setRewardNotification] = useState(null);
+  const [multiplayerMatch, setMultiplayerMatch] = useState(null);
   
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -557,6 +559,20 @@ function GameComponent() {
     setShowPWAPrompt(true);
   };
 
+  // Renderizar jogo multiplayer se ativo
+  if (multiplayerMatch) {
+    return (
+      <MultiplayerGame
+        mode={multiplayerMatch.mode}
+        aiDifficulty={multiplayerMatch.aiDifficulty}
+        onExit={() => {
+          setMultiplayerMatch(null);
+          setCurrentScreen('menu');
+        }}
+      />
+    );
+  }
+
   if (currentScreen === 'menu') {
     return (
       <>
@@ -604,8 +620,7 @@ function GameComponent() {
               onClose={() => setShowMultiplayer(false)}
               onStartMatch={(match) => {
                 setShowMultiplayer(false);
-                // TODO: Iniciar modo multiplayer
-                console.log('Starting multiplayer match:', match);
+                setMultiplayerMatch(match);
               }}
             />
           )}
