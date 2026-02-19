@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ShareButtons from './ShareButtons';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
   const getMotivationalMessage = (score) => {
@@ -69,8 +70,22 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+          >
+            <ShareButtons 
+              scoreData={{ 
+                score: score.points || score,
+                level: score.level || 1,
+                lines: score.lines || 0
+              }}
+            />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="space-y-3"
+            className="space-y-3 mt-4"
           >
             <motion.button
               onClick={onRestart}
