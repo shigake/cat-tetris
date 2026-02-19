@@ -153,8 +153,8 @@ function GameScreen({
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-start justify-center">
-          <div className="hidden lg:flex lg:flex-row gap-6 items-start justify-center w-full">
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">{/* Removed: hidden, w-full, items-start */}
             <div className="flex flex-col gap-6 min-w-[200px]">
               <HeldPiece 
                 heldPiece={gameState.heldPiece}
