@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePracticeGame } from '../hooks/usePracticeGame';
+import { useKeyboardInput } from '../hooks/useKeyboardInput';
+import TetrisBoard from './TetrisBoard';
+import NextPieces from './NextPieces';
+import HeldPiece from './HeldPiece';
+import Scoreboard from './Scoreboard';
 
 /**
  * LessonPlayer - Executa uma lesson do tutorial
@@ -15,6 +21,37 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
     complete: false
   });
   const [showHint, setShowHint] = useState(null);
+
+  // Game de prática (só ativa no modo practice)
+  const { gameState, actions, isInitialized, getValidationState } = usePracticeGame(
+    mode === 'practice' ? lesson : null
+  );
+
+  // Keyboard input (só ativo no modo practice)
+  useKeyboardInput(actions, gameState, mode === 'practice' && isInitialized);
+
+  // Validação contínua durante prática
+  useEffect(() => {
+    if (mode !== 'practice' || !isInitialized || !gameState) return;
+
+    const validationState = getValidationState();
+    if (!validationState) return;
+
+    const validation = lesson.practice.validation(validationState);
+    
+    setPracticeState(prev => ({
+      ...prev,
+      progress: validation.progress || 0,
+      feedback: validation.feedback || '',
+      complete: validation.complete || false
+    }));
+
+    if (validation.complete && !practiceState.complete) {
+      setTimeout(() => {
+        onComplete(lesson.id, { attempts: practiceState.attempts + 1 });
+      }, 2000);
+    }
+  }, [mode, isInitialized, gameState, lesson, getValidationState, practiceState.complete, onComplete]);
 
   // Demonstração automática
   useEffect(() => {
@@ -212,18 +249,40 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                     </motion.div>
                   )}
 
-                  {/* Game Board Placeholder */}
-                  <div className="h-96 bg-black/30 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <span className="text-6xl mb-4 block">🎮</span>
-                      <p className="text-white/60 text-lg">
-                        Tabuleiro de prática aparecerá aqui
-                      </p>
-                      <p className="text-white/40 text-sm mt-2">
-                        (Integração com GameService pendente)
-                      </p>
+                  {/* Game Board - REAL */}
+                  {isInitialized && gameState ? (
+                    <div className="flex items-start justify-center gap-4">
+                      {/* Left Panel - Hold */}
+                      <div className="flex flex-col gap-4">
+                        <HeldPiece heldPiece={gameState.heldPiece} />
+                      </div>
+
+                      {/* Center - Board */}
+                      <div>
+                        <TetrisBoard
+                          board={gameState.board}
+                          currentPiece={gameState.currentPiece}
+                          dropPreview={gameState.dropPreview}
+                          clearingLines={gameState.clearingLines || []}
+                        />
+                      </div>
+
+                      {/* Right Panel - Next + Score */}
+                      <div className="flex flex-col gap-4">
+                        <NextPieces nextPieces={gameState.nextPieces || []} />
+                        <Scoreboard score={gameState.score} />
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="h-96 bg-black/30 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <span className="text-6xl mb-4 block animate-pulse">🎮</span>
+                        <p className="text-white/60 text-lg">
+                          Inicializando jogo de prática...
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Hint */}
                   <AnimatePresence>
@@ -241,8 +300,17 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                 </div>
 
                 {/* Controls hint */}
-                <div className="mt-6 text-white/60 text-sm">
-                  ⌨️ Use as setas para mover | ↑ rotacionar | ESPAÇO hard drop | C hold
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-white/60 text-sm">
+                    ⌨️ Use as setas para mover | ↑ rotacionar | ESPAÇO hard drop | C hold
+                  </div>
+                  
+                  <button
+                    onClick={() => actions?.restart()}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    🔄 Resetar
+                  </button>
                 </div>
               </motion.div>
             )}
