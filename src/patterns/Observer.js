@@ -41,6 +41,7 @@ export const GAME_EVENTS = {
   HARD_DROP: 'hard_drop',
   LINE_CLEARED: 'line_cleared',
   T_SPIN: 't_spin',
+  BACK_TO_BACK: 'back_to_back',
   SCORE_UPDATED: 'score_updated',
   LEVEL_UP: 'level_up',
   GAME_OVER: 'game_over',

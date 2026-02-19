@@ -124,19 +124,38 @@ export class GameService extends IGameService {
       
       this.score.addPoints(points);
       
-      if (isTSpin) {
-        this.score.addTSpin();
+      if (isTSpin || linesCleared === 4) {
+        // Back-to-Back chain (Tetris ou T-Spin)
+        if (this.backToBack) {
+          gameEvents.emit(GAME_EVENTS.BACK_TO_BACK);
+        }
         this.backToBack = true;
-        gameEvents.emit(GAME_EVENTS.T_SPIN, { linesCleared });
+        
+        if (isTSpin) {
+          this.score.addTSpin();
+          gameEvents.emit(GAME_EVENTS.T_SPIN, { linesCleared });
+        }
       } else {
         this.backToBack = false;
       }
       
       gameEvents.emit(GAME_EVENTS.LINE_CLEARED, { linesCleared });
-      gameEvents.emit(GAME_EVENTS.SCORE_UPDATED, { points, isTSpin });
+      gameEvents.emit(GAME_EVENTS.SCORE_UPDATED, { 
+        score: this.score.points, 
+        level: this.score.level, 
+        combo: this.score.combo,
+        points, 
+        isTSpin 
+      });
     } else {
       this.score.resetCombo();
     }
+
+    // Emit piece placed event (for missions tracking)
+    gameEvents.emit(GAME_EVENTS.PIECE_PLACED, { 
+      piece: this.currentPiece, 
+      linesCleared 
+    });
 
     this.getNextPiece();
     this.canHold = true;
