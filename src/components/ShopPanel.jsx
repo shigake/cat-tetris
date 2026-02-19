@@ -8,11 +8,33 @@ import { showToast } from './ToastNotification';
  * ShopPanel - Loja de temas
  */
 function ShopPanel({ onClose }) {
+  console.log('[ShopPanel] Renderizando...');
+  
   const { themes, equippedTheme, loading, purchaseTheme, equipTheme, getStats } = useShop();
+  console.log('[ShopPanel] useShop:', { themesCount: themes?.length, equippedTheme, loading });
+  
   const { currency } = useCurrency();
+  console.log('[ShopPanel] currency:', currency);
+  
   const [selectedTheme, setSelectedTheme] = useState(null);
 
   const stats = getStats();
+  console.log('[ShopPanel] stats:', stats);
+
+  // Safety checks
+  if (!themes || themes.length === 0) {
+    console.warn('[ShopPanel] No themes available');
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-red-900/90 text-white p-6 rounded-lg">
+          <p className="text-xl">❌ Erro ao carregar temas</p>
+          <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
+            Fechar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handlePurchase = (themeId) => {
     const result = purchaseTheme(themeId);

@@ -18,6 +18,23 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
   const modes = getAvailableModes();
   const difficulties = getDifficulties();
 
+  console.log('[MultiplayerPanel] modes:', modes?.length, 'difficulties:', difficulties?.length);
+
+  // Safety checks
+  if (!modes || modes.length === 0) {
+    console.warn('[MultiplayerPanel] No modes available');
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-red-900/90 text-white p-6 rounded-lg">
+          <p className="text-xl">❌ Erro ao carregar multiplayer</p>
+          <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
+            Fechar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const handleModeSelect = (mode) => {
     if (mode.disabled) return;
     setSelectedMode(mode);
