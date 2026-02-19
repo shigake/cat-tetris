@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePracticeGame } from '../hooks/usePracticeGame';
 import { useKeyboardInput } from '../hooks/useKeyboardInput';
+import { DemonstrationPlayer } from '../core/services/DemonstrationPlayer';
+import { getDemonstration, hasDemonstration } from '../core/services/DemonstrationLibrary';
 import TetrisBoard from './TetrisBoard';
 import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
@@ -12,7 +14,7 @@ import Scoreboard from './Scoreboard';
  * Modos: demonstration (CPU joga) | practice (jogador pratica)
  */
 function LessonPlayer({ lesson, onComplete, onExit }) {
-  const [mode, setMode] = useState('demonstration'); // demonstration | practice
+  const [mode, setMode] = useState('introduction'); // introduction | demonstration | practice
   const [demonstrationStep, setDemonstrationStep] = useState(0);
   const [practiceState, setPracticeState] = useState({
     attempts: 0,
@@ -21,6 +23,15 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
     complete: false
   });
   const [showHint, setShowHint] = useState(null);
+  const [demonstrationState, setDemonstrationState] = useState({
+    isPlaying: false,
+    isPaused: false,
+    progress: 0,
+    currentNarration: ''
+  });
+  
+  const demonstrationPlayerRef = useRef(null);
+  const hasDemoAvailable = hasDemonstration(lesson.id);
 
   // Game de prática (só ativa no modo practice)
   const { gameState, actions, isInitialized, getValidationState } = usePracticeGame(
@@ -29,6 +40,78 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
 
   // Keyboard input (só ativo no modo practice)
   useKeyboardInput(actions, gameState, mode === 'practice' && isInitialized);
+
+  // Inicializar demonstração
+  const startDemonstration = useCallback(() => {
+    if (!hasDemoAvailable || !gameState) return;
+
+    const demo = getDemonstration(lesson.id);
+    if (!demo) return;
+
+    // Criar player de demonstração se não existir
+    if (!demonstrationPlayerRef.current) {
+      demonstrationPlayerRef.current = new DemonstrationPlayer(actions);
+      
+      // Callbacks
+      demonstrationPlayerRef.current.onStep((step, stepIndex) => {
+        setDemonstrationState(prev => ({
+          ...prev,
+          currentNarration: step.narration || ''
+        }));
+      });
+
+      demonstrationPlayerRef.current.onComplete(() => {
+        setDemonstrationState(prev => ({
+          ...prev,
+          isPlaying: false,
+          progress: 1.0
+        }));
+      });
+    }
+
+    demonstrationPlayerRef.current.loadRecording(demo);
+    demonstrationPlayerRef.current.play();
+
+    setDemonstrationState(prev => ({
+      ...prev,
+      isPlaying: true,
+      isPaused: false
+    }));
+  }, [hasDemoAvailable, gameState, lesson.id, actions]);
+
+  const pauseDemonstration = useCallback(() => {
+    demonstrationPlayerRef.current?.pause();
+    setDemonstrationState(prev => ({ ...prev, isPaused: true }));
+  }, []);
+
+  const resumeDemonstration = useCallback(() => {
+    demonstrationPlayerRef.current?.resume();
+    setDemonstrationState(prev => ({ ...prev, isPaused: false }));
+  }, []);
+
+  const stopDemonstration = useCallback(() => {
+    demonstrationPlayerRef.current?.stop();
+    setDemonstrationState({
+      isPlaying: false,
+      isPaused: false,
+      progress: 0,
+      currentNarration: ''
+    });
+  }, []);
+
+  // Atualizar progresso da demonstração
+  useEffect(() => {
+    if (!demonstrationState.isPlaying || demonstrationState.isPaused) return;
+
+    const interval = setInterval(() => {
+      if (demonstrationPlayerRef.current) {
+        const progress = demonstrationPlayerRef.current.getProgress();
+        setDemonstrationState(prev => ({ ...prev, progress }));
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [demonstrationState.isPlaying, demonstrationState.isPaused]);
 
   // Validação contínua durante prática
   useEffect(() => {
