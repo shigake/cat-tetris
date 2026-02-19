@@ -9,6 +9,7 @@ export default function MainMenu({
   onNewGame,
   onShowSettings, 
   onShowStatistics,
+  onShowGameModes,
   onShowShop,
   onShowMissions,
   onShowAchievements,
@@ -74,6 +75,19 @@ export default function MainMenu({
     }
 
     baseOptions.push(
+      {
+        id: 'modes',
+        icon: '🎯',
+        title: 'Modos de Jogo',
+        subtitle: 'Sprint, Ultra, Zen e mais',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowGameModes();
+        },
+        gradient: 'from-cyan-500 to-blue-600',
+        hoverGradient: 'from-cyan-400 to-blue-500',
+        glow: 'shadow-cyan-500/25'
+      },
       {
         id: 'shop',
         icon: '🛍️',

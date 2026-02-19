@@ -14,6 +14,7 @@ import DailyMissionsPanel from './components/DailyMissionsPanel';
 import AchievementsPanel from './components/AchievementsPanel';
 import AchievementNotification from './components/AchievementNotification';
 import ShopPanel from './components/ShopPanel';
+import GameModesPanel from './components/GameModesPanel';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -25,6 +26,7 @@ import { useMissions } from './hooks/useMissions';
 import { useAchievements } from './hooks/useAchievements';
 import { usePlayerStats } from './hooks/usePlayerStats';
 import { useShop } from './hooks/useShop';
+import { useGameModes } from './hooks/useGameModes';
 import GamepadIndicator from './components/GamepadIndicator';
 import { getPieceColor } from './utils/PieceGenerator';
 
@@ -383,6 +385,7 @@ function GameComponent() {
   const [showMissions, setShowMissions] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showShop, setShowShop] = useState(false);
+  const [showGameModes, setShowGameModes] = useState(false);
   
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -399,7 +402,8 @@ function GameComponent() {
   useMissions();
   useAchievements();
   usePlayerStats();
-  useShop(); // Initialize shop
+  useShop();
+  useGameModes(); // Initialize game modes
   
   useSoundManager();
   
@@ -547,6 +551,7 @@ function GameComponent() {
           onNewGame={handleNewGame}
           onShowSettings={() => setShowSettings(true)}
           onShowStatistics={() => setShowStats(true)}
+          onShowGameModes={() => setShowGameModes(true)}
           onShowShop={() => setShowShop(true)}
           onShowMissions={() => setShowMissions(true)}
           onShowAchievements={() => setShowAchievements(true)}
@@ -564,6 +569,15 @@ function GameComponent() {
                 onClose={() => setShowStats(false)}
               />
             </Suspense>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showGameModes && (
+            <GameModesPanel 
+              onClose={() => setShowGameModes(false)}
+              onStartGame={handleStartGame}
+            />
           )}
         </AnimatePresence>
 

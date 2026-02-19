@@ -11,6 +11,7 @@ import { MissionsService } from '../services/MissionsService.js';
 import { AchievementsService } from '../services/AchievementsService.js';
 import { PlayerStatsService } from '../services/PlayerStatsService.js';
 import { ShopService } from '../services/ShopService.js';
+import { GameModesService } from '../services/GameModesService.js';
 
 export function registerServices(container = new DIContainer()) {
   container.registerSingleton('gameRepository', () => new LocalStorageRepository());
@@ -63,6 +64,12 @@ export function registerServices(container = new DIContainer()) {
     'shopService',
     (gameRepository, currencyService) => new ShopService(gameRepository, currencyService),
     ['gameRepository', 'currencyService']
+  );
+  
+  container.registerSingleton(
+    'gameModesService',
+    (gameRepository) => new GameModesService(gameRepository),
+    ['gameRepository']
   );
   
   container.registerSingleton(
