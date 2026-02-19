@@ -1,12 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMissions } from '../hooks/useMissions';
+import Celebration from './Celebration';
 
 /**
  * DailyMissionsPanel - Mostra missões diárias do jogador
  */
 function DailyMissionsPanel({ onClose }) {
   const { missions, loading, claimReward, getMissionsStats } = useMissions();
+  const [showCelebration, setShowCelebration] = React.useState(false);
   const stats = getMissionsStats();
 
   const handleClaim = (missionId) => {
@@ -14,6 +16,13 @@ function DailyMissionsPanel({ onClose }) {
     if (result.success) {
       // Show notification (pode adicionar toast aqui)
       console.log(`✅ Recompensa coletada: +${result.reward} 🐟`);
+      
+      // Check if all missions are now claimed
+      const updatedStats = getMissionsStats();
+      if (updatedStats.allClaimed) {
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 3000);
+      }
     } else {
       console.error('Erro ao coletar recompensa:', result.error);
     }
@@ -189,6 +198,13 @@ function DailyMissionsPanel({ onClose }) {
           As missões resetam todos os dias às 00:00
         </div>
       </motion.div>
+      
+      {/* Celebration quando completa todas as missões */}
+      <Celebration 
+        trigger={showCelebration}
+        message="🎉 Todas as missões completas! 🎉"
+        duration={3000}
+      />
     </motion.div>
   );
 }

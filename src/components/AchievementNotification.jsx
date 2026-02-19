@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Celebration from './Celebration';
 
 /**
  * AchievementNotification - Toast para conquistas desbloqueadas
  */
 function AchievementNotification() {
   const [notifications, setNotifications] = useState([]);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     const handleAchievementUnlocked = (event) => {
       const unlocked = event.detail;
+      
+      // Check if any platinum achievement was unlocked
+      const hasPlatinum = unlocked.some(a => a.tier === 'platinum');
+      if (hasPlatinum) {
+        setShowCelebration(true);
+        setTimeout(() => setShowCelebration(false), 3000);
+      }
       
       unlocked.forEach((achievement, index) => {
         setTimeout(() => {
@@ -90,6 +99,13 @@ function AchievementNotification() {
           );
         })}
       </AnimatePresence>
+      
+      {/* Celebration para conquistas platina */}
+      <Celebration 
+        trigger={showCelebration}
+        message="💎 Conquista Lendária! 💎"
+        duration={3000}
+      />
     </div>
   );
 }
