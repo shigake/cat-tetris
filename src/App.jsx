@@ -9,6 +9,16 @@ import HeldPiece from './components/HeldPiece';
 import ErrorBoundary from './components/ErrorBoundary';
 import MainMenu from './components/MainMenu';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import CurrencyDisplay from './components/CurrencyDisplay';
+import DailyMissionsPanel from './components/DailyMissionsPanel';
+import AchievementsPanel from './components/AchievementsPanel';
+import AchievementNotification from './components/AchievementNotification';
+import ShopPanel from './components/ShopPanel';
+import GameModesPanel from './components/GameModesPanel';
+import LeaderboardPanel from './components/LeaderboardPanel';
+import MultiplayerPanel from './components/MultiplayerPanel';
+import Tutorial from './components/Tutorial';
+import ToastNotification from './components/ToastNotification';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -16,6 +26,12 @@ import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 import { useGamepad } from './hooks/useGamepad';
+import { useMissions } from './hooks/useMissions';
+import { useAchievements } from './hooks/useAchievements';
+import { usePlayerStats } from './hooks/usePlayerStats';
+import { useShop } from './hooks/useShop';
+import { useGameModes } from './hooks/useGameModes';
+import { useLeaderboard } from './hooks/useLeaderboard';
 import GamepadIndicator from './components/GamepadIndicator';
 import { getPieceColor } from './utils/PieceGenerator';
 
@@ -336,7 +352,7 @@ function GameScreen({
         <AnimatePresence>
           {gameState.gameOver && (
             <GameOverScreen 
-              score={gameState.score.points}
+              score={gameState.score}
               onRestart={actions.restart}
               onBackToMenu={onBackToMenu}
             />
@@ -371,6 +387,14 @@ function GameComponent() {
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [hasActiveGame, setHasActiveGame] = useState(false);
+  const [showMissions, setShowMissions] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showShop, setShowShop] = useState(false);
+  const [showGameModes, setShowGameModes] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showMultiplayer, setShowMultiplayer] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(true);
+  
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
   const { statistics } = useStatistics();
@@ -381,6 +405,14 @@ function GameComponent() {
     processGamepadInput, 
     getGamepadInfo 
   } = useGamepad(actions);
+  
+  // Initialize progression hooks
+  useMissions();
+  useAchievements();
+  usePlayerStats();
+  useShop();
+  useGameModes();
+  useLeaderboard(); // Initialize leaderboard
   
   useSoundManager();
   
@@ -528,6 +560,13 @@ function GameComponent() {
           onNewGame={handleNewGame}
           onShowSettings={() => setShowSettings(true)}
           onShowStatistics={() => setShowStats(true)}
+          onShowLeaderboard={() => setShowLeaderboard(true)}
+          onShowGameModes={() => setShowGameModes(true)}
+          onShowShop={() => setShowShop(true)}
+          onShowMissions={() => setShowMissions(true)}
+          onShowAchievements={() => setShowAchievements(true)}
+          onShowMultiplayer={() => setShowMultiplayer(true)}
+          onShowTutorial={() => setShowTutorial(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
@@ -546,6 +585,60 @@ function GameComponent() {
         </AnimatePresence>
 
         <AnimatePresence>
+          {showLeaderboard && (
+            <LeaderboardPanel 
+              onClose={() => setShowLeaderboard(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showMultiplayer && (
+            <MultiplayerPanel 
+              onClose={() => setShowMultiplayer(false)}
+              onStartMatch={(match) => {
+                setShowMultiplayer(false);
+                // TODO: Iniciar modo multiplayer
+                console.log('Starting multiplayer match:', match);
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showGameModes && (
+            <GameModesPanel 
+              onClose={() => setShowGameModes(false)}
+              onStartGame={handleStartGame}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showShop && (
+            <ShopPanel 
+              onClose={() => setShowShop(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showMissions && (
+            <DailyMissionsPanel 
+              onClose={() => setShowMissions(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showAchievements && (
+            <AchievementsPanel 
+              onClose={() => setShowAchievements(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
           <Suspense fallback={<LoadingSpinner />}>
             <SettingsMenu 
               isOpen={showSettings}
@@ -559,6 +652,9 @@ function GameComponent() {
         {showPWAPrompt && (
           <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} />
         )}
+        
+        {/* Achievement notifications (global) */}
+        <AchievementNotification />
       </>
     );
   }
@@ -572,18 +668,27 @@ function GameComponent() {
   }
 
   return (
-    <GameScreen
-      gameState={gameState}
-      actions={actions}
-      onShowStats={handleShowStats}
-      onBackToMenu={handleBackToMenu}
-      showStats={showStats}
-      setShowStats={setShowStats}
-      statistics={statistics}
-      isGamepadActive={isGamepadActive}
-      controllerCount={controllerCount}
-      getGamepadInfo={getGamepadInfo}
-    />
+    <>
+      <GameScreen
+        gameState={gameState}
+        actions={actions}
+        onShowStats={handleShowStats}
+        onBackToMenu={handleBackToMenu}
+        showStats={showStats}
+        setShowStats={setShowStats}
+        statistics={statistics}
+        isGamepadActive={isGamepadActive}
+        controllerCount={controllerCount}
+        getGamepadInfo={getGamepadInfo}
+      />
+      
+      {/* Tutorial para novos jogadores */}
+      <AnimatePresence>
+        {showTutorial && (
+          <Tutorial onComplete={() => setShowTutorial(false)} />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -591,6 +696,7 @@ function App() {
   return (
     <ErrorBoundary>
       <GameComponent />
+      <ToastNotification />
     </ErrorBoundary>
   );
 }

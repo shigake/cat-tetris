@@ -41,6 +41,11 @@ Um jogo de Tetris profissional com tema de gatos, desenvolvido com **React 18** 
 - **Controle de volume configurável**: Ajustes personalizáveis
 
 ### ✨ **Recursos Avançados**
+- **Sistema de Progressão Completo**: Moedas, missões diárias, conquistas
+- **Loja de Temas**: 10 temas customizáveis para as peças
+- **5 Modos de Jogo**: Clássico, Sprint, Ultra, Zen, Sobrevivência
+- **Ranking Global**: Competição mundial com leaderboard
+- **Tutorial Interativo**: Onboarding completo para novos jogadores
 - **Drop Preview**: Sombra mostrando posição final (ghost piece)
 - **Hold System**: Guardar peças para uso estratégico
 - **Next Pieces**: Visualização das próximas 3 peças
@@ -240,6 +245,53 @@ src/
 - **Soft Drop**: +1 ponto por linha
 - **Hard Drop**: +2 pontos por linha
 - **Combo**: +50 × combo × nível
+
+---
+
+## 🎮 **Sistema de Progressão**
+
+### 🐟 **Moedas (Peixes)**
+- Moeda virtual do jogo
+- Ganhe completando missões e conquistas
+- Use para comprar temas na loja
+
+### 📋 **Missões Diárias**
+- **3 missões renovadas todo dia** às 00:00
+- Níveis: Fácil (100-150🐟), Média (150-250🐟), Difícil (250-400🐟)
+- **8 tipos de missões**: Limpar linhas, T-Spins, Combos, Sobrevivência, e mais
+- Progresso rastreado em tempo real
+
+### 🏆 **Conquistas**
+- **22 conquistas** em 4 tiers
+- 🥉 Bronze (50-100🐟) - Iniciante
+- 🥈 Prata (100-200🐟) - Intermediário
+- 🥇 Ouro (200-400🐟) - Avançado
+- 💎 Platina (500-1000🐟) - Lendário
+- Desbloqueio automático + notificações com confete
+
+### 🛍️ **Loja de Temas**
+- **10 temas únicos** para as peças
+- Preços: 500-1000🐟
+- Temas: Gatos, Cachorros, Pandas, Raposas, Unicórnios, Robôs, Comidas, Cristais, Oceano, Espaço
+- Customiza emojis e cores de cada peça
+
+### 🎯 **Modos de Jogo**
+1. **🎮 Clássico** - Tetris tradicional
+2. **🏃 Sprint 40** - 40 linhas, melhor tempo
+3. **⏱️ Ultra 3min** - Máxima pontuação em 3 minutos
+4. **🌙 Zen** - Sem game over, relaxante
+5. **💀 Sobrevivência** - Começa no nível 10
+
+### 🌍 **Ranking Global**
+- Competição mundial
+- 4 leaderboards: Global, Semanal, País, Ao Redor
+- Edite seu nome de jogador
+- Medalhas (🥇🥈🥉) para Top 3
+
+### 📤 **Compartilhamento**
+- Compartilhe scores no Twitter, WhatsApp
+- Native Share API (mobile)
+- Copy to clipboard
 
 ## 📱 **Responsividade**
 

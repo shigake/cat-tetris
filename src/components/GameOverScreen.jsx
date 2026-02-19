@@ -1,7 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import ShareButtons from './ShareButtons';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
+  // Handle both number and object score
+  const scoreValue = typeof score === 'number' ? score : score.points;
+  const level = typeof score === 'object' ? score.level : 1;
+  const lines = typeof score === 'object' ? score.lines : 0;
+  
   const getMotivationalMessage = (score) => {
     if (score < 1000) return "Não desista! Cada tentativa te torna melhor! 😸";
     if (score < 5000) return "Bom trabalho! Continue praticando! 😺";
@@ -36,7 +42,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             transition={{ delay: 0.2, type: "spring" }}
             className="text-6xl mb-4"
           >
-            {getCatEmoji(score)}
+            {getCatEmoji(scoreValue)}
           </motion.div>
           
           <motion.h1
@@ -54,7 +60,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             transition={{ delay: 0.4 }}
             className="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold text-xl p-3 rounded-lg mb-4"
           >
-            {score.toLocaleString()} pontos
+            {scoreValue.toLocaleString()} pontos
           </motion.div>
           
           <motion.p
@@ -63,14 +69,28 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             transition={{ delay: 0.5 }}
             className="text-white/80 mb-6 text-lg"
           >
-            {getMotivationalMessage(score)}
+            {getMotivationalMessage(scoreValue)}
           </motion.p>
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+          >
+            <ShareButtons 
+              scoreData={{ 
+                score: scoreValue,
+                level: level,
+                lines: lines
+              }}
+            />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="space-y-3"
+            className="space-y-3 mt-4"
           >
             <motion.button
               onClick={onRestart}

@@ -2,12 +2,20 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
 import AdvancedParticles from './AdvancedParticles';
+import CurrencyDisplay from './CurrencyDisplay';
 
 export default function MainMenu({ 
   onStartGame, 
   onNewGame,
   onShowSettings, 
-  onShowStatistics, 
+  onShowStatistics,
+  onShowLeaderboard,
+  onShowGameModes,
+  onShowShop,
+  onShowMissions,
+  onShowAchievements,
+  onShowMultiplayer,
+  onShowTutorial,
   onShowInstallPrompt,
   canInstallPWA,
   hasActiveGame,
@@ -71,6 +79,84 @@ export default function MainMenu({
 
     baseOptions.push(
       {
+        id: 'leaderboard',
+        icon: '🏆',
+        title: 'Ranking',
+        subtitle: 'Competição mundial',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowLeaderboard();
+        },
+        gradient: 'from-yellow-500 to-orange-600',
+        hoverGradient: 'from-yellow-400 to-orange-500',
+        glow: 'shadow-yellow-500/25'
+      },
+      {
+        id: 'multiplayer',
+        icon: '🎮',
+        title: 'Multiplayer',
+        subtitle: '1v1 e vs IA',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowMultiplayer();
+        },
+        gradient: 'from-purple-500 to-pink-600',
+        hoverGradient: 'from-purple-400 to-pink-500',
+        glow: 'shadow-purple-500/25'
+      },
+      {
+        id: 'modes',
+        icon: '🎯',
+        title: 'Modos de Jogo',
+        subtitle: 'Sprint, Ultra, Zen e mais',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowGameModes();
+        },
+        gradient: 'from-cyan-500 to-blue-600',
+        hoverGradient: 'from-cyan-400 to-blue-500',
+        glow: 'shadow-cyan-500/25'
+      },
+      {
+        id: 'shop',
+        icon: '🛍️',
+        title: 'Loja',
+        subtitle: 'Compre temas com seus peixes',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowShop();
+        },
+        gradient: 'from-pink-500 to-rose-600',
+        hoverGradient: 'from-pink-400 to-rose-500',
+        glow: 'shadow-pink-500/25'
+      },
+      {
+        id: 'missions',
+        icon: '📋',
+        title: 'Missões Diárias',
+        subtitle: 'Complete missões e ganhe recompensas',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowMissions();
+        },
+        gradient: 'from-amber-500 to-orange-600',
+        hoverGradient: 'from-amber-400 to-orange-500',
+        glow: 'shadow-amber-500/25'
+      },
+      {
+        id: 'achievements',
+        icon: '🏆',
+        title: 'Conquistas',
+        subtitle: 'Desbloqueie conquistas',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          onShowAchievements();
+        },
+        gradient: 'from-yellow-500 to-amber-600',
+        hoverGradient: 'from-yellow-400 to-amber-500',
+        glow: 'shadow-yellow-500/25'
+      },
+      {
         id: 'statistics',
         icon: '📊',
         title: 'Estatísticas',
@@ -95,6 +181,19 @@ export default function MainMenu({
         gradient: 'from-gray-500 to-slate-600',
         hoverGradient: 'from-gray-400 to-slate-500',
         glow: 'shadow-gray-500/25'
+      },
+      {
+        id: 'tutorial',
+        icon: '📖',
+        title: 'Tutorial',
+        subtitle: 'Aprender a jogar',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          if (onShowTutorial) onShowTutorial();
+        },
+        gradient: 'from-cyan-500 to-teal-600',
+        hoverGradient: 'from-cyan-400 to-teal-500',
+        glow: 'shadow-cyan-500/25'
       }
     );
 
@@ -197,6 +296,11 @@ export default function MainMenu({
         type="mixed"
         intensity="medium"
       />
+
+      {/* Currency Display - Fixed top right */}
+      <div className="fixed top-4 right-4 z-50">
+        <CurrencyDisplay />
+      </div>
 
       <motion.div
         variants={containerVariants}

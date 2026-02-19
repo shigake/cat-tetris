@@ -8,7 +8,8 @@ export const PIECE_TYPES = {
   L: 'L'
 };
 
-export const PIECES = {
+// Default pieces configuration
+const DEFAULT_PIECES = {
   [PIECE_TYPES.I]: {
     shape: [
       [0, 0, 0, 0],
@@ -80,6 +81,53 @@ export const PIECES = {
     name: 'L-Piece'
   }
 };
+
+// Current active pieces (can be customized by themes)
+export let PIECES = { ...DEFAULT_PIECES };
+
+// Apply theme to pieces
+export function applyTheme(theme) {
+  if (!theme || !theme.pieces) {
+    PIECES = { ...DEFAULT_PIECES };
+    return;
+  }
+
+  // Update pieces with theme data
+  Object.keys(PIECES).forEach(pieceType => {
+    if (theme.pieces[pieceType]) {
+      PIECES[pieceType] = {
+        ...PIECES[pieceType],
+        color: theme.pieces[pieceType].color,
+        emoji: theme.pieces[pieceType].emoji
+      };
+    }
+  });
+}
+
+// Load theme from shop on startup
+if (typeof window !== 'undefined') {
+  window.addEventListener('themeEquipped', (event) => {
+    applyTheme(event.detail.theme);
+  });
+
+  // Try to load equipped theme from localStorage on init
+  try {
+    const savedInventory = localStorage.getItem('shopInventory');
+    if (savedInventory) {
+      const inventory = JSON.parse(savedInventory);
+      const equippedThemeId = inventory.equippedTheme;
+      
+      // Import theme data
+      import('../core/services/ShopService.js').then(({ PIECE_THEMES }) => {
+        if (PIECE_THEMES[equippedThemeId]) {
+          applyTheme(PIECE_THEMES[equippedThemeId]);
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Failed to load theme:', error);
+  }
+}
 
 let bag = [];
 let bagIndex = 0;
