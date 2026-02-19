@@ -197,7 +197,7 @@ export default function MainMenu({
         glow: 'shadow-gray-500/25'
       },
       {
-        id: 'tutorial',
+        id: 'tutorial-basic',
         icon: '📖',
         title: 'Tutorial',
         subtitle: 'Aprender a jogar',
