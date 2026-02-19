@@ -1,0 +1,53 @@
+{
+  "passed": 7,
+  "failed": 0,
+  "warnings": 2,
+  "tests": [
+    {
+      "name": "Carregamento",
+      "status": "PASSOU",
+      "time": 956
+    },
+    {
+      "name": "Título",
+      "status": "PASSOU"
+    },
+    {
+      "name": "Elementos Interativos",
+      "status": "PASSOU",
+      "count": 13
+    },
+    {
+      "name": "Tutorial",
+      "status": "AVISO"
+    },
+    {
+      "name": "Multiplayer",
+      "status": "PASSOU"
+    },
+    {
+      "name": "Gameplay",
+      "status": "PASSOU"
+    },
+    {
+      "name": "Performance",
+      "status": "PASSOU",
+      "metrics": {
+        "domContentLoaded": 41,
+        "loadComplete": 41,
+        "domInteractive": 17
+      }
+    },
+    {
+      "name": "PWA",
+      "status": "PASSOU"
+    },
+    {
+      "name": "Console Errors",
+      "status": "AVISO",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    }
+  ]
+}
