@@ -373,6 +373,102 @@ export const DEMONSTRATIONS = {
       { action: 'move', params: { direction: 'right' }, delayMs: 200 },
       { action: 'hardDrop', delayMs: 600 }
     ]
+  },
+
+  // LIÇÕES PROFISSIONAIS
+  'lesson-18-speed-40l': {
+    metadata: {
+      lessonId: 'lesson-18-speed-40l',
+      title: 'Sprint 40 Linhas',
+      description: 'Velocidade máxima - limpar 40 linhas rápido',
+      duration: 45000
+    },
+    steps: [
+      { action: 'wait', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 100 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 100 },
+      { action: 'hardDrop', delayMs: 200 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 100 },
+      { action: 'hardDrop', delayMs: 200 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 100 },
+      { action: 'hardDrop', delayMs: 200 },
+      { action: 'hardDrop', delayMs: 200 },
+      { action: 'hardDrop', delayMs: 200 }
+    ]
+  },
+
+  'lesson-19-garbage-defense': {
+    metadata: {
+      lessonId: 'lesson-19-garbage-defense',
+      title: 'Defesa contra Garbage',
+      description: 'Como sobreviver sob pressão',
+      duration: 35000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 400 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 400 }
+    ]
+  },
+
+  'lesson-20-multiplayer-tactics': {
+    metadata: {
+      lessonId: 'lesson-20-multiplayer-tactics',
+      title: 'Táticas Multiplayer',
+      description: 'Como vencer em partidas 1v1',
+      duration: 40000
+    },
+    steps: [
+      { action: 'wait', delayMs: 500 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 150 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 150 },
+      { action: 'hardDrop', delayMs: 300 },
+      { action: 'wait', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 300 }
+    ]
+  },
+
+  'lesson-21-final-challenge': {
+    metadata: {
+      lessonId: 'lesson-21-final-challenge',
+      title: 'Desafio Final',
+      description: 'Demonstração completa de todas as técnicas',
+      duration: 60000
+    },
+    steps: [
+      // Combo inicial
+      { action: 'wait', delayMs: 500 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 400 },
+      
+      // T-Spin
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'move', params: { direction: 'left' }, delayMs: 200 },
+      { action: 'softDrop', delayMs: 150 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 300 },
+      { action: 'hardDrop', delayMs: 400 },
+      
+      // Tetris
+      { action: 'wait', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 200 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 150 },
+      { action: 'move', params: { direction: 'right' }, delayMs: 150 },
+      { action: 'hardDrop', delayMs: 400 },
+      
+      // Combo final
+      { action: 'move', params: { direction: 'left' }, delayMs: 150 },
+      { action: 'hardDrop', delayMs: 300 },
+      { action: 'hardDrop', delayMs: 300 },
+      { action: 'rotate', params: { direction: 'clockwise' }, delayMs: 200 },
+      { action: 'hardDrop', delayMs: 300 }
+    ]
   }
 };
 
