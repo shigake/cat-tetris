@@ -1123,8 +1123,11 @@ export class TutorialService {
 
     return {
       completed: true,
+      lessonId: lesson.id,
+      lessonTitle: lesson.title,
       rewards: lesson.rewards,
-      nextLesson: lesson.rewards.unlocks?.[0] || null
+      nextLesson: lesson.rewards.unlocks?.[0] || null,
+      performance
     };
   }
 

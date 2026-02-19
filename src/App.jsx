@@ -20,6 +20,7 @@ import MultiplayerPanel from './components/MultiplayerPanel';
 import Tutorial from './components/Tutorial';
 import TutorialHub from './components/TutorialHub';
 import ToastNotification from './components/ToastNotification';
+import RewardNotification from './components/RewardNotification';
 import { serviceContainer } from './core/container/ServiceRegistration';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
@@ -397,6 +398,7 @@ function GameComponent() {
   const [showMultiplayer, setShowMultiplayer] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
   const [showTutorialHub, setShowTutorialHub] = useState(false);
+  const [rewardNotification, setRewardNotification] = useState(null);
   
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -648,8 +650,29 @@ function GameComponent() {
               tutorialService={serviceContainer.resolve('tutorialService')}
               onClose={() => setShowTutorialHub(false)}
               onLessonComplete={(result) => {
-                console.log('Lesson completed:', result);
-                // TODO: Award coins and XP
+                if (!result || !result.rewards) return;
+
+                // Creditar moedas
+                const currencyService = serviceContainer.resolve('currencyService');
+                currencyService.addFishCoins(
+                  result.rewards.fishCoins,
+                  `Tutorial: ${result.lessonTitle || 'Lesson'}`
+                );
+
+                // Creditar XP
+                const playerStatsService = serviceContainer.resolve('playerStatsService');
+                playerStatsService.addXP(result.rewards.xp);
+
+                // Desbloquear achievement se houver
+                if (result.rewards.achievement) {
+                  const achievementsService = serviceContainer.resolve('achievementsService');
+                  achievementsService.unlock(result.rewards.achievement);
+                }
+
+                // Mostrar notificação de recompensa
+                setRewardNotification(result);
+
+                console.log('✅ Recompensas creditadas:', result.rewards);
               }}
             />
           )}
@@ -672,6 +695,16 @@ function GameComponent() {
         
         {/* Achievement notifications (global) */}
         <AchievementNotification />
+        
+        {/* Reward notifications (tutorial) */}
+        <AnimatePresence>
+          {rewardNotification && (
+            <RewardNotification
+              reward={rewardNotification}
+              onClose={() => setRewardNotification(null)}
+            />
+          )}
+        </AnimatePresence>
       </>
     );
   }
