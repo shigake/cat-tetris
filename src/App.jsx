@@ -16,6 +16,7 @@ import AchievementNotification from './components/AchievementNotification';
 import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
 import LeaderboardPanel from './components/LeaderboardPanel';
+import Tutorial from './components/Tutorial';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
 import { useStatistics } from './hooks/useStatistics';
@@ -389,6 +390,7 @@ function GameComponent() {
   const [showShop, setShowShop] = useState(false);
   const [showGameModes, setShowGameModes] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(true);
   
   const { gameState, actions } = useGameService();
   const { settings, updateSettings } = useSettings();
@@ -560,6 +562,7 @@ function GameComponent() {
           onShowShop={() => setShowShop(true)}
           onShowMissions={() => setShowMissions(true)}
           onShowAchievements={() => setShowAchievements(true)}
+          onShowTutorial={() => setShowTutorial(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
@@ -648,18 +651,27 @@ function GameComponent() {
   }
 
   return (
-    <GameScreen
-      gameState={gameState}
-      actions={actions}
-      onShowStats={handleShowStats}
-      onBackToMenu={handleBackToMenu}
-      showStats={showStats}
-      setShowStats={setShowStats}
-      statistics={statistics}
-      isGamepadActive={isGamepadActive}
-      controllerCount={controllerCount}
-      getGamepadInfo={getGamepadInfo}
-    />
+    <>
+      <GameScreen
+        gameState={gameState}
+        actions={actions}
+        onShowStats={handleShowStats}
+        onBackToMenu={handleBackToMenu}
+        showStats={showStats}
+        setShowStats={setShowStats}
+        statistics={statistics}
+        isGamepadActive={isGamepadActive}
+        controllerCount={controllerCount}
+        getGamepadInfo={getGamepadInfo}
+      />
+      
+      {/* Tutorial para novos jogadores */}
+      <AnimatePresence>
+        {showTutorial && (
+          <Tutorial onComplete={() => setShowTutorial(false)} />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 

@@ -14,6 +14,7 @@ export default function MainMenu({
   onShowShop,
   onShowMissions,
   onShowAchievements,
+  onShowTutorial,
   onShowInstallPrompt,
   canInstallPWA,
   hasActiveGame,
@@ -166,6 +167,19 @@ export default function MainMenu({
         gradient: 'from-gray-500 to-slate-600',
         hoverGradient: 'from-gray-400 to-slate-500',
         glow: 'shadow-gray-500/25'
+      },
+      {
+        id: 'tutorial',
+        icon: '📖',
+        title: 'Tutorial',
+        subtitle: 'Aprender a jogar',
+        action: () => {
+          if (soundEnabled) sounds.playMenuSelect();
+          if (onShowTutorial) onShowTutorial();
+        },
+        gradient: 'from-cyan-500 to-teal-600',
+        hoverGradient: 'from-cyan-400 to-teal-500',
+        glow: 'shadow-cyan-500/25'
       }
     );
 
