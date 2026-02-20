@@ -163,6 +163,7 @@ export default function CreatorMode({ onExit }) {
   const [activeTemplate, setActiveTemplate] = useState(null);
 
   const [gameState, setGameState] = useState(null);
+  const [playId, setPlayId] = useState(0);
   const gameServiceRef = useRef(null);
   const loopRef = useRef(null);
   const lastTimeRef = useRef(0);
@@ -257,6 +258,7 @@ export default function CreatorMode({ onExit }) {
     gameServiceRef.current = gs;
     setGameState(gs.getGameState());
     setPhase('play');
+    setPlayId(prev => prev + 1);
     lastTimeRef.current = 0;
   }, [board, pieceQueue]);
 
@@ -298,7 +300,8 @@ export default function CreatorMode({ onExit }) {
     };
     loopRef.current = requestAnimationFrame(loop);
     return () => { if (loopRef.current) cancelAnimationFrame(loopRef.current); };
-  }, [phase]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, playId]);
 
   useEffect(() => {
     if (phase !== 'play') return;
