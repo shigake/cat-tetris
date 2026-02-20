@@ -16,7 +16,7 @@ export class AIOpponentService {
       case 'easy':          this.thinkingTime = 250; break;
       case 'medium':        this.thinkingTime = 120; break;
       case 'hard':          this.thinkingTime = 60;  break;
-      case 'expert':        this.thinkingTime = 40;  break;
+      case 'expert':        this.thinkingTime = 80;  break;
       default:              this.thinkingTime = 120;
     }
   }
@@ -114,7 +114,7 @@ export class AIOpponentService {
             }
           }
           if (bestNext > -Infinity) {
-            const lookaheadW = 0.45;
+            const lookaheadW = 0.30;
             score = score * (1 - lookaheadW) + bestNext * lookaheadW;
           }
         }
@@ -123,6 +123,8 @@ export class AIOpponentService {
           score += (Math.random() - 0.5) * 1200;
         } else if (this.difficulty === 'medium' && Math.random() < 0.2) {
           score += (Math.random() - 0.5) * 500;
+        } else if (this.difficulty === 'expert' && Math.random() < 0.12) {
+          score += (Math.random() - 0.5) * 600;
         }
 
         if (score > bestScore) {
