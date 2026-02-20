@@ -14,6 +14,7 @@ export default function MainMenu({
   onShowTutorial,
   onShowTutorialHub,
   onShowAIShowcase,
+  onShowCreatorMode,
   onShowInstallPrompt,
   canInstallPWA,
   hasActiveGame,
@@ -94,9 +95,10 @@ export default function MainMenu({
           )}
         </motion.div>
 
-        <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-3 gap-2 mb-4">
+        <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-2 gap-2 mb-4">
           <MenuCard icon="⚔️" label="VS IA"      sub="Desafie o bot"      onClick={() => play(onShowMultiplayer)} />
           <MenuCard icon="📚" label="Tutorial"   sub="Aprenda a jogar"    onClick={() => play(onShowTutorialHub)} />
+          <MenuCard icon="🎨" label="Criador"    sub="Treine T-Spins"     onClick={() => play(onShowCreatorMode)} />
           <MenuCard icon="🤖" label="IA Expert"  sub="Assista a IA jogar" onClick={() => play(onShowAIShowcase)} />
         </motion.div>
 

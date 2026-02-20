@@ -15,6 +15,7 @@ import AchievementsPanel from './components/AchievementsPanel';
 import AchievementNotification from './components/AchievementNotification';
 import MultiplayerGame from './components/MultiplayerGame';
 import AIShowcase from './components/AIShowcase';
+import CreatorMode from './components/CreatorMode';
 import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
 import MultiplayerPanel from './components/MultiplayerPanel';
@@ -394,6 +395,7 @@ function GameComponent() {
   const [rewardNotification, setRewardNotification] = useState(null);
   const [multiplayerMatch, setMultiplayerMatch] = useState(null);
   const [showAIShowcase, setShowAIShowcase] = useState(false);
+  const [showCreatorMode, setShowCreatorMode] = useState(false);
 
   const { gameState, actions } = useGameService();
 
@@ -579,6 +581,12 @@ function GameComponent() {
     setShowPWAPrompt(true);
   };
 
+  if (showCreatorMode) {
+    return (
+      <CreatorMode onExit={() => setShowCreatorMode(false)} />
+    );
+  }
+
   if (showAIShowcase) {
     return (
       <AIShowcase onClose={() => setShowAIShowcase(false)} />
@@ -615,6 +623,7 @@ function GameComponent() {
           onShowTutorial={() => setShowTutorial(true)}
           onShowTutorialHub={() => setShowTutorialHub(true)}
           onShowAIShowcase={() => setShowAIShowcase(true)}
+          onShowCreatorMode={() => setShowCreatorMode(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
