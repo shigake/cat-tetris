@@ -5,7 +5,6 @@ import { GameService } from '../core/services/GameService';
 import { PieceFactory, MovementStrategyFactory } from '../patterns/Factory';
 import { ScoringService } from '../core/services/ScoringService';
 import { Piece } from '../core/entities/Piece';
-import { TSpinExpertAI } from '../core/services/TSpinExpertAI';
 import TetrisBoard from './TetrisBoard';
 import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
@@ -20,123 +19,80 @@ const PIECE_COLORS = {
   Z: '#f00000', J: '#0000f0', L: '#ff7f00', G: '#888888'
 };
 
-const ACTION_LABELS = {
-  hold:   { icon: '🔄', key: 'C',      label: 'Hold' },
-  rotate: { icon: '↻',  key: '↑',      label: 'Girar' },
-  left:   { icon: '←',  key: '←',      label: 'Esq' },
-  right:  { icon: '→',  key: '→',      label: 'Dir' },
-  down:   { icon: '↓',  key: '↓',      label: 'Baixo' },
-  drop:   { icon: '⬇',  key: 'Espaço', label: 'Drop' },
-};
-
 const TEMPLATES = [
   {
+    id: 'ts-single',
+    name: 'T-Spin Single',
+    emoji: '🎯',
+    desc: 'O T-Spin mais simples — limpa 1 linha',
+    board: mkRows(19, ['GG...GGGGG']),
+    queue: ['T'],
+    steps: [
+      { key: '←', text: 'Mova 1x para a esquerda' },
+      { key: 'Espaço', text: 'Hard Drop — o T encaixa no buraco' },
+      { key: '🌀', text: 'T-Spin Single! Limpa 1 linha' },
+    ],
+  },
+  {
     id: 'tsd-right',
-    name: 'T-Spin Double',
+    name: 'T-Spin Double (Direita)',
     emoji: '🌀',
-    desc: 'Gire o T e encaixe na cavidade',
+    desc: 'O clássico TSD — limpa 2 linhas',
     board: mkRows(18, ['GGG...GGGG', 'GGGG.GGGGG']),
     queue: ['T'],
-    hint: 'Gire o T 2x (fica de cabeça pra baixo) e solte!',
-    solution: ['rotate', 'rotate', 'drop'],
+    steps: [
+      { key: '↑', text: 'Gire 1x (90° horário)' },
+      { key: '↑', text: 'Gire de novo (agora está de cabeça pra baixo)' },
+      { key: 'Espaço', text: 'Hard Drop — T cai direto na cavidade' },
+      { key: '🌀', text: 'T-Spin Double! Limpa 2 linhas' },
+    ],
   },
   {
     id: 'tsd-left',
-    name: 'TSD Esquerda',
+    name: 'T-Spin Double (Esquerda)',
     emoji: '🌀',
-    desc: 'T-Spin Double espelhado',
+    desc: 'TSD espelhado — limpa 2 linhas',
     board: mkRows(18, ['GGGG...GGG', 'GGGGG.GGGG']),
     queue: ['T'],
-    hint: 'Gire 2x e mova para a direita para encaixar!',
-    solution: ['rotate', 'rotate', 'right', 'right', 'drop'],
+    steps: [
+      { key: '↑', text: 'Gire 1x (90° horário)' },
+      { key: '↑', text: 'Gire de novo (cabeça pra baixo)' },
+      { key: '→ →', text: 'Mova 2x para a direita' },
+      { key: 'Espaço', text: 'Hard Drop — T cai na cavidade' },
+      { key: '🌀', text: 'T-Spin Double! Limpa 2 linhas' },
+    ],
   },
   {
     id: 'tst',
     name: 'T-Spin Triple',
     emoji: '🔥',
-    desc: 'Limpe 3 linhas com o T',
+    desc: 'O mais poderoso — limpa 3 linhas!',
     board: mkRows(17, ['GGGG.GGGGG', 'GGGG..GGGG', 'GGGG.GGGGG']),
     queue: ['T'],
-    hint: 'Gire 1x (fica na vertical) e solte direto!',
-    solution: ['rotate', 'drop'],
-  },
-  {
-    id: 'ts-single',
-    name: 'T-Spin Single',
-    emoji: '🎯',
-    desc: 'O T-Spin mais simples — 1 linha',
-    board: mkRows(19, ['GG...GGGGG']),
-    queue: ['T'],
-    hint: 'Mova 1x para esquerda e solte!',
-    solution: ['left', 'drop'],
-  },
-  {
-    id: 'tetris-right',
-    name: 'Tetris (4 linhas)',
-    emoji: '💎',
-    desc: 'Poço na direita para peça I',
-    board: mkRows(16, ['GGGGGGGGG.', 'GGGGGGGGG.', 'GGGGGGGGG.', 'GGGGGGGGG.']),
-    queue: ['I'],
-    hint: 'Gire a peça I e mova até o poço da direita!',
-    solution: ['rotate', 'right', 'right', 'right', 'right', 'drop'],
-  },
-  {
-    id: 'tetris-left',
-    name: 'Tetris Esquerda',
-    emoji: '💎',
-    desc: 'Poço na esquerda para peça I',
-    board: mkRows(16, ['.GGGGGGGGG', '.GGGGGGGGG', '.GGGGGGGGG', '.GGGGGGGGG']),
-    queue: ['I'],
-    hint: 'Gire e mova a peça I até o poço da esquerda!',
-    solution: ['rotate', 'left', 'left', 'left', 'left', 'left', 'drop'],
-  },
-  {
-    id: 'pc-simple',
-    name: 'Perfect Clear',
-    emoji: '✨',
-    desc: 'Limpe 100% do tabuleiro',
-    board: mkRows(18, ['GGGG..GGGG', 'GGGG..GGGG']),
-    queue: ['O'],
-    hint: 'Mova o O para a direita e solte no buraco!',
-    solution: ['right', 'drop'],
+    steps: [
+      { key: '↑', text: 'Gire 1x (T fica na vertical, ponta pra direita)' },
+      { key: 'Espaço', text: 'Hard Drop — T desce direto no encaixe' },
+      { key: '🔥', text: 'T-Spin Triple! Limpa 3 linhas de uma vez!' },
+    ],
   },
   {
     id: 'tsd-chain',
     name: 'TSD em Cadeia',
     emoji: '🔁',
-    desc: 'Dois T-Spin Doubles seguidos',
+    desc: 'Dois T-Spin Doubles seguidos — Back-to-Back!',
     board: mkRows(14, [
       'GGG...GGGG', 'GGGG.GGGGG',
       '..........','..........',
       'GGGG...GGG', 'GGGGG.GGGG',
     ]),
     queue: ['T', 'T'],
-    hint: 'Primeiro T: gire 2x e solte. Segundo T: gire 2x, mova direita 2x e solte!',
-    solution: [
-      'rotate', 'rotate', 'drop',
-      '_wait',
-      'rotate', 'rotate', 'right', 'right', 'drop',
+    steps: [
+      { key: '↑ ↑', text: '1º T: Gire 2x (cabeça pra baixo)' },
+      { key: 'Espaço', text: 'Hard Drop → T-Spin Double!' },
+      { key: '↑ ↑', text: '2º T: Gire 2x (cabeça pra baixo)' },
+      { key: '→ →', text: 'Mova 2x para a direita' },
+      { key: 'Espaço', text: 'Hard Drop → T-Spin Double em cadeia! Back-to-Back!' },
     ],
-  },
-  {
-    id: 'l-spin',
-    name: 'L-Spin',
-    emoji: '🟧',
-    desc: 'Encaixe o L no buraco',
-    board: mkRows(18, ['GGGGGGG..G', 'GGGGGGG.GG']),
-    queue: ['L'],
-    hint: 'Gire 2x e mova até o buraco!',
-    solution: ['rotate', 'rotate', 'right', 'right', 'right', 'drop'],
-  },
-  {
-    id: 'j-spin',
-    name: 'J-Spin',
-    emoji: '🟦',
-    desc: 'Encaixe o J no buraco',
-    board: mkRows(18, ['G..GGGGGGG', 'GG.GGGGGGG']),
-    queue: ['J'],
-    hint: 'Gire 2x e mova para a esquerda!',
-    solution: ['rotate', 'rotate', 'left', 'left', 'drop'],
   },
 ];
 
@@ -195,30 +151,27 @@ function makeGameService(boardData, queue) {
 export default function CreatorMode({ onExit }) {
   const [screen, setScreen] = useState('menu');
   const [activeTemplate, setActiveTemplate] = useState(null);
-  const [isAIDemo, setIsAIDemo] = useState(false);
 
   const [customBoard, setCustomBoard] = useState(emptyBoard);
   const [customQueue, setCustomQueue] = useState([]);
   const [selectedColor, setSelectedColor] = useState('G');
 
-  const startTemplate = useCallback((tmpl, aiMode) => {
+  const startTemplate = useCallback((tmpl) => {
     setActiveTemplate(tmpl);
-    setIsAIDemo(aiMode);
     setScreen('play');
   }, []);
 
-  const startCustom = useCallback((aiMode) => {
+  const startCustom = useCallback(() => {
     setActiveTemplate({
       id: 'custom', name: 'Setup Personalizado', emoji: '🎨',
-      board: null, queue: [...customQueue], hint: '',
+      board: null, queue: [...customQueue],
       _rawBoard: cloneBoard(customBoard),
     });
-    setIsAIDemo(aiMode);
     setScreen('play');
   }, [customBoard, customQueue]);
 
   if (screen === 'play' && activeTemplate) {
-    return <PlayScreen template={activeTemplate} aiDemo={isAIDemo}
+    return <PlayScreen template={activeTemplate}
       onBack={() => setScreen(activeTemplate.id === 'custom' ? 'editor' : 'menu')} onExit={onExit} />;
   }
 
@@ -226,7 +179,7 @@ export default function CreatorMode({ onExit }) {
     return <EditorScreen board={customBoard} setBoard={setCustomBoard}
       queue={customQueue} setQueue={setCustomQueue}
       selectedColor={selectedColor} setSelectedColor={setSelectedColor}
-      onPlay={() => startCustom(false)} onAIDemo={() => startCustom(true)}
+      onPlay={() => startCustom()}
       onBack={() => setScreen('menu')} onExit={onExit} />;
   }
 
@@ -236,7 +189,7 @@ export default function CreatorMode({ onExit }) {
         <h1 className="text-2xl font-bold text-white">🎨 Modo Criador</h1>
         <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold">← Voltar</button>
       </div>
-      <p className="text-white/50 text-sm mb-4 text-center max-w-md">Pratique setups clássicos ou crie o seu!</p>
+      <p className="text-white/50 text-sm mb-4 text-center max-w-md">Aprenda T-Spins com passo a passo ou crie seu setup!</p>
 
       <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setScreen('editor')}
         className="w-full max-w-lg mb-4 p-4 rounded-xl bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 hover:from-violet-600/40 hover:to-fuchsia-600/40 border border-violet-500/30 hover:border-violet-500/50 transition-all flex items-center gap-4">
@@ -247,17 +200,17 @@ export default function CreatorMode({ onExit }) {
         </div>
       </motion.button>
 
-      <div className="text-white/40 text-xs font-semibold uppercase tracking-wide mb-3">Templates Prontos</div>
+      <div className="text-white/40 text-xs font-semibold uppercase tracking-wide mb-3">Setups de T-Spin</div>
       <div className="grid grid-cols-1 gap-2 w-full max-w-lg">
         {TEMPLATES.map(t => (
-          <TemplateCard key={t.id} template={t} onPlay={() => startTemplate(t, false)} onAI={() => startTemplate(t, true)} />
+          <TemplateCard key={t.id} template={t} onPlay={() => startTemplate(t)} />
         ))}
       </div>
     </div>
   );
 }
 
-function TemplateCard({ template, onPlay, onAI }) {
+function TemplateCard({ template, onPlay }) {
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.07] transition-all">
       <div className="flex flex-col items-center min-w-[44px]">
@@ -269,17 +222,17 @@ function TemplateCard({ template, onPlay, onAI }) {
           <span className="text-white font-bold text-sm truncate">{template.name}</span>
         </div>
         <p className="text-white/40 text-[11px] mt-0.5 leading-tight">{template.desc}</p>
-        <div className="flex items-center gap-1.5 mt-1.5">
-          <span className="text-white/30 text-[10px]">Peças:</span>
-          {template.queue.map((t, i) => (
-            <span key={i} className="inline-block w-4 h-4 rounded" style={{ backgroundColor: PIECE_COLORS[t] }} title={t} />
-          ))}
-        </div>
+        {template.steps && (
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {template.steps.map((s, i) => (
+              <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/20">
+                <span className="font-bold">{s.key}</span>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
-      <div className="flex flex-col gap-1.5 shrink-0">
-        <button onClick={onPlay} className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors">🎮 Jogar</button>
-        <button onClick={onAI} className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors">🤖 IA Demo</button>
-      </div>
+      <button onClick={onPlay} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors shrink-0">🎮 Treinar</button>
     </div>
   );
 }
@@ -301,16 +254,14 @@ function BoardMini({ boardRows }) {
   );
 }
 
-function PlayScreen({ template, aiDemo, onBack, onExit }) {
+function PlayScreen({ template, onBack, onExit }) {
   const [gameState, setGameState] = useState(null);
   const [playId, setPlayId] = useState(0);
-  const [aiActions, setAiActions] = useState([]);
-  const [currentAction, setCurrentAction] = useState(null);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const gsRef = useRef(null);
   const loopRef = useRef(null);
   const lastTimeRef = useRef(0);
-  const aiTimerRef = useRef(null);
 
   const boardData = useMemo(() => {
     if (template._rawBoard) return cloneBoard(template._rawBoard);
@@ -319,12 +270,10 @@ function PlayScreen({ template, aiDemo, onBack, onExit }) {
 
   const initGame = useCallback(() => {
     if (loopRef.current) cancelAnimationFrame(loopRef.current);
-    if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
     const gs = makeGameService(boardData, template.queue);
     gsRef.current = gs;
     setGameState(gs.getGameState());
-    setAiActions([]);
-    setCurrentAction(null);
+    setCurrentStep(0);
     lastTimeRef.current = 0;
     setPlayId(p => p + 1);
   }, [boardData, template.queue]);
@@ -346,73 +295,28 @@ function PlayScreen({ template, aiDemo, onBack, onExit }) {
     return () => { if (loopRef.current) cancelAnimationFrame(loopRef.current); };
   }, [playId]);
 
-  useEffect(() => {
-    if (!aiDemo) return;
-    let cancelled = false;
-    const STEP_DELAY = 400;
-
-    if (template.solution) {
-      const actions = [...template.solution];
-      let idx = 0;
-      const runNext = () => {
-        if (cancelled || idx >= actions.length) return;
-        const gs = gsRef.current;
-        if (!gs || gs.gameOver) return;
-
-        const act = actions[idx++];
-        if (act === '_wait') {
-          aiTimerRef.current = setTimeout(runNext, 800);
-          return;
-        }
-
-        setCurrentAction(act);
-        setAiActions(prev => [...prev, act].slice(-14));
-        execAction(gs, act);
-        setTimeout(() => { if (!cancelled) setCurrentAction(null); }, 250);
-        aiTimerRef.current = setTimeout(runNext, STEP_DELAY);
-      };
-      aiTimerRef.current = setTimeout(runNext, 700);
-    } else {
-      const ai = new TSpinExpertAI();
-      const step = () => {
-        if (cancelled) return;
-        const gs = gsRef.current;
-        if (!gs || gs.gameOver) return;
-        const state = gs.getGameState();
-        const action = ai.decideNextMove(state);
-        if (action) {
-          setCurrentAction(action.action);
-          setAiActions(prev => [...prev, action.action].slice(-14));
-          execAction(gs, action.action);
-          setTimeout(() => { if (!cancelled) setCurrentAction(null); }, 250);
-        }
-        aiTimerRef.current = setTimeout(step, STEP_DELAY);
-      };
-      aiTimerRef.current = setTimeout(step, 700);
-    }
-
-    return () => { cancelled = true; if (aiTimerRef.current) clearTimeout(aiTimerRef.current); };
-  }, [aiDemo, playId, template.solution]);
+  const advanceStep = useCallback(() => {
+    if (template.steps) setCurrentStep(s => Math.min(s + 1, template.steps.length));
+  }, [template.steps]);
 
   useEffect(() => {
-    if (aiDemo) return;
     const handle = (e) => {
       const gs = gsRef.current;
       if (!gs || gs.gameOver) return;
       switch (e.key) {
-        case 'ArrowLeft': e.preventDefault(); gs.movePiece('left'); break;
-        case 'ArrowRight': e.preventDefault(); gs.movePiece('right'); break;
-        case 'ArrowDown': e.preventDefault(); gs.movePiece('down'); break;
-        case 'ArrowUp': e.preventDefault(); gs.rotatePiece(); break;
-        case 'z': case 'Z': gs.rotatePieceLeft(); break;
-        case 'c': case 'C': case 'Shift': gs.holdPiece(); break;
-        case ' ': e.preventDefault(); gs.hardDrop(); break;
+        case 'ArrowLeft': e.preventDefault(); gs.movePiece('left'); advanceStep(); break;
+        case 'ArrowRight': e.preventDefault(); gs.movePiece('right'); advanceStep(); break;
+        case 'ArrowDown': e.preventDefault(); gs.movePiece('down'); advanceStep(); break;
+        case 'ArrowUp': e.preventDefault(); gs.rotatePiece(); advanceStep(); break;
+        case 'z': case 'Z': gs.rotatePieceLeft(); advanceStep(); break;
+        case 'c': case 'C': case 'Shift': gs.holdPiece(); advanceStep(); break;
+        case ' ': e.preventDefault(); gs.hardDrop(); advanceStep(); break;
         case 'r': case 'R': initGame(); break;
       }
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [aiDemo, initGame]);
+  }, [initGame, advanceStep]);
 
   const dropPreview = useMemo(() => {
     if (!gameState?.currentPiece || gameState?.gameOver) return null;
@@ -424,7 +328,7 @@ function PlayScreen({ template, aiDemo, onBack, onExit }) {
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-2 overflow-hidden">
       <div className="flex justify-between items-center w-full max-w-xl mb-2">
         <h1 className="text-lg font-bold text-white truncate">
-          {template.emoji} {template.name} {aiDemo && <span className="text-blue-400 text-sm ml-1">— IA Demo</span>}
+          {template.emoji} {template.name}
         </h1>
         <div className="flex gap-2">
           <button onClick={initGame} className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-lg text-xs font-bold">🔄 Replay</button>
@@ -433,9 +337,28 @@ function PlayScreen({ template, aiDemo, onBack, onExit }) {
         </div>
       </div>
 
-      {template.hint && (
-        <div className="bg-yellow-500/15 border border-yellow-500/30 rounded-lg px-4 py-1.5 mb-2 max-w-xl">
-          <p className="text-yellow-200 text-xs text-center">💡 {template.hint}</p>
+      {template.steps && template.steps.length > 0 && (
+        <div className="bg-purple-500/10 border border-purple-500/25 rounded-xl px-4 py-2.5 mb-2 max-w-xl w-full">
+          <div className="text-purple-300/60 text-[10px] font-semibold uppercase tracking-wide mb-1.5">Passo a Passo</div>
+          <div className="flex flex-col gap-1">
+            {template.steps.map((s, i) => {
+              const isDone = i < currentStep;
+              const isCurrent = i === currentStep;
+              return (
+                <div key={i} className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all ${
+                  isDone ? 'bg-green-500/15 opacity-60' : isCurrent ? 'bg-purple-500/20 border border-purple-400/30' : 'opacity-40'
+                }`}>
+                  <span className={`text-xs font-bold min-w-[40px] text-center px-1.5 py-0.5 rounded ${
+                    isDone ? 'bg-green-500/30 text-green-300' : isCurrent ? 'bg-purple-500/30 text-purple-200' : 'bg-white/5 text-white/30'
+                  }`}>{s.key}</span>
+                  <span className={`text-xs ${
+                    isDone ? 'text-green-300 line-through' : isCurrent ? 'text-white font-medium' : 'text-white/40'
+                  }`}>{s.text}</span>
+                  {isDone && <span className="text-green-400 text-xs ml-auto">✓</span>}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -443,44 +366,12 @@ function PlayScreen({ template, aiDemo, onBack, onExit }) {
         <div className="flex gap-3 items-start justify-center">
           <div className="flex flex-col gap-2">
             <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
-            {!aiDemo && (
-              <div className="text-white/50 text-[10px] leading-tight">←→ mover<br/>↑ girar<br/>C hold<br/>Espaço drop<br/>R replay</div>
-            )}
+            <div className="text-white/50 text-[10px] leading-tight">←→ mover<br/>↑ girar<br/>C hold<br/>Espaço drop<br/>R replay</div>
           </div>
           <TetrisBoard board={gameState.board} currentPiece={gameState.currentPiece} dropPreview={dropPreview} gameOver={gameState.gameOver} />
           <div className="flex flex-col gap-2">
             <NextPieces pieces={gameState.nextPieces || []} />
             <Scoreboard score={gameState.score?.points || 0} level={gameState.score?.level || 1} lines={gameState.score?.lines || 0} combo={gameState.score?.combo || 0} />
-          </div>
-        </div>
-      )}
-
-      {aiDemo && (
-        <div className="mt-3 w-full max-w-md">
-          <div className="text-white/40 text-[10px] font-semibold uppercase tracking-wide mb-1.5 text-center">Botões da IA</div>
-          <div className="flex justify-center gap-1.5 mb-2">
-            {['hold', 'left', 'right', 'rotate', 'drop'].map(a => {
-              const info = ACTION_LABELS[a];
-              const isActive = currentAction === a;
-              return (
-                <div key={a} className={`flex flex-col items-center px-2.5 py-1.5 rounded-lg border transition-all duration-150 ${
-                  isActive ? 'bg-yellow-400/30 border-yellow-400/60 scale-110' : 'bg-white/[0.04] border-white/[0.08]'
-                }`}>
-                  <span className={`text-lg ${isActive ? 'text-yellow-300' : 'text-white/60'}`}>{info.icon}</span>
-                  <span className={`text-[9px] font-bold ${isActive ? 'text-yellow-200' : 'text-white/30'}`}>{info.key}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex flex-wrap justify-center gap-0.5">
-            {aiActions.map((a, i) => {
-              const info = ACTION_LABELS[a];
-              return (
-                <span key={i} className={`text-[10px] px-1.5 py-0.5 rounded ${
-                  i === aiActions.length - 1 ? 'bg-yellow-500/30 text-yellow-200 font-bold' : 'bg-white/[0.05] text-white/30'
-                }`}>{info?.key || a}</span>
-              );
-            })}
           </div>
         </div>
       )}
@@ -495,18 +386,7 @@ function PlayScreen({ template, aiDemo, onBack, onExit }) {
   );
 }
 
-function execAction(gs, action) {
-  switch (action) {
-    case 'left': gs.movePiece('left'); break;
-    case 'right': gs.movePiece('right'); break;
-    case 'down': gs.movePiece('down'); break;
-    case 'rotate': gs.rotatePiece(); break;
-    case 'hold': gs.holdPiece(); break;
-    case 'drop': gs.hardDrop(); break;
-  }
-}
-
-function EditorScreen({ board, setBoard, queue, setQueue, selectedColor, setSelectedColor, onPlay, onAIDemo, onBack, onExit }) {
+function EditorScreen({ board, setBoard, queue, setQueue, selectedColor, setSelectedColor, onPlay, onBack, onExit }) {
   const toggleCell = useCallback((x, y) => {
     setBoard(prev => {
       const nb = prev.map(r => [...r]);
@@ -588,7 +468,6 @@ function EditorScreen({ board, setBoard, queue, setQueue, selectedColor, setSele
           </div>
           <div className="flex flex-col gap-2">
             <button onClick={onPlay} className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-base shadow-lg shadow-emerald-500/25 transition-all active:scale-95">🎮 Jogar</button>
-            <button onClick={onAIDemo} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all active:scale-95">🤖 IA Demo</button>
           </div>
         </div>
       </div>
