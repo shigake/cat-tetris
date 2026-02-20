@@ -56,8 +56,7 @@ export class AIOpponentService {
         if (holdPiece && holdPiece.type !== currentPiece.type) {
           const lookAheadForHold = heldPiece ? nextPiece : nextPieces?.[1] || null;
           const holdResult = this._findBestMoveWithLookahead(holdPiece, board, lookAheadForHold);
-          const holdThreshold = this._isExpert ? 10 : 200;
-          if (holdResult && (!bestResult || holdResult.score > bestResult.score + holdThreshold)) {
+          if (holdResult && (!bestResult || holdResult.score > bestResult.score)) {
             bestResult = holdResult;
             useHold = true;
           }
