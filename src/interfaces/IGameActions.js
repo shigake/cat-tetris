@@ -13,4 +13,4 @@ export class IGameActions {
   updateLevel(level, dropTime) { throw new Error('Must be implemented'); }
   updateCombo() { throw new Error('Must be implemented'); }
   resetCombo() { throw new Error('Must be implemented'); }
-} 
+}

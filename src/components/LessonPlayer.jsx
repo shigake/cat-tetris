@@ -8,9 +8,6 @@ import IntroductionScreen from './lesson/IntroductionScreen';
 import DemoScreen from './lesson/DemoScreen';
 import PracticeScreen from './lesson/PracticeScreen';
 
-/**
- * LessonPlayer - Coordena introdução → demo (IA) → prática
- */
 function LessonPlayer({ lesson, onComplete, onExit }) {
   const [mode, setMode] = useState('introduction');
   const [practiceState, setPracticeState] = useState({
@@ -20,7 +17,6 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
   });
   const [showCelebration, setShowCelebration] = useState(false);
 
-  // Demo game (AI plays) — passa lessonId para IA adaptar comportamento
   const {
     gameState: demoGameState,
     isInitialized: demoInitialized,
@@ -34,19 +30,16 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
     return getDemoPreview?.() || null;
   }, [mode, demoInitialized, getDemoPreview, demoGameState]);
 
-  // Practice game (player plays)
   const { gameState, actions, isInitialized, getValidationState } = usePracticeGame(
     mode === 'practice' ? lesson : null
   );
   useKeyboardInput(actions, gameState, mode === 'practice' && isInitialized);
 
-  // Ghost / drop preview for practice
   const dropPreview = useMemo(() => {
     if (mode !== 'practice' || !isInitialized) return null;
     return actions.getDropPreview?.() || null;
   }, [mode, isInitialized, actions, gameState]);
 
-  // ===== VALIDAÇÃO DA PRÁTICA =====
   useEffect(() => {
     if (mode !== 'practice' || !isInitialized || !gameState) return;
 
@@ -90,7 +83,7 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
 
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-50 flex flex-col">
-      {/* Header */}
+
       <div className="bg-black/30 border-b border-white/[0.06] px-4 py-2 flex-shrink-0">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
@@ -119,7 +112,6 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-auto p-3">
         <div className="max-w-4xl w-full mx-auto">
           <AnimatePresence mode="wait">
@@ -157,7 +149,6 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
         </div>
       </div>
 
-      {/* Celebration */}
       <CelebrationParticles
         show={showCelebration}
         onComplete={() => setShowCelebration(false)}
@@ -167,3 +158,4 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
 }
 
 export default LessonPlayer;
+

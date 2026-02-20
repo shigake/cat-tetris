@@ -11,4 +11,4 @@ export class IGameService {
   resume() { throw new Error('Must be implemented'); }
   restart() { throw new Error('Must be implemented'); }
   getDropPreview() { throw new Error('Must be implemented'); }
-} 
+}

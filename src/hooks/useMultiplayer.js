@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
-/**
- * Hook para gerenciar multiplayer
- */
 export function useMultiplayer() {
   const [currentMode, setCurrentMode] = useState(null);
   const [players, setPlayers] = useState([]);
@@ -15,7 +12,7 @@ export function useMultiplayer() {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       setStats(multiplayerService.getStats());
     } catch (error) {
-      console.error('Failed to initialize multiplayer service:', error);
+
     }
   }, []);
 
@@ -23,14 +20,14 @@ export function useMultiplayer() {
     try {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       const match = multiplayerService.startLocalMatch(player1Name, player2Name);
-      
+
       setCurrentMode(match.mode);
       setPlayers(match.players);
       setMatchState(multiplayerService.getMatchState());
-      
+
       return match;
     } catch (error) {
-      console.error('Failed to start local match:', error);
+
       return null;
     }
   }, []);
@@ -39,14 +36,14 @@ export function useMultiplayer() {
     try {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       const match = multiplayerService.startAIMatch(playerName, aiDifficulty);
-      
+
       setCurrentMode(match.mode);
       setPlayers(match.players);
       setMatchState(multiplayerService.getMatchState());
-      
+
       return match;
     } catch (error) {
-      console.error('Failed to start AI match:', error);
+
       return null;
     }
   }, []);
@@ -55,14 +52,14 @@ export function useMultiplayer() {
     try {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       multiplayerService.updatePlayerState(playerId, gameState);
-      
+
       const newMatchState = multiplayerService.getMatchState();
       setMatchState(newMatchState);
       setPlayers(newMatchState.players);
-      
+
       return newMatchState;
     } catch (error) {
-      console.error('Failed to update player state:', error);
+
       return null;
     }
   }, []);
@@ -71,15 +68,15 @@ export function useMultiplayer() {
     try {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       const result = multiplayerService.endMatch();
-      
+
       setCurrentMode(null);
       setPlayers([]);
       setMatchState(null);
       setStats(multiplayerService.getStats());
-      
+
       return result;
     } catch (error) {
-      console.error('Failed to end match:', error);
+
       return null;
     }
   }, []);
@@ -89,7 +86,7 @@ export function useMultiplayer() {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       return multiplayerService.getAvailableModes();
     } catch (error) {
-      console.error('Failed to get available modes:', error);
+
       return [];
     }
   }, []);
@@ -99,7 +96,7 @@ export function useMultiplayer() {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
       setStats(multiplayerService.getStats());
     } catch (error) {
-      console.error('Failed to refresh stats:', error);
+
     }
   }, []);
 
@@ -116,3 +113,4 @@ export function useMultiplayer() {
     refreshStats
   };
 }
+

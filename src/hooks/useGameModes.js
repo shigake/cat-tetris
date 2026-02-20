@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
-/**
- * Hook para gerenciar modos de jogo
- */
 export function useGameModes() {
   const [modes, setModes] = useState([]);
   const [currentMode, setCurrentMode] = useState(null);
@@ -18,7 +15,7 @@ export function useGameModes() {
       setModeStats(gameModesService.getAllStats());
       setLoading(false);
     } catch (error) {
-      console.error('Failed to initialize game modes service:', error);
+
       setLoading(false);
     }
   }, []);
@@ -27,19 +24,18 @@ export function useGameModes() {
     try {
       const gameModesService = serviceContainer.resolve('gameModesService');
       const success = gameModesService.setMode(modeId);
-      
+
       if (success) {
         setCurrentMode(gameModesService.getCurrentMode());
-        
-        // Dispatch event for game to react
+
         window.dispatchEvent(new CustomEvent('gameModeChanged', {
           detail: { mode: gameModesService.getCurrentMode() }
         }));
       }
-      
+
       return success;
     } catch (error) {
-      console.error('Failed to select mode:', error);
+
       return false;
     }
   }, []);
@@ -49,7 +45,7 @@ export function useGameModes() {
       const gameModesService = serviceContainer.resolve('gameModesService');
       return gameModesService.getModeStats(modeId);
     } catch (error) {
-      console.error('Failed to get mode stats:', error);
+
       return null;
     }
   }, []);
@@ -60,7 +56,7 @@ export function useGameModes() {
       gameModesService.updateStats(modeId, gameData);
       setModeStats(gameModesService.getAllStats());
     } catch (error) {
-      console.error('Failed to update mode stats:', error);
+
     }
   }, []);
 
@@ -74,3 +70,4 @@ export function useGameModes() {
     updateStats
   };
 }
+

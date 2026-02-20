@@ -2,9 +2,6 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameModes } from '../hooks/useGameModes';
 
-/**
- * GameModesPanel - Seleção de modos de jogo
- */
 function GameModesPanel({ onClose, onStartGame }) {
   const { modes, currentMode, modeStats, loading, selectMode } = useGameModes();
 
@@ -30,9 +27,8 @@ function GameModesPanel({ onClose, onStartGame }) {
     );
   }
 
-  // Safety check
   if (!modes || modes.length === 0) {
-    console.warn('[GameModesPanel] No modes available');
+
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-red-900/90 text-white p-6 rounded-lg">
@@ -60,7 +56,7 @@ function GameModesPanel({ onClose, onStartGame }) {
         className="bg-gradient-to-br from-blue-900/95 to-indigo-900/95 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -78,7 +74,6 @@ function GameModesPanel({ onClose, onStartGame }) {
           </button>
         </div>
 
-        {/* Modes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {modes.map((mode, index) => {
             const stats = modeStats[mode.id];
@@ -97,14 +92,13 @@ function GameModesPanel({ onClose, onStartGame }) {
                 }`}
                 onClick={() => handleSelectAndStart(mode.id)}
               >
-                {/* Selected Badge */}
+
                 {isSelected && (
                   <div className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
                     ✓ Selecionado
                   </div>
                 )}
 
-                {/* Mode Icon & Name */}
                 <div className="flex items-center gap-3 mb-3">
                   <div className="text-5xl">{mode.icon}</div>
                   <div className="flex-1">
@@ -117,7 +111,6 @@ function GameModesPanel({ onClose, onStartGame }) {
                   </div>
                 </div>
 
-                {/* Mode Rules */}
                 <div className="bg-black/30 rounded-lg p-3 mb-3">
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {mode.rules.lineGoal && (
@@ -153,7 +146,6 @@ function GameModesPanel({ onClose, onStartGame }) {
                   </div>
                 </div>
 
-                {/* Stats */}
                 {stats && stats.gamesPlayed > 0 && (
                   <div className="bg-black/30 rounded-lg p-3">
                     <div className="text-white/60 text-xs mb-2">Seus recordes:</div>
@@ -195,7 +187,6 @@ function GameModesPanel({ onClose, onStartGame }) {
                   </div>
                 )}
 
-                {/* Play Button */}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -213,3 +204,4 @@ function GameModesPanel({ onClose, onStartGame }) {
 }
 
 export default GameModesPanel;
+

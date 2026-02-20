@@ -14,15 +14,12 @@ const MEDAL_EMOJIS = {
   3: '🥉'
 };
 
-/**
- * LeaderboardPanel - Ranking global de jogadores
- */
 function LeaderboardPanel({ onClose }) {
-  const { 
-    leaderboard, 
-    playerRank, 
+  const {
+    leaderboard,
+    playerRank,
     aroundPlayer,
-    loading, 
+    loading,
     refreshLeaderboard,
     getWeeklyLeaderboard,
     getCountryLeaderboard,
@@ -92,7 +89,7 @@ function LeaderboardPanel({ onClose }) {
         className="bg-gradient-to-br from-indigo-900/95 to-purple-900/95 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -110,7 +107,6 @@ function LeaderboardPanel({ onClose }) {
           </button>
         </div>
 
-        {/* Player Card */}
         {playerRank && (
           <div className="bg-gradient-to-r from-green-600/30 to-emerald-600/30 border-2 border-green-500/50 rounded-lg p-4 mb-6">
             <div className="flex items-center justify-between">
@@ -164,7 +160,6 @@ function LeaderboardPanel({ onClose }) {
           </div>
         )}
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-4 overflow-x-auto">
           {[
             { id: 'global', label: '🌍 Global', desc: 'Top 100' },
@@ -187,7 +182,6 @@ function LeaderboardPanel({ onClose }) {
           ))}
         </div>
 
-        {/* Leaderboard Table */}
         <div className="bg-black/30 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -202,10 +196,10 @@ function LeaderboardPanel({ onClose }) {
               </thead>
               <tbody>
                 {displayedLeaderboard.map((player, index) => {
-                  const actualRank = selectedTab === 'around' 
+                  const actualRank = selectedTab === 'around'
                     ? leaderboard.findIndex(p => p.id === player.id) + 1
                     : index + 1;
-                  
+
                   return (
                     <motion.tr
                       key={player.id}
@@ -269,7 +263,6 @@ function LeaderboardPanel({ onClose }) {
           )}
         </div>
 
-        {/* Footer Info */}
         <div className="mt-4 text-center text-white/40 text-sm">
           💡 Jogue mais para subir no ranking!
         </div>
@@ -279,3 +272,4 @@ function LeaderboardPanel({ onClose }) {
 }
 
 export default LeaderboardPanel;
+

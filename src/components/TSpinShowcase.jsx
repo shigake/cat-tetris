@@ -6,10 +6,6 @@ import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import { useTSpinShowcase } from '../hooks/useTSpinShowcase';
 
-/**
- * TSpinShowcase — Full-screen spectator mode: watch an expert AI
- * perform T-Spins continuously.
- */
 export default function TSpinShowcase({ onClose }) {
   const {
     gameState,
@@ -33,12 +29,10 @@ export default function TSpinShowcase({ onClose }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-violet-950 to-slate-950 flex flex-col items-center justify-center p-3 relative overflow-hidden select-none">
 
-      {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px]" />
       </div>
 
-      {/* Header */}
       <div className="relative z-10 text-center mb-3">
         <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 tracking-tight">
           🌀 T-Spin Master
@@ -46,7 +40,6 @@ export default function TSpinShowcase({ onClose }) {
         <p className="text-white/40 text-xs mt-1">IA Expert jogando — observe as T-Spins!</p>
       </div>
 
-      {/* T-Spin Counter — prominent */}
       <AnimatePresence>
         <motion.div
           key={tspinCount}
@@ -67,7 +60,6 @@ export default function TSpinShowcase({ onClose }) {
         </motion.div>
       </AnimatePresence>
 
-      {/* T-SPIN! Flash overlay */}
       <AnimatePresence>
         {tspinFlash && (
           <motion.div
@@ -84,7 +76,6 @@ export default function TSpinShowcase({ onClose }) {
         )}
       </AnimatePresence>
 
-      {/* Game area */}
       <div className="relative z-10 flex gap-3 justify-center items-start">
         <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
 
@@ -104,7 +95,6 @@ export default function TSpinShowcase({ onClose }) {
             combo={score?.combo || 0}
           />
 
-          {/* Extra stats */}
           <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs space-y-1.5">
             <Stat label="T-Spins" value={tspinCount} highlight />
             <Stat label="Score" value={(score?.points || 0).toLocaleString()} />
@@ -115,7 +105,6 @@ export default function TSpinShowcase({ onClose }) {
         </div>
       </div>
 
-      {/* Back button */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -136,3 +125,4 @@ function Stat({ label, value, highlight }) {
     </div>
   );
 }
+

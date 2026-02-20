@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
-/**
- * Hook para gerenciar IA adversária
- */
 export function useAIOpponent() {
   const [difficulty, setDifficulty] = useState('medium');
   const [aiService, setAiService] = useState(null);
@@ -14,17 +11,17 @@ export function useAIOpponent() {
       service.setDifficulty(difficulty);
       setAiService(service);
     } catch (error) {
-      console.error('Failed to initialize AI opponent service:', error);
+
     }
   }, [difficulty]);
 
   const getNextMove = useCallback((gameState) => {
     if (!aiService) return null;
-    
+
     try {
       return aiService.decideNextMove(gameState);
     } catch (error) {
-      console.error('Failed to get AI move:', error);
+
       return null;
     }
   }, [aiService]);
@@ -48,3 +45,4 @@ export function useAIOpponent() {
     getDifficulties
   };
 }
+

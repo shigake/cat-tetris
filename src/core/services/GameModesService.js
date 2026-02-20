@@ -1,7 +1,3 @@
-/**
- * GameModesService - Gerencia modos de jogo alternativos
- */
-
 export const GAME_MODES = {
   CLASSIC: {
     id: 'classic',
@@ -35,7 +31,7 @@ export const GAME_MODES = {
     icon: '⏱️',
     rules: {
       gameOver: false,
-      timeLimit: 180, // 3 minutes in seconds
+      timeLimit: 180,
       lineGoal: false,
       speedIncrease: true
     }
@@ -100,38 +96,32 @@ export class GameModesService {
     this.gameRepository.save('gameModesStats', this.modeStats);
   }
 
-  // Get all modes
   getAllModes() {
     return Object.values(GAME_MODES);
   }
 
-  // Get current mode
   getCurrentMode() {
     return this.currentMode;
   }
 
-  // Set mode
   setMode(modeId) {
     const mode = Object.values(GAME_MODES).find(m => m.id === modeId);
     if (mode) {
       this.currentMode = mode;
-      console.log(`🎮 Modo: ${mode.name}`);
+
       return true;
     }
     return false;
   }
 
-  // Get mode stats
   getModeStats(modeId) {
     return this.modeStats[modeId] || null;
   }
 
-  // Get all stats
   getAllStats() {
     return { ...this.modeStats };
   }
 
-  // Update stats after game
   updateStats(modeId, gameData) {
     if (!this.modeStats[modeId]) return;
 
@@ -139,17 +129,14 @@ export class GameModesService {
     stats.gamesPlayed += 1;
     stats.totalGames += 1;
 
-    // Update best score
     if (gameData.score > stats.bestScore) {
       stats.bestScore = gameData.score;
     }
 
-    // Update best time (for sprint mode - lower is better)
     if (gameData.time && (stats.bestTime === 0 || gameData.time < stats.bestTime)) {
       stats.bestTime = gameData.time;
     }
 
-    // Update best lines
     if (gameData.lines > stats.bestLines) {
       stats.bestLines = gameData.lines;
     }
@@ -157,25 +144,21 @@ export class GameModesService {
     this.save();
   }
 
-  // Check if mode goal is achieved
   checkGoal(mode, gameState) {
     if (!mode.rules) return false;
 
-    // Line goal
     if (mode.rules.lineGoal) {
       return gameState.score.lines >= mode.rules.lineGoal;
     }
 
-    // Time limit
     if (mode.rules.timeLimit) {
-      // Time is handled externally
+
       return false;
     }
 
     return false;
   }
 
-  // Get recommended order for beginners
   getRecommendedOrder() {
     return [
       GAME_MODES.CLASSIC,
@@ -192,3 +175,4 @@ export class GameModesService {
     this.save();
   }
 }
+

@@ -1,9 +1,5 @@
-/**
- * AchievementsService - Sistema de conquistas desbloqueáveis
- */
-
 const ACHIEVEMENTS = [
-  // Iniciante (50-100 🐟)
+
   {
     id: 'first_line',
     title: '🐱 Primeira Linha',
@@ -28,8 +24,7 @@ const ACHIEVEMENTS = [
     reward: 100,
     tier: 'bronze'
   },
-  
-  // Intermediário (100-200 🐟)
+
   {
     id: 'combo_starter',
     title: '😻 Combo Starter',
@@ -70,8 +65,7 @@ const ACHIEVEMENTS = [
     reward: 200,
     tier: 'silver'
   },
-  
-  // Avançado (200-400 🐟)
+
   {
     id: 'combo_master',
     title: '🔥 Combo Master',
@@ -120,8 +114,7 @@ const ACHIEVEMENTS = [
     reward: 350,
     tier: 'gold'
   },
-  
-  // Lendário (500-1000 🐟)
+
   {
     id: 'cat_king',
     title: '👑 Rei dos Gatos',
@@ -182,7 +175,7 @@ export class AchievementsService {
 
   loadAchievements() {
     const saved = this.gameRepository.load('achievements');
-    
+
     if (!saved) {
       return ACHIEVEMENTS.map(achievement => ({
         ...achievement,
@@ -191,10 +184,9 @@ export class AchievementsService {
         progress: 0
       }));
     }
-    
-    // Merge with new achievements if any were added
+
     const savedMap = new Map(saved.map(a => [a.id, a]));
-    
+
     return ACHIEVEMENTS.map(achievement => {
       const savedAchievement = savedMap.get(achievement.id);
       return savedAchievement || {
@@ -210,37 +202,31 @@ export class AchievementsService {
     this.gameRepository.save('achievements', this.achievements);
   }
 
-  // Get all achievements
   getAchievements() {
     return [...this.achievements];
   }
 
-  // Get unlocked achievements
   getUnlocked() {
     return this.achievements.filter(a => a.unlocked);
   }
 
-  // Get locked achievements
   getLocked() {
     return this.achievements.filter(a => !a.unlocked);
   }
 
-  // Get achievements by tier
   getByTier(tier) {
     return this.achievements.filter(a => a.tier === tier);
   }
 
-  // Check and unlock achievements based on current stats
   checkAchievements(stats) {
     const newUnlocks = [];
-    
+
     this.achievements.forEach(achievement => {
       if (achievement.unlocked) return;
-      
+
       const { type, value } = achievement.requirement;
       let currentValue = 0;
-      
-      // Map achievement requirement type to stats
+
       switch (type) {
         case 'lines_total':
           currentValue = stats.linesCleared || 0;
@@ -264,30 +250,27 @@ export class AchievementsService {
           currentValue = stats.maxLevel || 0;
           break;
       }
-      
+
       achievement.progress = Math.min(currentValue, value);
-      
+
       if (currentValue >= value) {
         achievement.unlocked = true;
         achievement.unlockedAt = new Date().toISOString();
-        
-        // Award currency
+
         this.currencyService.addFish(achievement.reward, `Achievement: ${achievement.title}`);
-        
+
         newUnlocks.push(achievement);
-        
-        console.log(`🏆 Conquista desbloqueada: ${achievement.title}! +${achievement.reward} 🐟`);
+
       }
     });
-    
+
     if (newUnlocks.length > 0) {
       this.save();
     }
-    
+
     return newUnlocks;
   }
 
-  // Get stats
   getStats() {
     const total = this.achievements.length;
     const unlocked = this.achievements.filter(a => a.unlocked).length;
@@ -295,14 +278,14 @@ export class AchievementsService {
     const earnedRewards = this.achievements
       .filter(a => a.unlocked)
       .reduce((sum, a) => sum + a.reward, 0);
-    
+
     const byTier = {
       bronze: this.getByTier('bronze').filter(a => a.unlocked).length,
       silver: this.getByTier('silver').filter(a => a.unlocked).length,
       gold: this.getByTier('gold').filter(a => a.unlocked).length,
       platinum: this.getByTier('platinum').filter(a => a.unlocked).length
     };
-    
+
     return {
       total,
       unlocked,
@@ -313,7 +296,6 @@ export class AchievementsService {
     };
   }
 
-  // Reset (for testing)
   reset() {
     this.achievements = ACHIEVEMENTS.map(achievement => ({
       ...achievement,
@@ -326,3 +308,4 @@ export class AchievementsService {
 }
 
 export { ACHIEVEMENTS };
+

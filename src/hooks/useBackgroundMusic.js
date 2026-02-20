@@ -72,27 +72,27 @@ export function useBackgroundMusic() {
       if (!audioContext) return;
 
       const notes = [
-        { freq: 523.25, duration: 0.4 }, // C5
-        { freq: 587.33, duration: 0.4 }, // D5
-        { freq: 659.25, duration: 0.4 }, // E5
-        { freq: 698.46, duration: 0.4 }, // F5
-        { freq: 783.99, duration: 0.6 }, // G5
-        { freq: 659.25, duration: 0.4 }, // E5
-        { freq: 523.25, duration: 0.8 }, // C5
-        
-        { freq: 587.33, duration: 0.4 }, // D5
-        { freq: 659.25, duration: 0.4 }, // E5
-        { freq: 698.46, duration: 0.4 }, // F5
-        { freq: 783.99, duration: 0.6 }, // G5
-        { freq: 880.00, duration: 0.4 }, // A5
-        { freq: 783.99, duration: 0.8 }, // G5
-        
-        { freq: 659.25, duration: 0.4 }, // E5
-        { freq: 698.46, duration: 0.4 }, // F5
-        { freq: 783.99, duration: 0.4 }, // G5
-        { freq: 880.00, duration: 0.6 }, // A5
-        { freq: 987.77, duration: 0.4 }, // B5
-        { freq: 1046.5, duration: 0.8 }  // C6
+        { freq: 523.25, duration: 0.4 },
+        { freq: 587.33, duration: 0.4 },
+        { freq: 659.25, duration: 0.4 },
+        { freq: 698.46, duration: 0.4 },
+        { freq: 783.99, duration: 0.6 },
+        { freq: 659.25, duration: 0.4 },
+        { freq: 523.25, duration: 0.8 },
+
+        { freq: 587.33, duration: 0.4 },
+        { freq: 659.25, duration: 0.4 },
+        { freq: 698.46, duration: 0.4 },
+        { freq: 783.99, duration: 0.6 },
+        { freq: 880.00, duration: 0.4 },
+        { freq: 783.99, duration: 0.8 },
+
+        { freq: 659.25, duration: 0.4 },
+        { freq: 698.46, duration: 0.4 },
+        { freq: 783.99, duration: 0.4 },
+        { freq: 880.00, duration: 0.6 },
+        { freq: 987.77, duration: 0.4 },
+        { freq: 1046.5, duration: 0.8 }
       ];
 
       let startTime = audioContext.currentTime;
@@ -148,7 +148,7 @@ export function useBackgroundMusic() {
       setIsPlaying(true);
       setCurrentTrack('cheerful-fallback');
     } catch (error) {
-      
+
     }
   }, [stopMusic]);
 
@@ -160,26 +160,26 @@ export function useBackgroundMusic() {
       if (!audioContext) return;
 
       const notes = [
-        { freq: 261.63, duration: 0.2 }, // C4
-        { freq: 329.63, duration: 0.2 }, // E4
-        { freq: 392.00, duration: 0.2 }, // G4
-        { freq: 523.25, duration: 0.3 }, // C5
-        { freq: 392.00, duration: 0.1 }, // G4
-        { freq: 523.25, duration: 0.3 }, // C5
-        
-        { freq: 293.66, duration: 0.2 }, // D4
-        { freq: 369.99, duration: 0.2 }, // F#4
-        { freq: 440.00, duration: 0.2 }, // A4
-        { freq: 587.33, duration: 0.3 }, // D5
-        { freq: 440.00, duration: 0.1 }, // A4
-        { freq: 587.33, duration: 0.3 }, // D5
-        
-        { freq: 329.63, duration: 0.2 }, // E4
-        { freq: 415.30, duration: 0.2 }, // G#4
-        { freq: 493.88, duration: 0.2 }, // B4
-        { freq: 659.25, duration: 0.4 }, // E5
-        { freq: 493.88, duration: 0.2 }, // B4
-        { freq: 659.25, duration: 0.4 }  // E5
+        { freq: 261.63, duration: 0.2 },
+        { freq: 329.63, duration: 0.2 },
+        { freq: 392.00, duration: 0.2 },
+        { freq: 523.25, duration: 0.3 },
+        { freq: 392.00, duration: 0.1 },
+        { freq: 523.25, duration: 0.3 },
+
+        { freq: 293.66, duration: 0.2 },
+        { freq: 369.99, duration: 0.2 },
+        { freq: 440.00, duration: 0.2 },
+        { freq: 587.33, duration: 0.3 },
+        { freq: 440.00, duration: 0.1 },
+        { freq: 587.33, duration: 0.3 },
+
+        { freq: 329.63, duration: 0.2 },
+        { freq: 415.30, duration: 0.2 },
+        { freq: 493.88, duration: 0.2 },
+        { freq: 659.25, duration: 0.4 },
+        { freq: 493.88, duration: 0.2 },
+        { freq: 659.25, duration: 0.4 }
       ];
 
       let startTime = audioContext.currentTime;
@@ -235,7 +235,7 @@ export function useBackgroundMusic() {
       setIsPlaying(true);
       setCurrentTrack('energetic-fallback');
     } catch (error) {
-      
+
     }
   }, [stopMusic]);
 
@@ -248,4 +248,4 @@ export function useBackgroundMusic() {
     playCheerfulMelody,
     playEnergeticMelody
   };
-} 
+}

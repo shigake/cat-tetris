@@ -26,4 +26,4 @@ export class IStatisticsService {
   reset() {
     throw new Error('Method reset must be implemented');
   }
-} 
+}

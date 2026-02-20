@@ -1,8 +1,3 @@
-/**
- * TutorialService - Tutorial prático de Tetris
- * 8 lições focadas em mecânicas que o jogo realmente suporta
- */
-
 export const LESSON_MODULES = {
   FUNDAMENTALS: 'fundamentals',
   INTERMEDIATE: 'intermediate',
@@ -19,7 +14,7 @@ export class TutorialService {
 
   _buildLessons() {
     return [
-      // ── FUNDAMENTALS ──────────────────────────
+
       {
         id: 1,
         module: LESSON_MODULES.FUNDAMENTALS,
@@ -104,7 +99,6 @@ export class TutorialService {
         rewards: { fishCoins: 150, xp: 75, badge: 'planner', unlocks: [4] }
       },
 
-      // ── INTERMEDIATE ──────────────────────────
       {
         id: 4,
         module: LESSON_MODULES.INTERMEDIATE,
@@ -162,7 +156,6 @@ export class TutorialService {
         rewards: { fishCoins: 250, xp: 125, badge: 'tetris_scorer', unlocks: [6] }
       },
 
-      // ── ADVANCED ──────────────────────────────
       {
         id: 6,
         module: LESSON_MODULES.ADVANCED,
@@ -229,7 +222,6 @@ export class TutorialService {
         rewards: { fishCoins: 500, xp: 300, badge: 'b2b_learner', unlocks: [8] }
       },
 
-      // ── PRO ───────────────────────────────────
       {
         id: 8,
         module: LESSON_MODULES.PRO,
@@ -261,8 +253,6 @@ export class TutorialService {
       }
     ];
   }
-
-  // ── Progress ────────────────────────────────────
 
   _loadProgress() {
     const saved = this.gameRepository?.load?.('tutorialProgress');
@@ -331,3 +321,4 @@ export class TutorialService {
     this._saveProgress();
   }
 }
+

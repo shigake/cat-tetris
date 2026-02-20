@@ -36,7 +36,7 @@ const Statistics = ({ stats, onClose }) => {
             ✕
           </button>
         </div>
-      
+
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <span className="text-white/80">Tempo Jogado:</span>
@@ -44,49 +44,49 @@ const Statistics = ({ stats, onClose }) => {
             {formatTime(stats.playTime)}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">Peças Colocadas:</span>
           <span className="text-green-400 font-bold">
             {stats.piecesPlaced}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">Linhas Limpas:</span>
           <span className="text-yellow-400 font-bold">
             {stats.linesCleared}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">T-Spins:</span>
           <span className="text-purple-400 font-bold">
             {stats.tSpins}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">Back-to-Back:</span>
           <span className="text-orange-400 font-bold">
             {stats.backToBack}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">Combo Máximo:</span>
           <span className="text-red-400 font-bold">
             {stats.maxCombo}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">Tetris (4 linhas):</span>
           <span className="text-cyan-400 font-bold">
             {stats.tetrisCount}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/80">LPS (Linhas/seg):</span>
           <span className="text-pink-400 font-bold">
@@ -99,4 +99,4 @@ const Statistics = ({ stats, onClose }) => {
   );
 };
 
-export default Statistics; 
+export default Statistics;

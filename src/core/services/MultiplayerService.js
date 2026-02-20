@@ -1,7 +1,3 @@
-/**
- * MultiplayerService - Gerencia modos multiplayer
- */
-
 export class MultiplayerService {
   constructor(gameRepository) {
     this.gameRepository = gameRepository;
@@ -10,7 +6,6 @@ export class MultiplayerService {
     this.matchState = null;
   }
 
-  // Inicia modo 1v1 local
   startLocalMatch(player1Name = 'Jogador 1', player2Name = 'Jogador 2') {
     this.currentMode = '1v1-local';
     this.players = [
@@ -33,13 +28,13 @@ export class MultiplayerService {
         alive: true
       }
     ];
-    
+
     this.matchState = {
       startTime: Date.now(),
       status: 'playing',
       winner: null
     };
-    
+
     return {
       mode: this.currentMode,
       players: this.players,
@@ -47,7 +42,6 @@ export class MultiplayerService {
     };
   }
 
-  // Inicia modo vs IA
   startAIMatch(playerName = 'Jogador', aiDifficulty = 'medium') {
     this.currentMode = 'vs-ai';
     this.players = [
@@ -73,14 +67,14 @@ export class MultiplayerService {
         difficulty: aiDifficulty
       }
     ];
-    
+
     this.matchState = {
       startTime: Date.now(),
       status: 'playing',
       winner: null,
       aiDifficulty
     };
-    
+
     return {
       mode: this.currentMode,
       players: this.players,
@@ -88,44 +82,39 @@ export class MultiplayerService {
     };
   }
 
-  // Atualiza estado de um jogador
   updatePlayerState(playerId, gameState) {
     const player = this.players.find(p => p.id === playerId);
     if (!player) return;
-    
+
     player.gameState = gameState;
     player.score = gameState.score?.points || 0;
     player.level = gameState.score?.level || 1;
     player.lines = gameState.linesCleared || 0;
     player.alive = !gameState.gameOver;
-    
-    // Verifica vitória
+
     this.checkWinCondition();
   }
 
-  // Verifica condição de vitória
   checkWinCondition() {
     const alivePlayers = this.players.filter(p => p.alive);
-    
+
     if (alivePlayers.length === 1) {
       this.matchState.status = 'finished';
       this.matchState.winner = alivePlayers[0];
       this.matchState.endTime = Date.now();
       this.matchState.duration = this.matchState.endTime - this.matchState.startTime;
-      
-      // Salva estatística
+
       this.saveMatchResult();
-      
+
       return {
         hasWinner: true,
         winner: this.matchState.winner
       };
     }
-    
+
     return { hasWinner: false };
   }
 
-  // Salva resultado da partida
   saveMatchResult() {
     const stats = this.gameRepository.load('multiplayerStats') || {
       localMatches: 0,
@@ -135,7 +124,7 @@ export class MultiplayerService {
       draws: 0,
       totalTime: 0
     };
-    
+
     if (this.currentMode === '1v1-local') {
       stats.localMatches++;
     } else if (this.currentMode === 'vs-ai') {
@@ -146,13 +135,12 @@ export class MultiplayerService {
         stats.losses++;
       }
     }
-    
+
     stats.totalTime += this.matchState.duration;
-    
+
     this.gameRepository.save('multiplayerStats', stats);
   }
 
-  // Obtém estatísticas multiplayer
   getStats() {
     const stats = this.gameRepository.load('multiplayerStats') || {
       localMatches: 0,
@@ -162,10 +150,10 @@ export class MultiplayerService {
       draws: 0,
       totalTime: 0
     };
-    
+
     return {
       ...stats,
-      winRate: stats.aiMatches > 0 
+      winRate: stats.aiMatches > 0
         ? ((stats.wins / stats.aiMatches) * 100).toFixed(1)
         : 0,
       avgMatchTime: stats.localMatches + stats.aiMatches > 0
@@ -174,7 +162,6 @@ export class MultiplayerService {
     };
   }
 
-  // Obtém estado atual da partida
   getMatchState() {
     return {
       ...this.matchState,
@@ -183,7 +170,6 @@ export class MultiplayerService {
     };
   }
 
-  // Encerra partida
   endMatch() {
     const result = {
       mode: this.currentMode,
@@ -191,15 +177,14 @@ export class MultiplayerService {
       winner: this.matchState.winner,
       duration: Date.now() - this.matchState.startTime
     };
-    
+
     this.currentMode = null;
     this.players = [];
     this.matchState = null;
-    
+
     return result;
   }
 
-  // Helpers
   getAIName(difficulty) {
     const names = {
       easy: 'MeowBot Iniciante',
@@ -210,17 +195,8 @@ export class MultiplayerService {
     return names[difficulty] || 'IA';
   }
 
-  // Modos disponíveis
   getAvailableModes() {
     return [
-      {
-        id: '1v1-local',
-        name: '1v1 Local',
-        emoji: '🎮',
-        description: 'Dois jogadores, mesma tela',
-        players: 2,
-        type: 'local'
-      },
       {
         id: 'vs-ai',
         name: 'vs IA',
@@ -251,3 +227,4 @@ export class MultiplayerService {
     ];
   }
 }
+

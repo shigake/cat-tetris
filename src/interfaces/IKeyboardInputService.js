@@ -22,4 +22,4 @@ export class IKeyboardInputService {
   getKeyMappings() {
     throw new Error('Method getKeyMappings must be implemented');
   }
-} 
+}

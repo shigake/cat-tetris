@@ -12,7 +12,7 @@ const OptimizedCell = memo(({ cell, x, y, isGhost }) => {
 
     return {
       backgroundColor: isGhost ? 'transparent' : cell.color,
-      border: isGhost 
+      border: isGhost
         ? `2px dashed ${cell.color}60`
         : `1px solid ${cell.color}`,
       opacity: isGhost ? 0.3 : 1
@@ -44,12 +44,12 @@ function calculateBoardDiff(currentBoard, previousBoard) {
   }
 
   const changes = [];
-  
+
   for (let y = 0; y < currentBoard.length; y++) {
     for (let x = 0; x < currentBoard[y].length; x++) {
       const current = currentBoard[y][x];
       const previous = previousBoard[y]?.[x];
-      
+
       if (
         (current === null) !== (previous === null) ||
         (current && previous && (
@@ -62,16 +62,16 @@ function calculateBoardDiff(currentBoard, previousBoard) {
       }
     }
   }
-  
+
   return changes;
 }
 
-export const OptimizedTetrisBoard = memo(({ 
-  board, 
-  currentPiece, 
+export const OptimizedTetrisBoard = memo(({
+  board,
+  currentPiece,
   ghostPiece,
   className = '',
-  showPerformanceInfo = false 
+  showPerformanceInfo = false
 }) => {
   const previousBoardRef = useRef(null);
   const renderCountRef = useRef(0);
@@ -81,12 +81,12 @@ export const OptimizedTetrisBoard = memo(({
     const startTime = performance.now();
     const changes = calculateBoardDiff(board, previousBoardRef.current);
     const endTime = performance.now();
-    
+
     renderCountRef.current++;
     lastRenderTimeRef.current = endTime - startTime;
-    
+
     previousBoardRef.current = board.map(row => [...row]);
-    
+
     return {
       changedCells: changes,
       renderStats: {
@@ -100,7 +100,7 @@ export const OptimizedTetrisBoard = memo(({
 
   const ghostCells = useMemo(() => {
     if (!ghostPiece) return new Set();
-    
+
     const cells = new Set();
     ghostPiece.getCells().forEach(cell => {
       cells.add(`${cell.x}-${cell.y}`);
@@ -110,7 +110,7 @@ export const OptimizedTetrisBoard = memo(({
 
   const currentPieceCells = useMemo(() => {
     if (!currentPiece) return new Set();
-    
+
     const cells = new Set();
     currentPiece.getCells().forEach(cell => {
       cells.add(`${cell.x}-${cell.y}`);
@@ -125,7 +125,7 @@ export const OptimizedTetrisBoard = memo(({
           const cellKey = `${x}-${y}`;
           const isGhost = ghostCells.has(cellKey);
           const isCurrentPiece = currentPieceCells.has(cellKey);
-          
+
           let displayCell = cell;
           if (isCurrentPiece && currentPiece) {
             const pieceCell = currentPiece.getCells().find(c => c.x === x && c.y === y);
@@ -134,7 +134,7 @@ export const OptimizedTetrisBoard = memo(({
             const pieceCell = ghostPiece.getCells().find(c => c.x === x && c.y === y);
             if (pieceCell) displayCell = pieceCell;
           }
-          
+
           return (
             <OptimizedCell
               key={cellKey}
@@ -158,7 +158,7 @@ export const OptimizedTetrisBoard = memo(({
           <div>Renders: {renderStats.renderCount}</div>
         </div>
       )}
-      
+
       <div className="grid grid-cols-10 gap-px bg-gray-800 p-2 rounded-lg border-2 border-gray-600">
         {boardContent}
       </div>
@@ -166,4 +166,4 @@ export const OptimizedTetrisBoard = memo(({
   );
 });
 
-OptimizedTetrisBoard.displayName = 'OptimizedTetrisBoard'; 
+OptimizedTetrisBoard.displayName = 'OptimizedTetrisBoard';

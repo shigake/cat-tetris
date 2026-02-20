@@ -6,9 +6,6 @@ import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import { useAIShowcase } from '../hooks/useAIShowcase';
 
-/**
- * AIShowcase — Full-screen spectator mode: watch an expert AI play Tetris.
- */
 export default function AIShowcase({ onClose }) {
   const {
     gameState,
@@ -32,12 +29,10 @@ export default function AIShowcase({ onClose }) {
   return (
     <div className="h-screen bg-gradient-to-b from-slate-950 via-violet-950 to-slate-950 flex flex-col overflow-hidden select-none">
 
-      {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px]" />
       </div>
 
-      {/* Compact top bar */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 backdrop-blur-sm border-b border-white/10 shrink-0 relative z-10">
         <div className="flex items-center gap-2">
           <motion.button
@@ -68,7 +63,6 @@ export default function AIShowcase({ onClose }) {
         </div>
       </div>
 
-      {/* COMBO Flash overlay */}
       <AnimatePresence>
         {comboFlash && (
           <motion.div
@@ -85,7 +79,6 @@ export default function AIShowcase({ onClose }) {
         )}
       </AnimatePresence>
 
-      {/* Game area — fills remaining space */}
       <div className="flex-1 flex items-center justify-center overflow-hidden p-2 relative z-10">
         <div className="flex gap-2 justify-center items-start">
           <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
@@ -111,3 +104,4 @@ export default function AIShowcase({ onClose }) {
     </div>
   );
 }
+

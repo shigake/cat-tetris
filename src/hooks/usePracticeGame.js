@@ -3,17 +3,12 @@ import { GameService } from '../core/services/GameService';
 import { PieceFactory, MovementStrategyFactory } from '../patterns/Factory';
 import { ScoringService } from '../core/services/ScoringService';
 
-/**
- * usePracticeGame - Hook para gerenciar jogo de prática do tutorial
- * Cria instância ISOLADA do GameService (não usa o singleton do container)
- */
 export function usePracticeGame(lesson) {
   const [gameState, setGameState] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const gameServiceRef = useRef(null);
   const maxComboRef = useRef(0);
 
-  // Inicializa game service isolado
   useEffect(() => {
     if (!lesson) {
       setGameState(null);
@@ -44,7 +39,6 @@ export function usePracticeGame(lesson) {
     };
   }, [lesson]);
 
-  // Game loop — gravity + state sync (same pattern as useGameService)
   const lastTimeRef = useRef(0);
   const loopRef = useRef(null);
 
@@ -118,7 +112,6 @@ export function usePracticeGame(lesson) {
     }, [])
   };
 
-  // Validation state — only fields the engine actually tracks
   const getValidationState = useCallback(() => {
     if (!gameState) return null;
 
@@ -153,3 +146,4 @@ export function usePracticeGame(lesson) {
     getValidationState
   };
 }
+

@@ -2,20 +2,20 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 
 const BUTTON_MAPPINGS = {
   DPAD_UP: 12,
-  DPAD_DOWN: 13, 
+  DPAD_DOWN: 13,
   DPAD_LEFT: 14,
   DPAD_RIGHT: 15,
-  
+
   FACE_BUTTON_BOTTOM: 0,
   FACE_BUTTON_RIGHT: 1,
   FACE_BUTTON_LEFT: 2,
   FACE_BUTTON_TOP: 3,
-  
+
   BUMPER_LEFT: 4,
   BUMPER_RIGHT: 5,
   TRIGGER_LEFT: 6,
   TRIGGER_RIGHT: 7,
-  
+
   BUTTON_BACK: 8,
   BUTTON_START: 9,
   STICK_LEFT: 10,
@@ -25,7 +25,7 @@ const BUTTON_MAPPINGS = {
 export const useGamepad = (gameActions = null) => {
   const [connectedGamepads, setConnectedGamepads] = useState([]);
   const [isGamepadActive, setIsGamepadActive] = useState(false);
-  
+
   const lastInputTimeRef = useRef({});
   const inputDelayRef = useRef(100);
   const lastButtonStatesRef = useRef({});
@@ -36,7 +36,7 @@ export const useGamepad = (gameActions = null) => {
     const handleGamepadConnected = (e) => {
       setConnectedGamepads(prev => [...prev, e.gamepad]);
       setIsGamepadActive(true);
-      
+
       if (e.gamepad.vibrationActuator) {
         e.gamepad.vibrationActuator.playEffect('dual-rumble', {
           duration: 200,
@@ -48,7 +48,7 @@ export const useGamepad = (gameActions = null) => {
 
     const handleGamepadDisconnected = (e) => {
       setConnectedGamepads(prev => prev.filter(gp => gp.id !== e.gamepad.id));
-      
+
       const remainingGamepads = navigator.getGamepads().filter(gp => gp && gp.connected);
       setIsGamepadActive(remainingGamepads.length > 0);
     };
@@ -64,7 +64,7 @@ export const useGamepad = (gameActions = null) => {
         setIsGamepadActive(true);
       }
     };
-    
+
     checkInitialGamepads();
 
     return () => {
@@ -75,7 +75,7 @@ export const useGamepad = (gameActions = null) => {
 
   const getStickDirection = useCallback((x, y, deadzone = 0.3) => {
     if (Math.abs(x) < deadzone && Math.abs(y) < deadzone) return null;
-    
+
     if (Math.abs(x) > Math.abs(y)) {
       return x > 0 ? 'right' : 'left';
     } else {
@@ -90,12 +90,12 @@ export const useGamepad = (gameActions = null) => {
 
     const gamepads = navigator.getGamepads();
     const gamepad = Array.from(gamepads).find(gp => gp && gp.connected);
-    
+
     if (!gamepad) return;
 
     const now = Date.now();
     const { movePiece, rotatePiece, rotatePieceLeft, hardDrop, holdPiece, pause } = gameActions;
-    
+
     if (!movePiece) {
       return;
     }
@@ -115,10 +115,10 @@ export const useGamepad = (gameActions = null) => {
       if (buttonPressed && wasPressed) {
         const firstDelay = firstInputDelayRef.current;
         const repeatDelay = inputDelayRef.current;
-        
-        const timeThreshold = (lastTime === lastInputTimeRef.current[actionKey] && 
+
+        const timeThreshold = (lastTime === lastInputTimeRef.current[actionKey] &&
                              now - lastTime >= firstDelay) ? firstDelay : repeatDelay;
-        
+
         if (now - lastTime >= timeThreshold) {
           lastInputTimeRef.current[actionKey] = now;
           executeMovementAction(action);
@@ -137,11 +137,11 @@ export const useGamepad = (gameActions = null) => {
       }
     };
 
-    const leftPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_LEFT]?.pressed || 
+    const leftPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_LEFT]?.pressed ||
                        getStickDirection(gamepad.axes[0], gamepad.axes[1]) === 'left';
-    const rightPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_RIGHT]?.pressed || 
+    const rightPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_RIGHT]?.pressed ||
                         getStickDirection(gamepad.axes[0], gamepad.axes[1]) === 'right';
-    const downPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_DOWN]?.pressed || 
+    const downPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_DOWN]?.pressed ||
                        getStickDirection(gamepad.axes[0], gamepad.axes[1]) === 'down';
 
     checkMovement('left', leftPressed);
@@ -149,7 +149,7 @@ export const useGamepad = (gameActions = null) => {
     checkMovement('down', downPressed);
 
     const currentButtonStates = {};
-    
+
     [
       { button: BUTTON_MAPPINGS.DPAD_UP, action: () => hardDrop?.() },
       { button: BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM, action: () => rotatePiece?.() },
@@ -162,12 +162,12 @@ export const useGamepad = (gameActions = null) => {
     ].forEach(({ button, action }) => {
       const pressed = gamepad.buttons[button]?.pressed;
       const wasPressed = lastButtonStatesRef.current[button];
-      
+
       currentButtonStates[button] = pressed;
-      
+
       if (pressed && !wasPressed) {
         action();
-        
+
         if (gamepad.vibrationActuator) {
           const intensity = button === BUTTON_MAPPINGS.DPAD_UP ? 0.3 : 0.1;
           gamepad.vibrationActuator.playEffect('dual-rumble', {
@@ -185,9 +185,9 @@ export const useGamepad = (gameActions = null) => {
   const getGamepadInfo = useCallback(() => {
     const gamepads = navigator.getGamepads();
     const gamepad = Array.from(gamepads).find(gp => gp && gp.connected);
-    
+
     if (!gamepad) return null;
-    
+
     return {
       id: gamepad.id,
       index: gamepad.index,
@@ -204,4 +204,4 @@ export const useGamepad = (gameActions = null) => {
     getGamepadInfo,
     controllerCount: connectedGamepads.length
   };
-}; 
+};

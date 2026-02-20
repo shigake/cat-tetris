@@ -29,9 +29,9 @@ class ScoreService {
     try {
       localStorage.removeItem(this.HIGH_SCORE_KEY);
     } catch (error) {
-      // Silent fail
+
     }
   }
 }
 
-export const scoreService = new ScoreService(); 
+export const scoreService = new ScoreService();

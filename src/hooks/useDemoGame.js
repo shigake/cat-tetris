@@ -4,35 +4,25 @@ import { PieceFactory, MovementStrategyFactory } from '../patterns/Factory';
 import { ScoringService } from '../core/services/ScoringService';
 import { AIOpponentService } from '../core/services/AIOpponentService';
 
-/**
- * Lesson-specific AI behavior hints.
- * Each entry tweaks how the AI plays so it demonstrates
- * the mechanic the lesson is teaching.
- */
 const LESSON_HINTS = {
-  // 1: Movimentação — just play normally, user sees moves
+
   1: { difficulty: 'easy', forceHold: false, comboBoost: false, label: 'Movendo peças...' },
-  // 2: Hold — use hold frequently so user sees it
+
   2: { difficulty: 'easy', forceHold: true, comboBoost: false, label: 'Usando Hold (C)...' },
-  // 3: Planejamento — play clean, medium
+
   3: { difficulty: 'medium', forceHold: false, comboBoost: false, label: 'Planejando jogadas...' },
-  // 4: Combos — boost combo weight
+
   4: { difficulty: 'medium', forceHold: false, comboBoost: true, label: 'Buscando combos...' },
-  // 5: Tetris (4 lines) — play well, try to leave a column open
+
   5: { difficulty: 'hard', forceHold: false, comboBoost: false, label: 'Montando Tetris...' },
-  // 6: T-Spin — expert AI already tries T-Spin setups
+
   6: { difficulty: 'expert', forceHold: true, comboBoost: false, label: 'Tentando T-Spins...' },
-  // 7: Back-to-Back — expert
+
   7: { difficulty: 'expert', forceHold: true, comboBoost: false, label: 'Buscando Back-to-Back...' },
-  // 8: Desafio Final — hard, good overall play
+
   8: { difficulty: 'hard', forceHold: true, comboBoost: false, label: 'Jogando no máximo...' },
 };
 
-/**
- * useDemoGame - IA joga demonstrando a mecânica da lição.
- * @param {boolean} active - Whether demo is active
- * @param {number} lessonId - Which lesson to demonstrate
- */
 export function useDemoGame(active, lessonId) {
   const [gameState, setGameState] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -50,7 +40,6 @@ export function useDemoGame(active, lessonId) {
   const AI_MOVE_INTERVAL = 250;
   const MAX_PIECES = 25;
 
-  // Initialize
   useEffect(() => {
     if (!active) {
       setGameState(null);
@@ -82,12 +71,11 @@ export function useDemoGame(active, lessonId) {
     ai.setDifficulty(hints.difficulty);
     ai.thinkingTime = 0;
 
-    // Boost combo weight when lesson is about combos
     if (hints.comboBoost) {
       const origEval = ai._evaluateBoard.bind(ai);
       ai._evaluateBoard = (board, piece) => {
         let score = origEval(board, piece);
-        // Heavily favor rows that are nearly full (combo potential)
+
         for (let y = 0; y < board.length; y++) {
           const filled = board[y].filter(c => c != null).length;
           if (filled >= 8) score += 200;
@@ -115,7 +103,6 @@ export function useDemoGame(active, lessonId) {
     };
   }, [active, lessonId]);
 
-  // Game loop — gravity + lesson-aware AI moves
   useEffect(() => {
     if (!gameServiceRef.current || !isInitialized || !active) return;
     lastTimeRef.current = 0;
@@ -154,7 +141,6 @@ export function useDemoGame(active, lessonId) {
         if (aiTimerRef.current >= AI_MOVE_INTERVAL) {
           aiTimerRef.current = 0;
 
-          // Force hold every 3-4 pieces if lesson is about hold
           if (hints?.forceHold && holdCounterRef.current >= 3 && state.currentPiece) {
             const canHold = state.canHold !== false;
             if (canHold) {
@@ -208,3 +194,4 @@ export function useDemoGame(active, lessonId) {
     getDropPreview
   };
 }
+

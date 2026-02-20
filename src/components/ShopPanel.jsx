@@ -4,24 +4,16 @@ import { useShop } from '../hooks/useShop';
 import { useCurrency } from '../hooks/useCurrency';
 import { showToast } from './ToastNotification';
 
-/**
- * ShopPanel - Loja de temas
- */
 function ShopPanel({ onClose }) {
-  console.log('[ShopPanel] Renderizando...');
-  
+
   const { themes, equippedTheme, loading, purchaseTheme, equipTheme, getStats } = useShop();
-  console.log('[ShopPanel] useShop:', { themesCount: themes?.length, equippedTheme, loading });
-  
+
   const { currency } = useCurrency();
-  console.log('[ShopPanel] currency:', currency);
-  
+
   const [selectedTheme, setSelectedTheme] = useState(null);
 
   const stats = getStats();
-  console.log('[ShopPanel] stats:', stats);
 
-  // Safety checks
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
@@ -31,7 +23,7 @@ function ShopPanel({ onClose }) {
   }
 
   if (!themes || themes.length === 0) {
-    console.warn('[ShopPanel] No themes available');
+
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-red-900/90 text-white p-6 rounded-lg">
@@ -46,7 +38,7 @@ function ShopPanel({ onClose }) {
 
   const handlePurchase = (themeId) => {
     const result = purchaseTheme(themeId);
-    
+
     if (result.success) {
       showToast(`✅ ${result.theme.name} comprado com sucesso!`, 'success');
     } else {
@@ -56,7 +48,7 @@ function ShopPanel({ onClose }) {
 
   const handleEquip = (themeId) => {
     const result = equipTheme(themeId);
-    
+
     if (result.success) {
       showToast(`🎨 ${result.theme.name} equipado!`, 'success');
     } else {
@@ -87,7 +79,7 @@ function ShopPanel({ onClose }) {
         className="bg-gradient-to-br from-pink-900/95 to-purple-900/95 rounded-2xl p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -105,7 +97,6 @@ function ShopPanel({ onClose }) {
           </button>
         </div>
 
-        {/* Currency & Stats */}
         <div className="bg-black/30 rounded-lg p-4 mb-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
@@ -135,11 +126,10 @@ function ShopPanel({ onClose }) {
           </div>
         </div>
 
-        {/* Themes Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {themes.map((theme, index) => {
             const canAfford = !theme.owned && currency?.fish >= theme.price;
-            
+
             return (
               <motion.div
                 key={theme.id}
@@ -154,21 +144,19 @@ function ShopPanel({ onClose }) {
                     : 'border-white/10'
                 }`}
               >
-                {/* Equipped Badge */}
+
                 {theme.equipped && (
                   <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
                     ✓ Equipado
                   </div>
                 )}
 
-                {/* Premium Badge */}
                 {theme.premium && (
                   <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                     ⭐ Premium
                   </div>
                 )}
 
-                {/* Theme Info */}
                 <div className="mb-4">
                   <h3 className="text-white font-bold text-lg mb-1">
                     {theme.name}
@@ -178,7 +166,6 @@ function ShopPanel({ onClose }) {
                   </p>
                 </div>
 
-                {/* Pieces Preview */}
                 <div className="bg-black/30 rounded-lg p-3 mb-4">
                   <div className="flex justify-center gap-2 flex-wrap">
                     {Object.entries(theme.pieces).map(([type, piece]) => (
@@ -193,7 +180,6 @@ function ShopPanel({ onClose }) {
                   </div>
                 </div>
 
-                {/* Price / Actions */}
                 <div className="flex gap-2">
                   {!theme.owned ? (
                     <button
@@ -229,7 +215,6 @@ function ShopPanel({ onClose }) {
                     </button>
                   )}
 
-                  {/* Preview Button */}
                   <button
                     onClick={() => setSelectedTheme(theme)}
                     className="bg-purple-600 hover:bg-purple-500 text-white py-2 px-4 rounded-lg font-bold transition-colors"
@@ -242,7 +227,6 @@ function ShopPanel({ onClose }) {
           })}
         </div>
 
-        {/* Theme Preview Modal */}
         <AnimatePresence>
           {selectedTheme && (
             <motion.div
@@ -291,3 +275,4 @@ function ShopPanel({ onClose }) {
 }
 
 export default ShopPanel;
+

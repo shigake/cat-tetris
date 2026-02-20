@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function AdvancedParticles({ 
-  enabled = true, 
+export default function AdvancedParticles({
+  enabled = true,
   type = 'mixed',
   intensity = 'medium',
-  className = '' 
+  className = ''
 }) {
   const [particles, setParticles] = useState([]);
   const [particleId, setParticleId] = useState(0);
@@ -60,23 +60,23 @@ export default function AdvancedParticles({
 
     const count = getParticleCount();
     const newParticles = [];
-    
+
     for (let i = 0; i < count; i++) {
       newParticles.push({
         ...generateParticle(),
         id: i
       });
     }
-    
+
     setParticles(newParticles);
     setParticleId(count);
   }, [enabled, type, intensity, getParticleCount, generateParticle]);
 
   const refreshParticle = useCallback((id) => {
-    setParticles(prev => 
-      prev.map(p => 
-        p.id === id 
-          ? { ...generateParticle(), id } 
+    setParticles(prev =>
+      prev.map(p =>
+        p.id === id
+          ? { ...generateParticle(), id }
           : p
       )
     );
@@ -97,8 +97,8 @@ export default function AdvancedParticles({
               fontSize: `${particle.size}rem`,
               zIndex: 1
             }}
-            initial={{ 
-              opacity: 0, 
+            initial={{
+              opacity: 0,
               scale: 0,
               rotate: 0,
               y: 0
@@ -135,7 +135,7 @@ export function LineClearParticles({ linesCleared, onComplete }) {
     if (linesCleared > 0) {
       const count = linesCleared * 15;
       const newParticles = [];
-      
+
       for (let i = 0; i < count; i++) {
         newParticles.push({
           id: i,
@@ -146,9 +146,9 @@ export function LineClearParticles({ linesCleared, onComplete }) {
           direction: Math.random() > 0.5 ? 1 : -1
         });
       }
-      
+
       setParticles(newParticles);
-      
+
       const timer = setTimeout(() => {
         setParticles([]);
         if (onComplete) onComplete();
@@ -170,8 +170,8 @@ export function LineClearParticles({ linesCleared, onComplete }) {
               top: `${particle.y}%`,
               fontSize: `${particle.size}rem`
             }}
-            initial={{ 
-              opacity: 0, 
+            initial={{
+              opacity: 0,
               scale: 0,
               rotate: 0
             }}
@@ -205,8 +205,7 @@ export function LevelUpParticles({ show, onComplete }) {
   useEffect(() => {
     if (show) {
       const levelParticles = [];
-      
-  
+
       for (let i = 0; i < 40; i++) {
         levelParticles.push({
           id: i,
@@ -218,9 +217,9 @@ export function LevelUpParticles({ show, onComplete }) {
           speed: 100 + Math.random() * 50
         });
       }
-      
+
       setParticles(levelParticles);
-      
+
       const timer = setTimeout(() => {
         setParticles([]);
         if (onComplete) onComplete();
@@ -242,8 +241,8 @@ export function LevelUpParticles({ show, onComplete }) {
               top: `${particle.y}%`,
               fontSize: `${particle.size}rem`
             }}
-            initial={{ 
-              opacity: 0, 
+            initial={{
+              opacity: 0,
               scale: 0
             }}
             animate={{
@@ -268,4 +267,4 @@ export function LevelUpParticles({ show, onComplete }) {
       </AnimatePresence>
     </div>
   );
-} 
+}

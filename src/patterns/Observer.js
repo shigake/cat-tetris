@@ -21,14 +21,14 @@ export class GameEventEmitter {
       try {
         callback(data);
       } catch (error) {
-        // Log event handler errors (import-free, uses global)
+
         if (typeof window !== 'undefined' && window.__ERROR_LOGGER__) {
           window.__ERROR_LOGGER__.logError('EventEmitter', `emit:${event}`, error.message, {
             event,
             stack: error.stack
           });
         }
-        console.error(`Event handler error for ${event}:`, error);
+
       }
     });
   }
@@ -55,4 +55,4 @@ export const GAME_EVENTS = {
   GAME_OVER: 'game_over',
   GAME_PAUSED: 'game_paused',
   GAME_RESUMED: 'game_resumed'
-}; 
+};

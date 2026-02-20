@@ -7,7 +7,7 @@ export class Score {
     this.tSpins = 0;
     this.backToBack = 0;
     this.tetrisCount = 0;
-    this._fixedLevel = null; // For Zen/Sprint modes
+    this._fixedLevel = null;
   }
 
   addPoints(points) {
@@ -40,7 +40,7 @@ export class Score {
   }
 
   updateLevel() {
-    if (this._fixedLevel) return; // Don't update level in fixed-level modes
+    if (this._fixedLevel) return;
     this.level = Math.min(15, Math.floor(this.lines / 10) + 1);
   }
 
@@ -50,9 +50,7 @@ export class Score {
 
   getDropTime() {
     const effectiveLevel = this._fixedLevel || this.level;
-    // Official Tetris Guideline gravity: frames per cell at 60fps -> ms
-    // Level 1=1000, 2=793, 3=618, 4=473, 5=355, 6=262, 7=190,
-    // 8=135, 9=94, 10=64, 11=43, 12=28, 13=18, 14=11, 15=7
+
     const dropTimes = [
       1000, 793, 618, 473, 355, 262, 190, 135, 94, 64,
       43, 28, 18, 11, 7
@@ -94,4 +92,4 @@ export class Score {
       tetrisCount: this.tetrisCount
     };
   }
-} 
+}

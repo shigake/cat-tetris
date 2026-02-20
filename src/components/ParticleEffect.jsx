@@ -46,4 +46,4 @@ const ParticleEffect = ({ isActive, position }) => {
   );
 };
 
-export default ParticleEffect; 
+export default ParticleEffect;

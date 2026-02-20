@@ -21,7 +21,7 @@ const Scoreboard = ({ score, level, lines, combo }) => {
       <h2 className="text-xs font-bold text-white mb-1 text-center">
         📊 Pontuação
       </h2>
-      
+
       <div className="space-y-0.5 text-xs">
         <div className="flex justify-between items-center">
           <span className="text-white/70">Pontos:</span>
@@ -29,28 +29,28 @@ const Scoreboard = ({ score, level, lines, combo }) => {
             {score.toLocaleString()}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/70">Recorde:</span>
           <span className="text-green-400 font-bold">
             {highScore.toLocaleString()}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/70">Nível:</span>
           <span className="text-blue-400 font-bold">
             {level}
           </span>
         </div>
-        
+
         <div className="flex justify-between items-center">
           <span className="text-white/70">Linhas:</span>
           <span className="text-purple-400 font-bold">
             {lines}
           </span>
         </div>
-        
+
         {combo > 0 && (
           <div
             className="flex justify-between items-center bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-400/30 mt-0.5"
@@ -66,4 +66,4 @@ const Scoreboard = ({ score, level, lines, combo }) => {
   );
 };
 
-export default Scoreboard; 
+export default Scoreboard;

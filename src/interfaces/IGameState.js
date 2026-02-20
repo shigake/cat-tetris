@@ -12,4 +12,4 @@ export class IGameState {
   get isPlaying() { throw new Error('Must be implemented'); }
   get combo() { throw new Error('Must be implemented'); }
   get dropTime() { throw new Error('Must be implemented'); }
-} 
+}

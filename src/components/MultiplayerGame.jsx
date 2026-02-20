@@ -9,18 +9,16 @@ import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 
-/**
- * MultiplayerGame - Jogo multiplayer (1v1 Local ou vs IA)
- */
 function MultiplayerGame({ mode, aiDifficulty, onExit }) {
   const [player1State, setPlayer1State] = useState(null);
   const [player2State, setPlayer2State] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [p1Garbage, setP1Garbage] = useState(0);
+  const [p2Garbage, setP2Garbage] = useState(0);
   const servicesRef = useRef({ p1: null, p2: null, ai: null });
   const lastTimeRef = useRef(0);
   const loopRef = useRef(null);
 
-  // Initialize games
   useEffect(() => {
     const p1Service = new GameService(
       new PieceFactory(),
@@ -41,7 +39,7 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
         aiService = serviceContainer.resolve('aiOpponentService');
         aiService.setDifficulty(aiDifficulty || 'medium');
       } catch (e) {
-        console.warn('AI opponent service not available:', e);
+
       }
     }
 
@@ -59,7 +57,6 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     };
   }, [mode, aiDifficulty]);
 
-  // Game loop — gravity + AI + state sync
   useEffect(() => {
     const gameLoop = (currentTime) => {
       if (!lastTimeRef.current) lastTimeRef.current = currentTime;
@@ -71,6 +68,15 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
 
       if (!p1.gameOver && !p1.isPaused) p1.updateGame(deltaTime);
       if (!p2.gameOver && !p2.isPaused) p2.updateGame(deltaTime);
+
+      const p1Attack = p1.consumeAttack();
+      if (p1Attack > 0 && !p2.gameOver) {
+        p2.receiveGarbage(p1Attack);
+      }
+      const p2Attack = p2.consumeAttack();
+      if (p2Attack > 0 && !p1.gameOver) {
+        p1.receiveGarbage(p2Attack);
+      }
 
       if (mode === 'vsAI' && ai && !p2.gameOver) {
         try {
@@ -84,11 +90,13 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
               case 'drop': p2.hardDrop(); break;
             }
           }
-        } catch (e) { /* AI error — ignore */ }
+        } catch (e) {  }
       }
 
       setPlayer1State(p1.getGameState());
       setPlayer2State(p2.getGameState());
+      setP1Garbage(p1.pendingGarbage);
+      setP2Garbage(p2.pendingGarbage);
       loopRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -96,7 +104,6 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     return () => { if (loopRef.current) cancelAnimationFrame(loopRef.current); };
   }, [mode]);
 
-  // Check winner
   useEffect(() => {
     if (winner || !player1State || !player2State) return;
     if (player1State.gameOver && !player2State.gameOver) setWinner('player2');
@@ -106,7 +113,6 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     }
   }, [player1State?.gameOver, player2State?.gameOver, winner]);
 
-  // P1 controls (WASD + Q/E + Space)
   useEffect(() => {
     if (winner) return;
     const handle = (e) => {
@@ -126,7 +132,6 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     return () => window.removeEventListener('keydown', handle);
   }, [winner]);
 
-  // P2 controls (Arrows + Enter + Ctrl)
   useEffect(() => {
     if (winner || mode === 'vsAI') return;
     const handle = (e) => {
@@ -145,7 +150,6 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     return () => window.removeEventListener('keydown', handle);
   }, [winner, mode]);
 
-  // Drop previews
   const p1DropPreview = React.useMemo(() => {
     if (!player1State?.currentPiece || player1State?.gameOver) return null;
     try { return servicesRef.current.p1?.getDropPreview(); } catch { return null; }
@@ -166,7 +170,7 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
 
   return (
     <div className="h-screen flex flex-col items-center bg-gradient-to-br from-purple-900 to-blue-900 p-2 overflow-hidden">
-      {/* Header */}
+
       <div className="flex justify-between items-center w-full max-w-5xl mb-2">
         <h1 className="text-xl sm:text-2xl font-bold text-white">
           {mode === 'vsAI' ? '🤖 vs IA' : '👥 1v1 Local'}
@@ -176,9 +180,8 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
         </button>
       </div>
 
-      {/* Boards container */}
       <div className="flex gap-2 sm:gap-4 items-start justify-center flex-wrap">
-        {/* Player 1 */}
+
         <div className="flex flex-col items-center">
           <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg font-bold text-sm sm:text-base">
             {mode === 'vsAI' ? '🎮 VOCÊ' : '🎮 P1'}
@@ -192,6 +195,7 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
                 </div>
               </div>
               <TetrisBoard board={player1State.board} currentPiece={player1State.currentPiece} dropPreview={p1DropPreview} gameOver={player1State.gameOver} />
+              {p1Garbage > 0 && <GarbageMeter count={p1Garbage} />}
               <div className="flex flex-col gap-2">
                 <NextPieces pieces={player1State.nextPieces || []} />
                 <Scoreboard score={player1State.score?.points || 0} level={player1State.score?.level || 1} lines={player1State.score?.lines || 0} combo={player1State.score?.combo || 0} />
@@ -200,12 +204,10 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
           </div>
         </div>
 
-        {/* VS badge */}
         <div className="flex items-center justify-center self-center">
           <div className="bg-yellow-500 text-black font-bold text-2xl sm:text-3xl px-4 py-2 rounded-full shadow-2xl animate-pulse">VS</div>
         </div>
 
-        {/* Player 2 / AI */}
         <div className="flex flex-col items-center">
           <div className="bg-red-600 text-white px-4 py-1 rounded-t-lg font-bold text-sm sm:text-base">
             {mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : '🎮 P2'}
@@ -221,6 +223,7 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
                 )}
               </div>
               <TetrisBoard board={player2State.board} currentPiece={player2State.currentPiece} dropPreview={p2DropPreview} gameOver={player2State.gameOver} />
+              {p2Garbage > 0 && <GarbageMeter count={p2Garbage} />}
               <div className="flex flex-col gap-2">
                 <NextPieces pieces={player2State.nextPieces || []} />
                 <Scoreboard score={player2State.score?.points || 0} level={player2State.score?.level || 1} lines={player2State.score?.lines || 0} combo={player2State.score?.combo || 0} />
@@ -263,4 +266,25 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
   );
 }
 
+function GarbageMeter({ count }) {
+  const maxDisplay = 20;
+  const display = Math.min(count, maxDisplay);
+  return (
+    <div className="flex flex-col-reverse justify-end w-3 rounded overflow-hidden" style={{ height: 'calc(var(--cell) * 22 + 22px)' }}>
+      {Array.from({ length: display }, (_, i) => (
+        <div
+          key={i}
+          className="w-full"
+          style={{
+            height: `${100 / maxDisplay}%`,
+            backgroundColor: count > 8 ? '#ef4444' : count > 4 ? '#f59e0b' : '#ef4444',
+            opacity: 0.7 + (i / display) * 0.3,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default MultiplayerGame;
+

@@ -55,18 +55,15 @@ function LoadingSpinner() {
   );
 }
 
-function GameScreen({ 
-  gameState, 
-  actions, 
+function GameScreen({
+  gameState,
+  actions,
   onBackToMenu,
   isGamepadActive,
   controllerCount,
   getGamepadInfo
 }) {
-  // Memoize drop preview - recompute when piece changes
-  // NOTE: gameState?.board is excluded from deps because getBoardState() always
-  // creates new array references, which would defeat memoization entirely.
-  // The board only changes when a piece is placed, which also changes currentPiece.
+
   const dropPreview = React.useMemo(() => {
     if (!gameState?.currentPiece || gameState?.gameOver || gameState?.isPaused) return null;
     try {
@@ -91,10 +88,10 @@ function GameScreen({
 
   const handleHardDropWithDelay = React.useCallback(() => {
     if (actionCooldowns.hardDrop || gameState?.gameOver) return;
-    
+
     actions.hardDrop();
     setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
-    
+
     setTimeout(() => {
       setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
     }, 300);
@@ -102,10 +99,10 @@ function GameScreen({
 
   const handleHoldWithDelay = React.useCallback(() => {
     if (actionCooldowns.hold || gameState?.gameOver || !gameState?.canHold) return;
-    
+
     actions.holdPiece();
     setActionCooldowns(prev => ({ ...prev, hold: true }));
-    
+
     setTimeout(() => {
       setActionCooldowns(prev => ({ ...prev, hold: false }));
     }, 500);
@@ -113,22 +110,22 @@ function GameScreen({
 
   const handlePauseWithDelay = React.useCallback(() => {
     if (actionCooldowns.pause || gameState?.gameOver) return;
-    
+
     if (gameState?.isPaused) {
       actions.resume();
     } else {
       actions.pause();
     }
-    
+
     setActionCooldowns(prev => ({ ...prev, pause: true }));
-    
+
     setTimeout(() => {
       setActionCooldowns(prev => ({ ...prev, pause: false }));
     }, 300);
   }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
   return (
     <div className="h-screen cat-bg flex flex-col overflow-hidden">
-      {/* ── Compact top bar ── */}
+
       <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 backdrop-blur-sm border-b border-white/10 shrink-0">
         <div className="flex items-center gap-2">
           <motion.button
@@ -164,28 +161,27 @@ function GameScreen({
         </div>
       </div>
 
-      {/* ── Game area — fills remaining space ── */}
       <div className="flex-1 flex items-center justify-center overflow-hidden p-2">
         <div className="flex flex-col lg:flex-row gap-2 items-center justify-center">
           <div className="hidden lg:flex flex-col lg:flex-row gap-2 items-center justify-center">
             <div className="flex flex-col gap-2">
-              <HeldPiece 
+              <HeldPiece
                 heldPiece={gameState.heldPiece}
                 canHold={gameState.canHold}
               />
-              
+
               <NextPieces pieces={gameState.nextPieces} />
             </div>
 
             <div className="flex flex-col items-center">
-              <TetrisBoard 
-                board={gameState.board} 
+              <TetrisBoard
+                board={gameState.board}
                 currentPiece={gameState.currentPiece}
                 dropPreview={dropPreview}
                 gameOver={gameState.gameOver}
               />
-              
-              <Controls 
+
+              <Controls
                 onMove={actions.movePiece}
                 onRotate={actions.rotatePiece}
                 onHardDrop={actions.hardDrop}
@@ -198,7 +194,7 @@ function GameScreen({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Scoreboard 
+              <Scoreboard
                 score={gameState.score.points}
                 level={gameState.score.level}
                 lines={gameState.score.lines}
@@ -213,7 +209,7 @@ function GameScreen({
                 <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()}</span>
                 <span className="text-white/60 ml-2">Nv.{gameState.score.level}</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 {gameState.heldPiece && (
                   <div className="text-xs text-white/60">💾</div>
@@ -249,7 +245,7 @@ function GameScreen({
                   )}</div>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-center flex-1 relative px-1">
               <div className="flex flex-col gap-1 mr-2">
                 <motion.button
@@ -262,7 +258,7 @@ function GameScreen({
                 >
                   🔄
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -274,16 +270,16 @@ function GameScreen({
                   ⬅️
                 </motion.button>
               </div>
-              
+
               <div className="flex-shrink-0 mx-1">
-                <TetrisBoard 
-                  board={gameState.board} 
+                <TetrisBoard
+                  board={gameState.board}
                   currentPiece={gameState.currentPiece}
                   dropPreview={dropPreview}
                   gameOver={gameState.gameOver}
                 />
               </div>
-              
+
               <div className="flex flex-col gap-1 ml-2">
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -292,14 +288,14 @@ function GameScreen({
                   onClick={handleHardDropWithDelay}
                   disabled={gameState.gameOver || actionCooldowns.hardDrop}
                   className={`text-white p-4 rounded-full shadow-lg disabled:opacity-50 touch-manipulation text-lg ${
-                    actionCooldowns.hardDrop 
-                      ? 'bg-red-400' 
+                    actionCooldowns.hardDrop
+                      ? 'bg-red-400'
                       : 'bg-red-500 hover:bg-red-600'
                   }`}
                 >
                   ⚡
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -312,7 +308,7 @@ function GameScreen({
                 </motion.button>
               </div>
             </div>
-            
+
             <div className="flex justify-center gap-2 py-2 px-2">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -324,7 +320,7 @@ function GameScreen({
               >
                 ⬇️ Acelerar
               </motion.button>
-              
+
               {gameState.canHold && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -335,7 +331,7 @@ function GameScreen({
                   className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
                     actionCooldowns.hold
                       ? 'bg-green-400'
-                      : gameState.canHold 
+                      : gameState.canHold
                         ? 'bg-green-600 hover:bg-green-500'
                         : 'bg-gray-500'
                   }`}
@@ -343,7 +339,7 @@ function GameScreen({
                   💾 Guardar
                 </motion.button>
               )}
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -364,7 +360,7 @@ function GameScreen({
 
         <AnimatePresence>
           {gameState.gameOver && (
-            <GameOverScreen 
+            <GameOverScreen
               score={gameState.score}
               onRestart={actions.restart}
               onBackToMenu={onBackToMenu}
@@ -398,10 +394,9 @@ function GameComponent() {
   const [rewardNotification, setRewardNotification] = useState(null);
   const [multiplayerMatch, setMultiplayerMatch] = useState(null);
   const [showAIShowcase, setShowAIShowcase] = useState(false);
-  
+
   const { gameState, actions } = useGameService();
-  
-  // Conectar ErrorLogger ao game state
+
   React.useEffect(() => {
     errorLogger.setGameStateProvider(() => {
       try {
@@ -412,46 +407,42 @@ function GameComponent() {
   }, []);
   const { settings, updateSettings } = useSettings();
   const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
-  const { 
-    isGamepadActive, 
-    controllerCount, 
-    processGamepadInput, 
-    getGamepadInfo 
+  const {
+    isGamepadActive,
+    controllerCount,
+    processGamepadInput,
+    getGamepadInfo
   } = useGamepad(actions);
-  
-  // Initialize progression hooks
+
   useMissions();
   useAchievements();
   usePlayerStats();
   useShop();
   useGameModes();
-  
+
   useSoundManager();
-  
+
   const isInGame = currentScreen === 'game';
   const { setDAS, setARR } = useKeyboardInput(actions, gameState, isInGame);
 
-  // Apply saved DAS/ARR settings on mount
   React.useEffect(() => {
     if (settings?.das != null) setDAS(settings.das);
     if (settings?.arr != null) setARR(settings.arr);
   }, [settings?.das, settings?.arr, setDAS, setARR]);
 
-  // Listen for game mode changes and pass to GameService
   React.useEffect(() => {
     const handleModeChanged = (event) => {
       try {
         const gameService = serviceContainer.resolve('gameService');
         gameService.setGameMode(event.detail.mode);
       } catch (error) {
-        console.error('Failed to set game mode:', error);
+
       }
     };
-    
+
     window.addEventListener('gameModeChanged', handleModeChanged);
     return () => window.removeEventListener('gameModeChanged', handleModeChanged);
   }, []);
-
 
   React.useEffect(() => {
     if (gameState && !gameState.gameOver && gameState.score.points > 0 && gameState.isPlaying) {
@@ -514,10 +505,9 @@ function GameComponent() {
   const handleSettingsChange = (newSettings) => {
     updateSettings(newSettings);
 
-    // Apply DAS/ARR to keyboard input service
     if (newSettings.das != null) setDAS(newSettings.das);
     if (newSettings.arr != null) setARR(newSettings.arr);
-    
+
     if (newSettings.soundEnabled) {
       if (currentScreen === 'menu') {
         startBackgroundMusic?.();
@@ -539,7 +529,7 @@ function GameComponent() {
     } else if (gameState?.isPaused) {
       actions.resume();
     } else if (!gameState?.isPlaying) {
-      // First game start - isPlaying was false after initializeGame
+
       actions.restart();
     }
   };
@@ -572,7 +562,6 @@ function GameComponent() {
     }
   };
 
-
   const handleShowSettings = () => {
     if (currentScreen === 'menu') {
       setShowSettings(true);
@@ -585,14 +574,12 @@ function GameComponent() {
     setShowPWAPrompt(true);
   };
 
-  // Renderizar AI Showcase se ativo
   if (showAIShowcase) {
     return (
       <AIShowcase onClose={() => setShowAIShowcase(false)} />
     );
   }
 
-  // Renderizar jogo multiplayer se ativo
   if (multiplayerMatch) {
     return (
       <MultiplayerGame
@@ -629,7 +616,7 @@ function GameComponent() {
 
         <AnimatePresence>
           {showMultiplayer && (
-            <MultiplayerPanel 
+            <MultiplayerPanel
               onClose={() => setShowMultiplayer(false)}
               onStartMatch={(match) => {
                 setShowMultiplayer(false);
@@ -641,7 +628,7 @@ function GameComponent() {
 
         <AnimatePresence>
           {showGameModes && (
-            <GameModesPanel 
+            <GameModesPanel
               onClose={() => setShowGameModes(false)}
               onStartGame={handleNewGame}
             />
@@ -650,7 +637,7 @@ function GameComponent() {
 
         <AnimatePresence>
           {showShop && (
-            <ShopPanel 
+            <ShopPanel
               onClose={() => setShowShop(false)}
             />
           )}
@@ -658,7 +645,7 @@ function GameComponent() {
 
         <AnimatePresence>
           {showMissions && (
-            <DailyMissionsPanel 
+            <DailyMissionsPanel
               onClose={() => setShowMissions(false)}
             />
           )}
@@ -666,7 +653,7 @@ function GameComponent() {
 
         <AnimatePresence>
           {showAchievements && (
-            <AchievementsPanel 
+            <AchievementsPanel
               onClose={() => setShowAchievements(false)}
             />
           )}
@@ -680,7 +667,6 @@ function GameComponent() {
               onLessonComplete={(result) => {
                 if (!result || !result.rewards) return;
 
-                // Creditar moedas
                 try {
                   const currencyService = serviceContainer.resolve('currencyService');
                   if (result.rewards.fishCoins) {
@@ -690,20 +676,18 @@ function GameComponent() {
                     );
                   }
                 } catch (e) {
-                  console.warn('Could not credit fish coins:', e);
+
                 }
 
-                // Creditar XP via incrementStat
                 try {
                   if (result.rewards.xp) {
                     const playerStatsService = serviceContainer.resolve('playerStatsService');
                     playerStatsService.incrementStat('totalPlayTime', result.rewards.xp);
                   }
                 } catch (e) {
-                  console.warn('Could not credit XP:', e);
+
                 }
 
-                // Verificar conquistas (não unlock direto — usa checkAchievements)
                 try {
                   if (result.rewards.achievement) {
                     const achievementsService = serviceContainer.resolve('achievementsService');
@@ -711,10 +695,9 @@ function GameComponent() {
                     achievementsService.checkAchievements(playerStatsService.getStats());
                   }
                 } catch (e) {
-                  console.warn('Could not check achievements:', e);
+
                 }
 
-                // Mostrar notificação de recompensa
                 setRewardNotification(result);
               }}
             />
@@ -723,7 +706,7 @@ function GameComponent() {
 
         <AnimatePresence>
           <Suspense fallback={<LoadingSpinner />}>
-            <SettingsMenu 
+            <SettingsMenu
               isOpen={showSettings}
               settings={settings || {}}
               onSettingsChange={handleSettingsChange}
@@ -735,11 +718,9 @@ function GameComponent() {
         {showPWAPrompt && (
           <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} />
         )}
-        
-        {/* Achievement notifications (global) */}
+
         <AchievementNotification />
-        
-        {/* Reward notifications (tutorial) */}
+
         <AnimatePresence>
           {rewardNotification && (
             <RewardNotification
@@ -770,8 +751,7 @@ function GameComponent() {
         controllerCount={controllerCount}
         getGamepadInfo={getGamepadInfo}
       />
-      
-      {/* Tutorial para novos jogadores */}
+
       <AnimatePresence>
         {showTutorial && (
           <Tutorial onComplete={() => setShowTutorial(false)} />
@@ -791,4 +771,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

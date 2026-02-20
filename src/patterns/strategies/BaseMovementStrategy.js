@@ -33,21 +33,21 @@ export class BaseMovementStrategy extends IMovementStrategy {
         if (!cell) return true;
         const boardX = position.x + x;
         const boardY = position.y + y;
-        
+
         if (boardX < 0 || boardX >= GameConfig.BOARD_WIDTH) {
           return false;
         }
-        
+
         if (boardY >= GameConfig.BOARD_HEIGHT) {
           return false;
         }
-        
+
         if (boardY < 0) {
           return true;
         }
-        
+
         return board[boardY] && Array.isArray(board[boardY]) && !board[boardY][boardX];
       });
     });
   }
-} 
+}

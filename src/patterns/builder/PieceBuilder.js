@@ -59,4 +59,4 @@ export class PieceBuilder {
     this.reset();
     return piece;
   }
-} 
+}

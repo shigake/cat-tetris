@@ -21,8 +21,6 @@ export function useGameService() {
       gameService.initializeGame();
       setGameState(gameService.getGameState());
 
-      // Instead of calling setGameState on every event (causes cascade),
-      // just mark state as dirty. The game loop syncs once per frame.
       const markDirty = () => {
         dirtyRef.current = true;
       };
@@ -59,20 +57,19 @@ export function useGameService() {
       lastTimeRef.current = currentTime;
 
       if (gameServiceRef.current) {
-        // Run game logic when actively playing
+
         if (gameServiceRef.current.isPlaying &&
             !gameServiceRef.current.isPaused &&
             !gameServiceRef.current.gameOver) {
           gameServiceRef.current.updateGame(deltaTime);
         }
 
-        // Sync React state at most once per animation frame
         if (dirtyRef.current) {
           dirtyRef.current = false;
           setGameState(gameServiceRef.current.getGameState());
         }
       }
-      
+
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -100,7 +97,7 @@ export function useGameService() {
             stack: error.stack,
             args: args.map(a => String(a).slice(0, 100))
           });
-          // Don't re-throw for read-only actions called during render
+
           if (actionName === 'getDropPreview') {
             return null;
           }
@@ -137,4 +134,4 @@ export function useGameService() {
   };
 
   return { gameState, actions };
-} 
+}

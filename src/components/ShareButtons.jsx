@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * ShareButtons - Botões de compartilhamento
- */
 function ShareButtons({ scoreData, onClose }) {
   const [copied, setCopied] = useState(false);
 
@@ -15,7 +12,7 @@ function ShareButtons({ scoreData, onClose }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+
     }
   };
 
@@ -28,7 +25,7 @@ function ShareButtons({ scoreData, onClose }) {
         });
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error('Failed to share:', error);
+
         }
       }
     }
@@ -55,7 +52,7 @@ function ShareButtons({ scoreData, onClose }) {
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center">
-        {/* Native Share (Mobile) */}
+
         {navigator.share && (
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -67,7 +64,6 @@ function ShareButtons({ scoreData, onClose }) {
           </motion.button>
         )}
 
-        {/* Copy to Clipboard */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -79,7 +75,6 @@ function ShareButtons({ scoreData, onClose }) {
           {copied ? '✓ Copiado!' : '📋 Copiar'}
         </motion.button>
 
-        {/* Twitter */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -89,7 +84,6 @@ function ShareButtons({ scoreData, onClose }) {
           🐦 Twitter
         </motion.button>
 
-        {/* WhatsApp */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -115,3 +109,4 @@ function ShareButtons({ scoreData, onClose }) {
 }
 
 export default ShareButtons;
+

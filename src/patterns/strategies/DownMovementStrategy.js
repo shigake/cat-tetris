@@ -19,4 +19,4 @@ export class DownMovementStrategy extends BaseMovementStrategy {
   getSoftDropPoints() {
     return 1;
   }
-} 
+}

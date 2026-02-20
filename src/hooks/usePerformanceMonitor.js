@@ -17,17 +17,17 @@ export function usePerformanceMonitor(enabled = false) {
   const updateFPS = useCallback(() => {
     const now = performance.now();
     const delta = now - lastTimeRef.current;
-    
+
     if (delta >= 1000) {
       const fps = Math.round((frameCountRef.current * 1000) / delta);
       const avgFrameTime = delta / frameCountRef.current;
-      
+
       setMetrics(prev => ({
         ...prev,
         fps,
         frameTime: parseFloat(avgFrameTime.toFixed(2))
       }));
-      
+
       frameCountRef.current = 0;
       lastTimeRef.current = now;
     }
@@ -68,16 +68,16 @@ export function usePerformanceMonitor(enabled = false) {
 
   const measureGameLoop = useCallback((fn) => {
     if (!enabled) return fn();
-    
+
     const start = performance.now();
     const result = fn();
     const end = performance.now();
-    
+
     setMetrics(prev => ({
       ...prev,
       gameLoopTime: parseFloat((end - start).toFixed(2))
     }));
-    
+
     return result;
   }, [enabled]);
 
@@ -93,27 +93,27 @@ export function usePerformanceMonitor(enabled = false) {
 
   const getPerformanceWarnings = useCallback(() => {
     const warnings = [];
-    
+
     if (metrics.fps < 55) {
       warnings.push('Low FPS detected');
     }
-    
+
     if (metrics.frameTime > 20) {
       warnings.push('High frame time');
     }
-    
+
     if (metrics.renderTime > 10) {
       warnings.push('Slow rendering');
     }
-    
+
     if (metrics.gameLoopTime > 5) {
       warnings.push('Heavy game loop');
     }
-    
+
     if (metrics.memoryUsage > 100) {
       warnings.push('High memory usage');
     }
-    
+
     return warnings;
   }, [metrics]);
 
@@ -126,4 +126,4 @@ export function usePerformanceMonitor(enabled = false) {
     getPerformanceWarnings,
     isPerformanceGood: metrics.fps >= 55 && metrics.frameTime <= 20
   };
-} 
+}

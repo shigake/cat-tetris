@@ -48,7 +48,7 @@ export function useStatistics() {
         gameEvents.off(GAME_EVENTS.SCORE_UPDATED, handleComboUpdate);
       };
     } catch (error) {
-      console.error('Failed to initialize statistics service:', error);
+
       setLoading(false);
     }
   }, []);
@@ -62,7 +62,7 @@ export function useStatistics() {
         statisticsService.incrementPlayTime();
         setStatistics(statisticsService.getStats());
       } catch (e) {
-        // ignore
+
       }
     }, 1000);
 
@@ -75,7 +75,7 @@ export function useStatistics() {
       statisticsService.reset();
       setStatistics(statisticsService.getStats());
     } catch (error) {
-      console.error('Failed to reset statistics:', error);
+
     }
   }, []);
 
@@ -84,4 +84,4 @@ export function useStatistics() {
     loading,
     resetStatistics
   };
-} 
+}

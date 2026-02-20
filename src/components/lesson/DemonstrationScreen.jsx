@@ -5,9 +5,6 @@ import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
 
-/**
- * DemonstrationScreen - CPU jogando e mostrando a técnica
- */
 function DemonstrationScreen({
   gameState,
   isInitialized,
@@ -24,7 +21,7 @@ function DemonstrationScreen({
       exit={{ opacity: 0, y: -20 }}
       className="flex flex-col items-center gap-6"
     >
-      {/* Narração */}
+
       {demonstrationState.currentNarration && (
         <motion.div
           key={demonstrationState.currentNarration}
@@ -38,17 +35,16 @@ function DemonstrationScreen({
         </motion.div>
       )}
 
-      {/* Board */}
       {gameState && isInitialized && (
         <div className="bg-gray-900/50 rounded-xl p-6">
           <div className="text-white/80 mb-4 text-center">
             <span className="text-2xl">🎬</span>
             <span className="ml-2 text-lg font-bold">CPU jogando...</span>
           </div>
-          
+
           <div className="flex gap-4">
             <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
-            
+
             <TetrisBoard
               board={gameState.board}
               currentPiece={gameState.currentPiece}
@@ -69,7 +65,6 @@ function DemonstrationScreen({
         </div>
       )}
 
-      {/* Controles */}
       <div className="flex items-center gap-4">
         {demonstrationState.isPlaying && (
           demonstrationState.isPaused ? (
@@ -96,7 +91,6 @@ function DemonstrationScreen({
           ⏭️ Ir para Prática
         </button>
 
-        {/* Progress */}
         <div className="flex-1 bg-gray-700 rounded-full h-3 overflow-hidden min-w-[200px]">
           <motion.div
             className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full"
@@ -114,3 +108,4 @@ function DemonstrationScreen({
 }
 
 export default DemonstrationScreen;
+

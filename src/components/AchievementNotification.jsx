@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Celebration from './Celebration';
 
-/**
- * AchievementNotification - Toast para conquistas desbloqueadas
- */
 function AchievementNotification() {
   const [notifications, setNotifications] = useState([]);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -12,30 +9,28 @@ function AchievementNotification() {
   useEffect(() => {
     const handleAchievementUnlocked = (event) => {
       const unlocked = event.detail;
-      
-      // Check if any platinum achievement was unlocked
+
       const hasPlatinum = unlocked.some(a => a.tier === 'platinum');
       if (hasPlatinum) {
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 3000);
       }
-      
+
       unlocked.forEach((achievement, index) => {
         setTimeout(() => {
           const notification = {
             id: `${achievement.id}_${Date.now()}`,
             achievement
           };
-          
+
           setNotifications(prev => [...prev, notification]);
-          
-          // Auto remove after 5 seconds
+
           setTimeout(() => {
-            setNotifications(prev => 
+            setNotifications(prev =>
               prev.filter(n => n.id !== notification.id)
             );
           }, 5000);
-        }, index * 500); // Stagger notifications
+        }, index * 500);
       });
     };
 
@@ -65,7 +60,7 @@ function AchievementNotification() {
       <AnimatePresence>
         {notifications.map((notification) => {
           const { achievement } = notification;
-          
+
           return (
             <motion.div
               key={notification.id}
@@ -99,9 +94,8 @@ function AchievementNotification() {
           );
         })}
       </AnimatePresence>
-      
-      {/* Celebration para conquistas platina */}
-      <Celebration 
+
+      <Celebration
         trigger={showCelebration}
         message="💎 Conquista Lendária! 💎"
         duration={3000}
@@ -111,3 +105,4 @@ function AchievementNotification() {
 }
 
 export default AchievementNotification;
+

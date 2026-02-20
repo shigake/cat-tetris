@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * Celebration - Animação de celebração com confete
- */
 function Celebration({ trigger, duration = 3000, message }) {
   const [show, setShow] = useState(false);
   const [confetti, setConfetti] = useState([]);
@@ -11,8 +8,7 @@ function Celebration({ trigger, duration = 3000, message }) {
   useEffect(() => {
     if (trigger) {
       setShow(true);
-      
-      // Generate confetti
+
       const pieces = [];
       for (let i = 0; i < 50; i++) {
         pieces.push({
@@ -27,7 +23,6 @@ function Celebration({ trigger, duration = 3000, message }) {
       }
       setConfetti(pieces);
 
-      // Hide after duration
       setTimeout(() => {
         setShow(false);
         setConfetti([]);
@@ -39,22 +34,22 @@ function Celebration({ trigger, duration = 3000, message }) {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      {/* Confetti */}
+
       {confetti.map((piece) => (
         <motion.div
           key={piece.id}
-          initial={{ 
-            x: `${piece.x}vw`, 
-            y: piece.y, 
+          initial={{
+            x: `${piece.x}vw`,
+            y: piece.y,
             rotate: piece.rotation,
             opacity: 1
           }}
-          animate={{ 
+          animate={{
             y: '110vh',
             rotate: piece.rotation + 720,
             opacity: 0
           }}
-          transition={{ 
+          transition={{
             duration: 2 + Math.random(),
             delay: piece.delay,
             ease: 'easeIn'
@@ -69,7 +64,6 @@ function Celebration({ trigger, duration = 3000, message }) {
         />
       ))}
 
-      {/* Message */}
       {message && (
         <motion.div
           initial={{ scale: 0, y: '50vh' }}
@@ -84,7 +78,6 @@ function Celebration({ trigger, duration = 3000, message }) {
         </motion.div>
       )}
 
-      {/* Sparkles */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 0] }}
@@ -96,3 +89,4 @@ function Celebration({ trigger, duration = 3000, message }) {
 }
 
 export default Celebration;
+

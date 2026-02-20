@@ -85,4 +85,4 @@ Object.defineProperty(window, 'localStorage', {
 })
 
 global.requestAnimationFrame = vi.fn(cb => setTimeout(cb, 16))
-global.cancelAnimationFrame = vi.fn(id => clearTimeout(id)) 
+global.cancelAnimationFrame = vi.fn(id => clearTimeout(id))

@@ -74,7 +74,7 @@ describe('App Component', () => {
 
   it('should render the main game interface', () => {
     render(<App />)
-    
+
     expect(screen.getByText('🐱 Cat Tetris 🐱')).toBeInTheDocument()
     expect(screen.getByText('Jogue com seus amigos felinos!')).toBeInTheDocument()
     expect(screen.getByText('📊 Estatísticas')).toBeInTheDocument()
@@ -83,7 +83,7 @@ describe('App Component', () => {
 
   it('should display game board and score information', () => {
     render(<App />)
-    
+
     expect(screen.getByText('1500')).toBeInTheDocument()
     expect(screen.getByText('2')).toBeInTheDocument()
     expect(screen.getByText('15')).toBeInTheDocument()
@@ -92,10 +92,10 @@ describe('App Component', () => {
   it('should open statistics modal when clicking statistics button', async () => {
     const user = userEvent.setup()
     render(<App />)
-    
+
     const statsButton = screen.getByText('📊 Estatísticas')
     await user.click(statsButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('25')).toBeInTheDocument()
       expect(screen.getByText('150')).toBeInTheDocument()
@@ -105,10 +105,10 @@ describe('App Component', () => {
   it('should open settings modal when clicking settings button', async () => {
     const user = userEvent.setup()
     render(<App />)
-    
+
     const settingsButton = screen.getByText('⚙️ Configurações')
     await user.click(settingsButton)
-    
+
     await waitFor(() => {
       expect(screen.getByDisplayValue('80')).toBeInTheDocument()
     })
@@ -121,22 +121,22 @@ describe('App Component', () => {
         actions: {}
       })
     }))
-    
+
     const { rerender } = render(<App />)
-    
+
     expect(screen.getByText('Carregando...')).toBeInTheDocument()
   })
 
   it('should be responsive and show mobile layout', () => {
     render(<App />)
-    
+
     const mobileLayout = screen.getByTestId('mobile-layout') || document.querySelector('.lg\\:hidden')
     expect(mobileLayout).toBeInTheDocument()
   })
 
   it('should handle keyboard events for game controls', () => {
     render(<App />)
-    
+
     fireEvent.keyDown(document, { key: 'ArrowLeft' })
     fireEvent.keyDown(document, { key: 'ArrowRight' })
     fireEvent.keyDown(document, { key: 'ArrowDown' })
@@ -147,15 +147,15 @@ describe('App Component', () => {
     const ThrowError = () => {
       throw new Error('Test error')
     }
-    
+
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-    
+
     render(
       <App>
         <ThrowError />
       </App>
     )
-    
+
     consoleError.mockRestore()
   })
-}) 
+})

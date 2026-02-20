@@ -1,9 +1,3 @@
-/**
- * LeaderboardService - Sistema de ranking online
- * Versão: Mock/Local (facilmente substituível por Firebase/Supabase)
- */
-
-// Dados simulados de outros jogadores (para demonstração)
 const MOCK_PLAYERS = [
   { id: 'bot1', name: 'MeowMaster', score: 250000, level: 18, lines: 120, country: 'BR' },
   { id: 'bot2', name: 'NyanCat', score: 180000, level: 15, lines: 95, country: 'US' },
@@ -38,7 +32,7 @@ export class LeaderboardService {
   loadPlayerId() {
     let saved = this.gameRepository.load('playerProfile');
     if (!saved || !saved.id) {
-      // Generate unique ID
+
       saved = {
         ...saved,
         id: `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -60,45 +54,40 @@ export class LeaderboardService {
     return this.playerName;
   }
 
-  // Get global leaderboard (mock - top 100)
   getGlobalLeaderboard(limit = 100) {
-    // Combine mock players with real player
+
     const stats = this.playerStatsService.getStats();
-    
+
     const playerEntry = {
       id: this.playerId,
       name: this.playerName,
       score: stats.highScore,
       level: stats.maxLevel,
       lines: stats.linesCleared,
-      country: 'BR', // Default, pode ser detectado ou configurado
+      country: 'BR',
       isPlayer: true
     };
 
-    // Combine and sort
     const allPlayers = [...MOCK_PLAYERS, playerEntry];
     allPlayers.sort((a, b) => b.score - a.score);
 
     return allPlayers.slice(0, limit);
   }
 
-  // Get weekly leaderboard
   getWeeklyLeaderboard(limit = 50) {
-    // Mock - em produção seria filtrado por data
+
     return this.getGlobalLeaderboard(limit);
   }
 
-  // Get country leaderboard
   getCountryLeaderboard(country = 'BR', limit = 50) {
     const global = this.getGlobalLeaderboard(200);
     return global.filter(p => p.country === country).slice(0, limit);
   }
 
-  // Get player rank
   getPlayerRank() {
     const leaderboard = this.getGlobalLeaderboard(1000);
     const playerIndex = leaderboard.findIndex(p => p.id === this.playerId);
-    
+
     if (playerIndex === -1) {
       return {
         rank: leaderboard.length + 1,
@@ -114,11 +103,10 @@ export class LeaderboardService {
     };
   }
 
-  // Get players around you
   getAroundPlayer(range = 5) {
     const leaderboard = this.getGlobalLeaderboard(1000);
     const playerIndex = leaderboard.findIndex(p => p.id === this.playerId);
-    
+
     if (playerIndex === -1) return [];
 
     const start = Math.max(0, playerIndex - range);
@@ -127,32 +115,21 @@ export class LeaderboardService {
     return leaderboard.slice(start, end);
   }
 
-  // Submit score (mock - em produção enviaria para servidor)
   submitScore(scoreData) {
-    console.log('📤 Score enviado:', scoreData);
-    
-    // Em produção:
-    // return fetch('/api/leaderboard/submit', {
-    //   method: 'POST',
-    //   body: JSON.stringify(scoreData)
-    // });
 
     return Promise.resolve({ success: true });
   }
 
-  // Get leaderboard by mode
   getModeLeaderboard(modeId, limit = 50) {
-    // Mock - em produção teria leaderboards separados
+
     return this.getGlobalLeaderboard(limit);
   }
 
-  // Get friends leaderboard (se tiver sistema de amigos)
   getFriendsLeaderboard() {
-    // Mock - retorna alguns jogadores aleatórios
+
     return MOCK_PLAYERS.slice(0, 5);
   }
 
-  // Get stats summary for leaderboard card
   getLeaderboardStats() {
     const rank = this.getPlayerRank();
     const stats = this.playerStatsService.getStats();
@@ -168,3 +145,4 @@ export class LeaderboardService {
     };
   }
 }
+

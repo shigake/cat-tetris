@@ -8,14 +8,14 @@ export class PiecePool {
 
   getPiece(type, shape, color, emoji, position, isTSpin = false) {
     let piece;
-    
+
     if (this.pool.length > 0) {
       piece = this.pool.pop();
       piece.reset(type, shape, color, emoji, position, isTSpin);
     } else {
       piece = new Piece(type, shape, color, emoji, position, isTSpin);
     }
-    
+
     return piece;
   }
 
@@ -23,7 +23,7 @@ export class PiecePool {
     if (!piece || this.pool.length >= this.maxPoolSize) {
       return;
     }
-    
+
     this.pool.push(piece);
   }
 
@@ -38,4 +38,4 @@ export class PiecePool {
   clear() {
     this.pool = [];
   }
-} 
+}

@@ -43,7 +43,7 @@ export class PieceFactory extends IPieceFactory {
 
   createNextPieces(count = 3) {
     const piecesData = originalGenerateNextPieces(count);
-    return piecesData.map(pieceData => 
+    return piecesData.map(pieceData =>
       new PieceBuilder()
         .setType(pieceData.type)
         .setShape(pieceData.shape)
@@ -104,4 +104,4 @@ export class MovementStrategyFactory {
   hasStrategy(type) {
     return this.strategies.has(type);
   }
-} 
+}

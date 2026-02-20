@@ -3,10 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getPieceColor } from '../utils/PieceGenerator';
 import { gameEvents } from '../patterns/Observer.js';
 
-// Number of extra rows above the board to show spawning pieces
 const BUFFER_ROWS = 2;
 
-// ─── Floating score/combo popup ───
 function FloatingText({ text, color, id }) {
   return (
     <motion.div
@@ -23,7 +21,6 @@ function FloatingText({ text, color, id }) {
   );
 }
 
-// ─── Spark particles for line clear ───
 function LineClearParticles({ lines }) {
   const particles = useMemo(() => {
     const p = [];
@@ -65,8 +62,6 @@ function LineClearParticles({ lines }) {
   );
 }
 
-// ─── (effects removed for clean play) ───
-
 const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   const [clearingLines, setClearingLines] = useState([]);
   const [floatingTexts, setFloatingTexts] = useState([]);
@@ -74,14 +69,12 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   const textIdRef = useRef(0);
   const boardRef = useRef(null);
 
-  // Build extended board: 2 empty buffer rows + actual board rows
   const boardWidth = board?.[0]?.length || 10;
   const extendedBoard = useMemo(
     () => [...Array(BUFFER_ROWS).fill(null).map(() => Array(boardWidth).fill(null)), ...board],
     [board, boardWidth]
   );
 
-  // ─── Hard drop: flash ───
   useEffect(() => {
     const handleHardDrop = () => {
       setFlashOpacity(0.12);
@@ -91,7 +84,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     return () => gameEvents.off('hard_drop', handleHardDrop);
   }, []);
 
-  // ─── Line clear detection (visual) ───
   useEffect(() => {
     const linesToClear = [];
     for (let y = 0; y < board.length; y++) {
@@ -107,7 +99,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     }
   }, [board]);
 
-  // ─── Line clear event: floating text ───
   useEffect(() => {
     const handleLineClear = (data) => {
       const n = data?.linesCleared || 0;
@@ -125,7 +116,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     return () => gameEvents.off('line_cleared', handleLineClear);
   }, []);
 
-  // ─── Combo popup ───
   useEffect(() => {
     const handleScore = (data) => {
       const combo = data?.combo || 0;
@@ -139,7 +129,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     return () => gameEvents.off('score_updated', handleScore);
   }, []);
 
-  // ─── Back-to-Back popup ───
   useEffect(() => {
     const handleB2B = () => {
       const id = ++textIdRef.current;
@@ -150,7 +139,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     return () => gameEvents.off('back_to_back', handleB2B);
   }, []);
 
-  // ─── T-Spin ───
   useEffect(() => {
     const handleTSpin = () => {
       const id = ++textIdRef.current;
@@ -161,7 +149,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     return () => gameEvents.off('t_spin', handleTSpin);
   }, []);
 
-  // ─── Render cell ───
   const renderCell = useCallback((cell, x, boardY, isBufferRow) => {
     let currentPieceCell = null;
     let dropPreviewCell = null;
@@ -191,7 +178,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       }
     }
 
-    // Active piece
     if (currentPieceCell) {
       const color = getPieceColor(currentPieceCell.color);
       return (
@@ -208,7 +194,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       );
     }
 
-    // Ghost / drop preview
     if (dropPreviewCell) {
       const color = getPieceColor(dropPreviewCell.color);
       return (
@@ -222,7 +207,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       );
     }
 
-    // Placed block
     if (cell) {
       const color = getPieceColor(cell.color);
       return (
@@ -245,7 +229,6 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       );
     }
 
-    // Empty cell
     return (
       <div
         key={`${x}-${boardY}`}
@@ -266,7 +249,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
         style={{ width: 'fit-content' }}
       >
         <div className="relative">
-          {/* Grid */}
+
           <div className="tetris-grid">
             {extendedBoard.map((row, vy) => {
               const boardY = vy - BUFFER_ROWS;
@@ -275,16 +258,12 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
             })}
           </div>
 
-          {/* Line clear: sweep + particles */}
           {clearingLines.length > 0 && (
             <>
               <LineClearParticles lines={clearingLines} />
             </>
           )}
 
-
-
-          {/* Flash overlay */}
           <AnimatePresence>
             {flashOpacity > 0 && (
               <motion.div
@@ -299,14 +278,12 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
             )}
           </AnimatePresence>
 
-          {/* Floating texts */}
           <AnimatePresence>
             {floatingTexts.map(ft => (
               <FloatingText key={ft.id} id={ft.id} text={ft.text} color={ft.color} />
             ))}
           </AnimatePresence>
 
-          {/* Game Over overlay */}
           {gameOver && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -332,3 +309,4 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
 };
 
 export default TetrisBoard;
+

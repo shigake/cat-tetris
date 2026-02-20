@@ -5,9 +5,6 @@ import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
 
-/**
- * PracticeScreen - Jogador pratica a técnica com jogo real
- */
 function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRestart, dropPreview }) {
   if (!gameState || !isInitialized) {
     return (
@@ -25,7 +22,7 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
       exit={{ opacity: 0, y: -20 }}
       className="text-center"
     >
-      {/* Objetivo + Progress */}
+
       <div className="bg-white/[0.06] border border-white/[0.06] rounded-xl p-3 mb-3 max-w-md mx-auto">
         <p className="text-sm font-semibold text-white mb-2">
           🎯 {lesson.practice.objective}
@@ -51,7 +48,6 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
         )}
       </div>
 
-      {/* Board Layout */}
       <div className="flex gap-3 justify-center items-start">
         <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
 
@@ -73,12 +69,10 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
         </div>
       </div>
 
-      {/* Controls hint */}
       <div className="mt-3 text-white/20 text-[10px]">
         ⬅️➡️ Mover  ⬆️ Rotação  ⬇️ Soft Drop  Espaço: Hard Drop  C: Hold
       </div>
 
-      {/* Feedback */}
       {practiceState.feedback && !practiceState.complete && (
         <motion.div
           key={practiceState.feedback}
@@ -90,7 +84,6 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
         </motion.div>
       )}
 
-      {/* Game Over / Restart */}
       {gameState.gameOver && !practiceState.complete && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -107,7 +100,6 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
         </motion.div>
       )}
 
-      {/* Complete */}
       {practiceState.complete && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -125,3 +117,4 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
 }
 
 export default PracticeScreen;
+

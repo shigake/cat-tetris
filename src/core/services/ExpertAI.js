@@ -1,17 +1,3 @@
-/**
- * ExpertAI — Pro-level Tetris AI that plays clean, fast, and infinitely.
- *
- * Strategy: flat stacking + aggressive line clears + combos.
- * No gimmicks, no T-Spin obsession. Just pure, efficient play.
- *
- * Evaluation priorities:
- *   1. ZERO holes (absolute #1 rule)
- *   2. Low, flat surface
- *   3. Clear lines whenever possible (singles, doubles, triples, tetrises)
- *   4. Keep one well column (rightmost) for Tetrises
- *   5. Combo chains when available
- */
-
 export class ExpertAI {
   constructor() {
     this._actionQueue = [];
@@ -22,9 +8,7 @@ export class ExpertAI {
     this.lastDecision = 0;
   }
 
-  setDifficulty() { /* always expert */ }
-
-  // ─── Public API ────────────────────────────────────────────
+  setDifficulty() {  }
 
   decideNextMove(gameState) {
     const now = Date.now();
@@ -34,7 +18,6 @@ export class ExpertAI {
     const { currentPiece, board, heldPiece, canHold } = gameState;
     if (!currentPiece || !board) return null;
 
-    // Detect piece change → reset queue
     const curType = currentPiece.type;
     if (curType !== this._lastPieceType) {
       this._lastPieceType = curType;
@@ -42,7 +25,6 @@ export class ExpertAI {
       if (this._holdCooldown > 0) this._holdCooldown--;
     }
 
-    // Return queued actions
     if (this._actionQueue.length > 0) {
       return this._actionQueue.shift();
     }
@@ -50,10 +32,8 @@ export class ExpertAI {
     const H = board.length;
     const W = board[0]?.length || 10;
 
-    // ── Find best placement for current piece ──
     const bestCurrent = this._findBestMove(currentPiece, board, H, W);
 
-    // ── Hold logic: try held piece, keep the better option ──
     if (canHold && this._holdCooldown <= 0 && heldPiece) {
       const bestHeld = this._findBestMove(heldPiece, board, H, W);
       if (bestHeld && (!bestCurrent || bestHeld.score > bestCurrent.score + 500)) {
@@ -62,7 +42,6 @@ export class ExpertAI {
       }
     }
 
-    // If current piece has no good move, hold it
     if (!bestCurrent && canHold && this._holdCooldown <= 0) {
       this._holdCooldown = 1;
       return { action: 'hold' };
@@ -76,8 +55,6 @@ export class ExpertAI {
 
     return this._actionQueue.shift() || { action: 'drop' };
   }
-
-  // ─── Find best move ────────────────────────────────────────
 
   _findBestMove(piece, board, H, W) {
     let bestScore = -Infinity;
@@ -104,32 +81,19 @@ export class ExpertAI {
     return bestMove;
   }
 
-  // ─── Board evaluation ──────────────────────────────────────
-  //
-  // Simple, effective heuristic inspired by Pierre Dellacherie's algorithm:
-  // - Lines cleared: huge reward
-  // - Holes: huge penalty (THE most important factor)
-  // - Height: moderate penalty
-  // - Bumpiness: moderate penalty
-  // - Well for Tetrises: small bonus
-  //
-
   _evaluate(simBoard, originalBoard, landingRow) {
     const H = simBoard.length;
     const W = simBoard[0].length;
     let score = 0;
 
-    // ── Lines cleared ──
     const lines = this._countCompleteLines(simBoard);
     if (lines === 1) score += 10000;
     if (lines === 2) score += 25000;
     if (lines === 3) score += 50000;
-    if (lines >= 4) score += 100000; // Tetris!
+    if (lines >= 4) score += 100000;
 
-    // Remove cleared lines for surface analysis
     const cleaned = this._removeCompleteLines(simBoard);
 
-    // ── Holes (absolute worst) ──
     let holes = 0;
     let weightedHoles = 0;
     for (let x = 0; x < W; x++) {
@@ -141,14 +105,13 @@ export class ExpertAI {
           cellsAbove++;
         } else if (blockFound) {
           holes++;
-          weightedHoles += cellsAbove; // Deeper holes = worse
+          weightedHoles += cellsAbove;
         }
       }
     }
     score -= holes * 10000;
     score -= weightedHoles * 1000;
 
-    // ── Column heights ──
     const heights = [];
     for (let x = 0; x < W; x++) {
       let h = 0;
@@ -162,16 +125,14 @@ export class ExpertAI {
     const totalH = heights.reduce((s, h) => s + h, 0);
     const avgH = totalH / W;
 
-    // Height penalty — survival is key
     score -= totalH * 50;
     score -= maxH * 100;
     if (maxH > 12) score -= (maxH - 12) * (maxH - 12) * 500;
-    if (maxH > 16) score -= 100000; // CRITICAL
+    if (maxH > 16) score -= 100000;
 
-    // ── Bumpiness (surface smoothness) ──
     let bump = 0;
     for (let i = 0; i < W - 1; i++) {
-      // Right-most column (well) gets reduced bumpiness penalty
+
       if (i === W - 2) {
         bump += Math.abs(heights[i] - heights[i + 1]) * 0.3;
       } else {
@@ -180,24 +141,22 @@ export class ExpertAI {
     }
     score -= bump * 200;
 
-    // ── Row transitions (how fragmented are the rows?) ──
     let transitions = 0;
     for (let y = 0; y < H; y++) {
       const filled = cleaned[y].filter(c => c != null).length;
       if (filled === 0) continue;
-      // Count transitions (filled↔empty) in each row
+
       for (let x = 0; x < W - 1; x++) {
         const a = cleaned[y][x] != null;
         const b = cleaned[y][x + 1] != null;
         if (a !== b) transitions++;
       }
-      // Edges count as filled (walls)
+
       if (cleaned[y][0] == null) transitions++;
       if (cleaned[y][W - 1] == null) transitions++;
     }
     score -= transitions * 100;
 
-    // ── Column transitions (vertical fragmentation) ──
     let colTransitions = 0;
     for (let x = 0; x < W; x++) {
       for (let y = 0; y < H - 1; y++) {
@@ -205,12 +164,11 @@ export class ExpertAI {
         const b = cleaned[y + 1][x] != null;
         if (a !== b) colTransitions++;
       }
-      // Bottom wall counts as filled
+
       if (cleaned[H - 1][x] == null) colTransitions++;
     }
     score -= colTransitions * 80;
 
-    // ── Well bonus (col 9 being lower = good for Tetrises) ──
     const wellCol = W - 1;
     if (heights[wellCol] < heights[wellCol - 1]) {
       const wellDepth = heights[wellCol - 1] - heights[wellCol];
@@ -219,17 +177,14 @@ export class ExpertAI {
       }
     }
 
-    // ── Near-complete rows bonus (easy to clear soon) ──
     for (let y = 0; y < H; y++) {
       const filled = cleaned[y].filter(c => c != null).length;
       if (filled === 9) score += 500;
       if (filled === 8) score += 200;
     }
 
-    // ── Landing height penalty (prefer lower placements) ──
     score -= landingRow > 0 ? 0 : (H - landingRow) * 30;
 
-    // ── Danger mode: if board is critical, HUGE reward for any line clear ──
     if (maxH > 14) {
       score += lines * 50000;
     }
@@ -237,18 +192,14 @@ export class ExpertAI {
     return score;
   }
 
-  // ─── Action sequence builder ───────────────────────────────
-
   _buildActionSequence(piece, targetRotations, targetX) {
     const actions = [];
 
-    // Rotations first
     const rots = targetRotations % 4;
     for (let i = 0; i < rots; i++) {
       actions.push({ action: 'rotate' });
     }
 
-    // Movement
     const currentX = piece.position?.x ?? 3;
     const diff = targetX - currentX;
     const dir = diff > 0 ? 'right' : 'left';
@@ -256,13 +207,10 @@ export class ExpertAI {
       actions.push({ action: dir });
     }
 
-    // Hard drop
     actions.push({ action: 'drop' });
 
     return actions;
   }
-
-  // ─── Helpers ───────────────────────────────────────────────
 
   _rotateShape(shape, times) {
     let s = shape;
@@ -347,3 +295,4 @@ export class ExpertAI {
     return 0;
   }
 }
+

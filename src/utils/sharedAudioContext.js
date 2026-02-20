@@ -1,10 +1,3 @@
-/**
- * Shared AudioContext singleton — avoids browser limits and
- * "AudioContext was not allowed to start" errors.
- *
- * Auto-resumes on first user gesture (click / touch / keydown).
- */
-
 let _ctx = null;
 let _resumeListenerAdded = false;
 
@@ -22,11 +15,6 @@ function _addResumeListener() {
   });
 }
 
-/**
- * Returns a single shared AudioContext (created lazily).
- * Safe to call many times — always returns the same instance.
- * Returns null if Web Audio is unavailable.
- */
 export function getAudioContext() {
   if (_ctx) {
     if (_ctx.state === 'suspended') {
@@ -43,3 +31,4 @@ export function getAudioContext() {
     return null;
   }
 }
+

@@ -6,4 +6,4 @@ export class IGameRepository {
   saveGameState(state) { throw new Error('Must be implemented'); }
   getGameState() { throw new Error('Must be implemented'); }
   clearGameState() { throw new Error('Must be implemented'); }
-} 
+}

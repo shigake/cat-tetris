@@ -20,7 +20,7 @@ export class GameService extends IGameService {
     this.movementStrategyFactory = movementStrategyFactory;
     this.gameRepository = gameRepository;
     this.scoringService = scoringService;
-    
+
     this.board = new Board(GameConfig.BOARD_WIDTH, GameConfig.BOARD_HEIGHT);
     this.score = new Score();
     this.currentPiece = null;
@@ -32,24 +32,25 @@ export class GameService extends IGameService {
     this.gameOver = false;
     this.lastDropTime = 0;
     this.backToBack = false;
-    
-    // Lock delay state (standard Tetris guideline)
-    this._lockDelayActive = false;   // Is lock delay timer running?
-    this._lockDelayElapsed = 0;      // ms elapsed since grounded
-    this._lockDelayResets = 0;       // How many times timer was reset (max 15)
-    this._lockDelayMax = GameConfig.LOCK_DELAY; // 500ms
+
+    this._lockDelayActive = false;
+    this._lockDelayElapsed = 0;
+    this._lockDelayResets = 0;
+    this._lockDelayMax = GameConfig.LOCK_DELAY;
     this._lockDelayMaxResets = 15;
-    
-    // Game mode support
+
     this.gameMode = null;
     this.modeTimeElapsed = 0;
     this.modeStartTime = 0;
+
+    this.pendingGarbage = 0;
+    this._lastAttack = 0;
   }
 
   initializeGame() {
-    // Reset piece bag for fresh randomization
+
     resetBag();
-    
+
     this.board = new Board(GameConfig.BOARD_WIDTH, GameConfig.BOARD_HEIGHT);
     this.score = new Score();
     this.currentPiece = this.pieceFactory.createRandomPiece();
@@ -66,16 +67,17 @@ export class GameService extends IGameService {
     this._lockDelayResets = 0;
     this.modeTimeElapsed = 0;
     this.modeStartTime = Date.now();
-    
-    // Apply game mode settings
+    this.pendingGarbage = 0;
+    this._lastAttack = 0;
+
     this.applyGameMode();
-    
+
     errorLogger.logInfo('GameService', 'initializeGame', 'Game initialized', {
       mode: this.gameMode?.id || 'classic',
       startLevel: this.score.level,
       fixedLevel: this.score._fixedLevel
     });
-    
+
     gameEvents.emit(GAME_EVENTS.GAME_INITIALIZED);
   }
 
@@ -85,22 +87,19 @@ export class GameService extends IGameService {
 
   applyGameMode() {
     if (!this.gameMode || !this.gameMode.rules) return;
-    
+
     const rules = this.gameMode.rules;
-    
-    // Apply start level
+
     if (rules.startLevel) {
       this.score.level = rules.startLevel;
     }
-    
-    // Apply fixed level (for speed)
+
     if (rules.fixedLevel) {
       this.score._fixedLevel = rules.fixedLevel;
     } else {
       this.score._fixedLevel = null;
     }
-    
-    // Store mode rules for runtime checks
+
     this._modeRules = rules;
   }
 
@@ -113,34 +112,34 @@ export class GameService extends IGameService {
 
       if (result !== this.currentPiece) {
         this.currentPiece = result;
-        
+
         if (direction === 'down') {
-          // Successful soft drop — piece moved down, cancel any active lock delay
+
           this._lockDelayActive = false;
           this._lockDelayElapsed = 0;
-          // Reset gravity timer on soft drop (standard Tetris behavior)
+
           this.lastDropTime = 0;
-          
+
           if (strategy.getSoftDropPoints) {
             const softDropPoints = this.scoringService.calculateSoftDropPoints();
             this.score.addPoints(softDropPoints);
           }
         } else if (direction === 'left' || direction === 'right') {
-          // Horizontal move during lock delay → reset timer (if allowed)
+
           this._resetLockDelay();
-          // If piece slid off a ledge and is no longer grounded, cancel lock delay
+
           this._checkUngrounded();
         }
-        
+
         gameEvents.emit(GAME_EVENTS.PIECE_MOVED, { direction, piece: result });
       } else if (direction === 'down') {
-        // Piece can't move down — start lock delay instead of instant lock
+
         if (!this._lockDelayActive) {
           this._lockDelayActive = true;
           this._lockDelayElapsed = 0;
           this._lockDelayResets = 0;
         }
-        // Don't placePiece() yet! Lock delay timer in updateGame() will handle it.
+
       }
     } catch (error) {
       errorLogger.logError('GameService', 'movePiece', error.message, {
@@ -161,9 +160,9 @@ export class GameService extends IGameService {
 
       if (result !== this.currentPiece) {
         this.currentPiece = result;
-        // Rotation during lock delay → reset timer (if allowed)
+
         this._resetLockDelay();
-        // If piece is no longer grounded (e.g. kick moved it up), cancel lock delay
+
         this._checkUngrounded();
         gameEvents.emit(GAME_EVENTS.PIECE_ROTATED, { piece: result });
       }
@@ -184,9 +183,9 @@ export class GameService extends IGameService {
 
     if (result !== this.currentPiece) {
       this.currentPiece = result;
-      // Rotation during lock delay → reset timer (if allowed)
+
       this._resetLockDelay();
-      // If piece is no longer grounded (e.g. kick moved it up), cancel lock delay
+
       this._checkUngrounded();
       gameEvents.emit(GAME_EVENTS.PIECE_ROTATED, { piece: result });
     }
@@ -195,18 +194,18 @@ export class GameService extends IGameService {
   placePiece() {
     if (!this.currentPiece) return;
 
-    // Clear lock delay state
     this._lockDelayActive = false;
     this._lockDelayElapsed = 0;
     this._lockDelayResets = 0;
+    this._lastAttack = 0;
 
     this.board.placePiece(this.currentPiece);
     const linesCleared = this.board.clearLines();
-    
+
     if (linesCleared > 0) {
       this.score.addLines(linesCleared);
       this.score.incrementCombo();
-      
+
       const isTSpin = this.currentPiece.isTSpin;
       const points = this.scoringService.calculateScore(
         linesCleared,
@@ -215,16 +214,16 @@ export class GameService extends IGameService {
         isTSpin,
         this.backToBack
       );
-      
+
       this.score.addPoints(points);
-      
+
       if (isTSpin || linesCleared === 4) {
-        // Back-to-Back chain (Tetris ou T-Spin)
+
         if (this.backToBack) {
           gameEvents.emit(GAME_EVENTS.BACK_TO_BACK);
         }
         this.backToBack = true;
-        
+
         if (isTSpin) {
           this.score.addTSpin();
           gameEvents.emit(GAME_EVENTS.T_SPIN, { linesCleared });
@@ -232,40 +231,55 @@ export class GameService extends IGameService {
       } else {
         this.backToBack = false;
       }
-      
+
       gameEvents.emit(GAME_EVENTS.LINE_CLEARED, { linesCleared });
-      gameEvents.emit(GAME_EVENTS.SCORE_UPDATED, { 
-        score: this.score.points, 
-        level: this.score.level, 
+      gameEvents.emit(GAME_EVENTS.SCORE_UPDATED, {
+        score: this.score.points,
+        level: this.score.level,
         combo: this.score.combo,
-        points, 
-        isTSpin 
+        points,
+        isTSpin
       });
+
+      this._lastAttack = this._calculateAttack(linesCleared, isTSpin, this.score.combo, this.backToBack);
+
+      if (this._lastAttack > 0 && this.pendingGarbage > 0) {
+        const cancelled = Math.min(this._lastAttack, this.pendingGarbage);
+        this._lastAttack -= cancelled;
+        this.pendingGarbage -= cancelled;
+      }
     } else {
       this.score.resetCombo();
     }
 
-    // Emit piece placed event (for missions tracking)
-    gameEvents.emit(GAME_EVENTS.PIECE_PLACED, { 
-      piece: this.currentPiece, 
-      linesCleared 
+    gameEvents.emit(GAME_EVENTS.PIECE_PLACED, {
+      piece: this.currentPiece,
+      linesCleared
     });
+
+    if (this.pendingGarbage > 0) {
+      const overflow = this.board.addGarbageLines(this.pendingGarbage);
+      this.pendingGarbage = 0;
+      if (overflow && this.board.isGameOver()) {
+        this.gameOver = true;
+        gameEvents.emit(GAME_EVENTS.GAME_OVER);
+        return;
+      }
+    }
 
     this.getNextPiece();
     this.canHold = true;
 
-    // Check Sprint mode line goal
     if (this._modeRules?.lineGoal && this.score.lines >= this._modeRules.lineGoal) {
       this.gameOver = true;
       gameEvents.emit(GAME_EVENTS.GAME_OVER);
       return;
     }
 
-    // Check game over (skip for Zen and other no-game-over modes)
     if (this._modeRules?.gameOver === false) {
-      // No game over in this mode - if board is full, clear bottom rows
+
       if (this.board.isGameOver()) {
-        // In Zen mode, clear top 4 rows to keep playing
+
         for (let y = 0; y < 4; y++) {
           for (let x = 0; x < this.board.width; x++) {
             this.board.clearCell(x, y);
@@ -278,17 +292,57 @@ export class GameService extends IGameService {
     }
   }
 
+  _calculateAttack(linesCleared, isTSpin, combo, backToBack) {
+    if (linesCleared === 0) return 0;
+
+    let attack = 0;
+    if (isTSpin) {
+
+      attack = [0, 2, 4, 6][linesCleared] || 0;
+    } else {
+
+      attack = [0, 0, 1, 2, 4][linesCleared] || 0;
+    }
+
+    if (backToBack && (isTSpin || linesCleared === 4)) {
+      attack += 1;
+    }
+
+    if (combo >= 2) {
+      const comboTable = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5];
+      attack += comboTable[Math.min(combo - 1, comboTable.length - 1)] || 4;
+    }
+
+    const boardEmpty = this.board.grid.every(row => row.every(cell => cell === null));
+    if (boardEmpty) {
+      attack = 10;
+    }
+
+    return attack;
+  }
+
+  receiveGarbage(count) {
+    if (count > 0) {
+      this.pendingGarbage += count;
+    }
+  }
+
+  consumeAttack() {
+    const attack = this._lastAttack;
+    this._lastAttack = 0;
+    return attack;
+  }
+
   holdPiece() {
     if (!this.canHold || !this.currentPiece) return;
 
-    // Cancel lock delay when holding
     this._lockDelayActive = false;
     this._lockDelayElapsed = 0;
     this._lockDelayResets = 0;
 
     try {
       const temp = this.heldPiece;
-      // Store held piece with original rotation (rotation state 0)
+
       const currentType = this.currentPiece.type;
       const originalConfig = PIECES[currentType];
       this.heldPiece = new Piece(
@@ -300,9 +354,9 @@ export class GameService extends IGameService {
         false,
         0
       );
-      
+
       if (temp) {
-        // Restore from hold with original shape at spawn position
+
         const spawnPos = temp.type === 'I' ? { x: 3, y: -2 } : { x: 3, y: 0 };
         const heldConfig = PIECES[temp.type];
         this.currentPiece = new Piece(
@@ -317,7 +371,7 @@ export class GameService extends IGameService {
       } else {
         this.getNextPiece();
       }
-      
+
       this.canHold = false;
       gameEvents.emit(GAME_EVENTS.PIECE_HELD, { heldPiece: this.heldPiece });
     } catch (error) {
@@ -333,16 +387,16 @@ export class GameService extends IGameService {
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
     try {
-      // Hard drop always locks immediately — bypass lock delay
+
       this._lockDelayActive = false;
       this._lockDelayElapsed = 0;
-      
+
       const strategy = this.movementStrategyFactory.createStrategy('hardDrop');
       const result = strategy.execute(this.currentPiece, this.board.grid);
-      
+
       this.currentPiece = result.piece;
       this.score.addPoints(result.dropDistance);
-      
+
       const droppedPiece = this.currentPiece;
       gameEvents.emit(GAME_EVENTS.HARD_DROP, { dropDistance: result.dropDistance });
       gameEvents.emit(GAME_EVENTS.PIECE_MOVED, { direction: 'hardDrop', piece: droppedPiece });
@@ -359,7 +413,6 @@ export class GameService extends IGameService {
   updateGame(deltaTime) {
     if (!this.isPlaying || this.gameOver || this.isPaused) return;
 
-    // Check time limit for Ultra mode
     if (this._modeRules?.timeLimit) {
       this.modeTimeElapsed = (Date.now() - this.modeStartTime) / 1000;
       if (this.modeTimeElapsed >= this._modeRules.timeLimit) {
@@ -369,23 +422,20 @@ export class GameService extends IGameService {
       }
     }
 
-    // ── Lock delay timer ──
     if (this._lockDelayActive) {
       this._lockDelayElapsed += deltaTime;
       if (this._lockDelayElapsed >= this._lockDelayMax) {
-        // Lock delay expired → place piece
+
         this._lockDelayActive = false;
         this._lockDelayElapsed = 0;
         this.placePiece();
         this.lastDropTime = 0;
         return;
       }
-      // During lock delay, gravity doesn't push the piece down
-      // (the piece is already grounded)
+
       return;
     }
 
-    // ── Normal gravity ──
     this.lastDropTime += deltaTime;
     if (this.lastDropTime >= this.score.getDropTime()) {
       this.movePiece('down');
@@ -393,10 +443,6 @@ export class GameService extends IGameService {
     }
   }
 
-  /**
-   * Reset lock delay timer (called on successful rotate/move while grounded).
-   * Standard Tetris allows max 15 resets to prevent infinite stalling.
-   */
   _resetLockDelay() {
     if (this._lockDelayActive && this._lockDelayResets < this._lockDelayMaxResets) {
       this._lockDelayElapsed = 0;
@@ -404,10 +450,6 @@ export class GameService extends IGameService {
     }
   }
 
-  /**
-   * Check if the current piece is no longer grounded (can move down).
-   * If so, cancel lock delay — piece is floating again.
-   */
   _checkUngrounded() {
     if (!this._lockDelayActive || !this.currentPiece) return;
     const canDown = this.board.canPlacePiece(this.currentPiece.move(0, 1));
@@ -447,7 +489,7 @@ export class GameService extends IGameService {
       previewPiece = previewPiece.move(0, 1);
       attempts++;
     }
-    
+
     return previewPiece;
   }
 
@@ -470,7 +512,7 @@ export class GameService extends IGameService {
       gameOver: this.gameOver,
       backToBack: this.backToBack,
       gameMode: this.gameMode,
-      modeTimeElapsed: this._modeRules?.timeLimit 
+      modeTimeElapsed: this._modeRules?.timeLimit
         ? Math.max(0, this._modeRules.timeLimit - (Date.now() - this.modeStartTime) / 1000)
         : null
     };
@@ -486,7 +528,7 @@ export class GameService extends IGameService {
     this.isPaused = state.isPaused;
     this.gameOver = state.gameOver;
     this.backToBack = state.backToBack;
-    
+
     Object.assign(this.score, state.score);
   }
-} 
+}

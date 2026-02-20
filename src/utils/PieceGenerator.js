@@ -8,7 +8,6 @@ export const PIECE_TYPES = {
   L: 'L'
 };
 
-// Default pieces configuration
 const DEFAULT_PIECES = {
   [PIECE_TYPES.I]: {
     shape: [
@@ -82,17 +81,14 @@ const DEFAULT_PIECES = {
   }
 };
 
-// Current active pieces (can be customized by themes)
 export let PIECES = { ...DEFAULT_PIECES };
 
-// Apply theme to pieces
 export function applyTheme(theme) {
   if (!theme || !theme.pieces) {
     PIECES = { ...DEFAULT_PIECES };
     return;
   }
 
-  // Update pieces with theme data
   Object.keys(PIECES).forEach(pieceType => {
     if (theme.pieces[pieceType]) {
       PIECES[pieceType] = {
@@ -104,20 +100,17 @@ export function applyTheme(theme) {
   });
 }
 
-// Load theme from shop on startup
 if (typeof window !== 'undefined') {
   window.addEventListener('themeEquipped', (event) => {
     applyTheme(event.detail.theme);
   });
 
-  // Try to load equipped theme from localStorage on init
   try {
     const savedInventory = localStorage.getItem('cat-tetris-shopInventory');
     if (savedInventory) {
       const inventory = JSON.parse(savedInventory);
       const equippedThemeId = inventory.equippedTheme;
-      
-      // Import theme data
+
       import('../core/services/ShopService.js').then(({ PIECE_THEMES }) => {
         if (PIECE_THEMES[equippedThemeId]) {
           applyTheme(PIECE_THEMES[equippedThemeId]);
@@ -125,7 +118,7 @@ if (typeof window !== 'undefined') {
       });
     }
   } catch (error) {
-    console.error('Failed to load theme:', error);
+
   }
 }
 
@@ -150,7 +143,7 @@ export function generateRandomPiece() {
   if (bagIndex >= bag.length) {
     refillBag();
   }
-  
+
   const pieceType = bag[bagIndex++];
   let position = { x: 3, y: 0 };
   if (pieceType === 'I') {
@@ -192,4 +185,4 @@ export function getPieceColor(color) {
     '#ff7f00': '#ff7f00'
   };
   return colorMap[color] || color;
-} 
+}

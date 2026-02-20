@@ -38,9 +38,9 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
             <h2 className="text-2xl font-cat font-bold text-white mb-5 text-center">
               ⚙️ Configurações
             </h2>
-            
+
             <div className="space-y-4">
-              {/* ── Audio ── */}
+
               <div className="text-xs font-bold text-white/40 uppercase tracking-wider">Áudio</div>
 
               <div>
@@ -67,7 +67,6 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                 <label htmlFor="soundEnabled" className="text-white/80 text-sm">Som Habilitado</label>
               </div>
 
-              {/* ── Handling ── */}
               <div className="border-t border-white/10 pt-4 mt-4">
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Handling (DAS/ARR)</div>
 
@@ -106,7 +105,6 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                 </div>
               </div>
 
-              {/* ── Controles ── */}
               <div className="border-t border-white/10 pt-4 mt-4">
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Controles</div>
                 <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
@@ -134,7 +132,6 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                 </div>
               </div>
 
-              {/* ── Visual ── */}
               <div className="border-t border-white/10 pt-4 mt-4">
                 <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">Visual</div>
                 <div className="flex items-center">
@@ -175,4 +172,4 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
   );
 };
 
-export default SettingsMenu; 
+export default SettingsMenu;

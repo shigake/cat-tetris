@@ -47,4 +47,4 @@ export class PlayingState extends IGameState {
   getName() {
     return 'playing';
   }
-} 
+}

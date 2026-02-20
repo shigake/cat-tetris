@@ -19,8 +19,8 @@ const HeldPiece = ({ heldPiece, canHold }) => {
         className="bg-gray-800/50 p-1.5 rounded-lg border border-white/20"
       >
         <div className="flex justify-center">
-          <div 
-            className="grid gap-1" 
+          <div
+            className="grid gap-1"
             style={{
               gridTemplateColumns: `repeat(${maxWidth}, 1fr)`,
               gridTemplateRows: `repeat(${maxHeight}, 1fr)`
@@ -57,7 +57,7 @@ const HeldPiece = ({ heldPiece, canHold }) => {
         <span>💾</span>
         <span className="hidden lg:inline">Guardada</span>
       </h2>
-      
+
       <div>
         {renderHeldPiece()}
       </div>
@@ -65,4 +65,4 @@ const HeldPiece = ({ heldPiece, canHold }) => {
   );
 };
 
-export default HeldPiece; 
+export default HeldPiece;

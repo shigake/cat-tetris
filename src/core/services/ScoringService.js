@@ -3,18 +3,18 @@ import { IScoringService } from './IScoringService.js';
 export class ScoringService extends IScoringService {
   calculateScore(linesCleared, level, combo, isTSpin, backToBack) {
     let basePoints = this.getBasePoints(linesCleared);
-    
+
     if (isTSpin) {
       basePoints = this.calculateTSpinBonus(linesCleared);
     }
-    
+
     if (backToBack) {
       basePoints = this.calculateBackToBackBonus(basePoints);
     }
-    
+
     basePoints *= level;
     basePoints += this.calculateComboBonus(combo);
-    
+
     return basePoints;
   }
 
@@ -39,4 +39,4 @@ export class ScoringService extends IScoringService {
     const basePoints = [0, 100, 300, 500, 800];
     return basePoints[linesCleared] || 0;
   }
-} 
+}

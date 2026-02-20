@@ -2,9 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useCurrency } from '../hooks/useCurrency';
 
-/**
- * CurrencyDisplay - Mostra moedas do jogador (sempre visível)
- */
 function CurrencyDisplay({ className = '' }) {
   const { currency, loading } = useCurrency();
 
@@ -38,3 +35,4 @@ function CurrencyDisplay({ className = '' }) {
 }
 
 export default CurrencyDisplay;
+

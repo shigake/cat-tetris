@@ -1,7 +1,3 @@
-/**
- * PlayerStatsService - Estatísticas globais/persistentes do jogador
- * (diferente de StatisticsService que é por sessão)
- */
 export class PlayerStatsService {
   constructor(gameRepository) {
     this.gameRepository = gameRepository;
@@ -11,25 +7,22 @@ export class PlayerStatsService {
   loadStats() {
     const saved = this.gameRepository.load('playerStats');
     return saved || {
-      // Totais
+
       gamesPlayed: 0,
       linesCleared: 0,
       piecesPlaced: 0,
       tSpins: 0,
       backToBack: 0,
-      totalPlayTime: 0, // em segundos
-      
-      // Recordes
+      totalPlayTime: 0,
+
       highScore: 0,
       maxLevel: 0,
       maxCombo: 0,
-      longestGame: 0, // em segundos
+      longestGame: 0,
       mostLinesInGame: 0,
-      
-      // Última atualização
+
       lastUpdated: new Date().toISOString(),
-      
-      // Streak
+
       lastPlayedDate: null,
       currentStreak: 0,
       longestStreak: 0
@@ -45,7 +38,6 @@ export class PlayerStatsService {
     return { ...this.stats };
   }
 
-  // Update stats after a game
   updateAfterGame(gameData) {
     this.stats.gamesPlayed += 1;
     this.stats.linesCleared += gameData.linesCleared || 0;
@@ -53,8 +45,7 @@ export class PlayerStatsService {
     this.stats.tSpins += gameData.tSpins || 0;
     this.stats.backToBack += gameData.backToBack || 0;
     this.stats.totalPlayTime += gameData.playTime || 0;
-    
-    // Update records
+
     if (gameData.score > this.stats.highScore) {
       this.stats.highScore = gameData.score;
     }
@@ -70,47 +61,45 @@ export class PlayerStatsService {
     if (gameData.linesCleared > this.stats.mostLinesInGame) {
       this.stats.mostLinesInGame = gameData.linesCleared;
     }
-    
-    // Update streak
+
     this.updateStreak();
-    
+
     this.save();
   }
 
   updateStreak() {
     const today = new Date().toDateString();
     const lastPlayed = this.stats.lastPlayedDate;
-    
+
     if (lastPlayed === today) {
-      // Already played today, no streak change
+
       return;
     }
-    
+
     if (!lastPlayed) {
-      // First time playing
+
       this.stats.currentStreak = 1;
       this.stats.longestStreak = 1;
     } else {
       const lastDate = new Date(lastPlayed);
       const todayDate = new Date(today);
       const daysDiff = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
-      
+
       if (daysDiff === 1) {
-        // Consecutive day
+
         this.stats.currentStreak += 1;
         if (this.stats.currentStreak > this.stats.longestStreak) {
           this.stats.longestStreak = this.stats.currentStreak;
         }
       } else {
-        // Streak broken
+
         this.stats.currentStreak = 1;
       }
     }
-    
+
     this.stats.lastPlayedDate = today;
   }
 
-  // Increment specific stats during gameplay
   incrementStat(statName, amount = 1) {
     if (this.stats.hasOwnProperty(statName)) {
       this.stats[statName] += amount;
@@ -118,7 +107,6 @@ export class PlayerStatsService {
     }
   }
 
-  // Update record if value is higher
   updateRecord(recordName, value) {
     if (this.stats.hasOwnProperty(recordName)) {
       if (value > this.stats[recordName]) {
@@ -151,3 +139,4 @@ export class PlayerStatsService {
     this.save();
   }
 }
+

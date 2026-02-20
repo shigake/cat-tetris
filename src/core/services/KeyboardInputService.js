@@ -1,11 +1,5 @@
 import { IKeyboardInputService } from '../../interfaces/IKeyboardInputService.js';
 
-/**
- * KeyboardInputService with DAS/ARR (Delayed Auto-Shift / Auto-Repeat Rate)
- * - DAS: delay before auto-repeat starts (ms)
- * - ARR: interval between auto-repeat moves (ms)
- * Only moveLeft/moveRight/moveDown use DAS/ARR.
- */
 export class KeyboardInputService extends IKeyboardInputService {
   constructor() {
     super();
@@ -34,16 +28,13 @@ export class KeyboardInputService extends IKeyboardInputService {
     this.handlers = new Map();
     this.isListening = false;
 
-    // DAS / ARR settings (ms) — Tetris Guideline defaults
-    this.das = 167;  // Delayed Auto-Shift (~10 frames @ 60fps)
-    this.arr = 33;   // Auto-Repeat Rate  (~2 frames @ 60fps)
-    this.sdf = 5;    // Soft Drop Factor (multiplied by normal gravity)
+    this.das = 167;
+    this.arr = 33;
+    this.sdf = 5;
 
-    // DAS/ARR applicable actions
     this._dasActions = new Set(['moveLeft', 'moveRight', 'moveDown']);
 
-    // Track pressed keys for DAS/ARR
-    this._pressedKeys = new Map(); // key -> { action, dasTimer, arrTimer, dasTriggered }
+    this._pressedKeys = new Map();
     this._rafId = null;
     this._lastTime = 0;
   }
@@ -73,7 +64,7 @@ export class KeyboardInputService extends IKeyboardInputService {
   _fireAction(action) {
     if (this.handlers.has(action)) {
       this.handlers.get(action).forEach(handler => {
-        try { handler(); } catch (e) { console.error(`Handler error [${action}]:`, e); }
+        try { handler(); } catch (e) {  }
       });
     }
   }
@@ -103,16 +94,14 @@ export class KeyboardInputService extends IKeyboardInputService {
     if (this.preventDefaultKeys.includes(event.key)) {
       event.preventDefault();
     }
-    // Ignore browser auto-repeat
+
     if (event.repeat) return;
 
     const action = this.keyMappings[event.key];
     if (!action) return;
 
-    // Fire immediately on keydown
     this._fireAction(action);
 
-    // Start DAS/ARR tracking for applicable actions
     if (this._dasActions.has(action)) {
       this._pressedKeys.set(event.key, {
         action,
@@ -156,7 +145,7 @@ export class KeyboardInputService extends IKeyboardInputService {
         if (state.dasTimer >= this.das) {
           state.dasTriggered = true;
           state.arrTimer = 0;
-          // If ARR is 0, instant move (0-ARR = teleport)
+
           if (this.arr === 0) {
             for (let i = 0; i < 20; i++) this._fireAction(state.action);
           } else {
@@ -194,4 +183,4 @@ export class KeyboardInputService extends IKeyboardInputService {
     this.handlers.clear();
     this.stopListening();
   }
-} 
+}

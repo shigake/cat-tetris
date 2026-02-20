@@ -2,9 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
 
-/**
- * Hook para gerenciar conquistas
- */
 export function useAchievements() {
   const [achievements, setAchievements] = useState([]);
   const [newUnlocks, setNewUnlocks] = useState([]);
@@ -16,23 +13,20 @@ export function useAchievements() {
       setAchievements(achievementsService.getAchievements());
       setLoading(false);
 
-      // Check achievements periodically
       const checkInterval = setInterval(() => {
         const playerStatsService = serviceContainer.resolve('playerStatsService');
         const stats = playerStatsService.getStats();
-        
+
         const unlocked = achievementsService.checkAchievements(stats);
-        
+
         if (unlocked.length > 0) {
           setAchievements(achievementsService.getAchievements());
           setNewUnlocks(unlocked);
-          
-          // Dispatch event for UI notification
-          window.dispatchEvent(new CustomEvent('achievementsUnlocked', { 
-            detail: unlocked 
+
+          window.dispatchEvent(new CustomEvent('achievementsUnlocked', {
+            detail: unlocked
           }));
-          
-          // Clear new unlocks after 5 seconds
+
           setTimeout(() => {
             setNewUnlocks([]);
           }, 5000);
@@ -41,7 +35,7 @@ export function useAchievements() {
 
       return () => clearInterval(checkInterval);
     } catch (error) {
-      console.error('Failed to initialize achievements service:', error);
+
       setLoading(false);
     }
   }, []);
@@ -51,7 +45,7 @@ export function useAchievements() {
       const achievementsService = serviceContainer.resolve('achievementsService');
       return achievementsService.getByTier(tier);
     } catch (error) {
-      console.error('Failed to get achievements by tier:', error);
+
       return [];
     }
   }, []);
@@ -61,7 +55,7 @@ export function useAchievements() {
       const achievementsService = serviceContainer.resolve('achievementsService');
       return achievementsService.getUnlocked();
     } catch (error) {
-      console.error('Failed to get unlocked achievements:', error);
+
       return [];
     }
   }, []);
@@ -71,7 +65,7 @@ export function useAchievements() {
       const achievementsService = serviceContainer.resolve('achievementsService');
       return achievementsService.getLocked();
     } catch (error) {
-      console.error('Failed to get locked achievements:', error);
+
       return [];
     }
   }, []);
@@ -81,7 +75,7 @@ export function useAchievements() {
       const achievementsService = serviceContainer.resolve('achievementsService');
       return achievementsService.getStats();
     } catch (error) {
-      console.error('Failed to get achievements stats:', error);
+
       return null;
     }
   }, []);
@@ -96,3 +90,4 @@ export function useAchievements() {
     getStats
   };
 }
+

@@ -87,4 +87,4 @@ export function useSettings() {
     updateSetting,
     resetSettings
   };
-} 
+}

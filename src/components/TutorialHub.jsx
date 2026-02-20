@@ -34,7 +34,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
   const isUnlocked   = (id) => progress.unlockedLessons.includes(id);
   const isCompleted   = (id) => progress.completedLessons.includes(id);
 
-  // ── Lesson Player ──
   if (selectedLesson) {
     return (
       <LessonPlayer
@@ -58,7 +57,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
     >
       <div className="min-h-screen max-w-lg mx-auto px-4 py-6 flex flex-col">
 
-        {/* ── Header ── */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-extrabold text-white">📚 Tutorial</h1>
@@ -72,7 +70,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
           </button>
         </div>
 
-        {/* ── Progress bar ── */}
         <div className="mb-6">
           <div className="flex justify-between text-xs text-white/40 mb-1.5">
             <span>Progresso geral</span>
@@ -88,7 +85,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
           </div>
         </div>
 
-        {/* ── Module Tabs ── */}
         <div className="flex gap-1.5 mb-5 overflow-x-auto pb-1 -mx-1 px-1">
           {modules.map((mod) => {
             const mp = getModuleProgress(mod.key);
@@ -119,7 +115,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
           })}
         </div>
 
-        {/* ── Lessons List ── */}
         <div className="flex-1 space-y-2">
           <AnimatePresence mode="wait">
             <motion.div
@@ -148,7 +143,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
                         : 'bg-white/[0.02] border border-white/[0.03] opacity-40 cursor-not-allowed'
                     } ${completed ? 'border-emerald-500/30' : ''}`}
                   >
-                    {/* Left: status icon */}
+
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${
                       completed
                         ? 'bg-emerald-500/20 text-emerald-400'
@@ -159,7 +154,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
                       {completed ? '✓' : unlocked ? (idx + 1) : '🔒'}
                     </div>
 
-                    {/* Center: info */}
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-white truncate">{lesson.title}</div>
                       <div className="text-xs text-white/35 mt-0.5 truncate">{lesson.description}</div>
@@ -170,7 +164,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
                       </div>
                     </div>
 
-                    {/* Right: difficulty dot + arrow */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`w-2 h-2 rounded-full ${
                         lesson.difficulty === 'beginner'      ? 'bg-green-400' :
@@ -197,7 +190,6 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
           </AnimatePresence>
         </div>
 
-        {/* ── Badges (collapsed, only if any) ── */}
         {progress.badges.length > 0 && (
           <div className="mt-6 pt-4 border-t border-white/[0.06]">
             <div className="text-xs text-white/30 mb-2">Badges conquistadas</div>
@@ -219,3 +211,4 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
 }
 
 export default TutorialHub;
+

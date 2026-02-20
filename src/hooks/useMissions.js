@@ -3,9 +3,6 @@ import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
 import { MISSION_TYPES } from '../core/services/MissionsService.js';
 
-/**
- * Hook para gerenciar missões diárias
- */
 export function useMissions() {
   const [missions, setMissions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,12 +13,10 @@ export function useMissions() {
       setMissions(missionsService.getMissions());
       setLoading(false);
 
-      // Update missions when game events happen
       const updateMissions = () => {
         setMissions(missionsService.getMissions());
       };
 
-      // Listen to game events and update mission progress
       const handleLineCleared = ({ linesCleared }) => {
         missionsService.incrementProgress(MISSION_TYPES.CLEAR_LINES, linesCleared);
         if (linesCleared === 4) {
@@ -72,12 +67,11 @@ export function useMissions() {
         gameEvents.off(GAME_EVENTS.BACK_TO_BACK, handleBackToBack);
       };
     } catch (error) {
-      console.error('Failed to initialize missions service:', error);
+
       setLoading(false);
     }
   }, []);
 
-  // Update survive time mission
   useEffect(() => {
     if (loading) return;
 
@@ -86,13 +80,13 @@ export function useMissions() {
         const missionsService = serviceContainer.resolve('missionsService');
         const statisticsService = serviceContainer.resolve('statisticsService');
         const stats = statisticsService.getStats();
-        
+
         if (stats.playTime > 0) {
           missionsService.updateProgress(MISSION_TYPES.SURVIVE_TIME, stats.playTime);
           setMissions(missionsService.getMissions());
         }
       } catch (error) {
-        console.error('Failed to update survive time mission:', error);
+
       }
     }, 1000);
 
@@ -103,15 +97,15 @@ export function useMissions() {
     try {
       const missionsService = serviceContainer.resolve('missionsService');
       const result = missionsService.claimReward(missionId);
-      
+
       if (result.success) {
         setMissions(missionsService.getMissions());
         window.dispatchEvent(new Event('currencyUpdated'));
       }
-      
+
       return result;
     } catch (error) {
-      console.error('Failed to claim reward:', error);
+
       return { success: false, error: error.message };
     }
   }, []);
@@ -121,7 +115,7 @@ export function useMissions() {
       const missionsService = serviceContainer.resolve('missionsService');
       return missionsService.getStats();
     } catch (error) {
-      console.error('Failed to get missions stats:', error);
+
       return null;
     }
   }, []);
@@ -133,3 +127,4 @@ export function useMissions() {
     getMissionsStats
   };
 }
+

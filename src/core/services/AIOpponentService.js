@@ -1,15 +1,9 @@
-/**
- * AIOpponentService - IA adversária com múltiplos níveis
- * Works with Piece entities that have: type, shape, color, emoji, position: {x,y}
- * Board is a 2D array (20 rows x 10 cols), null = empty, non-null = filled
- */
-
 export class AIOpponentService {
   constructor() {
     this.difficulty = 'medium';
     this.thinkingTime = 100;
     this.lastDecision = Date.now();
-    // Persistent action queue: once AI picks a target, execute the full sequence
+
     this._actionQueue = [];
   }
 
@@ -23,11 +17,6 @@ export class AIOpponentService {
     }
   }
 
-  /**
-   * Decide the next single action for the AI.
-   * Uses an internal action queue: evaluates the best placement once,
-   * then feeds one action per call until the queue is drained.
-   */
   decideNextMove(gameState) {
     const now = Date.now();
     if (now - this.lastDecision < this.thinkingTime) return null;
@@ -36,12 +25,10 @@ export class AIOpponentService {
     const { currentPiece, board } = gameState;
     if (!currentPiece) return null;
 
-    // If we still have queued actions for THIS piece, return next
     if (this._actionQueue.length > 0) {
       return this._actionQueue.shift();
     }
 
-    // Evaluate best placement and build a new action queue
     try {
       const bestMove = this._findBestMove(currentPiece, board);
       if (!bestMove) return { action: 'down' };
@@ -52,7 +39,7 @@ export class AIOpponentService {
         bestMove.targetX
       );
     } catch (e) {
-      // Fallback: just drop
+
       this._actionQueue = [{ action: 'drop' }];
     }
 
@@ -61,36 +48,29 @@ export class AIOpponentService {
       : { action: 'down' };
   }
 
-  // ─── Core evaluation ───────────────────────────────────────
-
   _findBestMove(piece, board) {
     let bestScore = -Infinity;
     let bestMove = null;
     const boardHeight = board.length;
     const boardWidth = board[0]?.length || 10;
 
-    // Try 0-3 rotations
     for (let rot = 0; rot < 4; rot++) {
       const rotatedShape = this._rotateShape(piece.shape, rot);
       const pieceW = rotatedShape[0].length;
       const pieceH = rotatedShape.length;
 
-      // Try every valid column
       for (let col = -1; col <= boardWidth - pieceW + 1; col++) {
-        // Drop the shape to find landing row
-        const landingRow = this._findLandingRow(rotatedShape, board, col, boardHeight, boardWidth);
-        if (landingRow === null) continue; // invalid placement
 
-        // Check if the placement is fully on the board
+        const landingRow = this._findLandingRow(rotatedShape, board, col, boardHeight, boardWidth);
+        if (landingRow === null) continue;
+
         if (landingRow < 0) continue;
 
-        // Simulate placing
         const simBoard = this._placeOnBoard(rotatedShape, board, col, landingRow);
         if (!simBoard) continue;
 
         let score = this._evaluateBoard(simBoard, piece);
 
-        // Difficulty-based noise
         if (this.difficulty === 'easy') {
           score += (Math.random() - 0.5) * 1000;
         } else if (this.difficulty === 'medium' && Math.random() < 0.15) {
@@ -135,18 +115,14 @@ export class AIOpponentService {
     return score;
   }
 
-  // ─── Action sequence builder ───────────────────────────────
-
   _buildActionSequence(currentPiece, targetRotations, targetX) {
     const actions = [];
 
-    // Rotations first
     const rots = targetRotations % 4;
     for (let i = 0; i < rots; i++) {
       actions.push({ action: 'rotate' });
     }
 
-    // Horizontal movement — use piece position.x as reference
     const currentX = currentPiece.position?.x ?? 3;
     const diff = targetX - currentX;
     const dir = diff > 0 ? 'right' : 'left';
@@ -154,13 +130,10 @@ export class AIOpponentService {
       actions.push({ action: dir });
     }
 
-    // Hard drop at the end
     actions.push({ action: 'drop' });
 
     return actions;
   }
-
-  // ─── Shape manipulation helpers ────────────────────────────
 
   _rotateShape(shape, times) {
     let s = shape;
@@ -174,13 +147,12 @@ export class AIOpponentService {
     const pieceH = shape.length;
     const pieceW = shape[0].length;
 
-    // Start from top and move down until collision
     for (let row = -pieceH; row < boardHeight; row++) {
       if (this._collides(shape, board, col, row + 1, boardHeight, boardWidth)) {
-        return row; // land at 'row'
+        return row;
       }
     }
-    return boardHeight - pieceH; // bottom
+    return boardHeight - pieceH;
   }
 
   _collides(shape, board, col, row, boardHeight, boardWidth) {
@@ -208,13 +180,11 @@ export class AIOpponentService {
         const by = row + sy;
         if (bx < 0 || bx >= boardWidth || by < 0 || by >= boardHeight) return null;
         if (newBoard[by][bx] != null) return null;
-        newBoard[by][bx] = 1; // mark filled
+        newBoard[by][bx] = 1;
       }
     }
     return newBoard;
   }
-
-  // ─── Board evaluation helpers ──────────────────────────────
 
   countCompletedLines(board) {
     let count = 0;
@@ -304,8 +274,6 @@ export class AIOpponentService {
            board[y - 1][x] == null;
   }
 
-  // ─── Public helpers ────────────────────────────────────────
-
   getDifficulties() {
     return [
       { id: 'easy', name: 'Fácil', emoji: '🐱', description: 'IA iniciante' },
@@ -315,3 +283,4 @@ export class AIOpponentService {
     ];
   }
 }
+

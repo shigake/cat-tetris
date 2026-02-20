@@ -26,4 +26,4 @@ export class PausedState extends IGameState {
   getName() {
     return 'paused';
   }
-} 
+}

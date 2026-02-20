@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
-/**
- * Hook para gerenciar loja de temas
- */
 export function useShop() {
   const [themes, setThemes] = useState([]);
   const [equippedTheme, setEquippedTheme] = useState(null);
@@ -16,13 +13,11 @@ export function useShop() {
       setEquippedTheme(shopService.getEquippedTheme());
       setLoading(false);
 
-      // Listen for theme changes
       const handleThemeEquipped = (event) => {
         setEquippedTheme(event.detail.theme);
         setThemes(shopService.getAllThemes());
       };
 
-      // Listen for currency changes (affects affordability)
       const handleCurrencyUpdate = () => {
         setThemes(shopService.getAllThemes());
       };
@@ -35,7 +30,7 @@ export function useShop() {
         window.removeEventListener('currencyUpdated', handleCurrencyUpdate);
       };
     } catch (error) {
-      console.error('Failed to initialize shop service:', error);
+
       setLoading(false);
     }
   }, []);
@@ -44,15 +39,15 @@ export function useShop() {
     try {
       const shopService = serviceContainer.resolve('shopService');
       const result = shopService.purchaseTheme(themeId);
-      
+
       if (result.success) {
         setThemes(shopService.getAllThemes());
         window.dispatchEvent(new Event('currencyUpdated'));
       }
-      
+
       return result;
     } catch (error) {
-      console.error('Failed to purchase theme:', error);
+
       return { success: false, error: error.message };
     }
   }, []);
@@ -61,15 +56,15 @@ export function useShop() {
     try {
       const shopService = serviceContainer.resolve('shopService');
       const result = shopService.equipTheme(themeId);
-      
+
       if (result.success) {
         setEquippedTheme(result.theme);
         setThemes(shopService.getAllThemes());
       }
-      
+
       return result;
     } catch (error) {
-      console.error('Failed to equip theme:', error);
+
       return { success: false, error: error.message };
     }
   }, []);
@@ -79,7 +74,7 @@ export function useShop() {
       const shopService = serviceContainer.resolve('shopService');
       return shopService.getStats();
     } catch (error) {
-      console.error('Failed to get shop stats:', error);
+
       return null;
     }
   }, []);
@@ -93,3 +88,4 @@ export function useShop() {
     getStats
   };
 }
+

@@ -1,23 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * CelebrationParticles - Confetti animado para celebrar conquistas
- */
 function CelebrationParticles({ show, onComplete }) {
   const [particles, setParticles] = useState([]);
 
   useEffect(() => {
     if (!show) return;
 
-    // Gerar 50 partículas com posições e cores aleatórias
     const newParticles = Array.from({ length: 50 }, (_, i) => ({
       id: i,
       x: Math.random() * window.innerWidth,
       y: -20,
       rotation: Math.random() * 360,
       color: [
-        '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', 
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
         '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'
       ][Math.floor(Math.random() * 8)],
       size: Math.random() * 10 + 5,
@@ -28,7 +24,6 @@ function CelebrationParticles({ show, onComplete }) {
 
     setParticles(newParticles);
 
-    // Limpar após animação
     const timer = setTimeout(() => {
       setParticles([]);
       if (onComplete) onComplete();
@@ -74,16 +69,12 @@ function CelebrationParticles({ show, onComplete }) {
   );
 }
 
-/**
- * SuccessFireworks - Fogos de artifício para grandes conquistas
- */
 export function SuccessFireworks({ show, onComplete }) {
   const [bursts, setBursts] = useState([]);
 
   useEffect(() => {
     if (!show) return;
 
-    // Criar 5 explosões em posições aleatórias
     const newBursts = Array.from({ length: 5 }, (_, i) => ({
       id: i,
       x: Math.random() * (window.innerWidth - 200) + 100,
@@ -150,9 +141,6 @@ export function SuccessFireworks({ show, onComplete }) {
   );
 }
 
-/**
- * SparkleEffect - Efeito de brilho para highlights
- */
 export function SparkleEffect({ x, y, show }) {
   if (!show) return null;
 
@@ -177,3 +165,4 @@ export function SparkleEffect({ x, y, show }) {
 }
 
 export default CelebrationParticles;
+

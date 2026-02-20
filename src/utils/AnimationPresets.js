@@ -1,8 +1,3 @@
-/**
- * AnimationPresets - Presets de animações reutilizáveis
- */
-
-// Page transitions
 export const pageTransition = {
   initial: { opacity: 0, scale: 0.95 },
   animate: { opacity: 1, scale: 1 },
@@ -31,7 +26,6 @@ export const slideInFromLeft = {
   transition: { duration: 0.3, ease: 'easeInOut' }
 };
 
-// Component animations
 export const scaleIn = {
   initial: { scale: 0, opacity: 0 },
   animate: { scale: 1, opacity: 1 },
@@ -50,7 +44,6 @@ export const fadeIn = {
   transition: { duration: 0.3 }
 };
 
-// Hover animations
 export const hoverScale = {
   whileHover: { scale: 1.05 },
   whileTap: { scale: 0.95 },
@@ -58,7 +51,7 @@ export const hoverScale = {
 };
 
 export const hoverGlow = {
-  whileHover: { 
+  whileHover: {
     boxShadow: '0 0 20px rgba(255, 255, 255, 0.5)',
     scale: 1.02
   },
@@ -71,7 +64,6 @@ export const hoverLift = {
   transition: { type: 'spring', stiffness: 400, damping: 17 }
 };
 
-// List stagger
 export const staggerContainer = {
   animate: {
     transition: {
@@ -86,7 +78,6 @@ export const staggerItem = {
   transition: { duration: 0.3 }
 };
 
-// Loading animations
 export const pulseAnimation = {
   animate: {
     scale: [1, 1.05, 1],
@@ -110,7 +101,6 @@ export const spinAnimation = {
   }
 };
 
-// Success/Error animations
 export const successShake = {
   animate: {
     x: [0, -10, 10, -10, 10, 0],
@@ -132,7 +122,6 @@ export const errorShake = {
   }
 };
 
-// Number count up animation
 export const numberCountUp = (from, to, duration = 1) => ({
   from,
   to,
@@ -140,7 +129,6 @@ export const numberCountUp = (from, to, duration = 1) => ({
   onUpdate: (latest) => latest
 });
 
-// Gradient shift animation
 export const gradientShift = {
   animate: {
     backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
@@ -155,14 +143,13 @@ export const gradientShift = {
   }
 };
 
-// Particle/confetti animations
 export const confettiPiece = (delay = 0) => ({
-  initial: { 
-    y: -100, 
-    rotate: 0, 
-    opacity: 1 
+  initial: {
+    y: -100,
+    rotate: 0,
+    opacity: 1
   },
-  animate: { 
+  animate: {
     y: window.innerHeight + 100,
     rotate: 720,
     opacity: 0
@@ -174,7 +161,6 @@ export const confettiPiece = (delay = 0) => ({
   }
 });
 
-// Modal/overlay animations
 export const modalBackdrop = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
@@ -189,14 +175,12 @@ export const modalContent = {
   transition: { type: 'spring', damping: 25, stiffness: 300 }
 };
 
-// Card flip animation
 export const cardFlip = {
   initial: { rotateY: 0 },
   animate: { rotateY: 180 },
   transition: { duration: 0.6 }
 };
 
-// Tooltip animations
 export const tooltipFade = {
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: 0 },
@@ -229,3 +213,4 @@ export default {
   cardFlip,
   tooltipFade
 };
+

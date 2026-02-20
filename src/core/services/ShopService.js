@@ -1,8 +1,3 @@
-/**
- * ShopService - Gerencia loja de itens cosméticos
- */
-
-// Catálogo de temas de peças
 export const PIECE_THEMES = {
   classic: {
     id: 'classic',
@@ -184,7 +179,7 @@ export class ShopService {
   loadInventory() {
     const saved = this.gameRepository.load('shopInventory');
     if (saved) {
-      // Ensure free default themes are always owned
+
       const freeThemes = Object.values(PIECE_THEMES)
         .filter(t => t.price === 0)
         .map(t => t.id);
@@ -199,7 +194,7 @@ export class ShopService {
       return saved;
     }
     return {
-      ownedThemes: ['cats', 'classic'], // Default themes
+      ownedThemes: ['cats', 'classic'],
       equippedTheme: 'cats',
       purchaseHistory: []
     };
@@ -209,7 +204,6 @@ export class ShopService {
     this.gameRepository.save('shopInventory', this.inventory);
   }
 
-  // Get all available themes
   getAllThemes() {
     return Object.values(PIECE_THEMES).map(theme => ({
       ...theme,
@@ -218,25 +212,21 @@ export class ShopService {
     }));
   }
 
-  // Get owned themes
   getOwnedThemes() {
     return this.inventory.ownedThemes.map(id => PIECE_THEMES[id]);
   }
 
-  // Get equipped theme
   getEquippedTheme() {
     return PIECE_THEMES[this.inventory.equippedTheme];
   }
 
-  // Check if theme is owned
   ownsTheme(themeId) {
     return this.inventory.ownedThemes.includes(themeId);
   }
 
-  // Purchase theme
   purchaseTheme(themeId) {
     const theme = PIECE_THEMES[themeId];
-    
+
     if (!theme) {
       return { success: false, error: 'Theme not found' };
     }
@@ -249,9 +239,8 @@ export class ShopService {
       return { success: false, error: 'Insufficient funds' };
     }
 
-    // Purchase
     const success = this.currencyService.spendFish(theme.price, `Theme: ${theme.name}`);
-    
+
     if (success) {
       this.inventory.ownedThemes.push(themeId);
       this.inventory.purchaseHistory.push({
@@ -260,15 +249,13 @@ export class ShopService {
         price: theme.price
       });
       this.save();
-      
-      console.log(`✅ Tema comprado: ${theme.name}`);
+
       return { success: true, theme };
     }
 
     return { success: false, error: 'Purchase failed' };
   }
 
-  // Equip theme
   equipTheme(themeId) {
     if (!this.ownsTheme(themeId)) {
       return { success: false, error: 'Theme not owned' };
@@ -276,19 +263,16 @@ export class ShopService {
 
     this.inventory.equippedTheme = themeId;
     this.save();
-    
+
     const theme = PIECE_THEMES[themeId];
-    console.log(`🎨 Tema equipado: ${theme.name}`);
-    
-    // Dispatch event for UI update
-    window.dispatchEvent(new CustomEvent('themeEquipped', { 
-      detail: { themeId, theme } 
+
+    window.dispatchEvent(new CustomEvent('themeEquipped', {
+      detail: { themeId, theme }
     }));
-    
+
     return { success: true, theme };
   }
 
-  // Get stats
   getStats() {
     return {
       totalThemes: Object.keys(PIECE_THEMES).length,
@@ -298,7 +282,6 @@ export class ShopService {
     };
   }
 
-  // Reset (for testing)
   reset() {
     this.inventory = {
       ownedThemes: ['cats'],
@@ -308,3 +291,4 @@ export class ShopService {
     this.save();
   }
 }
+

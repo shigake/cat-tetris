@@ -45,4 +45,4 @@ export class SoundService {
   }
 }
 
-export const soundService = new SoundService(); 
+export const soundService = new SoundService();

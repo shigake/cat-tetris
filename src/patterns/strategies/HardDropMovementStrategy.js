@@ -25,4 +25,4 @@ export class HardDropMovementStrategy extends BaseMovementStrategy {
 
     return { piece: droppedPiece, dropDistance };
   }
-} 
+}

@@ -17,7 +17,7 @@ export class SettingsService extends ISettingsService {
       const saved = localStorage.getItem(this.storageKey);
       return saved ? { ...this.defaultSettings, ...JSON.parse(saved) } : this.defaultSettings;
     } catch (error) {
-      console.error('Error loading settings:', error);
+
       return this.defaultSettings;
     }
   }
@@ -28,7 +28,7 @@ export class SettingsService extends ISettingsService {
       localStorage.setItem(this.storageKey, JSON.stringify(mergedSettings));
       return mergedSettings;
     } catch (error) {
-      console.error('Error saving settings:', error);
+
       throw new Error('Failed to save settings');
     }
   }
@@ -38,7 +38,7 @@ export class SettingsService extends ISettingsService {
       localStorage.removeItem(this.storageKey);
       return this.defaultSettings;
     } catch (error) {
-      console.error('Error resetting settings:', error);
+
       throw new Error('Failed to reset settings');
     }
   }
@@ -48,4 +48,4 @@ export class SettingsService extends ISettingsService {
     const updatedSettings = { ...currentSettings, [key]: value };
     return this.saveSettings(updatedSettings);
   }
-} 
+}

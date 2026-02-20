@@ -24,4 +24,4 @@ export class GameOverState extends IGameState {
   getName() {
     return 'gameOver';
   }
-} 
+}

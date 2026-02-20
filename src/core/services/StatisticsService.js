@@ -76,4 +76,4 @@ export class StatisticsService extends IStatisticsService {
   getSessionDuration() {
     return Date.now() - this.sessionStartTime;
   }
-} 
+}

@@ -20,96 +20,95 @@ import { TutorialService } from '../services/TutorialService.js';
 
 export function registerServices(container = new DIContainer()) {
   container.registerSingleton('gameRepository', () => new LocalStorageRepository());
-  
+
   container.registerSingleton('settingsService', () => new SettingsService());
-  
+
   container.registerSingleton('statisticsService', () => new StatisticsService());
-  
+
   container.registerSingleton('scoringService', () => new ScoringService());
-  
+
   container.registerSingleton('pieceFactory', () => {
     const factory = new PieceFactory();
     return factory;
   });
-  
+
   container.registerSingleton('movementStrategyFactory', () => {
     const factory = new MovementStrategyFactory();
     return factory;
   });
-  
+
   container.registerSingleton('keyboardInputService', () => new KeyboardInputService());
-  
-  // New progression services
+
   container.registerSingleton(
     'playerStatsService',
     (gameRepository) => new PlayerStatsService(gameRepository),
     ['gameRepository']
   );
-  
+
   container.registerSingleton(
     'currencyService',
     (gameRepository) => new CurrencyService(gameRepository),
     ['gameRepository']
   );
-  
+
   container.registerSingleton(
     'missionsService',
     (gameRepository, currencyService) => new MissionsService(gameRepository, currencyService),
     ['gameRepository', 'currencyService']
   );
-  
+
   container.registerSingleton(
     'achievementsService',
-    (gameRepository, currencyService, playerStatsService) => 
+    (gameRepository, currencyService, playerStatsService) =>
       new AchievementsService(gameRepository, currencyService, playerStatsService),
     ['gameRepository', 'currencyService', 'playerStatsService']
   );
-  
+
   container.registerSingleton(
     'shopService',
     (gameRepository, currencyService) => new ShopService(gameRepository, currencyService),
     ['gameRepository', 'currencyService']
   );
-  
+
   container.registerSingleton(
     'gameModesService',
     (gameRepository) => new GameModesService(gameRepository),
     ['gameRepository']
   );
-  
+
   container.registerSingleton(
     'leaderboardService',
-    (gameRepository, playerStatsService) => 
+    (gameRepository, playerStatsService) =>
       new LeaderboardService(gameRepository, playerStatsService),
     ['gameRepository', 'playerStatsService']
   );
-  
+
   container.registerSingleton(
     'shareService',
     (playerStatsService) => new ShareService(playerStatsService),
     ['playerStatsService']
   );
-  
+
   container.registerSingleton(
     'aiOpponentService',
     () => new AIOpponentService()
   );
-  
+
   container.registerSingleton(
     'multiplayerService',
     (gameRepository) => new MultiplayerService(gameRepository),
     ['gameRepository']
   );
-  
+
   container.registerSingleton(
     'tutorialService',
     (gameRepository) => new TutorialService(gameRepository),
     ['gameRepository']
   );
-  
+
   container.registerSingleton(
     'gameService',
-    (pieceFactory, movementStrategyFactory, gameRepository, scoringService) => 
+    (pieceFactory, movementStrategyFactory, gameRepository, scoringService) =>
       new GameService(pieceFactory, movementStrategyFactory, gameRepository, scoringService),
     ['pieceFactory', 'movementStrategyFactory', 'gameRepository', 'scoringService']
   );
@@ -117,4 +116,4 @@ export function registerServices(container = new DIContainer()) {
   return container;
 }
 
-export const serviceContainer = registerServices(); 
+export const serviceContainer = registerServices();

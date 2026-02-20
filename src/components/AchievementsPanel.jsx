@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAchievements } from '../hooks/useAchievements';
 
-/**
- * AchievementsPanel - Mostra conquistas do jogador
- */
 function AchievementsPanel({ onClose }) {
   const { achievements, loading, getStats, getAchievementsByTier } = useAchievements();
   const [selectedTier, setSelectedTier] = useState('all');
-  
+
   const stats = getStats();
 
   const tierColors = {
@@ -25,8 +22,8 @@ function AchievementsPanel({ onClose }) {
     platinum: '💎'
   };
 
-  const filteredAchievements = selectedTier === 'all' 
-    ? achievements 
+  const filteredAchievements = selectedTier === 'all'
+    ? achievements
     : getAchievementsByTier(selectedTier);
 
   if (loading) {
@@ -52,7 +49,7 @@ function AchievementsPanel({ onClose }) {
         className="bg-gradient-to-br from-indigo-900/95 to-purple-900/95 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -70,7 +67,6 @@ function AchievementsPanel({ onClose }) {
           </button>
         </div>
 
-        {/* Stats */}
         {stats && (
           <div className="bg-black/30 rounded-lg p-4 mb-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -99,8 +95,7 @@ function AchievementsPanel({ onClose }) {
                 <div className="text-white/60 text-sm">Total</div>
               </div>
             </div>
-            
-            {/* Tier breakdown */}
+
             <div className="flex justify-around mt-4 pt-4 border-t border-white/10">
               <div className="text-center">
                 <div className="text-lg">🥉</div>
@@ -122,7 +117,6 @@ function AchievementsPanel({ onClose }) {
           </div>
         )}
 
-        {/* Tier Filter */}
         <div className="flex gap-2 mb-4 overflow-x-auto">
           <button
             onClick={() => setSelectedTier('all')}
@@ -149,7 +143,6 @@ function AchievementsPanel({ onClose }) {
           ))}
         </div>
 
-        {/* Achievements Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredAchievements.map((achievement, index) => {
             const progress = achievement.progress || 0;
@@ -168,7 +161,7 @@ function AchievementsPanel({ onClose }) {
                     : 'border-white/10'
                 }`}
               >
-                {/* Unlocked overlay */}
+
                 {achievement.unlocked && (
                   <div className="absolute top-2 right-2 text-3xl">
                     ✓
@@ -190,15 +183,13 @@ function AchievementsPanel({ onClose }) {
                     }`}>
                       {achievement.description}
                     </p>
-                    
-                    {/* Reward */}
+
                     <div className={`flex items-center gap-1 text-sm font-bold ${
                       achievement.unlocked ? 'text-yellow-300' : 'text-white/40'
                     }`}>
                       🐟 {achievement.reward}
                     </div>
 
-                    {/* Progress (if locked) */}
                     {!achievement.unlocked && (
                       <div className="mt-2">
                         <div className="flex justify-between text-xs text-white/40 mb-1">
@@ -214,7 +205,6 @@ function AchievementsPanel({ onClose }) {
                       </div>
                     )}
 
-                    {/* Unlocked date */}
                     {achievement.unlocked && achievement.unlockedAt && (
                       <div className="text-xs text-white/60 mt-2">
                         Desbloqueado em {new Date(achievement.unlockedAt).toLocaleDateString()}
@@ -238,3 +228,4 @@ function AchievementsPanel({ onClose }) {
 }
 
 export default AchievementsPanel;
+

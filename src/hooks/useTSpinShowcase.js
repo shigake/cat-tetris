@@ -5,12 +5,8 @@ import { ScoringService } from '../core/services/ScoringService';
 import { TSpinExpertAI } from '../core/services/TSpinExpertAI';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer';
 
-const AI_MOVE_INTERVAL = 50; // ms between AI actions (fast, expert — needs to be quick for soft-drop sequences)
+const AI_MOVE_INTERVAL = 50;
 
-/**
- * useTSpinShowcase — runs a self-playing game with the T-Spin Expert AI.
- * Auto-restarts on game over so the showcase runs forever.
- */
 export function useTSpinShowcase(active) {
   const [gameState, setGameState] = useState(null);
   const [tspinCount, setTspinCount] = useState(0);
@@ -24,7 +20,6 @@ export function useTSpinShowcase(active) {
   const aiTimerRef = useRef(0);
   const tspinCountRef = useRef(0);
 
-  // Start / restart the game service
   const initGame = useCallback(() => {
     const svc = new GameService(
       new PieceFactory(),
@@ -48,7 +43,6 @@ export function useTSpinShowcase(active) {
     setIsRunning(true);
   }, []);
 
-  // Lifecycle
   useEffect(() => {
     if (!active) {
       if (loopRef.current) cancelAnimationFrame(loopRef.current);
@@ -62,7 +56,6 @@ export function useTSpinShowcase(active) {
 
     initGame();
 
-    // Listen for REAL T-Spins from the game engine (only fires for T pieces + lines cleared)
     const handleTSpin = () => {
       tspinCountRef.current++;
       setTspinCount(tspinCountRef.current);
@@ -79,7 +72,6 @@ export function useTSpinShowcase(active) {
     };
   }, [active, initGame]);
 
-  // Game loop
   useEffect(() => {
     if (!isRunning || !svcRef.current || !active) return;
 
@@ -88,26 +80,22 @@ export function useTSpinShowcase(active) {
       let dt = ts - lastTimeRef.current;
       lastTimeRef.current = ts;
 
-      // Cap delta to prevent huge gravity jumps after slow frames
       if (dt > 200) dt = 16;
 
       const svc = svcRef.current;
       const ai = aiRef.current;
       if (!svc || !ai) return;
 
-      // Auto-restart on game over
       if (svc.gameOver) {
         initGame();
         loopRef.current = requestAnimationFrame(loop);
         return;
       }
 
-      // Gravity
       if (svc.isPlaying && !svc.isPaused) {
         svc.updateGame(dt);
       }
 
-      // AI moves
       aiTimerRef.current += dt;
       if (aiTimerRef.current >= AI_MOVE_INTERVAL) {
         aiTimerRef.current = 0;
@@ -130,7 +118,7 @@ export function useTSpinShowcase(active) {
 
           setGameState(svc.getGameState());
         } catch (e) {
-          console.warn('[TSpinShowcase] AI error:', e);
+
         }
       }
 
@@ -150,3 +138,4 @@ export function useTSpinShowcase(active) {
 
   return { gameState, tspinCount, tspinFlash, isRunning, getDropPreview };
 }
+

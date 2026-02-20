@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const GamepadIndicator = ({ 
-  isConnected, 
-  controllerCount, 
+const GamepadIndicator = ({
+  isConnected,
+  controllerCount,
   gamepadInfo,
   className = ""
 }) => {
@@ -22,11 +22,11 @@ const GamepadIndicator = ({
       >
         <div className="flex items-center gap-2">
           <motion.div
-            animate={{ 
+            animate={{
               rotate: [0, -10, 10, -10, 0],
               scale: [1, 1.1, 1]
             }}
-            transition={{ 
+            transition={{
               duration: 2,
               repeat: Infinity,
               repeatDelay: 3
@@ -34,7 +34,7 @@ const GamepadIndicator = ({
           >
             🎮
           </motion.div>
-          
+
           <div className="text-sm">
             <div className="text-green-400 font-semibold">
               {controllerCount} Controle{controllerCount !== 1 ? 's' : ''} Conectado{controllerCount !== 1 ? 's' : ''}
@@ -68,7 +68,7 @@ const GamepadIndicator = ({
             >
               <div className="text-xs text-gray-300 space-y-1">
                 <div className="font-semibold text-white mb-2">🎮 Controles:</div>
-                
+
                 <div className="grid grid-cols-2 gap-1 text-xs">
                   <div>
                     <span className="text-yellow-400">D-Pad ← →</span>
@@ -143,4 +143,4 @@ const GamepadIndicator = ({
   );
 };
 
-export default GamepadIndicator; 
+export default GamepadIndicator;

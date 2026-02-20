@@ -16,7 +16,7 @@ class ErrorBoundary extends React.Component {
       stack: error.stack,
       componentStack: errorInfo?.componentStack
     });
-    // Salvar para acesso externo ao crashar
+
     errorLogger.saveForExternalAccess();
   }
 
@@ -54,4 +54,4 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-export default ErrorBoundary; 
+export default ErrorBoundary;

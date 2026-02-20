@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * Tutorial - Sistema de onboarding para novos jogadores
- */
 function Tutorial({ onComplete }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    // Check if user has seen tutorial
+
     const hasSeenTutorial = localStorage.getItem('catTetris_tutorialCompleted');
     if (!hasSeenTutorial) {
       setShow(true);
@@ -116,7 +113,7 @@ function Tutorial({ onComplete }) {
         exit={{ scale: 0.9, opacity: 0 }}
         className="bg-gradient-to-br from-purple-900/95 to-indigo-900/95 rounded-2xl p-8 max-w-lg w-full border-2 border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto"
       >
-        {/* Progress */}
+
         <div className="flex gap-2 mb-6">
           {steps.map((_, index) => (
             <div
@@ -128,7 +125,6 @@ function Tutorial({ onComplete }) {
           ))}
         </div>
 
-        {/* Title */}
         <motion.h2
           initial={{ y: -20 }}
           animate={{ y: 0 }}
@@ -137,7 +133,6 @@ function Tutorial({ onComplete }) {
           {step.title}
         </motion.h2>
 
-        {/* Description */}
         <motion.p
           initial={{ y: -10 }}
           animate={{ y: 0 }}
@@ -146,7 +141,6 @@ function Tutorial({ onComplete }) {
           {step.description}
         </motion.p>
 
-        {/* Tips */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -167,7 +161,6 @@ function Tutorial({ onComplete }) {
           ))}
         </motion.div>
 
-        {/* Buttons */}
         <div className="flex gap-3">
           {!isLastStep && (
             <button
@@ -185,7 +178,6 @@ function Tutorial({ onComplete }) {
           </button>
         </div>
 
-        {/* Step indicator */}
         <div className="text-center mt-4 text-white/40 text-sm">
           Passo {currentStep + 1} de {steps.length}
         </div>
@@ -195,3 +187,4 @@ function Tutorial({ onComplete }) {
 }
 
 export default Tutorial;
+

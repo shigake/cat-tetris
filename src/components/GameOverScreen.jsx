@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import ShareButtons from './ShareButtons';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
-  // Handle both number and object score
+
   const scoreValue = typeof score === 'number' ? score : score.points;
   const level = typeof score === 'object' ? score.level : 1;
   const lines = typeof score === 'object' ? score.lines : 0;
-  
+
   const getMotivationalMessage = (score) => {
     if (score < 1000) return "Não desista! Cada tentativa te torna melhor! 😸";
     if (score < 5000) return "Bom trabalho! Continue praticando! 😺";
@@ -44,7 +44,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
           >
             {getCatEmoji(scoreValue)}
           </motion.div>
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -53,7 +53,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
           >
             Game Over!
           </motion.h1>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -62,7 +62,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
           >
             {scoreValue.toLocaleString()} pontos
           </motion.div>
-          
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -71,21 +71,21 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
           >
             {getMotivationalMessage(scoreValue)}
           </motion.p>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55 }}
           >
-            <ShareButtons 
-              scoreData={{ 
+            <ShareButtons
+              scoreData={{
                 score: scoreValue,
                 level: level,
                 lines: lines
               }}
             />
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -100,7 +100,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             >
               🎮 Jogar Novamente
             </motion.button>
-            
+
             <motion.button
               onClick={onBackToMenu}
               whileHover={{ scale: 1.05 }}
@@ -110,7 +110,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
               🏠 Voltar ao Menu
             </motion.button>
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -126,4 +126,4 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
   );
 };
 
-export default GameOverScreen; 
+export default GameOverScreen;

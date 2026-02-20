@@ -6,7 +6,7 @@ export class Piece {
     this.emoji = emoji;
     this.position = position;
     this.isTSpin = isTSpin;
-    this.rotationState = rotationState; // 0-3 for SRS kick table lookups
+    this.rotationState = rotationState;
   }
 
   move(deltaX, deltaY) {
@@ -96,4 +96,4 @@ export class Piece {
     });
     return cells;
   }
-} 
+}

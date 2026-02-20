@@ -1,9 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * LoadingSpinner - Spinner de loading temático
- */
 function LoadingSpinner({ size = 'md', message, catEmoji = '🐱' }) {
   const sizes = {
     sm: 'w-8 h-8',
@@ -21,7 +18,7 @@ function LoadingSpinner({ size = 'md', message, catEmoji = '🐱' }) {
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 p-8">
-      {/* Spinning cat */}
+
       <motion.div
         animate={{
           rotate: 360
@@ -36,7 +33,6 @@ function LoadingSpinner({ size = 'md', message, catEmoji = '🐱' }) {
         <span className="text-6xl">{catEmoji}</span>
       </motion.div>
 
-      {/* Pulsing dots */}
       <div className="flex gap-2">
         {[0, 1, 2].map((i) => (
           <motion.div
@@ -55,7 +51,6 @@ function LoadingSpinner({ size = 'md', message, catEmoji = '🐱' }) {
         ))}
       </div>
 
-      {/* Message */}
       {message && (
         <motion.p
           initial={{ opacity: 0 }}
@@ -70,3 +65,4 @@ function LoadingSpinner({ size = 'md', message, catEmoji = '🐱' }) {
 }
 
 export default LoadingSpinner;
+

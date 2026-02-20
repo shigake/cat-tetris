@@ -5,9 +5,6 @@ import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
 
-/**
- * DemoScreen - IA joga enquanto o usuário assiste e aprende
- */
 function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPreview, statusLabel, onSkip }) {
   if (!gameState || !isInitialized) {
     return (
@@ -17,7 +14,6 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
     );
   }
 
-  // Pick a tip to show based on current score progress
   const currentTip = useMemo(() => {
     if (!lesson.intro || lesson.intro.length === 0) return null;
     const lines = gameState.score?.lines || 0;
@@ -33,7 +29,7 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
       exit={{ opacity: 0, y: -20 }}
       className="text-center"
     >
-      {/* Header badge */}
+
       <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-3 max-w-md mx-auto">
         <div className="flex items-center justify-center gap-2">
           <span className="text-lg">🤖</span>
@@ -46,7 +42,6 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
         )}
       </div>
 
-      {/* Current tip */}
       {currentTip && (
         <motion.div
           key={currentTip}
@@ -58,7 +53,6 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
         </motion.div>
       )}
 
-      {/* Board Layout */}
       <div className="flex gap-3 justify-center items-start">
         <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
 
@@ -80,7 +74,6 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
         </div>
       </div>
 
-      {/* Skip / Done button */}
       <div className="mt-4">
         {demoComplete ? (
           <motion.button
@@ -108,3 +101,4 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
 }
 
 export default DemoScreen;
+

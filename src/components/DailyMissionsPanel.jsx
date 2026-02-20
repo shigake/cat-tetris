@@ -4,9 +4,6 @@ import { useMissions } from '../hooks/useMissions';
 import Celebration from './Celebration';
 import { showToast } from './ToastNotification';
 
-/**
- * DailyMissionsPanel - Mostra missões diárias do jogador
- */
 function DailyMissionsPanel({ onClose }) {
   const { missions, loading, claimReward, getMissionsStats } = useMissions();
   const [showCelebration, setShowCelebration] = React.useState(false);
@@ -15,10 +12,9 @@ function DailyMissionsPanel({ onClose }) {
   const handleClaim = (missionId) => {
     const result = claimReward(missionId);
     if (result.success) {
-      // Show toast notification
+
       showToast(`✅ Recompensa coletada: +${result.reward} 🐟`, 'success');
-      
-      // Check if all missions are now claimed
+
       const updatedStats = getMissionsStats();
       if (updatedStats.allClaimed) {
         setShowCelebration(true);
@@ -70,7 +66,7 @@ function DailyMissionsPanel({ onClose }) {
         className="bg-gradient-to-br from-purple-900/95 to-blue-900/95 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -88,7 +84,6 @@ function DailyMissionsPanel({ onClose }) {
           </button>
         </div>
 
-        {/* Stats */}
         {stats && (
           <div className="bg-black/30 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center">
@@ -106,7 +101,6 @@ function DailyMissionsPanel({ onClose }) {
           </div>
         )}
 
-        {/* Missions List */}
         <div className="space-y-4">
           {missions.map((mission, index) => {
             const progress = Math.min(mission.progress, mission.target);
@@ -119,12 +113,12 @@ function DailyMissionsPanel({ onClose }) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className={`bg-black/40 rounded-lg p-4 border-2 ${
-                  mission.completed 
-                    ? 'border-green-500/50' 
+                  mission.completed
+                    ? 'border-green-500/50'
                     : 'border-white/10'
                 }`}
               >
-                {/* Mission Header */}
+
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -149,7 +143,7 @@ function DailyMissionsPanel({ onClose }) {
                       {getDifficultyBadge(mission.difficulty)}
                     </span>
                   </div>
-                  
+
                   <div className="text-right">
                     <div className="text-yellow-400 font-bold flex items-center gap-1">
                       <span className="text-2xl">🐟</span>
@@ -158,7 +152,6 @@ function DailyMissionsPanel({ onClose }) {
                   </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div className="mt-3">
                   <div className="flex justify-between text-sm text-white/60 mb-1">
                     <span>Progresso</span>
@@ -170,15 +163,14 @@ function DailyMissionsPanel({ onClose }) {
                       animate={{ width: `${percentage}%` }}
                       transition={{ duration: 0.5 }}
                       className={`h-full ${
-                        mission.completed 
-                          ? 'bg-green-500' 
+                        mission.completed
+                          ? 'bg-green-500'
                           : 'bg-blue-500'
                       }`}
                     />
                   </div>
                 </div>
 
-                {/* Claim Button */}
                 {mission.completed && !mission.claimed && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -194,14 +186,12 @@ function DailyMissionsPanel({ onClose }) {
           })}
         </div>
 
-        {/* Footer */}
         <div className="mt-6 text-center text-white/40 text-sm">
           As missões resetam todos os dias às 00:00
         </div>
       </motion.div>
-      
-      {/* Celebration quando completa todas as missões */}
-      <Celebration 
+
+      <Celebration
         trigger={showCelebration}
         message="🎉 Todas as missões completas! 🎉"
         duration={3000}
@@ -211,3 +201,4 @@ function DailyMissionsPanel({ onClose }) {
 }
 
 export default DailyMissionsPanel;
+

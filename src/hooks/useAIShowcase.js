@@ -5,12 +5,8 @@ import { ScoringService } from '../core/services/ScoringService';
 import { ExpertAI } from '../core/services/ExpertAI';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer';
 
-const AI_MOVE_INTERVAL = 50; // ms between AI actions
+const AI_MOVE_INTERVAL = 50;
 
-/**
- * useAIShowcase — runs a self-playing game with an expert AI.
- * Tracks combos and line clears. Auto-restarts on game over.
- */
 export function useAIShowcase(active) {
   const [gameState, setGameState] = useState(null);
   const [stats, setStats] = useState({ lines: 0, combos: 0, tetrises: 0, maxCombo: 0 });
@@ -41,7 +37,6 @@ export function useAIShowcase(active) {
     aiTimerRef.current = 0;
     lastTimeRef.current = 0;
 
-    // Keep accumulated stats across restarts
     statsRef.current.currentCombo = 0;
     setGameState(svc.getGameState());
     setIsRunning(true);
@@ -138,7 +133,7 @@ export function useAIShowcase(active) {
 
           setGameState(svc.getGameState());
         } catch (e) {
-          console.warn('[AIShowcase] AI error:', e);
+
         }
       }
 
@@ -158,3 +153,4 @@ export function useAIShowcase(active) {
 
   return { gameState, stats, comboFlash, isRunning, getDropPreview };
 }
+

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gameOver, canHold }) => {
   const handleKeyPress = (action) => {
     if (gameOver) return;
-    
+
     switch (action) {
       case 'left':
         onMove('left');
@@ -98,8 +98,8 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             onClick={() => handleKeyPress('hold')}
             disabled={gameOver || !canHold}
             className={`p-4 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-              canHold 
-                ? 'bg-green-500 text-white hover:bg-green-600' 
+              canHold
+                ? 'bg-green-500 text-white hover:bg-green-600'
                 : 'bg-gray-500 text-white'
             }`}
           >
@@ -128,4 +128,4 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
   );
 };
 
-export default Controls; 
+export default Controls;

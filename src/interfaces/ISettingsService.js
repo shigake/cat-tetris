@@ -14,4 +14,4 @@ export class ISettingsService {
   resetSettings() {
     throw new Error('Method resetSettings must be implemented');
   }
-} 
+}

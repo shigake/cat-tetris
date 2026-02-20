@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
-/**
- * Hook para gerenciar leaderboard
- */
 export function useLeaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [playerRank, setPlayerRank] = useState(null);
@@ -13,14 +10,12 @@ export function useLeaderboard() {
   useEffect(() => {
     try {
       const leaderboardService = serviceContainer.resolve('leaderboardService');
-      
-      // Load initial data
+
       setLeaderboard(leaderboardService.getGlobalLeaderboard(100));
       setPlayerRank(leaderboardService.getPlayerRank());
       setAroundPlayer(leaderboardService.getAroundPlayer(5));
       setLoading(false);
 
-      // Listen for player stats updates
       const handleStatsUpdate = () => {
         setLeaderboard(leaderboardService.getGlobalLeaderboard(100));
         setPlayerRank(leaderboardService.getPlayerRank());
@@ -33,7 +28,7 @@ export function useLeaderboard() {
         window.removeEventListener('playerStatsUpdated', handleStatsUpdate);
       };
     } catch (error) {
-      console.error('Failed to initialize leaderboard service:', error);
+
       setLoading(false);
     }
   }, []);
@@ -45,7 +40,7 @@ export function useLeaderboard() {
       setPlayerRank(leaderboardService.getPlayerRank());
       setAroundPlayer(leaderboardService.getAroundPlayer(5));
     } catch (error) {
-      console.error('Failed to refresh leaderboard:', error);
+
     }
   }, []);
 
@@ -54,7 +49,7 @@ export function useLeaderboard() {
       const leaderboardService = serviceContainer.resolve('leaderboardService');
       return leaderboardService.getWeeklyLeaderboard(50);
     } catch (error) {
-      console.error('Failed to get weekly leaderboard:', error);
+
       return [];
     }
   }, []);
@@ -64,7 +59,7 @@ export function useLeaderboard() {
       const leaderboardService = serviceContainer.resolve('leaderboardService');
       return leaderboardService.getCountryLeaderboard(country, 50);
     } catch (error) {
-      console.error('Failed to get country leaderboard:', error);
+
       return [];
     }
   }, []);
@@ -75,7 +70,7 @@ export function useLeaderboard() {
       leaderboardService.setPlayerName(name);
       refreshLeaderboard();
     } catch (error) {
-      console.error('Failed to set player name:', error);
+
     }
   }, [refreshLeaderboard]);
 
@@ -84,7 +79,7 @@ export function useLeaderboard() {
       const leaderboardService = serviceContainer.resolve('leaderboardService');
       return leaderboardService.getPlayerName();
     } catch (error) {
-      console.error('Failed to get player name:', error);
+
       return 'Jogador';
     }
   }, []);
@@ -101,3 +96,4 @@ export function useLeaderboard() {
     getPlayerName
   };
 }
+

@@ -53,7 +53,7 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
         keyboardService.stopListening();
       };
     } catch (error) {
-      console.error('Failed to setup keyboard handlers:', error);
+
       return () => {};
     }
   }, [isActive]);
@@ -63,7 +63,7 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
       keyboardService.setKeyMapping(key, action);
     } catch (error) {
-      console.error('Failed to customize key mapping:', error);
+
     }
   }, []);
 
@@ -72,7 +72,7 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
       return keyboardService.getKeyMappings();
     } catch (error) {
-      console.error('Failed to get key mappings:', error);
+
       return {};
     }
   }, []);
@@ -81,14 +81,14 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
     try {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
       keyboardService.setDAS(ms);
-    } catch (e) { /* ignore */ }
+    } catch (e) {  }
   }, []);
 
   const setARR = useCallback((ms) => {
     try {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
       keyboardService.setARR(ms);
-    } catch (e) { /* ignore */ }
+    } catch (e) {  }
   }, []);
 
   const getDAS = useCallback(() => {
@@ -109,4 +109,4 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
     getDAS,
     getARR
   };
-} 
+}

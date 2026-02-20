@@ -3,13 +3,10 @@ import { motion } from 'framer-motion';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { useAIOpponent } from '../hooks/useAIOpponent';
 
-/**
- * MultiplayerPanel - Seleção de modos multiplayer
- */
 function MultiplayerPanel({ onClose, onStartMatch }) {
   const { getAvailableModes, stats, startLocalMatch, startAIMatch } = useMultiplayer();
   const { getDifficulties } = useAIOpponent();
-  
+
   const [selectedMode, setSelectedMode] = useState(null);
   const [player1Name, setPlayer1Name] = useState('Jogador 1');
   const [player2Name, setPlayer2Name] = useState('Jogador 2');
@@ -18,11 +15,8 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
   const modes = getAvailableModes();
   const difficulties = getDifficulties();
 
-  console.log('[MultiplayerPanel] modes:', modes?.length, 'difficulties:', difficulties?.length);
-
-  // Safety checks
   if (!modes || modes.length === 0) {
-    console.warn('[MultiplayerPanel] No modes available');
+
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-red-900/90 text-white p-6 rounded-lg">
@@ -42,13 +36,11 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
 
   const handleStartMatch = () => {
     let match = null;
-    
-    if (selectedMode.id === '1v1-local') {
-      match = startLocalMatch(player1Name, player2Name);
-    } else if (selectedMode.id === 'vs-ai') {
+
+    if (selectedMode.id === 'vs-ai') {
       match = startAIMatch(player1Name, aiDifficulty);
     }
-    
+
     if (match && onStartMatch) {
       onStartMatch(match);
     }
@@ -69,7 +61,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
         className="bg-gradient-to-br from-purple-900/95 to-indigo-900/95 rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
@@ -87,16 +79,11 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
           </button>
         </div>
 
-        {/* Stats */}
         {stats && (
-          <div className="bg-black/30 rounded-lg p-4 mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{stats.localMatches}</div>
-              <div className="text-white/60 text-sm">Partidas Locais</div>
-            </div>
+          <div className="bg-black/30 rounded-lg p-4 mb-6 grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-white">{stats.aiMatches}</div>
-              <div className="text-white/60 text-sm">vs IA</div>
+              <div className="text-white/60 text-sm">Partidas vs IA</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-400">{stats.wins}</div>
@@ -110,7 +97,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
         )}
 
         {!selectedMode ? (
-          /* Mode Selection */
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {modes.map((mode) => (
               <motion.button
@@ -140,7 +127,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
             ))}
           </div>
         ) : (
-          /* Configuration Screen */
+
           <div>
             <button
               onClick={() => setSelectedMode(null)}
@@ -157,49 +144,6 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                   <p className="text-white/60">{selectedMode.description}</p>
                 </div>
               </div>
-
-              {selectedMode.id === '1v1-local' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-white/80 mb-2">Nome Jogador 1:</label>
-                    <input
-                      type="text"
-                      value={player1Name}
-                      onChange={(e) => setPlayer1Name(e.target.value)}
-                      className="w-full bg-black/30 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-blue-500 focus:outline-none"
-                      maxLength={20}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white/80 mb-2">Nome Jogador 2:</label>
-                    <input
-                      type="text"
-                      value={player2Name}
-                      onChange={(e) => setPlayer2Name(e.target.value)}
-                      className="w-full bg-black/30 text-white px-4 py-2 rounded-lg border border-white/20 focus:border-blue-500 focus:outline-none"
-                      maxLength={20}
-                    />
-                  </div>
-
-                  <div className="bg-blue-900/30 rounded-lg p-4 mt-6">
-                    <h4 className="text-white font-bold mb-2">📋 Controles:</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm text-white/80">
-                      <div>
-                        <div className="font-bold text-white mb-1">Jogador 1:</div>
-                        <div>⬅️➡️⬆️⬇️ Setas</div>
-                        <div>Shift: Hold</div>
-                        <div>P: Pausar</div>
-                      </div>
-                      <div>
-                        <div className="font-bold text-white mb-1">Jogador 2:</div>
-                        <div>WASD: Mover/Girar</div>
-                        <div>Q: Hold</div>
-                        <div>E: Pausar</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {selectedMode.id === 'vs-ai' && (
                 <div className="space-y-4">
@@ -254,3 +198,4 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
 }
 
 export default MultiplayerPanel;
+

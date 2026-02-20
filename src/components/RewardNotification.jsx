@@ -1,9 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * RewardNotification - Mostra recompensas ganhas (coins, XP, badges)
- */
 function RewardNotification({ reward, onClose }) {
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,7 +31,7 @@ function RewardNotification({ reward, onClose }) {
                 {reward.lessonTitle}
               </p>
             )}
-            
+
             <div className="grid grid-cols-3 gap-2">
               {reward.rewards?.fishCoins > 0 && (
                 <div className="bg-white/10 rounded-lg p-2 text-center">
@@ -45,7 +42,7 @@ function RewardNotification({ reward, onClose }) {
                   <div className="text-xs text-white/70">Peixes</div>
                 </div>
               )}
-              
+
               {reward.rewards?.xp > 0 && (
                 <div className="bg-white/10 rounded-lg p-2 text-center">
                   <div className="text-xl">⭐</div>
@@ -55,7 +52,7 @@ function RewardNotification({ reward, onClose }) {
                   <div className="text-xs text-white/70">XP</div>
                 </div>
               )}
-              
+
               {reward.rewards?.badge && (
                 <div className="bg-white/10 rounded-lg p-2 text-center">
                   <div className="text-xl">🏅</div>
@@ -69,7 +66,7 @@ function RewardNotification({ reward, onClose }) {
               )}
             </div>
           </div>
-          
+
           <button
             onClick={onClose}
             className="text-white/60 hover:text-white transition-colors"
@@ -83,3 +80,4 @@ function RewardNotification({ reward, onClose }) {
 }
 
 export default RewardNotification;
+

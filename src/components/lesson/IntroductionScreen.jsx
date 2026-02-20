@@ -1,9 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-/**
- * IntroductionScreen - Mostra objetivo e dicas, com opção de ver IA ou ir direto
- */
 function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
   return (
     <motion.div
@@ -13,7 +10,7 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
       exit={{ opacity: 0, y: -20 }}
       className="max-w-lg mx-auto"
     >
-      {/* Objetivo */}
+
       <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-6 mb-5 text-center">
         <div className="text-4xl mb-3">🎯</div>
         <h3 className="text-lg font-bold text-white mb-2">Objetivo</h3>
@@ -22,7 +19,6 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
         </p>
       </div>
 
-      {/* Dicas */}
       {lesson.intro && lesson.intro.length > 0 && (
         <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 mb-5">
           <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wide mb-3">Como funciona</h4>
@@ -43,7 +39,6 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
         </div>
       )}
 
-      {/* Recompensas */}
       {lesson.rewards && (
         <div className="flex justify-center gap-4 mb-5 text-xs text-white/30">
           <span>🐟 {lesson.rewards.fishCoins}</span>
@@ -51,7 +46,6 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
         </div>
       )}
 
-      {/* Botões */}
       <div className="flex flex-col items-center gap-3">
         <motion.button
           whileHover={{ scale: 1.03 }}
@@ -77,3 +71,4 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
 }
 
 export default IntroductionScreen;
+

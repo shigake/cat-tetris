@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * ToastNotification - Sistema de notificações toast
- */
 function ToastNotification() {
   const [toasts, setToasts] = useState([]);
 
   useEffect(() => {
     const handleToast = (event) => {
       const { message, type = 'info', duration = 3000 } = event.detail;
-      
+
       const toast = {
         id: `toast_${Date.now()}_${Math.random()}`,
         message,
@@ -20,7 +17,6 @@ function ToastNotification() {
 
       setToasts(prev => [...prev, toast]);
 
-      // Auto remove
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== toast.id));
       }, duration);
@@ -80,7 +76,6 @@ function ToastNotification() {
   );
 }
 
-// Helper function to show toast
 export function showToast(message, type = 'info', duration = 3000) {
   window.dispatchEvent(new CustomEvent('showToast', {
     detail: { message, type, duration }
@@ -88,3 +83,4 @@ export function showToast(message, type = 'info', duration = 3000) {
 }
 
 export default ToastNotification;
+

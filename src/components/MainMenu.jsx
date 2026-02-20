@@ -27,7 +27,6 @@ export default function MainMenu({
     fn?.();
   }, [soundEnabled, sounds]);
 
-  // Keyboard shortcut — Enter to play
   useEffect(() => {
     const handle = (e) => {
       if (e.key === 'Enter') {
@@ -48,20 +47,17 @@ export default function MainMenu({
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-purple-950 to-slate-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
-      {/* Subtle background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-32 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl" />
       </div>
 
-      {/* Currency — top right */}
       <div className="fixed top-3 right-3 z-50">
         <CurrencyDisplay />
       </div>
 
       <div className="w-full max-w-sm relative z-10 flex flex-col items-center">
 
-        {/* ── Logo ── */}
         <motion.div {...fadeUp(0)} className="text-center mb-4">
           <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-lg select-none">
             🐱 Cat Tetris
@@ -69,7 +65,6 @@ export default function MainMenu({
           <p className="text-white/50 text-xs mt-1">Empilhe blocos com seus amigos felinos</p>
         </motion.div>
 
-        {/* ── Primary Actions ── */}
         <motion.div {...fadeUp(0.1)} className="w-full space-y-2 mb-4">
           {hasActiveGame ? (
             <>
@@ -99,14 +94,12 @@ export default function MainMenu({
           )}
         </motion.div>
 
-        {/* ── Mode Buttons (3-col) ── */}
         <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-3 gap-2 mb-4">
-          <MenuCard icon="⚔️" label="VS Mode"   sub="1v1 e vs IA"        onClick={() => play(onShowMultiplayer)} />
+          <MenuCard icon="⚔️" label="VS IA"      sub="Desafie o bot"      onClick={() => play(onShowMultiplayer)} />
           <MenuCard icon="📚" label="Tutorial"   sub="Aprenda a jogar"    onClick={() => play(onShowTutorialHub)} />
           <MenuCard icon="🤖" label="IA Expert"  sub="Assista a IA jogar" onClick={() => play(onShowAIShowcase)} />
         </motion.div>
 
-        {/* ── Quick-access row ── */}
         <motion.div {...fadeUp(0.25)} className="w-full grid grid-cols-4 gap-1 mb-4">
           <QuickBtn icon="🛍️" label="Loja"       onClick={() => play(onShowShop)} />
           <QuickBtn icon="📋" label="Missões"     onClick={() => play(onShowMissions)} />
@@ -114,7 +107,6 @@ export default function MainMenu({
           <QuickBtn icon="⚙️" label="Config"      onClick={() => play(onShowSettings)} />
         </motion.div>
 
-        {/* ── Footer ── */}
         <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
@@ -138,8 +130,6 @@ export default function MainMenu({
     </div>
   );
 }
-
-/* ── Sub-components ─────────────────────────────────────── */
 
 function MenuCard({ icon, label, sub, onClick }) {
   return (

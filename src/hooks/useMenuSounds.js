@@ -8,19 +8,19 @@ export function useMenuSounds() {
     try {
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
-      
+
       oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
       oscillator.type = type;
-      
+
       gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-      
+
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + duration);
-    } catch { /* ignore audio errors */ }
+    } catch {  }
   }, []);
 
   const playMenuHover = useCallback(() => {
@@ -51,16 +51,16 @@ export function useMenuSounds() {
         frequencies.forEach(freq => {
           const oscillator = audioContext.createOscillator();
           const gainNode = audioContext.createGain();
-          
+
           oscillator.connect(gainNode);
           gainNode.connect(audioContext.destination);
-          
+
           oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
           oscillator.type = 'triangle';
-          
+
           gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + startTime);
           gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + startTime + duration);
-          
+
           oscillator.start(audioContext.currentTime + startTime);
           oscillator.stop(audioContext.currentTime + startTime + duration);
         });
@@ -68,7 +68,7 @@ export function useMenuSounds() {
 
       const notes = [523, 659, 784, 1047];
       playChord(notes, 0, 0.5);
-    } catch { /* ignore audio errors */ }
+    } catch {  }
   }, []);
 
   const playPWAInstall = useCallback(() => {
@@ -85,4 +85,4 @@ export function useMenuSounds() {
     playGameStart,
     playPWAInstall
   };
-} 
+}

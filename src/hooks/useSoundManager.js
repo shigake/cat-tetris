@@ -2,10 +2,6 @@ import { useEffect, useRef } from 'react';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer';
 import { useGameSounds } from './useGameSounds';
 
-/**
- * Connects game events to procedural sounds (Web Audio API).
- * Falls back gracefully if AudioContext is unavailable.
- */
 export function useSoundManager() {
   const sounds = useGameSounds();
   const soundsRef = useRef(sounds);
@@ -57,4 +53,4 @@ export function useSoundManager() {
       gameEvents.off(GAME_EVENTS.LEVEL_UP, handleLevelUp);
     };
   }, []);
-} 
+}

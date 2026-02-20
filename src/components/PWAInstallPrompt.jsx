@@ -39,12 +39,12 @@ export default function PWAInstallPrompt({ onClose }) {
 
     deferredPrompt.prompt()
     const { outcome } = await deferredPrompt.userChoice
-    
+
     if (outcome === 'accepted') {
       setShowInstallPrompt(false)
       if (onClose) onClose()
     }
-    
+
     localStorage.setItem('cat-tetris-install-prompt-seen', 'true')
     setDeferredPrompt(null)
   }
@@ -81,7 +81,7 @@ export default function PWAInstallPrompt({ onClose }) {
             <p className="text-purple-200 mb-6">
               Este dispositivo não suporta instalação de PWA ou o app já está instalado.
             </p>
-            
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -117,10 +117,10 @@ export default function PWAInstallPrompt({ onClose }) {
                 Instalar Cat Tetris
               </h2>
               <p className="text-purple-200 mb-6">
-                Instale o Cat Tetris na sua tela inicial para jogar offline a qualquer momento! 
+                Instale o Cat Tetris na sua tela inicial para jogar offline a qualquer momento!
                 Funciona como um app nativo.
               </p>
-              
+
               <div className="grid grid-cols-2 gap-3 mb-6 text-sm">
                 <div className="bg-white/10 rounded-lg p-3">
                   <div className="text-green-400 mb-1">🚀 Acesso Rápido</div>
@@ -164,4 +164,4 @@ export default function PWAInstallPrompt({ onClose }) {
       )}
     </AnimatePresence>
   )
-} 
+}

@@ -46,7 +46,6 @@ export class LocalStorageRepository extends IGameRepository {
     localStorage.removeItem(this.gameStateKey);
   }
 
-  // Generic load/save methods for new services
   load(key) {
     const data = localStorage.getItem(`cat-tetris-${key}`);
     return data ? JSON.parse(data) : null;
@@ -59,4 +58,4 @@ export class LocalStorageRepository extends IGameRepository {
   remove(key) {
     localStorage.removeItem(`cat-tetris-${key}`);
   }
-} 
+}

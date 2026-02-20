@@ -64,21 +64,21 @@ export class Board {
   clearLines() {
     const newGrid = [];
     let linesCleared = 0;
-    
+
     for (let y = this.height - 1; y >= 0; y--) {
       const isLineFull = this.grid[y].every(cell => cell !== null);
-      
+
       if (!isLineFull) {
         newGrid.unshift(this.grid[y]);
       } else {
         linesCleared++;
       }
     }
-    
+
     while (newGrid.length < this.height) {
       newGrid.unshift(Array(this.width).fill(null));
     }
-    
+
     this.grid = newGrid;
     return linesCleared;
   }
@@ -94,8 +94,8 @@ export class Board {
   }
 
   isGameOver() {
-    // Check rows 0 and 1 for blocks (standard Tetris lockout)
-    return this.grid[0].some(cell => cell !== null) || 
+
+    return this.grid[0].some(cell => cell !== null) ||
            this.grid[1].some(cell => cell !== null);
   }
 
@@ -110,4 +110,25 @@ export class Board {
   clear() {
     this.grid = this.createEmptyGrid();
   }
-} 
+
+  addGarbageLines(count, gapColumn = -1) {
+    if (count <= 0) return false;
+
+    const gap = gapColumn >= 0 ? gapColumn : Math.floor(Math.random() * this.width);
+
+    const garbageRows = [];
+    for (let i = 0; i < count; i++) {
+      const row = Array(this.width).fill(null).map((_, x) =>
+        x === gap ? null : { type: 'garbage', color: '#808080', emoji: '⬜' }
+      );
+      garbageRows.push(row);
+    }
+
+    const removed = this.grid.splice(0, count);
+    const overflow = removed.some(row => row.some(cell => cell !== null));
+
+    this.grid.push(...garbageRows);
+
+    return overflow;
+  }
+}
