@@ -4,13 +4,15 @@ import { useMultiplayer } from '../hooks/useMultiplayer';
 import { useAIOpponent } from '../hooks/useAIOpponent';
 
 function MultiplayerPanel({ onClose, onStartMatch }) {
-  const { getAvailableModes, stats, startLocalMatch, startAIMatch } = useMultiplayer();
+  const { getAvailableModes, stats, startLocalMatch, startAIMatch, startAIvsAIMatch } = useMultiplayer();
   const { getDifficulties } = useAIOpponent();
 
   const [selectedMode, setSelectedMode] = useState(null);
   const [player1Name, setPlayer1Name] = useState('Jogador 1');
   const [player2Name, setPlayer2Name] = useState('Jogador 2');
   const [aiDifficulty, setAiDifficulty] = useState('medium');
+  const [ai1Difficulty, setAi1Difficulty] = useState('expert');
+  const [ai2Difficulty, setAi2Difficulty] = useState('expert-tetris');
 
   const modes = getAvailableModes();
   const difficulties = getDifficulties();
@@ -39,6 +41,8 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
 
     if (selectedMode.id === 'vs-ai') {
       match = startAIMatch(player1Name, aiDifficulty);
+    } else if (selectedMode.id === 'ai-vs-ai') {
+      match = startAIvsAIMatch(ai1Difficulty, ai2Difficulty);
     }
 
     if (match && onStartMatch) {
@@ -168,6 +172,52 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                           className={`p-3 rounded-lg border-2 transition-all ${
                             aiDifficulty === diff.id
                               ? 'bg-blue-600 border-blue-400'
+                              : 'bg-black/30 border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <div className="text-2xl mb-1">{diff.emoji}</div>
+                          <div className="text-white font-bold">{diff.name}</div>
+                          <div className="text-white/60 text-xs">{diff.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {selectedMode.id === 'ai-vs-ai' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-white/80 mb-2">🤖 IA 1 (Esquerda):</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {difficulties.map((diff) => (
+                        <button
+                          key={diff.id}
+                          onClick={() => setAi1Difficulty(diff.id)}
+                          className={`p-3 rounded-lg border-2 transition-all ${
+                            ai1Difficulty === diff.id
+                              ? 'bg-blue-600 border-blue-400'
+                              : 'bg-black/30 border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <div className="text-2xl mb-1">{diff.emoji}</div>
+                          <div className="text-white font-bold">{diff.name}</div>
+                          <div className="text-white/60 text-xs">{diff.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-white/80 mb-2">🤖 IA 2 (Direita):</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {difficulties.map((diff) => (
+                        <button
+                          key={diff.id}
+                          onClick={() => setAi2Difficulty(diff.id)}
+                          className={`p-3 rounded-lg border-2 transition-all ${
+                            ai2Difficulty === diff.id
+                              ? 'bg-red-600 border-red-400'
                               : 'bg-black/30 border-white/20 hover:border-white/40'
                           }`}
                         >

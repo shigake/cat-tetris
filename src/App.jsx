@@ -585,6 +585,8 @@ function GameComponent() {
       <MultiplayerGame
         mode={multiplayerMatch.mode}
         aiDifficulty={multiplayerMatch.aiDifficulty}
+        ai1Difficulty={multiplayerMatch.ai1Difficulty}
+        ai2Difficulty={multiplayerMatch.ai2Difficulty}
         onExit={() => {
           setMultiplayerMatch(null);
           setCurrentScreen('menu');

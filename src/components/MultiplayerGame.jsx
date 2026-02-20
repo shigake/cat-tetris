@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { serviceContainer } from '../core/container/ServiceRegistration';
 import { GameService } from '../core/services/GameService';
+import { AIOpponentService } from '../core/services/AIOpponentService';
 import { PieceFactory, MovementStrategyFactory } from '../patterns/Factory';
 import { ScoringService } from '../core/services/ScoringService';
 import TetrisBoard from './TetrisBoard';
@@ -9,13 +10,13 @@ import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 
-function MultiplayerGame({ mode, aiDifficulty, onExit }) {
+function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onExit }) {
   const [player1State, setPlayer1State] = useState(null);
   const [player2State, setPlayer2State] = useState(null);
   const [winner, setWinner] = useState(null);
   const [p1Garbage, setP1Garbage] = useState(0);
   const [p2Garbage, setP2Garbage] = useState(0);
-  const servicesRef = useRef({ p1: null, p2: null, ai: null });
+  const servicesRef = useRef({ p1: null, p2: null, ai: null, ai1: null, ai2: null });
   const lastTimeRef = useRef(0);
   const loopRef = useRef(null);
 
@@ -34,13 +35,19 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     );
 
     let aiService = null;
+    let ai1Service = null;
+    let ai2Service = null;
+
     if (mode === 'vsAI') {
       try {
-        aiService = serviceContainer.resolve('aiOpponentService');
+        aiService = new AIOpponentService();
         aiService.setDifficulty(aiDifficulty || 'medium');
-      } catch (e) {
-
-      }
+      } catch (e) { }
+    } else if (mode === 'aiVsAI') {
+      ai1Service = new AIOpponentService();
+      ai1Service.setDifficulty(ai1Difficulty || 'expert');
+      ai2Service = new AIOpponentService();
+      ai2Service.setDifficulty(ai2Difficulty || 'expert-tetris');
     }
 
     p1Service.initializeGame();
@@ -48,14 +55,14 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     p2Service.initializeGame();
     p2Service.isPlaying = true;
 
-    servicesRef.current = { p1: p1Service, p2: p2Service, ai: aiService };
+    servicesRef.current = { p1: p1Service, p2: p2Service, ai: aiService, ai1: ai1Service, ai2: ai2Service };
     setPlayer1State(p1Service.getGameState());
     setPlayer2State(p2Service.getGameState());
 
     return () => {
       if (loopRef.current) cancelAnimationFrame(loopRef.current);
     };
-  }, [mode, aiDifficulty]);
+  }, [mode, aiDifficulty, ai1Difficulty, ai2Difficulty]);
 
   useEffect(() => {
     const gameLoop = (currentTime) => {
@@ -63,11 +70,20 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
       const deltaTime = currentTime - lastTimeRef.current;
       lastTimeRef.current = currentTime;
 
-      const { p1, p2, ai } = servicesRef.current;
+      const { p1, p2, ai, ai1, ai2 } = servicesRef.current;
       if (!p1 || !p2) { loopRef.current = requestAnimationFrame(gameLoop); return; }
 
-      if (!p1.gameOver && !p1.isPaused) p1.updateGame(deltaTime);
-      if (!p2.gameOver && !p2.isPaused) p2.updateGame(deltaTime);
+      if (p1.gameOver || p2.gameOver) {
+        if (!p1.gameOver) { p1.gameOver = true; p1._markDirty(); }
+        if (!p2.gameOver) { p2.gameOver = true; p2._markDirty(); }
+
+        if (p1.isDirty) { setPlayer1State(p1.getGameState()); p1.clearDirty(); }
+        if (p2.isDirty) { setPlayer2State(p2.getGameState()); p2.clearDirty(); }
+        return;
+      }
+
+      if (!p1.isPaused) p1.updateGame(deltaTime);
+      if (!p2.isPaused) p2.updateGame(deltaTime);
 
       const p1Attack = p1.consumeAttack();
       if (p1Attack > 0 && !p2.gameOver) {
@@ -78,7 +94,38 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
         p1.receiveGarbage(p2Attack);
       }
 
-      if (mode === 'vsAI' && ai && !p2.gameOver) {
+      if (mode === 'aiVsAI') {
+        if (ai1 && !p1.gameOver) {
+          try {
+            const d = ai1.decideNextMove(p1.getGameState());
+            if (d) {
+              switch (d.action) {
+                case 'left': p1.movePiece('left'); break;
+                case 'right': p1.movePiece('right'); break;
+                case 'rotate': p1.rotatePiece(); break;
+                case 'down': p1.movePiece('down'); break;
+                case 'drop': p1.hardDrop(); break;
+                case 'hold': p1.holdPiece(); break;
+              }
+            }
+          } catch (e) { }
+        }
+        if (ai2 && !p2.gameOver) {
+          try {
+            const d = ai2.decideNextMove(p2.getGameState());
+            if (d) {
+              switch (d.action) {
+                case 'left': p2.movePiece('left'); break;
+                case 'right': p2.movePiece('right'); break;
+                case 'rotate': p2.rotatePiece(); break;
+                case 'down': p2.movePiece('down'); break;
+                case 'drop': p2.hardDrop(); break;
+                case 'hold': p2.holdPiece(); break;
+              }
+            }
+          } catch (e) { }
+        }
+      } else if (mode === 'vsAI' && ai && !p2.gameOver) {
         try {
           const decision = ai.decideNextMove(p2.getGameState());
           if (decision) {
@@ -88,15 +135,23 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
               case 'rotate': p2.rotatePiece(); break;
               case 'down': p2.movePiece('down'); break;
               case 'drop': p2.hardDrop(); break;
+              case 'hold': p2.holdPiece(); break;
             }
           }
         } catch (e) {  }
       }
 
-      setPlayer1State(p1.getGameState());
-      setPlayer2State(p2.getGameState());
-      setP1Garbage(p1.pendingGarbage);
-      setP2Garbage(p2.pendingGarbage);
+      if (p1.isDirty) {
+        setPlayer1State(p1.getGameState());
+        setP1Garbage(p1.pendingGarbage);
+        p1.clearDirty();
+      }
+      if (p2.isDirty) {
+        setPlayer2State(p2.getGameState());
+        setP2Garbage(p2.pendingGarbage);
+        p2.clearDirty();
+      }
+
       loopRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -114,17 +169,17 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
   }, [player1State?.gameOver, player2State?.gameOver, winner]);
 
   useEffect(() => {
-    if (winner) return;
+    if (winner || mode === 'aiVsAI') return;
     const handle = (e) => {
       const p1 = servicesRef.current.p1;
       if (!p1 || p1.gameOver) return;
-      const key = e.key.toLowerCase();
-      switch (key) {
-        case 'a': p1.movePiece('left'); break;
-        case 'd': p1.movePiece('right'); break;
-        case 's': p1.movePiece('down'); break;
-        case 'w': case 'q': p1.rotatePiece(); break;
-        case 'e': p1.holdPiece(); break;
+      switch (e.key) {
+        case 'ArrowLeft': e.preventDefault(); p1.movePiece('left'); break;
+        case 'ArrowRight': e.preventDefault(); p1.movePiece('right'); break;
+        case 'ArrowDown': e.preventDefault(); p1.movePiece('down'); break;
+        case 'ArrowUp': e.preventDefault(); p1.rotatePiece(); break;
+        case 'z': case 'Z': p1.rotatePiece('left'); break;
+        case 'c': case 'C': case 'Shift': p1.holdPiece(); break;
         case ' ': e.preventDefault(); p1.hardDrop(); break;
       }
     };
@@ -132,33 +187,17 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
     return () => window.removeEventListener('keydown', handle);
   }, [winner]);
 
-  useEffect(() => {
-    if (winner || mode === 'vsAI') return;
-    const handle = (e) => {
-      const p2 = servicesRef.current.p2;
-      if (!p2 || p2.gameOver) return;
-      switch (e.key) {
-        case 'ArrowLeft': e.preventDefault(); p2.movePiece('left'); break;
-        case 'ArrowRight': e.preventDefault(); p2.movePiece('right'); break;
-        case 'ArrowDown': e.preventDefault(); p2.movePiece('down'); break;
-        case 'ArrowUp': e.preventDefault(); p2.rotatePiece(); break;
-        case 'Control': p2.holdPiece(); break;
-        case 'Enter': e.preventDefault(); p2.hardDrop(); break;
-      }
-    };
-    window.addEventListener('keydown', handle);
-    return () => window.removeEventListener('keydown', handle);
-  }, [winner, mode]);
+
 
   const p1DropPreview = React.useMemo(() => {
     if (!player1State?.currentPiece || player1State?.gameOver) return null;
     try { return servicesRef.current.p1?.getDropPreview(); } catch { return null; }
-  }, [player1State?.currentPiece?.position?.x, player1State?.currentPiece?.position?.y, player1State?.currentPiece?.type]);
+  }, [player1State?.currentPiece?.position?.x, player1State?.currentPiece?.position?.y, player1State?.currentPiece?.type, player1State?.currentPiece?.rotationState]);
 
   const p2DropPreview = React.useMemo(() => {
     if (!player2State?.currentPiece || player2State?.gameOver) return null;
     try { return servicesRef.current.p2?.getDropPreview(); } catch { return null; }
-  }, [player2State?.currentPiece?.position?.x, player2State?.currentPiece?.position?.y, player2State?.currentPiece?.type]);
+  }, [player2State?.currentPiece?.position?.x, player2State?.currentPiece?.position?.y, player2State?.currentPiece?.type, player2State?.currentPiece?.rotationState]);
 
   if (!player1State || !player2State) {
     return (
@@ -173,7 +212,7 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
 
       <div className="flex justify-between items-center w-full max-w-5xl mb-2">
         <h1 className="text-xl sm:text-2xl font-bold text-white">
-          {mode === 'vsAI' ? '🤖 vs IA' : '👥 1v1 Local'}
+          {mode === 'aiVsAI' ? '🔬 IA vs IA (Debug)' : mode === 'vsAI' ? '🤖 vs IA' : '👥 1v1 Local'}
         </h1>
         <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-colors text-sm font-bold">
           ← Voltar
@@ -184,15 +223,17 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
 
         <div className="flex flex-col items-center">
           <div className="bg-blue-600 text-white px-4 py-1 rounded-t-lg font-bold text-sm sm:text-base">
-            {mode === 'vsAI' ? '🎮 VOCÊ' : '🎮 P1'}
+            {mode === 'aiVsAI' ? `🤖 IA1 (${ai1Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? '🎮 VOCÊ' : '🎮 P1'}
           </div>
           <div className="bg-black/40 p-2 rounded-b-lg">
             <div className="flex gap-2">
               <div className="flex flex-col gap-2">
                 <HeldPiece heldPiece={player1State.heldPiece} canHold={player1State.canHold} />
-                <div className="text-white/60 text-[10px] leading-tight">
-                  WASD mover<br/>Q rotacionar<br/>E segurar<br/>Espaço dropar
-                </div>
+                {mode !== 'aiVsAI' && (
+                  <div className="text-white/60 text-[10px] leading-tight">
+                    ←→ mover<br/>↑ rotacionar<br/>C segurar<br/>Espaço dropar
+                  </div>
+                )}
               </div>
               <TetrisBoard board={player1State.board} currentPiece={player1State.currentPiece} dropPreview={p1DropPreview} gameOver={player1State.gameOver} />
               {p1Garbage > 0 && <GarbageMeter count={p1Garbage} />}
@@ -210,7 +251,7 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
 
         <div className="flex flex-col items-center">
           <div className="bg-red-600 text-white px-4 py-1 rounded-t-lg font-bold text-sm sm:text-base">
-            {mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : '🎮 P2'}
+            {mode === 'aiVsAI' ? `🤖 IA2 (${ai2Difficulty?.toUpperCase() || 'EXPERT-TETRIS'})` : mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : '🎮 P2'}
           </div>
           <div className="bg-black/40 p-2 rounded-b-lg">
             <div className="flex gap-2">
@@ -237,20 +278,26 @@ function MultiplayerGame({ mode, aiDifficulty, onExit }) {
         {winner && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
             <motion.div initial={{ scale: 0.8, y: 50 }} animate={{ scale: 1, y: 0 }} className="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl p-12 text-center">
-              <div className="text-8xl mb-4">{winner === 'player1' ? '🏆' : '💀'}</div>
-              <h2 className="text-5xl font-bold text-white mb-4">{winner === 'player1' ? 'VITÓRIA!' : 'DERROTA!'}</h2>
+              <div className="text-8xl mb-4">{winner === 'player1' ? '🏆' : (mode === 'aiVsAI' ? '🏆' : '💀')}</div>
+              <h2 className="text-5xl font-bold text-white mb-4">
+                {mode === 'aiVsAI'
+                  ? (winner === 'player1' ? 'IA 1 VENCEU!' : 'IA 2 VENCEU!')
+                  : (winner === 'player1' ? 'VITÓRIA!' : 'DERROTA!')}
+              </h2>
               <p className="text-2xl text-white/80 mb-8">
-                {winner === 'player1'
-                  ? (mode === 'vsAI' ? 'Você venceu a IA!' : 'Player 1 venceu!')
-                  : (mode === 'vsAI' ? 'IA venceu!' : 'Player 2 venceu!')}
+                {mode === 'aiVsAI'
+                  ? `${winner === 'player1' ? ai1Difficulty?.toUpperCase() : ai2Difficulty?.toUpperCase()} é superior!`
+                  : winner === 'player1'
+                    ? (mode === 'vsAI' ? 'Você venceu a IA!' : 'Player 1 venceu!')
+                    : (mode === 'vsAI' ? 'IA venceu!' : 'Player 2 venceu!')}
               </p>
               <div className="grid grid-cols-2 gap-4 mb-8 text-white">
                 <div className="bg-black/30 rounded-lg p-4">
-                  <div className="text-sm opacity-60">Player 1</div>
+                  <div className="text-sm opacity-60">{mode === 'aiVsAI' ? `IA1 (${ai1Difficulty})` : 'Player 1'}</div>
                   <div className="text-3xl font-bold">{(player1State.score?.points || 0).toLocaleString()}</div>
                 </div>
                 <div className="bg-black/30 rounded-lg p-4">
-                  <div className="text-sm opacity-60">{mode === 'vsAI' ? 'IA' : 'Player 2'}</div>
+                  <div className="text-sm opacity-60">{mode === 'aiVsAI' ? `IA2 (${ai2Difficulty})` : mode === 'vsAI' ? 'IA' : 'Player 2'}</div>
                   <div className="text-3xl font-bold">{(player2State.score?.points || 0).toLocaleString()}</div>
                 </div>
               </div>

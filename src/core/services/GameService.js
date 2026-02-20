@@ -45,6 +45,21 @@ export class GameService extends IGameService {
 
     this.pendingGarbage = 0;
     this._lastAttack = 0;
+    this._dirty = true;
+    this._cachedState = null;
+  }
+
+  _markDirty() {
+    this._dirty = true;
+    this._cachedState = null;
+  }
+
+  get isDirty() {
+    return this._dirty;
+  }
+
+  clearDirty() {
+    this._dirty = false;
   }
 
   initializeGame() {
@@ -79,6 +94,7 @@ export class GameService extends IGameService {
     });
 
     gameEvents.emit(GAME_EVENTS.GAME_INITIALIZED);
+    this._markDirty();
   }
 
   setGameMode(mode) {
@@ -112,12 +128,11 @@ export class GameService extends IGameService {
 
       if (result !== this.currentPiece) {
         this.currentPiece = result;
+        this._markDirty();
 
         if (direction === 'down') {
-
           this._lockDelayActive = false;
           this._lockDelayElapsed = 0;
-
           this.lastDropTime = 0;
 
           if (strategy.getSoftDropPoints) {
@@ -125,21 +140,18 @@ export class GameService extends IGameService {
             this.score.addPoints(softDropPoints);
           }
         } else if (direction === 'left' || direction === 'right') {
-
           this._resetLockDelay();
-
           this._checkUngrounded();
         }
 
         gameEvents.emit(GAME_EVENTS.PIECE_MOVED, { direction, piece: result });
       } else if (direction === 'down') {
-
+        this._markDirty();
         if (!this._lockDelayActive) {
           this._lockDelayActive = true;
           this._lockDelayElapsed = 0;
           this._lockDelayResets = 0;
         }
-
       }
     } catch (error) {
       errorLogger.logError('GameService', 'movePiece', error.message, {
@@ -160,6 +172,7 @@ export class GameService extends IGameService {
 
       if (result !== this.currentPiece) {
         this.currentPiece = result;
+        this._markDirty();
 
         this._resetLockDelay();
 
@@ -183,6 +196,7 @@ export class GameService extends IGameService {
 
     if (result !== this.currentPiece) {
       this.currentPiece = result;
+      this._markDirty();
 
       this._resetLockDelay();
 
@@ -193,6 +207,7 @@ export class GameService extends IGameService {
 
   placePiece() {
     if (!this.currentPiece) return;
+    this._markDirty();
 
     this._lockDelayActive = false;
     this._lockDelayElapsed = 0;
@@ -297,10 +312,8 @@ export class GameService extends IGameService {
 
     let attack = 0;
     if (isTSpin) {
-
-      attack = [0, 2, 4, 6][linesCleared] || 0;
+      attack = [0, 1, 2, 3][linesCleared] || 0;
     } else {
-
       attack = [0, 0, 1, 2, 4][linesCleared] || 0;
     }
 
@@ -308,14 +321,14 @@ export class GameService extends IGameService {
       attack += 1;
     }
 
-    if (combo >= 2) {
-      const comboTable = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5];
-      attack += comboTable[Math.min(combo - 1, comboTable.length - 1)] || 4;
+    if (combo >= 3) {
+      const comboTable = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3];
+      attack += comboTable[Math.min(combo - 1, comboTable.length - 1)] || 3;
     }
 
     const boardEmpty = this.board.grid.every(row => row.every(cell => cell === null));
     if (boardEmpty) {
-      attack = 10;
+      attack = 6;
     }
 
     return attack;
@@ -324,6 +337,7 @@ export class GameService extends IGameService {
   receiveGarbage(count) {
     if (count > 0) {
       this.pendingGarbage += count;
+      this._markDirty();
     }
   }
 
@@ -373,6 +387,7 @@ export class GameService extends IGameService {
       }
 
       this.canHold = false;
+      this._markDirty();
       gameEvents.emit(GAME_EVENTS.PIECE_HELD, { heldPiece: this.heldPiece });
     } catch (error) {
       errorLogger.logError('GameService', 'holdPiece', error.message, {
@@ -396,6 +411,7 @@ export class GameService extends IGameService {
 
       this.currentPiece = result.piece;
       this.score.addPoints(result.dropDistance);
+      this._markDirty();
 
       const droppedPiece = this.currentPiece;
       gameEvents.emit(GAME_EVENTS.HARD_DROP, { dropDistance: result.dropDistance });
@@ -417,6 +433,7 @@ export class GameService extends IGameService {
       this.modeTimeElapsed = (Date.now() - this.modeStartTime) / 1000;
       if (this.modeTimeElapsed >= this._modeRules.timeLimit) {
         this.gameOver = true;
+        this._markDirty();
         gameEvents.emit(GAME_EVENTS.GAME_OVER);
         return;
       }
@@ -462,12 +479,14 @@ export class GameService extends IGameService {
 
   pause() {
     this.isPaused = true;
+    this._markDirty();
     gameEvents.emit(GAME_EVENTS.GAME_PAUSED);
   }
 
   resume() {
     this.isPaused = false;
     this.isPlaying = true;
+    this._markDirty();
     gameEvents.emit(GAME_EVENTS.GAME_RESUMED);
   }
 
@@ -476,6 +495,7 @@ export class GameService extends IGameService {
     this.isPlaying = true;
     this.isPaused = false;
     this.modeStartTime = Date.now();
+    this._markDirty();
   }
 
   getDropPreview() {
@@ -500,10 +520,11 @@ export class GameService extends IGameService {
   }
 
   getGameState() {
-    return {
-      board: this.board.getBoardState(),
+    if (this._cachedState && !this._dirty) return this._cachedState;
+    this._cachedState = {
+      board: this.board.grid.map(row => [...row]),
       currentPiece: this.currentPiece,
-      nextPieces: this.nextPieces,
+      nextPieces: [...this.nextPieces],
       heldPiece: this.heldPiece,
       canHold: this.canHold,
       score: this.score.toJSON(),
@@ -516,6 +537,7 @@ export class GameService extends IGameService {
         ? Math.max(0, this._modeRules.timeLimit - (Date.now() - this.modeStartTime) / 1000)
         : null
     };
+    return this._cachedState;
   }
 
   setGameState(state) {

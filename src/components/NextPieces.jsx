@@ -60,4 +60,4 @@ const NextPieces = ({ pieces }) => {
   );
 };
 
-export default NextPieces;
+export default React.memo(NextPieces);

@@ -308,5 +308,5 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   );
 };
 
-export default TetrisBoard;
+export default React.memo(TetrisBoard);
 

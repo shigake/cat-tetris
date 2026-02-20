@@ -65,4 +65,4 @@ const HeldPiece = ({ heldPiece, canHold }) => {
   );
 };
 
-export default HeldPiece;
+export default React.memo(HeldPiece);

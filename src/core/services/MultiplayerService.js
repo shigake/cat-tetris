@@ -76,7 +76,8 @@ export class MultiplayerService {
     };
 
     return {
-      mode: this.currentMode,
+      mode: 'vsAI',
+      aiDifficulty,
       players: this.players,
       matchId: `ai_${Date.now()}`
     };
@@ -185,12 +186,57 @@ export class MultiplayerService {
     return result;
   }
 
+  startAIvsAIMatch(ai1Difficulty = 'expert', ai2Difficulty = 'expert-tetris') {
+    this.currentMode = 'ai-vs-ai';
+    this.players = [
+      {
+        id: 'ai1',
+        name: this.getAIName(ai1Difficulty),
+        score: 0,
+        level: 1,
+        lines: 0,
+        gameState: null,
+        alive: true,
+        isAI: true,
+        difficulty: ai1Difficulty
+      },
+      {
+        id: 'ai2',
+        name: this.getAIName(ai2Difficulty),
+        score: 0,
+        level: 1,
+        lines: 0,
+        gameState: null,
+        alive: true,
+        isAI: true,
+        difficulty: ai2Difficulty
+      }
+    ];
+
+    this.matchState = {
+      startTime: Date.now(),
+      status: 'playing',
+      winner: null,
+      ai1Difficulty,
+      ai2Difficulty
+    };
+
+    return {
+      mode: 'aiVsAI',
+      ai1Difficulty,
+      ai2Difficulty,
+      players: this.players,
+      matchId: `aivai_${Date.now()}`
+    };
+  }
+
   getAIName(difficulty) {
     const names = {
-      easy: 'MeowBot Iniciante',
-      medium: 'CatAI Intermediário',
-      hard: 'FelineBot Avançado',
-      expert: 'NyanMaster Expert'
+      easy: '🐱 MeowBot Iniciante',
+      medium: '😺 CatAI Intermediário',
+      hard: '😸 FelineBot Avançado',
+      expert: '🧠 NyanMaster Survival',
+      'expert-tetris': '💎 TetrisNyan Expert'
     };
     return names[difficulty] || 'IA';
   }
@@ -207,22 +253,12 @@ export class MultiplayerService {
         difficulties: ['easy', 'medium', 'hard', 'expert']
       },
       {
-        id: '1v1-online',
-        name: '1v1 Online',
-        emoji: '🌐',
-        description: 'Em breve!',
-        players: 2,
-        type: 'online',
-        disabled: true
-      },
-      {
-        id: 'battle-royale',
-        name: 'Battle Royale',
-        emoji: '💀',
-        description: 'Em breve!',
-        players: 100,
-        type: 'online',
-        disabled: true
+        id: 'ai-vs-ai',
+        name: 'IA vs IA',
+        emoji: '🔬',
+        description: 'Assista duas IAs se enfrentando (debug)',
+        players: 0,
+        type: 'debug'
       }
     ];
   }

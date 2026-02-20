@@ -48,6 +48,22 @@ export function useMultiplayer() {
     }
   }, []);
 
+  const startAIvsAIMatch = useCallback((ai1Difficulty, ai2Difficulty) => {
+    try {
+      const multiplayerService = serviceContainer.resolve('multiplayerService');
+      const match = multiplayerService.startAIvsAIMatch(ai1Difficulty, ai2Difficulty);
+
+      setCurrentMode(match.mode);
+      setPlayers(match.players);
+      setMatchState(multiplayerService.getMatchState());
+
+      return match;
+    } catch (error) {
+
+      return null;
+    }
+  }, []);
+
   const updatePlayerState = useCallback((playerId, gameState) => {
     try {
       const multiplayerService = serviceContainer.resolve('multiplayerService');
@@ -107,6 +123,7 @@ export function useMultiplayer() {
     stats,
     startLocalMatch,
     startAIMatch,
+    startAIvsAIMatch,
     updatePlayerState,
     endMatch,
     getAvailableModes,

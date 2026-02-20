@@ -66,4 +66,4 @@ const Scoreboard = ({ score, level, lines, combo }) => {
   );
 };
 
-export default Scoreboard;
+export default React.memo(Scoreboard);
