@@ -49,8 +49,10 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
     } else if (mode === 'aiVsAI') {
       ai1Service = new AIOpponentService();
       ai1Service.setDifficulty(ai1Difficulty || 'expert');
+      ai1Service.setVisualMode(true);
       ai2Service = new AIOpponentService();
       ai2Service.setDifficulty(ai2Difficulty || 'expert');
+      ai2Service.setVisualMode(true);
       if ((ai1Difficulty || 'expert') === 'expert') {
         p1Service.score._fixedLevel = 1;
       }
@@ -120,7 +122,8 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       const _execAI = (aiSvc, gameSvc) => {
         if (!aiSvc || gameSvc.gameOver) return;
         try {
-          const maxActions = aiSvc._isExpert ? 20 : 1;
+          const isAiVsAi = mode === 'aiVsAI';
+          const maxActions = isAiVsAi ? 3 : (aiSvc._isExpert ? 20 : 1);
           for (let i = 0; i < maxActions; i++) {
             const d = aiSvc.decideNextMove(gameSvc.getGameState());
             if (!d) break;

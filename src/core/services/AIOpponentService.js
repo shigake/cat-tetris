@@ -5,6 +5,8 @@ export class AIOpponentService {
     this.lastDecision = Date.now();
     this._actionQueue = [];
     this._isExpert = false;
+    this._visualMode = false;
+    this._visualActionDelay = 40;
   }
 
   setDifficulty(difficulty) {
@@ -19,19 +21,25 @@ export class AIOpponentService {
     }
   }
 
+  setVisualMode(enabled) {
+    this._visualMode = enabled;
+  }
+
   decideNextMove(gameState) {
     const now = Date.now();
+    const effectiveDelay = this._visualMode ? this._visualActionDelay : this.thinkingTime;
 
     if (this._actionQueue.length > 0) {
-      if (this._isExpert) {
+      if (this._isExpert && !this._visualMode) {
         return this._actionQueue.shift();
       }
-      if (now - this.lastDecision < this.thinkingTime) return null;
+      if (now - this.lastDecision < effectiveDelay) return null;
       this.lastDecision = now;
       return this._actionQueue.shift();
     }
 
-    if (!this._isExpert && now - this.lastDecision < this.thinkingTime) return null;
+    if (!this._isExpert && now - this.lastDecision < effectiveDelay) return null;
+    if (this._visualMode && now - this.lastDecision < effectiveDelay) return null;
     this.lastDecision = now;
 
     const { currentPiece, board, heldPiece, canHold, nextPieces } = gameState;
@@ -43,12 +51,13 @@ export class AIOpponentService {
       let bestResult = this._findBestMoveWithLookahead(currentPiece, board, nextPiece);
       let useHold = false;
 
-      if (this._isExpert && canHold) {
+      if (canHold) {
         const holdPiece = heldPiece || nextPiece;
         if (holdPiece && holdPiece.type !== currentPiece.type) {
           const lookAheadForHold = heldPiece ? nextPiece : nextPieces?.[1] || null;
           const holdResult = this._findBestMoveWithLookahead(holdPiece, board, lookAheadForHold);
-          if (holdResult && (!bestResult || holdResult.score > bestResult.score + 10)) {
+          const holdThreshold = this._isExpert ? 10 : 200;
+          if (holdResult && (!bestResult || holdResult.score > bestResult.score + holdThreshold)) {
             bestResult = holdResult;
             useHold = true;
           }
