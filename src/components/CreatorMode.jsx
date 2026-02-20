@@ -124,6 +124,61 @@ function cloneBoard(b) {
   return b.map(r => r.map(c => c ? { ...c } : null));
 }
 
+// --- Serialization helpers ---
+const STORAGE_KEY = 'cattetris_custom_setups';
+
+function boardToRows(board) {
+  return board.map(row =>
+    row.map(cell => cell ? (cell.type || 'G') : '.').join('')
+  );
+}
+
+function rowsToBoard(rows) {
+  return rows.map(row =>
+    Array.from(row).map(ch =>
+      ch === '.' ? null : { type: ch, color: PIECE_COLORS[ch] || '#888', emoji: '⬜' }
+    )
+  );
+}
+
+function loadSavedSetups() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveSavedSetups(setups) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(setups));
+}
+
+function exportSetups(setups) {
+  const json = JSON.stringify(setups, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cat-tetris-setups.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importSetups(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) throw new Error('not array');
+        const valid = data.filter(s => s.name && s.board && Array.isArray(s.board) && Array.isArray(s.queue));
+        resolve(valid.map(s => ({ ...s, id: s.id || ('imp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6)) })));
+      } catch (err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
 function makeGameService(boardData, queue) {
   const gs = new GameService(new PieceFactory(), new MovementStrategyFactory(), null, new ScoringService());
   gs.initializeGame();
@@ -151,35 +206,117 @@ function makeGameService(boardData, queue) {
 export default function CreatorMode({ onExit }) {
   const [screen, setScreen] = useState('menu');
   const [activeTemplate, setActiveTemplate] = useState(null);
+  const [savedSetups, setSavedSetups] = useState(() => loadSavedSetups());
+  const [editingSetup, setEditingSetup] = useState(null); // null = new, object = editing
+  const [importMsg, setImportMsg] = useState(null);
 
   const [customBoard, setCustomBoard] = useState(emptyBoard);
   const [customQueue, setCustomQueue] = useState([]);
+  const [customName, setCustomName] = useState('');
   const [selectedColor, setSelectedColor] = useState('G');
+  const fileInputRef = useRef(null);
+
+  const persistSetups = useCallback((setups) => {
+    setSavedSetups(setups);
+    saveSavedSetups(setups);
+  }, []);
 
   const startTemplate = useCallback((tmpl) => {
     setActiveTemplate(tmpl);
     setScreen('play');
   }, []);
 
-  const startCustom = useCallback(() => {
+  const startSaved = useCallback((setup) => {
     setActiveTemplate({
-      id: 'custom', name: 'Setup Personalizado', emoji: '🎨',
+      id: setup.id, name: setup.name, emoji: '🎨',
+      board: setup.board, queue: setup.queue,
+    });
+    setScreen('play');
+  }, []);
+
+  const startCustomPlay = useCallback(() => {
+    setActiveTemplate({
+      id: 'custom', name: customName || 'Setup Personalizado', emoji: '🎨',
       board: null, queue: [...customQueue],
       _rawBoard: cloneBoard(customBoard),
     });
     setScreen('play');
-  }, [customBoard, customQueue]);
+  }, [customBoard, customQueue, customName]);
+
+  const openNewEditor = useCallback(() => {
+    setEditingSetup(null);
+    setCustomBoard(emptyBoard());
+    setCustomQueue([]);
+    setCustomName('');
+    setScreen('editor');
+  }, []);
+
+  const openEditEditor = useCallback((setup) => {
+    setEditingSetup(setup);
+    setCustomBoard(rowsToBoard(setup.board));
+    setCustomQueue([...setup.queue]);
+    setCustomName(setup.name);
+    setScreen('editor');
+  }, []);
+
+  const saveSetup = useCallback(() => {
+    const name = customName.trim() || 'Meu Setup';
+    const boardRows = boardToRows(customBoard);
+    if (editingSetup) {
+      const updated = savedSetups.map(s =>
+        s.id === editingSetup.id ? { ...s, name, board: boardRows, queue: [...customQueue] } : s
+      );
+      persistSetups(updated);
+    } else {
+      const newSetup = {
+        id: 'custom_' + Date.now(),
+        name,
+        board: boardRows,
+        queue: [...customQueue],
+      };
+      persistSetups([...savedSetups, newSetup]);
+    }
+    setScreen('menu');
+  }, [customBoard, customQueue, customName, editingSetup, savedSetups, persistSetups]);
+
+  const deleteSetup = useCallback((id) => {
+    persistSetups(savedSetups.filter(s => s.id !== id));
+  }, [savedSetups, persistSetups]);
+
+  const handleImport = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const imported = await importSetups(file);
+      if (imported.length === 0) { setImportMsg('Nenhum setup válido no arquivo.'); return; }
+      const merged = [...savedSetups, ...imported];
+      persistSetups(merged);
+      setImportMsg(`${imported.length} setup(s) importado(s)!`);
+      setTimeout(() => setImportMsg(null), 3000);
+    } catch {
+      setImportMsg('Erro ao ler o arquivo JSON.');
+      setTimeout(() => setImportMsg(null), 3000);
+    }
+    e.target.value = '';
+  }, [savedSetups, persistSetups]);
+
+  const handleExportAll = useCallback(() => {
+    if (savedSetups.length === 0) return;
+    exportSetups(savedSetups);
+  }, [savedSetups]);
 
   if (screen === 'play' && activeTemplate) {
     return <PlayScreen template={activeTemplate}
-      onBack={() => setScreen(activeTemplate.id === 'custom' ? 'editor' : 'menu')} onExit={onExit} />;
+      onBack={() => setScreen('menu')} onExit={onExit} />;
   }
 
   if (screen === 'editor') {
     return <EditorScreen board={customBoard} setBoard={setCustomBoard}
       queue={customQueue} setQueue={setCustomQueue}
+      name={customName} setName={setCustomName}
       selectedColor={selectedColor} setSelectedColor={setSelectedColor}
-      onPlay={() => startCustom()}
+      onPlay={startCustomPlay} onSave={saveSetup}
+      isEditing={!!editingSetup}
       onBack={() => setScreen('menu')} onExit={onExit} />;
   }
 
@@ -191,7 +328,7 @@ export default function CreatorMode({ onExit }) {
       </div>
       <p className="text-white/50 text-sm mb-4 text-center max-w-md">Aprenda T-Spins com passo a passo ou crie seu setup!</p>
 
-      <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setScreen('editor')}
+      <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={openNewEditor}
         className="w-full max-w-lg mb-4 p-4 rounded-xl bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 hover:from-violet-600/40 hover:to-fuchsia-600/40 border border-violet-500/30 hover:border-violet-500/50 transition-all flex items-center gap-4">
         <span className="text-4xl">🛠️</span>
         <div className="text-left">
@@ -200,11 +337,85 @@ export default function CreatorMode({ onExit }) {
         </div>
       </motion.button>
 
+      {/* Saved custom setups */}
+      {savedSetups.length > 0 && (
+        <>
+          <div className="flex items-center justify-between w-full max-w-lg mb-2">
+            <div className="text-white/40 text-xs font-semibold uppercase tracking-wide">Meus Setups ({savedSetups.length})</div>
+            <div className="flex gap-1.5">
+              <button onClick={handleExportAll} className="bg-blue-600/60 hover:bg-blue-600 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors">📤 Exportar JSON</button>
+              <button onClick={() => fileInputRef.current?.click()} className="bg-green-600/60 hover:bg-green-600 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors">📥 Importar JSON</button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-2 w-full max-w-lg mb-4">
+            {savedSetups.map(s => (
+              <SavedSetupCard key={s.id} setup={s}
+                onPlay={() => startSaved(s)}
+                onEdit={() => openEditEditor(s)}
+                onDelete={() => deleteSetup(s.id)}
+                onExport={() => exportSetups([s])} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Import button when no setups */}
+      {savedSetups.length === 0 && (
+        <div className="w-full max-w-lg mb-4 flex justify-center">
+          <button onClick={() => fileInputRef.current?.click()} className="bg-green-600/40 hover:bg-green-600/60 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">📥 Importar Setups (JSON)</button>
+        </div>
+      )}
+
+      <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
+
+      {importMsg && (
+        <div className="w-full max-w-lg mb-3 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-200 text-xs text-center font-medium">{importMsg}</div>
+      )}
+
       <div className="text-white/40 text-xs font-semibold uppercase tracking-wide mb-3">Setups de T-Spin</div>
       <div className="grid grid-cols-1 gap-2 w-full max-w-lg">
         {TEMPLATES.map(t => (
           <TemplateCard key={t.id} template={t} onPlay={() => startTemplate(t)} />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function SavedSetupCard({ setup, onPlay, onEdit, onDelete, onExport }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-500/[0.06] border border-violet-500/[0.12] hover:bg-violet-500/[0.1] transition-all">
+      <div className="flex flex-col items-center min-w-[44px]">
+        <BoardMini boardRows={setup.board} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className="text-lg">🎨</span>
+          <span className="text-white font-bold text-sm truncate">{setup.name}</span>
+        </div>
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="text-white/30 text-[10px]">Peças:</span>
+          {setup.queue.map((t, i) => (
+            <span key={i} className="inline-block w-3.5 h-3.5 rounded" style={{ backgroundColor: PIECE_COLORS[t] }} title={t} />
+          ))}
+          {setup.queue.length === 0 && <span className="text-white/20 text-[10px]">aleatória</span>}
+        </div>
+      </div>
+      <div className="flex flex-col gap-1 shrink-0">
+        <div className="flex gap-1">
+          <button onClick={onPlay} className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors">🎮</button>
+          <button onClick={onEdit} className="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors">✏️</button>
+          <button onClick={onExport} className="bg-slate-600 hover:bg-slate-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors">📤</button>
+        </div>
+        {!confirmDelete ? (
+          <button onClick={() => setConfirmDelete(true)} className="bg-red-700/40 hover:bg-red-700/70 text-red-300 px-2.5 py-1 rounded text-[10px] font-bold transition-colors w-full">🗑️ Excluir</button>
+        ) : (
+          <div className="flex gap-1">
+            <button onClick={() => { onDelete(); setConfirmDelete(false); }} className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-[9px] font-bold flex-1">Sim</button>
+            <button onClick={() => setConfirmDelete(false)} className="bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-[9px] font-bold flex-1">Não</button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -386,7 +597,7 @@ function PlayScreen({ template, onBack, onExit }) {
   );
 }
 
-function EditorScreen({ board, setBoard, queue, setQueue, selectedColor, setSelectedColor, onPlay, onBack, onExit }) {
+function EditorScreen({ board, setBoard, queue, setQueue, name, setName, selectedColor, setSelectedColor, onPlay, onSave, isEditing, onBack, onExit }) {
   const toggleCell = useCallback((x, y) => {
     setBoard(prev => {
       const nb = prev.map(r => [...r]);
@@ -414,9 +625,9 @@ function EditorScreen({ board, setBoard, queue, setQueue, selectedColor, setSele
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-3 overflow-auto">
       <div className="flex justify-between items-center w-full max-w-2xl mb-3">
-        <h1 className="text-xl font-bold text-white">🛠️ Criar Meu Setup</h1>
+        <h1 className="text-xl font-bold text-white">{isEditing ? '✏️ Editar Setup' : '🛠️ Criar Meu Setup'}</h1>
         <div className="flex gap-2">
-          <button onClick={onBack} className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-sm font-bold">← Templates</button>
+          <button onClick={onBack} className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-sm font-bold">← Voltar</button>
           <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-bold">Sair</button>
         </div>
       </div>
@@ -466,8 +677,15 @@ function EditorScreen({ board, setBoard, queue, setQueue, selectedColor, setSele
               {queue.length > 0 && <button onClick={() => setQueue([])} className="text-red-400 text-[10px] mt-1 hover:text-red-300">Limpar fila</button>}
             </div>
           </div>
+          <div>
+            <div className="text-white/60 text-xs font-semibold mb-2">NOME DO SETUP</div>
+            <input type="text" value={name} onChange={e => setName(e.target.value)}
+              placeholder="Ex: Meu TSD favorito" maxLength={40}
+              className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm placeholder-white/20 focus:border-violet-500/50 focus:outline-none mb-3" />
+          </div>
           <div className="flex flex-col gap-2">
-            <button onClick={onPlay} className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-base shadow-lg shadow-emerald-500/25 transition-all active:scale-95">🎮 Jogar</button>
+            <button onClick={onSave} className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white font-bold text-base shadow-lg shadow-violet-500/25 transition-all active:scale-95">{isEditing ? '💾 Salvar Alterações' : '💾 Salvar Setup'}</button>
+            <button onClick={onPlay} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all active:scale-95">🎮 Testar (sem salvar)</button>
           </div>
         </div>
       </div>
