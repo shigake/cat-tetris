@@ -24,7 +24,6 @@ export class AIOpponentService {
 
     if (this._actionQueue.length > 0) {
       if (this._isExpert) {
-        // Expert: execute all queued actions instantly (return all at once)
         return this._actionQueue.shift();
       }
       if (now - this.lastDecision < this.thinkingTime) return null;
@@ -49,7 +48,6 @@ export class AIOpponentService {
         if (holdPiece && holdPiece.type !== currentPiece.type) {
           const lookAheadForHold = heldPiece ? nextPiece : nextPieces?.[1] || null;
           const holdResult = this._findBestMoveWithLookahead(holdPiece, board, lookAheadForHold);
-          // More aggressive hold: use hold if it's even slightly better
           if (holdResult && (!bestResult || holdResult.score > bestResult.score + 10)) {
             bestResult = holdResult;
             useHold = true;
@@ -191,14 +189,11 @@ export class AIOpponentService {
 
     let score = 0;
 
-    // === LINE CLEARS ARE THE #1 PRIORITY ===
-    // Clearing lines is always critical — exponential bonus for multi-clears
     score += cleared * 5000;
     if (cleared >= 2) score += cleared * cleared * 1500;
     if (cleared === 3) score += 8000;
     if (cleared === 4) score += 25000;
 
-    // Emergency mode: when board is high, clearing any line is extremely valuable
     if (height > 10) {
       score += cleared * 8000;
       if (cleared >= 2) score += cleared * 5000;
@@ -207,40 +202,29 @@ export class AIOpponentService {
       score += cleared * 20000;
     }
 
-    // === ABSOLUTE TOP PRIORITY: KEEP HEIGHT LOW ===
-    // Quadratic height penalty — grows massively as board fills
     score -= height * height * 25;
     score -= height * 300;
 
-    // Max column height penalty (any single tall column is deadly)
     score -= maxColH * maxColH * 15;
 
-    // === HOLES ARE THE #1 ENEMY ===
-    // Every hole makes survival exponentially harder
     score -= holes * 4000;
-    score -= holes * holes * 500; // quadratic: 2 holes = 12k penalty, 4 holes = 24k
+    score -= holes * holes * 500;
     score -= coveredHoles * 1200;
 
-    // === KEEP SURFACE FLAT ===
     score -= bumpiness * 250;
-    // Variance penalty (large height differences between columns)
     const avgH = colHeights.reduce((s, v) => s + v, 0) / colHeights.length;
     const variance = colHeights.reduce((s, v) => s + (v - avgH) ** 2, 0) / colHeights.length;
     score -= variance * 80;
 
-    // Extreme height difference between columns is very dangerous
     const heightRange = maxColH - minColH;
     if (heightRange > 4) score -= (heightRange - 4) * 800;
     if (heightRange > 6) score -= (heightRange - 6) * 1500;
 
-    // === TRANSITIONS = MESSY BOARD ===
     score -= rowTrans * 60;
     score -= colTrans * 50;
 
-    // === UNWANTED DEEP WELLS ===
     score -= wellDepths * 200;
 
-    // === BONUSES FOR CLEAN BOARD STATE ===
     if (height === 0) score += 15000;
     else if (height <= 2) score += 6000;
     else if (height <= 4) score += 3000;
@@ -251,15 +235,12 @@ export class AIOpponentService {
     if (bumpiness <= 1) score += 2000;
     else if (bumpiness <= 3) score += 800;
 
-    // === DANGER ZONE — EXPONENTIAL PENALTY ===
     if (height > 10) score -= (height - 10) * 2000;
     if (height > 12) score -= (height - 12) * (height - 12) * 800;
     if (height > 14) score -= (height - 14) * (height - 14) * 1500;
     if (height > 16) score -= 60000;
     if (height > 18) score -= 200000;
 
-    // === NEAR-COMPLETE LINES = INSURANCE ===
-    // Having lines that are almost full means we can clear them easily
     const nearComplete = this._countNearCompleteLines(board);
     if (height > 8) {
       score += nearComplete * 1500;
@@ -278,13 +259,11 @@ export class AIOpponentService {
 
     let score = 0;
 
-    // Combo strategy: single-line clears chain combos best
     if (cleared === 1) score += 6000;
     else if (cleared === 2) score += 3500;
     else if (cleared === 3) score += 2500;
     else if (cleared === 4) score += 2000;
 
-    // Count near-complete lines and consecutive arrangement
     let nearComplete = 0;
     let consecutiveNear = 0;
     let maxConsecutive = 0;
@@ -312,20 +291,16 @@ export class AIOpponentService {
       }
     }
 
-    // Many near-complete lines = combo fuel
     score += nearComplete * 2500;
 
-    // Consecutive near-complete = chain potential
     score += maxConsecutive * maxConsecutive * 600;
 
-    // Aligned gaps = easy combo chain
     let bestGapCount = 0;
     for (const col in gapCols) {
       if (gapCols[col] > bestGapCount) bestGapCount = gapCols[col];
     }
     if (bestGapCount >= 2) score += bestGapCount * bestGapCount * 500;
 
-    // Board quality
     score -= holes * 2500;
     score -= coveredHoles * 700;
     score -= height * 100;
@@ -353,26 +328,20 @@ export class AIOpponentService {
 
     let score = 0;
 
-    // Fixed well column — always rightmost (standard competitive Tetris)
     const wellCol = width - 1;
 
-    // === LINE CLEAR SCORING ===
     if (cleared === 4) {
       score += 200000;
     } else if (cleared > 0) {
-      // Wasting lines without Tetris is terrible
       score -= cleared * 15000;
     }
 
-    // === WELL COLUMN STATE ===
-    // Count actual blocks in the well column — each one is devastating
     let wellBlocks = 0;
     for (let y = 0; y < boardH; y++) {
       if (board[y][wellCol] != null) wellBlocks++;
     }
     score -= wellBlocks * 6000;
 
-    // === NON-WELL COLUMN ANALYSIS ===
     const nonWellHeights = [];
     for (let i = 0; i < width; i++) {
       if (i !== wellCol) nonWellHeights.push(colHeights[i]);
@@ -380,14 +349,12 @@ export class AIOpponentService {
     const avgNW = nonWellHeights.reduce((s, v) => s + v, 0) / nonWellHeights.length;
     const wellDepth = avgNW - colHeights[wellCol];
 
-    // Reward deep well
     score += Math.max(0, wellDepth) * 600;
     if (wellDepth >= 4) score += 25000;
     else if (wellDepth >= 3) score += 12000;
     else if (wellDepth >= 2) score += 5000;
     else if (wellDepth >= 1) score += 1000;
 
-    // === NON-WELL FLATNESS (CRITICAL for clean Tetris) ===
     let nwBump = 0;
     for (let i = 0; i < nonWellHeights.length - 1; i++) {
       nwBump += Math.abs(nonWellHeights[i] - nonWellHeights[i + 1]);
@@ -397,19 +364,16 @@ export class AIOpponentService {
     const nwVariance = nonWellHeights.reduce((s, v) => s + (v - avgNW) ** 2, 0) / nonWellHeights.length;
     score -= nwVariance * 150;
 
-    // Bonus for perfect flatness
     if (nwBump === 0) score += 6000;
     else if (nwBump <= 1) score += 2500;
     else if (nwBump <= 2) score += 800;
 
-    // === NEAR-FULL ROWS (full except well column = Tetris-ready) ===
     const nearFull = this._countNearFullLinesExcluding(board, wellCol);
     score += nearFull * 5000;
     if (nearFull >= 4) score += 20000;
     else if (nearFull >= 3) score += 8000;
     else if (nearFull >= 2) score += 3000;
 
-    // === UNWANTED WELLS (wells in wrong columns) ===
     for (let x = 0; x < width; x++) {
       if (x === wellCol) continue;
       const h = colHeights[x];
@@ -419,30 +383,24 @@ export class AIOpponentService {
       if (depth > 1) score -= depth * 2000;
     }
 
-    // === I-PIECE MANAGEMENT ===
     if (piece.type === 'I') {
       if (cleared === 4) {
-        score += 50000; // Extra bonus: I-piece used for Tetris!
+        score += 50000;
       } else if (wellDepth < 4) {
-        // I-piece used without Tetris when well isn't ready = waste
-        // This encourages holding the I-piece
         score -= 20000;
       }
     }
 
-    // === BOARD QUALITY ===
     score -= holes * 5000;
     score -= coveredHoles * 2000;
     score -= this._getRowTransitions(board) * 40;
     score -= this._getColTransitions(board) * 30;
 
-    // Height management
     const maxNW = Math.max(...nonWellHeights);
     if (maxNW > 14) score -= (maxNW - 14) * 3000;
     if (maxNW > 16) score -= (maxNW - 16) * 6000;
     if (maxNW > 18) score -= 40000;
 
-    // Clean board bonuses
     if (holes === 0) score += 4000;
     if (avgNW <= 6) score += 1500;
 

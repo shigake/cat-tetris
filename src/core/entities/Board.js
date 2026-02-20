@@ -2,7 +2,7 @@ export class Board {
   constructor(width = 10, height = 20) {
     this.width = width;
     this.height = height;
-    this.bufferHeight = 4; // Hidden rows above visible area (official Tetris guideline)
+    this.bufferHeight = 4;
     this.grid = this.createEmptyGrid();
     this._buffer = this.createEmptyBuffer();
   }
@@ -64,7 +64,6 @@ export class Board {
     return cells.every(cell => {
       if (cell.x < 0 || cell.x >= this.width) return false;
       if (cell.y >= this.height) return false;
-      // Allow cells above the visible board (buffer zone), just check no overlap
       if (cell.y < -this.bufferHeight) return false;
       const boardCell = this.getCell(cell.x, cell.y);
       return boardCell === null;
@@ -72,7 +71,6 @@ export class Board {
   }
 
   clearLines() {
-    // Combine buffer + visible grid for unified clearing
     const fullGrid = [...this._buffer, ...this.grid];
     const newFullGrid = [];
     let linesCleared = 0;
@@ -91,7 +89,6 @@ export class Board {
       newFullGrid.unshift(Array(this.width).fill(null));
     }
 
-    // Split back into buffer and visible grid
     this._buffer = newFullGrid.slice(0, this.bufferHeight);
     this.grid = newFullGrid.slice(this.bufferHeight);
     return linesCleared;
@@ -108,7 +105,6 @@ export class Board {
   }
 
   isGameOver() {
-    // Block out: any block in the buffer zone means game over
     return this._buffer.some(row => row.some(cell => cell !== null));
   }
 
@@ -118,7 +114,6 @@ export class Board {
 
   setBoardState(grid) {
     this.grid = grid.map(row => [...row]);
-    // Reset buffer when restoring state
     this._buffer = this.createEmptyBuffer();
   }
 
@@ -140,9 +135,7 @@ export class Board {
       garbageRows.push(row);
     }
 
-    // Shift visible grid up — top rows go into buffer
     const removedFromGrid = this.grid.splice(0, count);
-    // Shift buffer up and absorb removed grid rows
     const removedFromBuffer = this._buffer.splice(0, count);
     this._buffer.push(...removedFromGrid);
 

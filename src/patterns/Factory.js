@@ -13,7 +13,6 @@ export class PieceFactory extends IPieceFactory {
   constructor() {
     super();
     this.pieceConfigs = PIECES;
-    // Each PieceFactory has its own independent 7-bag (official guideline)
     this._bag = [];
     this._bagIndex = 0;
   }

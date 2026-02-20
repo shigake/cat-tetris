@@ -86,11 +86,6 @@ export function useGameService() {
     return (...args) => {
       if (gameServiceRef.current && typeof gameServiceRef.current[actionName] === 'function') {
         try {
-          if (!['getDropPreview', 'updateGame', 'getGameState'].includes(actionName)) {
-            errorLogger.logAction('useGameService', actionName, {
-              args: args.length > 0 ? args : undefined
-            });
-          }
           return gameServiceRef.current[actionName](...args);
         } catch (error) {
           errorLogger.logError('useGameService', actionName, error.message, {

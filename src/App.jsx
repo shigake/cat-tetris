@@ -35,7 +35,6 @@ import { usePlayerStats } from './hooks/usePlayerStats';
 import { useShop } from './hooks/useShop';
 import { useGameModes } from './hooks/useGameModes';
 import GamepadIndicator from './components/GamepadIndicator';
-import DebugPanel from './components/DebugPanel';
 import { getPieceColor } from './utils/PieceGenerator';
 import { errorLogger } from './services/ErrorLogger';
 
@@ -775,7 +774,6 @@ function App() {
     <ErrorBoundary>
       <GameComponent />
       <ToastNotification />
-      <DebugPanel />
     </ErrorBoundary>
   );
 }

@@ -42,7 +42,6 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       try {
         aiService = new AIOpponentService();
         aiService.setDifficulty(aiDifficulty || 'medium');
-        // Expert AI: fix gravity to level 1 so speed never outpaces the AI
         if (aiDifficulty === 'expert') {
           p2Service.score._fixedLevel = 1;
         }
@@ -52,7 +51,6 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       ai1Service.setDifficulty(ai1Difficulty || 'expert');
       ai2Service = new AIOpponentService();
       ai2Service.setDifficulty(ai2Difficulty || 'expert');
-      // Fix gravity for expert AI players so they never die to speed
       if ((ai1Difficulty || 'expert') === 'expert') {
         p1Service.score._fixedLevel = 1;
       }
@@ -66,7 +64,6 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
     p2Service.initializeGame();
     p2Service.isPlaying = true;
 
-    // Expert AI: increase lock delay to give AI more time to position pieces
     if (mode === 'vsAI' && aiDifficulty === 'expert') {
       p2Service._lockDelayMax = 2000;
       p2Service._lockDelayMaxResets = 50;
@@ -123,7 +120,6 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       const _execAI = (aiSvc, gameSvc) => {
         if (!aiSvc || gameSvc.gameOver) return;
         try {
-          // Expert AI: execute all queued actions in one frame for instant placement
           const maxActions = aiSvc._isExpert ? 20 : 1;
           for (let i = 0; i < maxActions; i++) {
             const d = aiSvc.decideNextMove(gameSvc.getGameState());
@@ -136,7 +132,6 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
               case 'drop': gameSvc.hardDrop(); break;
               case 'hold': gameSvc.holdPiece(); break;
             }
-            // After a drop, stop — new piece needs new decision
             if (d.action === 'drop') break;
           }
         } catch (e) { }
