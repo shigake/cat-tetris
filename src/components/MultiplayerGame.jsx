@@ -42,18 +42,44 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       try {
         aiService = new AIOpponentService();
         aiService.setDifficulty(aiDifficulty || 'medium');
+        // Expert AI: fix gravity to level 1 so speed never outpaces the AI
+        if (aiDifficulty === 'expert') {
+          p2Service.score._fixedLevel = 1;
+        }
       } catch (e) { }
     } else if (mode === 'aiVsAI') {
       ai1Service = new AIOpponentService();
       ai1Service.setDifficulty(ai1Difficulty || 'expert');
       ai2Service = new AIOpponentService();
       ai2Service.setDifficulty(ai2Difficulty || 'expert');
+      // Fix gravity for expert AI players so they never die to speed
+      if ((ai1Difficulty || 'expert') === 'expert') {
+        p1Service.score._fixedLevel = 1;
+      }
+      if ((ai2Difficulty || 'expert') === 'expert') {
+        p2Service.score._fixedLevel = 1;
+      }
     }
 
     p1Service.initializeGame();
     p1Service.isPlaying = true;
     p2Service.initializeGame();
     p2Service.isPlaying = true;
+
+    // Expert AI: increase lock delay to give AI more time to position pieces
+    if (mode === 'vsAI' && aiDifficulty === 'expert') {
+      p2Service._lockDelayMax = 2000;
+      p2Service._lockDelayMaxResets = 50;
+    } else if (mode === 'aiVsAI') {
+      if ((ai1Difficulty || 'expert') === 'expert') {
+        p1Service._lockDelayMax = 2000;
+        p1Service._lockDelayMaxResets = 50;
+      }
+      if ((ai2Difficulty || 'expert') === 'expert') {
+        p2Service._lockDelayMax = 2000;
+        p2Service._lockDelayMaxResets = 50;
+      }
+    }
 
     servicesRef.current = { p1: p1Service, p2: p2Service, ai: aiService, ai1: ai1Service, ai2: ai2Service };
     setPlayer1State(p1Service.getGameState());
@@ -94,51 +120,33 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         p1.receiveGarbage(p2Attack);
       }
 
-      if (mode === 'aiVsAI') {
-        if (ai1 && !p1.gameOver) {
-          try {
-            const d = ai1.decideNextMove(p1.getGameState());
-            if (d) {
-              switch (d.action) {
-                case 'left': p1.movePiece('left'); break;
-                case 'right': p1.movePiece('right'); break;
-                case 'rotate': p1.rotatePiece(); break;
-                case 'down': p1.movePiece('down'); break;
-                case 'drop': p1.hardDrop(); break;
-                case 'hold': p1.holdPiece(); break;
-              }
-            }
-          } catch (e) { }
-        }
-        if (ai2 && !p2.gameOver) {
-          try {
-            const d = ai2.decideNextMove(p2.getGameState());
-            if (d) {
-              switch (d.action) {
-                case 'left': p2.movePiece('left'); break;
-                case 'right': p2.movePiece('right'); break;
-                case 'rotate': p2.rotatePiece(); break;
-                case 'down': p2.movePiece('down'); break;
-                case 'drop': p2.hardDrop(); break;
-                case 'hold': p2.holdPiece(); break;
-              }
-            }
-          } catch (e) { }
-        }
-      } else if (mode === 'vsAI' && ai && !p2.gameOver) {
+      const _execAI = (aiSvc, gameSvc) => {
+        if (!aiSvc || gameSvc.gameOver) return;
         try {
-          const decision = ai.decideNextMove(p2.getGameState());
-          if (decision) {
-            switch (decision.action) {
-              case 'left': p2.movePiece('left'); break;
-              case 'right': p2.movePiece('right'); break;
-              case 'rotate': p2.rotatePiece(); break;
-              case 'down': p2.movePiece('down'); break;
-              case 'drop': p2.hardDrop(); break;
-              case 'hold': p2.holdPiece(); break;
+          // Expert AI: execute all queued actions in one frame for instant placement
+          const maxActions = aiSvc._isExpert ? 20 : 1;
+          for (let i = 0; i < maxActions; i++) {
+            const d = aiSvc.decideNextMove(gameSvc.getGameState());
+            if (!d) break;
+            switch (d.action) {
+              case 'left': gameSvc.movePiece('left'); break;
+              case 'right': gameSvc.movePiece('right'); break;
+              case 'rotate': gameSvc.rotatePiece(); break;
+              case 'down': gameSvc.movePiece('down'); break;
+              case 'drop': gameSvc.hardDrop(); break;
+              case 'hold': gameSvc.holdPiece(); break;
             }
+            // After a drop, stop — new piece needs new decision
+            if (d.action === 'drop') break;
           }
-        } catch (e) {  }
+        } catch (e) { }
+      };
+
+      if (mode === 'aiVsAI') {
+        _execAI(ai1, p1);
+        _execAI(ai2, p2);
+      } else if (mode === 'vsAI') {
+        _execAI(ai, p2);
       }
 
       if (p1.isDirty) {

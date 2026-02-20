@@ -24,6 +24,7 @@ export class AIOpponentService {
 
     if (this._actionQueue.length > 0) {
       if (this._isExpert) {
+        // Expert: execute all queued actions instantly (return all at once)
         return this._actionQueue.shift();
       }
       if (now - this.lastDecision < this.thinkingTime) return null;
@@ -31,7 +32,7 @@ export class AIOpponentService {
       return this._actionQueue.shift();
     }
 
-    if (now - this.lastDecision < this.thinkingTime) return null;
+    if (!this._isExpert && now - this.lastDecision < this.thinkingTime) return null;
     this.lastDecision = now;
 
     const { currentPiece, board, heldPiece, canHold, nextPieces } = gameState;
@@ -48,7 +49,8 @@ export class AIOpponentService {
         if (holdPiece && holdPiece.type !== currentPiece.type) {
           const lookAheadForHold = heldPiece ? nextPiece : nextPieces?.[1] || null;
           const holdResult = this._findBestMoveWithLookahead(holdPiece, board, lookAheadForHold);
-          if (holdResult && (!bestResult || holdResult.score > bestResult.score + 50)) {
+          // More aggressive hold: use hold if it's even slightly better
+          if (holdResult && (!bestResult || holdResult.score > bestResult.score + 10)) {
             bestResult = holdResult;
             useHold = true;
           }
@@ -84,7 +86,7 @@ export class AIOpponentService {
       const rotatedShape = this._rotateShape(piece.shape, rot);
       const pieceW = rotatedShape[0].length;
 
-      for (let col = -1; col <= boardWidth - pieceW + 1; col++) {
+      for (let col = -2; col <= boardWidth - pieceW + 2; col++) {
         const landingRow = this._findLandingRow(rotatedShape, board, col, boardHeight, boardWidth);
         if (landingRow === null || landingRow < 0) continue;
 
@@ -99,7 +101,7 @@ export class AIOpponentService {
           for (let nRot = 0; nRot < 4; nRot++) {
             const nShape = this._rotateShape(nextPiece.shape, nRot);
             const nW = nShape[0].length;
-            for (let nCol = -1; nCol <= boardWidth - nW + 1; nCol++) {
+            for (let nCol = -2; nCol <= boardWidth - nW + 2; nCol++) {
               const nRow = this._findLandingRow(nShape, clearedBoard, nCol, boardHeight, boardWidth);
               if (nRow === null || nRow < 0) continue;
               const nBoard = this._placeOnBoard(nShape, clearedBoard, nCol, nRow);
@@ -109,7 +111,7 @@ export class AIOpponentService {
             }
           }
           if (bestNext > -Infinity) {
-            const lookaheadW = 0.4;
+            const lookaheadW = 0.45;
             score = score * (1 - lookaheadW) + bestNext * lookaheadW;
           }
         }
@@ -180,44 +182,88 @@ export class AIOpponentService {
     const holes = this._countHoles(board);
     const bumpiness = this._getBumpiness(board);
     const coveredHoles = this._getCoveredHoles(board);
+    const colHeights = this._getColumnHeights(board);
+    const maxColH = Math.max(...colHeights);
+    const minColH = Math.min(...colHeights);
+    const rowTrans = this._getRowTransitions(board);
+    const colTrans = this._getColTransitions(board);
+    const wellDepths = this._getWellDepths(board);
 
     let score = 0;
 
-    // Line clears always good — multi-line bonus
-    score += cleared * 3000;
-    if (cleared >= 2) score += cleared * cleared * 600;
-    if (cleared === 4) score += 12000;
+    // === LINE CLEARS ARE THE #1 PRIORITY ===
+    // Clearing lines is always critical — exponential bonus for multi-clears
+    score += cleared * 5000;
+    if (cleared >= 2) score += cleared * cleared * 1500;
+    if (cleared === 3) score += 8000;
+    if (cleared === 4) score += 25000;
 
-    // Keep board as low as possible
-    score -= height * 200;
+    // Emergency mode: when board is high, clearing any line is extremely valuable
+    if (height > 10) {
+      score += cleared * 8000;
+      if (cleared >= 2) score += cleared * 5000;
+    }
+    if (height > 14) {
+      score += cleared * 20000;
+    }
 
-    // Holes are the #1 enemy
-    score -= holes * 2500;
-    score -= coveredHoles * 600;
+    // === ABSOLUTE TOP PRIORITY: KEEP HEIGHT LOW ===
+    // Quadratic height penalty — grows massively as board fills
+    score -= height * height * 25;
+    score -= height * 300;
 
-    // Keep surface flat
-    score -= bumpiness * 180;
+    // Max column height penalty (any single tall column is deadly)
+    score -= maxColH * maxColH * 15;
 
-    // Transitions indicate messy board
-    score -= this._getRowTransitions(board) * 45;
-    score -= this._getColTransitions(board) * 35;
+    // === HOLES ARE THE #1 ENEMY ===
+    // Every hole makes survival exponentially harder
+    score -= holes * 4000;
+    score -= holes * holes * 500; // quadratic: 2 holes = 12k penalty, 4 holes = 24k
+    score -= coveredHoles * 1200;
 
-    // Unwanted deep wells waste pieces
-    score -= this._getWellDepths(board) * 100;
+    // === KEEP SURFACE FLAT ===
+    score -= bumpiness * 250;
+    // Variance penalty (large height differences between columns)
+    const avgH = colHeights.reduce((s, v) => s + v, 0) / colHeights.length;
+    const variance = colHeights.reduce((s, v) => s + (v - avgH) ** 2, 0) / colHeights.length;
+    score -= variance * 80;
 
-    // Bonuses for clean board state
-    if (height <= 3) score += 2500;
-    else if (height <= 5) score += 1200;
-    else if (height <= 8) score += 500;
+    // Extreme height difference between columns is very dangerous
+    const heightRange = maxColH - minColH;
+    if (heightRange > 4) score -= (heightRange - 4) * 800;
+    if (heightRange > 6) score -= (heightRange - 6) * 1500;
 
-    if (holes === 0) score += 2500;
-    if (bumpiness <= 2) score += 1000;
-    else if (bumpiness <= 4) score += 400;
+    // === TRANSITIONS = MESSY BOARD ===
+    score -= rowTrans * 60;
+    score -= colTrans * 50;
 
-    // Danger zone — exponential penalty
-    if (height > 12) score -= (height - 12) * 1000;
-    if (height > 15) score -= (height - 15) * 2500;
-    if (height > 18) score -= 25000;
+    // === UNWANTED DEEP WELLS ===
+    score -= wellDepths * 200;
+
+    // === BONUSES FOR CLEAN BOARD STATE ===
+    if (height === 0) score += 15000;
+    else if (height <= 2) score += 6000;
+    else if (height <= 4) score += 3000;
+    else if (height <= 6) score += 1500;
+
+    if (holes === 0) score += 5000;
+    if (holes === 0 && height <= 4) score += 3000;
+    if (bumpiness <= 1) score += 2000;
+    else if (bumpiness <= 3) score += 800;
+
+    // === DANGER ZONE — EXPONENTIAL PENALTY ===
+    if (height > 10) score -= (height - 10) * 2000;
+    if (height > 12) score -= (height - 12) * (height - 12) * 800;
+    if (height > 14) score -= (height - 14) * (height - 14) * 1500;
+    if (height > 16) score -= 60000;
+    if (height > 18) score -= 200000;
+
+    // === NEAR-COMPLETE LINES = INSURANCE ===
+    // Having lines that are almost full means we can clear them easily
+    const nearComplete = this._countNearCompleteLines(board);
+    if (height > 8) {
+      score += nearComplete * 1500;
+    }
 
     return score;
   }
