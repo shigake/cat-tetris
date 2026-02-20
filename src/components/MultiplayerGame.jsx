@@ -19,6 +19,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
   const servicesRef = useRef({ p1: null, p2: null, ai: null, ai1: null, ai2: null });
   const lastTimeRef = useRef(0);
   const loopRef = useRef(null);
+  const winnerRef = useRef(null);
 
   useEffect(() => {
     const p1Service = new GameService(
@@ -99,6 +100,19 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       if (!p1 || !p2) { loopRef.current = requestAnimationFrame(gameLoop); return; }
 
       if (p1.gameOver || p2.gameOver) {
+        // Determine winner based on who died FIRST — not score
+        if (!winnerRef.current) {
+          if (p1.gameOver && !p2.gameOver) {
+            winnerRef.current = 'player2';
+          } else if (!p1.gameOver && p2.gameOver) {
+            winnerRef.current = 'player1';
+          } else {
+            // Both died same frame — use score as tiebreaker
+            winnerRef.current = (p1.score?.points || 0) >= (p2.score?.points || 0) ? 'player1' : 'player2';
+          }
+          setWinner(winnerRef.current);
+        }
+
         if (!p1.gameOver) { p1.gameOver = true; p1._markDirty(); }
         if (!p2.gameOver) { p2.gameOver = true; p2._markDirty(); }
 
@@ -123,7 +137,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         if (!aiSvc || gameSvc.gameOver) return;
         try {
           const isAiVsAi = mode === 'aiVsAI';
-          const maxActions = isAiVsAi ? 3 : (aiSvc._isExpert ? 20 : 1);
+          const maxActions = isAiVsAi ? 3 : (aiSvc._isExpert ? 3 : 1);
           for (let i = 0; i < maxActions; i++) {
             const d = aiSvc.decideNextMove(gameSvc.getGameState());
             if (!d) break;
@@ -165,14 +179,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
     return () => { if (loopRef.current) cancelAnimationFrame(loopRef.current); };
   }, [mode]);
 
-  useEffect(() => {
-    if (winner || !player1State || !player2State) return;
-    if (player1State.gameOver && !player2State.gameOver) setWinner('player2');
-    else if (player2State.gameOver && !player1State.gameOver) setWinner('player1');
-    else if (player1State.gameOver && player2State.gameOver) {
-      setWinner((player1State.score?.points || 0) >= (player2State.score?.points || 0) ? 'player1' : 'player2');
-    }
-  }, [player1State?.gameOver, player2State?.gameOver, winner]);
+  // Removed redundant useEffect that caused race condition with winner detection
 
   useEffect(() => {
     if (winner || mode === 'aiVsAI') return;

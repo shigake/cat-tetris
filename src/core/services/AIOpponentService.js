@@ -16,7 +16,7 @@ export class AIOpponentService {
       case 'easy':          this.thinkingTime = 250; break;
       case 'medium':        this.thinkingTime = 120; break;
       case 'hard':          this.thinkingTime = 60;  break;
-      case 'expert':        this.thinkingTime = 20;  break;
+      case 'expert':        this.thinkingTime = 40;  break;
       default:              this.thinkingTime = 120;
     }
   }
@@ -30,9 +30,6 @@ export class AIOpponentService {
     const effectiveDelay = this._visualMode ? this._visualActionDelay : this.thinkingTime;
 
     if (this._actionQueue.length > 0) {
-      if (this._isExpert && !this._visualMode) {
-        return this._actionQueue.shift();
-      }
       if (now - this.lastDecision < effectiveDelay) return null;
       this.lastDecision = now;
       return this._actionQueue.shift();
