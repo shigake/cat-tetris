@@ -59,6 +59,7 @@ function GameScreen({
   gameState,
   actions,
   onBackToMenu,
+  onRestart,
   isGamepadActive,
   controllerCount,
   getGamepadInfo
@@ -362,7 +363,7 @@ function GameScreen({
           {gameState.gameOver && (
             <GameOverScreen
               score={gameState.score}
-              onRestart={actions.restart}
+              onRestart={onRestart}
               onBackToMenu={onBackToMenu}
             />
           )}
@@ -550,6 +551,11 @@ function GameComponent() {
       startGameMusic?.();
     }
     actions.restart();
+  };
+
+  const handleRestartGame = () => {
+    actions.restart();
+    setCurrentScreen('game');
   };
 
   const handleBackToMenu = () => {
@@ -749,6 +755,7 @@ function GameComponent() {
         gameState={gameState}
         actions={actions}
         onBackToMenu={handleBackToMenu}
+        onRestart={handleRestartGame}
         isGamepadActive={isGamepadActive}
         controllerCount={controllerCount}
         getGamepadInfo={getGamepadInfo}

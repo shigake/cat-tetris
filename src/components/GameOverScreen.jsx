@@ -93,7 +93,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             className="space-y-3 mt-4"
           >
             <motion.button
-              onClick={onRestart}
+              onClick={(e) => { e.stopPropagation(); onRestart(); }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300 shadow-lg"
@@ -102,7 +102,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             </motion.button>
 
             <motion.button
-              onClick={onBackToMenu}
+              onClick={(e) => { e.stopPropagation(); onBackToMenu(); }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-400 hover:to-cyan-500 transition-all duration-300 shadow-lg"
