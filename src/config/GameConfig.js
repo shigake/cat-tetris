@@ -1,6 +1,7 @@
 export const GameConfig = {
   BOARD_WIDTH: 10,
   BOARD_HEIGHT: 20,
+  BUFFER_ROWS: 4,  // Hidden rows above visible area (official guideline)
   INITIAL_DROP_TIME: 1000,
   LOCK_DELAY: 500,
   SOFT_DROP_MULTIPLIER: 20,

@@ -1,4 +1,4 @@
-import { PIECES, PIECE_TYPES, generateRandomPiece as originalGenerateRandomPiece, generateNextPieces as originalGenerateNextPieces } from '../utils/PieceGenerator.js';
+import { PIECES, PIECE_TYPES } from '../utils/PieceGenerator.js';
 import { IPieceFactory } from '../interfaces/IPieceFactory.js';
 import { IMovementStrategy } from '../interfaces/IMovementStrategy.js';
 import { LeftMovementStrategy } from './strategies/LeftMovementStrategy.js';
@@ -13,6 +13,30 @@ export class PieceFactory extends IPieceFactory {
   constructor() {
     super();
     this.pieceConfigs = PIECES;
+    // Each PieceFactory has its own independent 7-bag (official guideline)
+    this._bag = [];
+    this._bagIndex = 0;
+  }
+
+  _refillBag() {
+    this._bag = Object.keys(this.pieceConfigs);
+    for (let i = this._bag.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this._bag[i], this._bag[j]] = [this._bag[j], this._bag[i]];
+    }
+    this._bagIndex = 0;
+  }
+
+  resetBag() {
+    this._bag = [];
+    this._bagIndex = 0;
+  }
+
+  _getNextType() {
+    if (this._bagIndex >= this._bag.length) {
+      this._refillBag();
+    }
+    return this._bag[this._bagIndex++];
   }
 
   createPiece(type, position = { x: 3, y: 0 }) {
@@ -31,27 +55,27 @@ export class PieceFactory extends IPieceFactory {
   }
 
   createRandomPiece() {
-    const pieceData = originalGenerateRandomPiece();
+    const pieceType = this._getNextType();
+    const config = this.pieceConfigs[pieceType];
+    let position = { x: 3, y: 0 };
+    if (pieceType === 'I') {
+      position = { x: 3, y: -2 };
+    }
     return new PieceBuilder()
-      .setType(pieceData.type)
-      .setShape(pieceData.shape)
-      .setColor(pieceData.color)
-      .setEmoji(pieceData.emoji)
-      .setPosition(pieceData.position.x, pieceData.position.y)
+      .setType(pieceType)
+      .setShape(config.shape)
+      .setColor(config.color)
+      .setEmoji(config.emoji)
+      .setPosition(position.x, position.y)
       .build();
   }
 
   createNextPieces(count = 3) {
-    const piecesData = originalGenerateNextPieces(count);
-    return piecesData.map(pieceData =>
-      new PieceBuilder()
-        .setType(pieceData.type)
-        .setShape(pieceData.shape)
-        .setColor(pieceData.color)
-        .setEmoji(pieceData.emoji)
-        .setPosition(pieceData.position.x, pieceData.position.y)
-        .build()
-    );
+    const pieces = [];
+    for (let i = 0; i < count; i++) {
+      pieces.push(this.createRandomPiece());
+    }
+    return pieces;
   }
 
   registerPieceType(type, config) {

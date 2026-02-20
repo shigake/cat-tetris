@@ -5,7 +5,7 @@ import { Piece } from '../entities/Piece.js';
 import { ScoringService } from './ScoringService.js';
 import { GameConfig } from '../../config/GameConfig.js';
 import { gameEvents, GAME_EVENTS } from '../../patterns/Observer.js';
-import { resetBag, PIECES } from '../../utils/PieceGenerator.js';
+import { PIECES } from '../../utils/PieceGenerator.js';
 import { errorLogger } from '../../services/ErrorLogger.js';
 
 export class GameService extends IGameService {
@@ -64,7 +64,7 @@ export class GameService extends IGameService {
 
   initializeGame() {
 
-    resetBag();
+    this.pieceFactory.resetBag();
 
     this.board = new Board(GameConfig.BOARD_WIDTH, GameConfig.BOARD_HEIGHT);
     this.score = new Score();
@@ -294,7 +294,9 @@ export class GameService extends IGameService {
     if (this._modeRules?.gameOver === false) {
 
       if (this.board.isGameOver()) {
-
+        // Clear buffer zone
+        this.board._buffer = this.board.createEmptyBuffer();
+        // Clear top visible rows
         for (let y = 0; y < 4; y++) {
           for (let x = 0; x < this.board.width; x++) {
             this.board.clearCell(x, y);
@@ -311,24 +313,32 @@ export class GameService extends IGameService {
     if (linesCleared === 0) return 0;
 
     let attack = 0;
+
+    // Official Tetris Guideline attack values
     if (isTSpin) {
-      attack = [0, 1, 2, 3][linesCleared] || 0;
+      // T-Spin: 0, 2, 4, 6
+      attack = [0, 2, 4, 6][linesCleared] || 0;
     } else {
+      // Normal: 0, 0, 1, 2, 4
       attack = [0, 0, 1, 2, 4][linesCleared] || 0;
     }
 
+    // Back-to-Back bonus: +1
     if (backToBack && (isTSpin || linesCleared === 4)) {
       attack += 1;
     }
 
-    if (combo >= 3) {
-      const comboTable = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3];
-      attack += comboTable[Math.min(combo - 1, comboTable.length - 1)] || 3;
+    // Official combo table (starts at combo 1)
+    if (combo >= 1) {
+      //          combo: 0  1  2  3  4  5  6  7  8  9+
+      const comboTable = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4];
+      attack += comboTable[Math.min(combo, comboTable.length - 1)] || 4;
     }
 
+    // Perfect Clear: 10 lines (official guideline)
     const boardEmpty = this.board.grid.every(row => row.every(cell => cell === null));
     if (boardEmpty) {
-      attack = 6;
+      attack = 10;
     }
 
     return attack;
@@ -517,6 +527,13 @@ export class GameService extends IGameService {
     const nextPiece = this.nextPieces.shift();
     this.nextPieces.push(this.pieceFactory.createRandomPiece());
     this.currentPiece = nextPiece;
+
+    // Block out: new piece can't spawn (overlaps existing blocks)
+    if (this.currentPiece && !this.board.canPlacePiece(this.currentPiece)) {
+      this.gameOver = true;
+      this._markDirty();
+      gameEvents.emit(GAME_EVENTS.GAME_OVER);
+    }
   }
 
   getGameState() {
