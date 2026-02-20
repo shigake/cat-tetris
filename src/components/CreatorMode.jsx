@@ -106,13 +106,13 @@ const DEFAULT_TEMPLATES = [
     emoji: '💣',
     desc: 'Donating T-Spin: TSD + TST combinados!',
     board: mkRows(13, [
+      'G...GGGGGG',
+      'G....GGGGG',
+      'GGGG.GGGGG',
       'GGG..GGGGG',
       'GGG...GGGG',
-      'GGGGG.GGGG',
-      'GGGG..GGGG',
-      'GGGG...GGG',
-      'GGGGG.GGGG',
-      'GGGGG.GGGG',
+      'GGGG.GGGGG',
+      'GGGG.GGGGG',
     ]),
     queue: ['T', 'T'],
     steps: [
