@@ -13,27 +13,41 @@ export function useAchievements() {
       setAchievements(achievementsService.getAchievements());
       setLoading(false);
 
-      const checkInterval = setInterval(() => {
-        const playerStatsService = serviceContainer.resolve('playerStatsService');
-        const stats = playerStatsService.getStats();
+      const runCheck = () => {
+        try {
+          const playerStatsService = serviceContainer.resolve('playerStatsService');
+          const stats = playerStatsService.getStats();
 
-        const unlocked = achievementsService.checkAchievements(stats);
+          const unlocked = achievementsService.checkAchievements(stats);
 
-        if (unlocked.length > 0) {
-          setAchievements(achievementsService.getAchievements());
-          setNewUnlocks(unlocked);
+          if (unlocked.length > 0) {
+            setAchievements(achievementsService.getAchievements());
+            setNewUnlocks(unlocked);
 
-          window.dispatchEvent(new CustomEvent('achievementsUnlocked', {
-            detail: unlocked
-          }));
+            window.dispatchEvent(new CustomEvent('achievementsUnlocked', {
+              detail: unlocked
+            }));
 
-          setTimeout(() => {
-            setNewUnlocks([]);
-          }, 5000);
+            setTimeout(() => {
+              setNewUnlocks([]);
+            }, 5000);
+          }
+        } catch (e) {
+          // silent
         }
-      }, 2000);
+      };
 
-      return () => clearInterval(checkInterval);
+      // Poll every 2 seconds
+      const checkInterval = setInterval(runCheck, 2000);
+
+      // Also check immediately when player stats are updated (game over)
+      const handleStatsUpdated = () => runCheck();
+      window.addEventListener('playerStatsUpdated', handleStatsUpdated);
+
+      return () => {
+        clearInterval(checkInterval);
+        window.removeEventListener('playerStatsUpdated', handleStatsUpdated);
+      };
     } catch (error) {
 
       setLoading(false);

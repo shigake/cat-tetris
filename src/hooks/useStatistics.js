@@ -36,16 +36,23 @@ export function useStatistics() {
         updateStatistics();
       };
 
+      const handleBackToBack = () => {
+        statisticsService.incrementBackToBack();
+        updateStatistics();
+      };
+
       gameEvents.on(GAME_EVENTS.PIECE_PLACED, handlePiecePlaced);
       gameEvents.on(GAME_EVENTS.LINE_CLEARED, handleLinesCleared);
       gameEvents.on(GAME_EVENTS.T_SPIN, handleTSpin);
       gameEvents.on(GAME_EVENTS.SCORE_UPDATED, handleComboUpdate);
+      gameEvents.on(GAME_EVENTS.BACK_TO_BACK, handleBackToBack);
 
       return () => {
         gameEvents.off(GAME_EVENTS.PIECE_PLACED, handlePiecePlaced);
         gameEvents.off(GAME_EVENTS.LINE_CLEARED, handleLinesCleared);
         gameEvents.off(GAME_EVENTS.T_SPIN, handleTSpin);
         gameEvents.off(GAME_EVENTS.SCORE_UPDATED, handleComboUpdate);
+        gameEvents.off(GAME_EVENTS.BACK_TO_BACK, handleBackToBack);
       };
     } catch (error) {
 
@@ -59,7 +66,11 @@ export function useStatistics() {
     const timer = setInterval(() => {
       try {
         const statisticsService = serviceContainer.resolve('statisticsService');
-        statisticsService.incrementPlayTime();
+        // Only count play time during active gameplay
+        const gameService = serviceContainer.resolve('gameService');
+        if (gameService.isPlaying && !gameService.isPaused && !gameService.gameOver) {
+          statisticsService.incrementPlayTime();
+        }
         setStatistics(statisticsService.getStats());
       } catch (e) {
 

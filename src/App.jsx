@@ -33,6 +33,7 @@ import { useGamepad } from './hooks/useGamepad';
 import { useMissions } from './hooks/useMissions';
 import { useAchievements } from './hooks/useAchievements';
 import { usePlayerStats } from './hooks/usePlayerStats';
+import { useStatistics } from './hooks/useStatistics';
 import { useShop } from './hooks/useShop';
 import { useGameModes } from './hooks/useGameModes';
 import GamepadIndicator from './components/GamepadIndicator';
@@ -417,6 +418,7 @@ function GameComponent() {
   } = useGamepad(actions);
 
   useMissions();
+  useStatistics();
   useAchievements();
   usePlayerStats();
   useShop();

@@ -16,9 +16,17 @@ export function usePlayerStats() {
         try {
           const statisticsService = serviceContainer.resolve('statisticsService');
           const gameServiceRef = serviceContainer.resolve('gameService');
+
+          // Only process if the main (singleton) game service is actually game over
+          // This prevents multiplayer game instances from triggering stat updates
+          if (!gameServiceRef.gameOver) return;
+
           const gameState = gameServiceRef.getGameState();
 
           const sessionStats = statisticsService.getStats();
+
+          // Skip if session has no meaningful data (e.g., stale multiplayer event)
+          if (sessionStats.piecesPlaced === 0 && sessionStats.linesCleared === 0) return;
 
           const gameData = {
             score: gameState.score.points,
@@ -33,6 +41,9 @@ export function usePlayerStats() {
 
           playerStatsService.updateAfterGame(gameData);
           setPlayerStats(playerStatsService.getStats());
+
+          // Reset session stats so next game starts fresh
+          statisticsService.reset();
 
           window.dispatchEvent(new Event('playerStatsUpdated'));
         } catch (error) {

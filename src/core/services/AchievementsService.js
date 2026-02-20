@@ -189,7 +189,16 @@ export class AchievementsService {
 
     return ACHIEVEMENTS.map(achievement => {
       const savedAchievement = savedMap.get(achievement.id);
-      return savedAchievement || {
+      if (savedAchievement) {
+        // Merge: use current definitions but preserve unlock state and progress
+        return {
+          ...achievement,
+          unlocked: savedAchievement.unlocked || false,
+          unlockedAt: savedAchievement.unlockedAt || null,
+          progress: savedAchievement.progress || 0
+        };
+      }
+      return {
         ...achievement,
         unlocked: false,
         unlockedAt: null,
