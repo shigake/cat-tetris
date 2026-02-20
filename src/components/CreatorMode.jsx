@@ -635,14 +635,23 @@ function PieceMini({ type, size = 12 }) {
   const shape = PIECES[type]?.shape;
   if (!shape) return null;
   const color = PIECE_COLORS[type];
-  const rows = shape.filter(row => row.some(c => c));
-  const trimmed = rows.map(row => { const f = row.indexOf(1), l = row.lastIndexOf(1); return row.slice(Math.max(0, f), l + 1); });
-  const maxW = Math.max(...trimmed.map(r => r.length));
+  // Filter empty rows
+  const activeRows = shape.filter(row => row.some(c => c));
+  // Find global min/max column across ALL rows (preserves spatial layout)
+  let minCol = Infinity, maxCol = -1;
+  for (const row of activeRows) {
+    for (let x = 0; x < row.length; x++) {
+      if (row[x]) { minCol = Math.min(minCol, x); maxCol = Math.max(maxCol, x); }
+    }
+  }
+  if (maxCol < 0) return null;
+  const trimmed = activeRows.map(row => row.slice(minCol, maxCol + 1));
+  const w = maxCol - minCol + 1;
   return (
     <div className="flex flex-col items-center">
       {trimmed.map((row, y) => (
         <div key={y} className="flex">
-          {Array.from({ length: maxW }, (_, x) => (
+          {Array.from({ length: w }, (_, x) => (
             <div key={x} style={{ width: size, height: size, backgroundColor: row[x] ? color : 'transparent', borderRadius: 1 }} />
           ))}
         </div>
