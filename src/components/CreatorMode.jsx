@@ -21,17 +21,15 @@ const PIECE_COLORS = {
 
 const DEFAULT_TEMPLATES = [
   {
-    id: 'ts-single',
+    id: 'tss',
     name: 'T-Spin Single',
     emoji: '🎯',
     desc: 'O T-Spin mais simples — limpa 1 linha',
-    board: mkRows(19, ['GG...GGGGG']),
+    board: mkRows(18, [
+      'GGG..GGGGG',
+      'GGG...GGGG',
+    ]),
     queue: ['T'],
-    steps: [
-      { key: '←', text: 'Mova 1x para a esquerda' },
-      { key: 'Espaço', text: 'Hard Drop — o T encaixa no buraco' },
-      { key: '🌀', text: 'T-Spin Single! Limpa 1 linha' },
-    ],
     isDefault: true,
   },
   {
@@ -39,14 +37,12 @@ const DEFAULT_TEMPLATES = [
     name: 'T-Spin Double (Direita)',
     emoji: '🌀',
     desc: 'O clássico TSD — limpa 2 linhas',
-    board: mkRows(18, ['GGG...GGGG', 'GGGG.GGGGG']),
+    board: mkRows(17, [
+      'GGG..GGGGG',
+      'GGG...GGGG',
+      'GGGG.GGGGG',
+    ]),
     queue: ['T'],
-    steps: [
-      { key: '↑', text: 'Gire 1x (90° horário)' },
-      { key: '↑', text: 'Gire de novo (agora está de cabeça pra baixo)' },
-      { key: 'Espaço', text: 'Hard Drop — T cai direto na cavidade' },
-      { key: '🌀', text: 'T-Spin Double! Limpa 2 linhas' },
-    ],
     isDefault: true,
   },
   {
@@ -54,29 +50,12 @@ const DEFAULT_TEMPLATES = [
     name: 'T-Spin Double (Esquerda)',
     emoji: '🌀',
     desc: 'TSD espelhado — limpa 2 linhas',
-    board: mkRows(18, ['GGGG...GGG', 'GGGGG.GGGG']),
+    board: mkRows(17, [
+      'GGGGG..GGG',
+      'GGGG...GGG',
+      'GGGGG.GGGG',
+    ]),
     queue: ['T'],
-    steps: [
-      { key: '↑', text: 'Gire 1x (90° horário)' },
-      { key: '↑', text: 'Gire de novo (cabeça pra baixo)' },
-      { key: '→ →', text: 'Mova 2x para a direita' },
-      { key: 'Espaço', text: 'Hard Drop — T cai na cavidade' },
-      { key: '🌀', text: 'T-Spin Double! Limpa 2 linhas' },
-    ],
-    isDefault: true,
-  },
-  {
-    id: 'tst',
-    name: 'T-Spin Triple',
-    emoji: '🔥',
-    desc: 'O mais poderoso — limpa 3 linhas!',
-    board: mkRows(17, ['GGGG.GGGGG', 'GGGG..GGGG', 'GGGG.GGGGG']),
-    queue: ['T'],
-    steps: [
-      { key: '↑', text: 'Gire 1x (T fica na vertical, ponta pra direita)' },
-      { key: 'Espaço', text: 'Hard Drop — T desce direto no encaixe' },
-      { key: '🔥', text: 'T-Spin Triple! Limpa 3 linhas de uma vez!' },
-    ],
     isDefault: true,
   },
   {
@@ -84,27 +63,24 @@ const DEFAULT_TEMPLATES = [
     name: 'TSD em Cadeia',
     emoji: '🔁',
     desc: 'Dois T-Spin Doubles seguidos — Back-to-Back!',
-    board: mkRows(14, [
-      'GGG...GGGG', 'GGGG.GGGGG',
-      '..........','..........',
-      'GGGG...GGG', 'GGGGG.GGGG',
+    board: mkRows(12, [
+      'GGG..GGGGG',
+      'GGG...GGGG',
+      'GGGG.GGGGG',
+      '..........',
+      '..........',
+      'GGGGG..GGG',
+      'GGGG...GGG',
+      'GGGGG.GGGG',
     ]),
     queue: ['T', 'T'],
-    steps: [
-      { key: '↑ ↑', text: '1º T: Gire 2x (cabeça pra baixo)' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double!' },
-      { key: '↑ ↑', text: '2º T: Gire 2x (cabeça pra baixo)' },
-      { key: '→ →', text: 'Mova 2x para a direita' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double em cadeia! Back-to-Back!' },
-    ],
     isDefault: true,
   },
-  // ── Advanced templates (from himitsuconfidential/downstack-practice) ──
   {
     id: 'dt-cannon',
     name: 'DT Cannon',
     emoji: '💣',
-    desc: 'Donating T-Spin: TSD + TST combinados!',
+    desc: 'TSD + TST combinados!',
     board: mkRows(13, [
       'G...GGGGGG',
       'G....GGGGG',
@@ -115,112 +91,6 @@ const DEFAULT_TEMPLATES = [
       'GGGG.GGGGG',
     ]),
     queue: ['T', 'T'],
-    steps: [
-      { key: '↑ ↑', text: '1º T: Gire 2x (cabeça pra baixo)' },
-      { key: '← ←', text: 'Mova para alinhar com a cavidade superior' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double no topo!' },
-      { key: '↑', text: '2º T: Gire 1x (ponta pra direita)' },
-      { key: '← ←', text: 'Ajuste posição no gap que sobrou' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Triple!' },
-    ],
-    isDefault: true,
-  },
-  {
-    id: 'cspin',
-    name: 'C-Spin',
-    emoji: '🌀',
-    desc: 'Overhang em C — TSD + TST com wall kick',
-    board: mkRows(14, [
-      'GGGG.GGGGG',
-      'GGGG..GGGG',
-      'GGGGG.GGGG',
-      'GGGG..GGGG',
-      'GGGGG.GGGG',
-      'GGGG.GGGGG',
-    ]),
-    queue: ['T', 'T'],
-    steps: [
-      { key: '↑ ↑', text: '1º T: Gire 2x (cabeça pra baixo)' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double!' },
-      { key: '↑', text: '2º T: Gire 1x (ponta pra direita)' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Triple com kick!' },
-    ],
-    isDefault: true,
-  },
-  {
-    id: 'cspin-quad',
-    name: 'C-Spin + Quad',
-    emoji: '🏆',
-    desc: 'C-Spin seguido de Tetris — máximo dano!',
-    board: mkRows(10, [
-      'GGGG.GGGGG',
-      'GGGG..GGGG',
-      'GGGGG.GGGG',
-      'GGGG..GGGG',
-      'GGGGG.GGGG',
-      'GGGG.GGGGG',
-      'GGGGG.GGGG',
-      'GGGGG.GGGG',
-      'GGGGG.GGGG',
-      'GGGGG.GGGG',
-    ]),
-    queue: ['T', 'T', 'I'],
-    steps: [
-      { key: '↑ ↑', text: '1º T: TSD no topo do C-Spin' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double!' },
-      { key: '↑', text: '2º T: TST na cavidade restante' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Triple!' },
-      { key: '↑ ↑', text: 'I: Gire para ficar vertical' },
-      { key: 'Espaço', text: 'Hard Drop no buraco → Tetris! Máximo dano!' },
-    ],
-    isDefault: true,
-  },
-  {
-    id: 'fractal',
-    name: 'Fractal',
-    emoji: '🔮',
-    desc: 'Dois TSDs empilhados — Back-to-Back infinito!',
-    board: mkRows(14, [
-      'GGGG..GGGG',
-      'GGGGG.GGGG',
-      'GGGG...GGG',
-      'GGGGG.GGGG',
-      'GGGG...GGG',
-      'GGGGG.GGGG',
-    ]),
-    queue: ['T', 'T'],
-    steps: [
-      { key: '↑ ↑', text: '1º T: Gire 2x (cabeça pra baixo)' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double na cavidade inferior!' },
-      { key: '↑ ↑', text: '2º T: Gire 2x (cabeça pra baixo)' },
-      { key: '→ →', text: 'Ajuste na cavidade superior' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double! Back-to-Back!' },
-    ],
-    isDefault: true,
-  },
-  {
-    id: 'stsd',
-    name: 'STSD (Super TSD)',
-    emoji: '⚡',
-    desc: 'Super T-Spin Double — usa wall kick avançado!',
-    board: mkRows(11, [
-      'GGG..GGGGG',
-      'GGG..GGGGG',
-      'GGG..GGGGG',
-      'GGG...GGGG',
-      'GGGGG.GGGG',
-      'GGGG..GGGG',
-      'GGGG..GGGG',
-      'GGGGG.GGGG',
-      'GGGG..GGGG',
-    ]),
-    queue: ['T', 'T'],
-    steps: [
-      { key: '↑', text: '1º T: Gire 1x (pra direita) — vai kickar pra dentro!' },
-      { key: 'Espaço', text: 'Hard Drop → Super T-Spin Double!' },
-      { key: '↑ ↑', text: '2º T: Gire 2x (cabeça pra baixo)' },
-      { key: 'Espaço', text: 'Hard Drop → T-Spin Double! Back-to-Back!' },
-    ],
     isDefault: true,
   },
 ];
@@ -556,15 +426,6 @@ function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMove
           {isDefault && <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/20 shrink-0">padrão</span>}
         </div>
         {setup.desc && <p className="text-white/40 text-[11px] mt-0.5 leading-tight truncate">{setup.desc}</p>}
-        {setup.steps && setup.steps.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-0.5">
-            {setup.steps.map((s, i) => (
-              <span key={i} className="text-[9px] px-1 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/20">
-                <span className="font-bold">{s.key}</span>
-              </span>
-            ))}
-          </div>
-        )}
         <div className="flex items-center gap-1.5 mt-1">
           <span className="text-white/30 text-[10px]">Peças:</span>
           {(setup.queue || []).map((t, i) => (
@@ -616,7 +477,6 @@ function BoardMini({ boardRows }) {
 function PlayScreen({ template, onBack, onExit }) {
   const [gameState, setGameState] = useState(null);
   const [playId, setPlayId] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
 
   const gsRef = useRef(null);
   const loopRef = useRef(null);
@@ -632,7 +492,6 @@ function PlayScreen({ template, onBack, onExit }) {
     const gs = makeGameService(boardData, template.queue);
     gsRef.current = gs;
     setGameState(gs.getGameState());
-    setCurrentStep(0);
     lastTimeRef.current = 0;
     setPlayId(p => p + 1);
   }, [boardData, template.queue]);
@@ -654,28 +513,24 @@ function PlayScreen({ template, onBack, onExit }) {
     return () => { if (loopRef.current) cancelAnimationFrame(loopRef.current); };
   }, [playId]);
 
-  const advanceStep = useCallback(() => {
-    if (template.steps) setCurrentStep(s => Math.min(s + 1, template.steps.length));
-  }, [template.steps]);
-
   useEffect(() => {
     const handle = (e) => {
       const gs = gsRef.current;
       if (!gs || gs.gameOver) return;
       switch (e.key) {
-        case 'ArrowLeft': e.preventDefault(); gs.movePiece('left'); advanceStep(); break;
-        case 'ArrowRight': e.preventDefault(); gs.movePiece('right'); advanceStep(); break;
-        case 'ArrowDown': e.preventDefault(); gs.movePiece('down'); advanceStep(); break;
-        case 'ArrowUp': e.preventDefault(); gs.rotatePiece(); advanceStep(); break;
-        case 'z': case 'Z': gs.rotatePieceLeft(); advanceStep(); break;
-        case 'c': case 'C': case 'Shift': gs.holdPiece(); advanceStep(); break;
-        case ' ': e.preventDefault(); gs.hardDrop(); advanceStep(); break;
+        case 'ArrowLeft': e.preventDefault(); gs.movePiece('left'); break;
+        case 'ArrowRight': e.preventDefault(); gs.movePiece('right'); break;
+        case 'ArrowDown': e.preventDefault(); gs.movePiece('down'); break;
+        case 'ArrowUp': e.preventDefault(); gs.rotatePiece(); break;
+        case 'z': case 'Z': gs.rotatePieceLeft(); break;
+        case 'c': case 'C': case 'Shift': gs.holdPiece(); break;
+        case ' ': e.preventDefault(); gs.hardDrop(); break;
         case 'r': case 'R': initGame(); break;
       }
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [initGame, advanceStep]);
+  }, [initGame]);
 
   const dropPreview = useMemo(() => {
     if (!gameState?.currentPiece || gameState?.gameOver) return null;
@@ -695,31 +550,6 @@ function PlayScreen({ template, onBack, onExit }) {
           <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-xs font-bold">Sair</button>
         </div>
       </div>
-
-      {template.steps && template.steps.length > 0 && (
-        <div className="bg-purple-500/10 border border-purple-500/25 rounded-xl px-4 py-2.5 mb-2 max-w-xl w-full">
-          <div className="text-purple-300/60 text-[10px] font-semibold uppercase tracking-wide mb-1.5">Passo a Passo</div>
-          <div className="flex flex-col gap-1">
-            {template.steps.map((s, i) => {
-              const isDone = i < currentStep;
-              const isCurrent = i === currentStep;
-              return (
-                <div key={i} className={`flex items-center gap-2 px-2 py-1 rounded-lg transition-all ${
-                  isDone ? 'bg-green-500/15 opacity-60' : isCurrent ? 'bg-purple-500/20 border border-purple-400/30' : 'opacity-40'
-                }`}>
-                  <span className={`text-xs font-bold min-w-[40px] text-center px-1.5 py-0.5 rounded ${
-                    isDone ? 'bg-green-500/30 text-green-300' : isCurrent ? 'bg-purple-500/30 text-purple-200' : 'bg-white/5 text-white/30'
-                  }`}>{s.key}</span>
-                  <span className={`text-xs ${
-                    isDone ? 'text-green-300 line-through' : isCurrent ? 'text-white font-medium' : 'text-white/40'
-                  }`}>{s.text}</span>
-                  {isDone && <span className="text-green-400 text-xs ml-auto">✓</span>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {gameState && (
         <div className="flex gap-3 items-start justify-center">
