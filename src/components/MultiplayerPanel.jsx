@@ -12,7 +12,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
   const [player2Name, setPlayer2Name] = useState('Jogador 2');
   const [aiDifficulty, setAiDifficulty] = useState('medium');
   const [ai1Difficulty, setAi1Difficulty] = useState('expert');
-  const [ai2Difficulty, setAi2Difficulty] = useState('expert-tetris');
+  const [ai2Difficulty, setAi2Difficulty] = useState('expert');
 
   const modes = getAvailableModes();
   const difficulties = getDifficulties();

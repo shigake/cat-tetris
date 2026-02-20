@@ -186,7 +186,7 @@ export class MultiplayerService {
     return result;
   }
 
-  startAIvsAIMatch(ai1Difficulty = 'expert', ai2Difficulty = 'expert-tetris') {
+  startAIvsAIMatch(ai1Difficulty = 'expert', ai2Difficulty = 'expert') {
     this.currentMode = 'ai-vs-ai';
     this.players = [
       {
@@ -235,8 +235,7 @@ export class MultiplayerService {
       easy: '🐱 MeowBot Iniciante',
       medium: '😺 CatAI Intermediário',
       hard: '😸 FelineBot Avançado',
-      expert: '🧠 NyanMaster Survival',
-      'expert-tetris': '💎 TetrisNyan Expert'
+      expert: '🧠 NyanMaster Survival'
     };
     return names[difficulty] || 'IA';
   }

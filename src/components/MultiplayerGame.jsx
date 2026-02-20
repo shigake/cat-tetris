@@ -47,7 +47,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       ai1Service = new AIOpponentService();
       ai1Service.setDifficulty(ai1Difficulty || 'expert');
       ai2Service = new AIOpponentService();
-      ai2Service.setDifficulty(ai2Difficulty || 'expert-tetris');
+      ai2Service.setDifficulty(ai2Difficulty || 'expert');
     }
 
     p1Service.initializeGame();
@@ -251,7 +251,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
 
         <div className="flex flex-col items-center">
           <div className="bg-red-600 text-white px-4 py-1 rounded-t-lg font-bold text-sm sm:text-base">
-            {mode === 'aiVsAI' ? `🤖 IA2 (${ai2Difficulty?.toUpperCase() || 'EXPERT-TETRIS'})` : mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : '🎮 P2'}
+            {mode === 'aiVsAI' ? `🤖 IA2 (${ai2Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : '🎮 P2'}
           </div>
           <div className="bg-black/40 p-2 rounded-b-lg">
             <div className="flex gap-2">

@@ -15,7 +15,6 @@ export class AIOpponentService {
       case 'medium':        this.thinkingTime = 120; break;
       case 'hard':          this.thinkingTime = 60;  break;
       case 'expert':        this.thinkingTime = 20;  break;
-      case 'expert-tetris': this.thinkingTime = 20;  break;
       default:              this.thinkingTime = 120;
     }
   }
@@ -110,7 +109,7 @@ export class AIOpponentService {
             }
           }
           if (bestNext > -Infinity) {
-            const lookaheadW = this.difficulty === 'expert-tetris' ? 0.3 : 0.4;
+            const lookaheadW = 0.4;
             score = score * (1 - lookaheadW) + bestNext * lookaheadW;
           }
         }
@@ -134,7 +133,6 @@ export class AIOpponentService {
   _evaluate(board, piece) {
     switch (this.difficulty) {
       case 'expert':        return this._evalSurvival(board, piece);
-      case 'expert-tetris': return this._evalTetris(board, piece);
       default:              return this._evalDefault(board, piece);
     }
   }
@@ -619,8 +617,7 @@ export class AIOpponentService {
       { id: 'easy', name: 'Fácil', emoji: '🐱', description: 'IA iniciante' },
       { id: 'medium', name: 'Médio', emoji: '😺', description: 'IA intermediária' },
       { id: 'hard', name: 'Difícil', emoji: '😸', description: 'IA avançada' },
-      { id: 'expert', name: 'Expert', emoji: '🧠', description: 'Mantém o board o mais baixo possível' },
-      { id: 'expert-tetris', name: 'Expert Tetris', emoji: '💎', description: 'Constrói para limpar 4 linhas de vez' }
+      { id: 'expert', name: 'Expert', emoji: '🧠', description: 'Mantém o board o mais baixo possível' }
     ];
   }
 }
