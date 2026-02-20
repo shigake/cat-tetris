@@ -1,180 +1,148 @@
-import { useState, useEffect, useCallback } from 'react';
-import { serviceContainer } from '../core/container/ServiceRegistration';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { GameService } from '../core/services/GameService';
+import { PieceFactory, MovementStrategyFactory } from '../patterns/Factory';
+import { ScoringService } from '../core/services/ScoringService';
 
 /**
  * usePracticeGame - Hook para gerenciar jogo de prática do tutorial
- * Cria instância isolada do GameService para cada lesson
+ * Cria instância ISOLADA do GameService (não usa o singleton do container)
  */
 export function usePracticeGame(lesson) {
   const [gameState, setGameState] = useState(null);
-  const [gameService, setGameService] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const gameServiceRef = useRef(null);
+  const maxComboRef = useRef(0);
 
   // Inicializa game service isolado
   useEffect(() => {
-    if (!lesson) return;
+    if (!lesson) {
+      setGameState(null);
+      setIsInitialized(false);
+      gameServiceRef.current = null;
+      maxComboRef.current = 0;
+      return;
+    }
 
-    // Cria nova instância do GameService
-    const service = serviceContainer.resolve('gameService');
-    
-    // Inicializa jogo
+    const service = new GameService(
+      new PieceFactory(),
+      new MovementStrategyFactory(),
+      null,
+      new ScoringService()
+    );
+
     service.initializeGame();
-    
-    // Setup inicial específico da lesson
-    if (lesson.practice.boardSetup) {
-      service.board.grid = lesson.practice.boardSetup;
-    }
-    
-    // Peças fixas se definidas
-    if (lesson.practice.pieces && lesson.practice.pieces.length > 0) {
-      // TODO: Implementar sequência fixa de peças
-    }
-    
-    setGameService(service);
-    setGameState(service.getState());
+    service.isPlaying = true;
+    maxComboRef.current = 0;
+
+    gameServiceRef.current = service;
+    setGameState(service.getGameState());
     setIsInitialized(true);
 
     return () => {
-      // Cleanup
-      setGameService(null);
+      gameServiceRef.current = null;
       setIsInitialized(false);
     };
   }, [lesson]);
 
-  // Atualiza gameState quando o jogo muda
+  // Game loop — gravity + state sync (same pattern as useGameService)
+  const lastTimeRef = useRef(0);
+  const loopRef = useRef(null);
+
   useEffect(() => {
-    if (!gameService) return;
+    if (!gameServiceRef.current || !isInitialized) return;
+    lastTimeRef.current = 0;
 
-    const interval = setInterval(() => {
-      const newState = gameService.getState();
-      setGameState(newState);
-    }, 100);
+    const loop = (currentTime) => {
+      if (!lastTimeRef.current) lastTimeRef.current = currentTime;
+      const dt = currentTime - lastTimeRef.current;
+      lastTimeRef.current = currentTime;
 
-    return () => clearInterval(interval);
-  }, [gameService]);
+      const svc = gameServiceRef.current;
+      if (svc) {
+        if (svc.isPlaying && !svc.isPaused && !svc.gameOver) {
+          svc.updateGame(dt);
+        }
+        const s = svc.getGameState();
+        const combo = s.score?.combo || 0;
+        if (combo > maxComboRef.current) maxComboRef.current = combo;
+        setGameState(s);
+      }
 
-  // Actions
+      loopRef.current = requestAnimationFrame(loop);
+    };
+
+    loopRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      if (loopRef.current) cancelAnimationFrame(loopRef.current);
+    };
+  }, [isInitialized]);
+
   const actions = {
-    moveLeft: useCallback(() => {
-      if (!gameService) return;
-      gameService.movePiece('left');
-      setGameState(gameService.getState());
-    }, [gameService]),
+    movePiece: useCallback((direction) => {
+      gameServiceRef.current?.movePiece(direction);
+    }, []),
 
-    moveRight: useCallback(() => {
-      if (!gameService) return;
-      gameService.movePiece('right');
-      setGameState(gameService.getState());
-    }, [gameService]),
+    rotatePiece: useCallback(() => {
+      gameServiceRef.current?.rotatePiece();
+    }, []),
 
-    moveDown: useCallback(() => {
-      if (!gameService) return;
-      gameService.movePiece('down');
-      setGameState(gameService.getState());
-    }, [gameService]),
-
-    rotate: useCallback(() => {
-      if (!gameService) return;
-      gameService.rotatePiece();
-      setGameState(gameService.getState());
-    }, [gameService]),
-
-    rotateLeft: useCallback(() => {
-      if (!gameService) return;
-      gameService.rotatePieceLeft();
-      setGameState(gameService.getState());
-    }, [gameService]),
+    rotatePieceLeft: useCallback(() => {
+      gameServiceRef.current?.rotatePieceLeft?.();
+    }, []),
 
     hardDrop: useCallback(() => {
-      if (!gameService) return;
-      gameService.hardDrop();
-      setGameState(gameService.getState());
-    }, [gameService]),
+      gameServiceRef.current?.hardDrop();
+    }, []),
 
-    hold: useCallback(() => {
-      if (!gameService) return;
-      gameService.holdPiece();
-      setGameState(gameService.getState());
-    }, [gameService]),
+    holdPiece: useCallback(() => {
+      gameServiceRef.current?.holdPiece();
+    }, []),
+
+    pause: useCallback(() => {
+      gameServiceRef.current?.pause();
+    }, []),
+
+    resume: useCallback(() => {
+      gameServiceRef.current?.resume();
+    }, []),
 
     restart: useCallback(() => {
-      if (!gameService) return;
-      gameService.restart();
-      
-      // Re-apply lesson setup
-      if (lesson.practice.boardSetup) {
-        gameService.board.grid = lesson.practice.boardSetup;
-      }
-      
-      setGameState(gameService.getState());
-    }, [gameService, lesson])
+      if (!gameServiceRef.current) return;
+      gameServiceRef.current.restart();
+      maxComboRef.current = 0;
+    }, []),
+
+    getDropPreview: useCallback(() => {
+      try { return gameServiceRef.current?.getDropPreview() || null; } catch { return null; }
+    }, [])
   };
 
-  // Detectar eventos especiais para validação
+  // Validation state — only fields the engine actually tracks
   const getValidationState = useCallback(() => {
     if (!gameState) return null;
 
     return {
-      // Estado básico
       score: gameState.score?.points || 0,
       level: gameState.score?.level || 1,
-      linesCleared: gameState.linesCleared || 0,
-      totalLinesCleared: gameState.totalLinesCleared || 0,
-      
-      // Peça atual
+      linesCleared: gameState.score?.lines || 0,
+
       currentPiece: gameState.currentPiece,
       hasCurrentPiece: !!gameState.currentPiece,
-      
-      // Última peça colocada
-      lastPlacedPiece: gameState.lastPlacedPiece,
-      lastLinesClearedCount: gameState.lastLinesClearedCount || 0,
-      
-      // Hold
+
       heldPiece: gameState.heldPiece,
       hasUsedHold: !!gameState.heldPiece,
-      
-      // T-spins (detectar via scoring)
-      tspinsExecuted: gameState.statistics?.tspins || 0,
-      tspinMinisExecuted: gameState.statistics?.tspinMinis || 0,
-      tspinDoublesExecuted: gameState.statistics?.tspinDoubles || 0,
-      tspinTriplesExecuted: gameState.statistics?.tspinTriples || 0,
-      
-      // Combos
-      currentCombo: gameState.combo || 0,
-      maxComboReached: gameState.statistics?.maxCombo || 0,
-      
-      // Back-to-Back
+
+      currentCombo: gameState.score?.combo || 0,
+      maxCombo: maxComboRef.current,
       backToBackActive: gameState.backToBack || false,
-      backToBackChain: gameState.statistics?.backToBackCount || 0,
-      
-      // Timing
-      elapsedSeconds: gameState.elapsedTime ? Math.floor(gameState.elapsedTime / 1000) : 0,
-      
-      // Board state
+
       board: gameState.board,
-      
-      // Drops
-      hardDropsUsed: gameState.statistics?.hardDrops || 0,
-      softDropsUsed: gameState.statistics?.softDrops || 0,
-      
-      // Efficiency
-      movesPerPiece: gameState.statistics?.movesPerPiece || 0,
-      
-      // 4-wide
-      fourWideCount: gameState.statistics?.fourWideLines || 0,
-      
-      // Perfect clears
-      perfectClearsCount: gameState.statistics?.perfectClears || 0,
-      
-      // Multiplayer (se aplicável)
-      defeatedAI: gameState.defeatedAI || false,
-      
-      // Openers
-      dtCannonsExecuted: gameState.statistics?.dtCannons || 0,
-      tkiOpenersExecuted: gameState.statistics?.tkiOpeners || 0,
-      
-      // Garbage (se aplicável)
-      garbageWavesSurvived: gameState.statistics?.garbageWaves || 0
+      gameOver: gameState.gameOver,
+      isPlaying: gameState.isPlaying,
+      isPaused: gameState.isPaused,
+
+      tSpins: gameState.score?.tSpins || 0,
     };
   }, [gameState]);
 

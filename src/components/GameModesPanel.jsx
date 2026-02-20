@@ -8,8 +8,6 @@ import { useGameModes } from '../hooks/useGameModes';
 function GameModesPanel({ onClose, onStartGame }) {
   const { modes, currentMode, modeStats, loading, selectMode } = useGameModes();
 
-  console.log('[GameModesPanel] modes:', modes?.length, 'current:', currentMode);
-
   const handleSelectAndStart = (modeId) => {
     selectMode(modeId);
     setTimeout(() => {

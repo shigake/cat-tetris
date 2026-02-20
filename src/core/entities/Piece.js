@@ -1,11 +1,12 @@
 export class Piece {
-  constructor(type, shape, color, emoji, position, isTSpin = false) {
+  constructor(type, shape, color, emoji, position, isTSpin = false, rotationState = 0) {
     this.type = type;
     this.shape = shape;
     this.color = color;
     this.emoji = emoji;
     this.position = position;
     this.isTSpin = isTSpin;
+    this.rotationState = rotationState; // 0-3 for SRS kick table lookups
   }
 
   move(deltaX, deltaY) {
@@ -15,7 +16,8 @@ export class Piece {
       this.color,
       this.emoji,
       { x: this.position.x + deltaX, y: this.position.y + deltaY },
-      this.isTSpin
+      this.isTSpin,
+      this.rotationState
     );
   }
 
@@ -29,7 +31,8 @@ export class Piece {
       this.color,
       this.emoji,
       this.position,
-      this.isTSpin
+      this.isTSpin,
+      (this.rotationState + 1) % 4
     );
   }
 
@@ -40,7 +43,8 @@ export class Piece {
       this.color,
       this.emoji,
       this.position,
-      isTSpin
+      isTSpin,
+      this.rotationState
     );
   }
 
@@ -51,7 +55,8 @@ export class Piece {
       this.color,
       this.emoji,
       { ...this.position },
-      this.isTSpin
+      this.isTSpin,
+      this.rotationState
     );
   }
 
@@ -62,6 +67,7 @@ export class Piece {
     this.emoji = emoji;
     this.position = position;
     this.isTSpin = isTSpin;
+    this.rotationState = 0;
     return this;
   }
 

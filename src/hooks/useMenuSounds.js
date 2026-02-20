@@ -1,22 +1,26 @@
 import { useCallback } from 'react';
+import { getAudioContext } from '../utils/sharedAudioContext';
 
 export function useMenuSounds() {
   const createOscillator = useCallback((frequency, duration, type = 'sine') => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.type = type;
-    
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration);
+    const audioContext = getAudioContext();
+    if (!audioContext) return;
+    try {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      oscillator.type = type;
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration);
+    } catch { /* ignore audio errors */ }
   }, []);
 
   const playMenuHover = useCallback(() => {
@@ -40,29 +44,31 @@ export function useMenuSounds() {
   }, [createOscillator]);
 
   const playGameStart = useCallback(() => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
-    const playChord = (frequencies, startTime, duration = 0.3) => {
-      frequencies.forEach(freq => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-        oscillator.type = 'triangle';
-        
-        gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + startTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + startTime + duration);
-        
-        oscillator.start(audioContext.currentTime + startTime);
-        oscillator.stop(audioContext.currentTime + startTime + duration);
-      });
-    };
+    const audioContext = getAudioContext();
+    if (!audioContext) return;
+    try {
+      const playChord = (frequencies, startTime, duration = 0.3) => {
+        frequencies.forEach(freq => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+          oscillator.type = 'triangle';
+          
+          gainNode.gain.setValueAtTime(0.05, audioContext.currentTime + startTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + startTime + duration);
+          
+          oscillator.start(audioContext.currentTime + startTime);
+          oscillator.stop(audioContext.currentTime + startTime + duration);
+        });
+      };
 
-    const notes = [523, 659, 784, 1047];
-    playChord(notes, 0, 0.5);
+      const notes = [523, 659, 784, 1047];
+      playChord(notes, 0, 0.5);
+    } catch { /* ignore audio errors */ }
   }, []);
 
   const playPWAInstall = useCallback(() => {

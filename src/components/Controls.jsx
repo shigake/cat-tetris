@@ -31,12 +31,10 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-1">
       <div className="hidden lg:block">
-        <div className="text-center text-white/70 text-sm mb-4">
-          <p>Use as setas para mover e girar</p>
-          <p>Espaço para drop instantâneo</p>
-          <p>Shift para guardar peça</p>
+        <div className="text-center text-white/50 text-[11px]">
+          <p>← → mover | ↑ girar | ↓ soft | Espaço = hard drop | C = hold</p>
         </div>
       </div>
 

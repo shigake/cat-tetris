@@ -47,18 +47,23 @@ function DemonstrationScreen({
           </div>
           
           <div className="flex gap-4">
-            <HeldPiece heldPiece={gameState.heldPiece} />
+            <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
             
             <TetrisBoard
               board={gameState.board}
               currentPiece={gameState.currentPiece}
-              dropPreview={gameState.dropPreview}
-              clearingLines={gameState.clearingLines || []}
+              dropPreview={null}
+              gameOver={gameState.gameOver}
             />
 
             <div className="flex flex-col gap-4">
-              <NextPieces nextPieces={gameState.nextPieces || []} />
-              <Scoreboard score={gameState.score} />
+              <NextPieces pieces={gameState.nextPieces || []} />
+              <Scoreboard
+                score={gameState.score?.points || 0}
+                level={gameState.score?.level || 1}
+                lines={gameState.score?.lines || 0}
+                combo={gameState.score?.combo || 0}
+              />
             </div>
           </div>
         </div>

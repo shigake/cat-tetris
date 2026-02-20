@@ -112,7 +112,7 @@ if (typeof window !== 'undefined') {
 
   // Try to load equipped theme from localStorage on init
   try {
-    const savedInventory = localStorage.getItem('shopInventory');
+    const savedInventory = localStorage.getItem('cat-tetris-shopInventory');
     if (savedInventory) {
       const inventory = JSON.parse(savedInventory);
       const equippedThemeId = inventory.equippedTheme;
@@ -138,6 +138,11 @@ function refillBag() {
     const j = Math.floor(Math.random() * (i + 1));
     [bag[i], bag[j]] = [bag[j], bag[i]];
   }
+  bagIndex = 0;
+}
+
+export function resetBag() {
+  bag = [];
   bagIndex = 0;
 }
 

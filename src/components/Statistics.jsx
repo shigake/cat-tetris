@@ -22,7 +22,7 @@ const Statistics = ({ stats, onClose }) => {
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 10 }}
         transition={{ duration: 0.15, ease: "easeOut" }}
-        className="bg-gray-900/95 p-6 rounded-xl border-2 border-white/20 shadow-2xl min-w-[350px] max-w-md mx-4"
+        className="bg-gray-900/95 p-6 rounded-xl border-2 border-white/20 shadow-2xl min-w-[350px] max-w-md mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">

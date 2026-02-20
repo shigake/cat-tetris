@@ -15,7 +15,11 @@ export class RotateMovementStrategy extends BaseMovementStrategy {
       return rotated.setTSpin(isTSpin);
     }
 
-    const kicks = GameConfig.KICK_OFFSETS;
+    // Use proper SRS kicks based on rotation transition
+    const fromRot = piece.rotationState ?? 0;
+    const toRot = (fromRot + 1) % 4;
+    const kickKey = `${fromRot}>${toRot}`;
+    const kicks = GameConfig.SRS_KICKS_CW?.[kickKey] || GameConfig.KICK_OFFSETS;
 
     for (const kick of kicks) {
       const kickedPosition = {
@@ -53,10 +57,11 @@ export class RotateMovementStrategy extends BaseMovementStrategy {
     const pieceX = piece.position.x;
     const pieceY = piece.position.y;
 
-    corners.push({ x: pieceX - 1, y: pieceY - 1 });
-    corners.push({ x: pieceX + 3, y: pieceY - 1 });
-    corners.push({ x: pieceX - 1, y: pieceY + 3 });
-    corners.push({ x: pieceX + 3, y: pieceY + 3 });
+    // T-piece is 3x3, corners of bounding box are (0,0), (2,0), (0,2), (2,2)
+    corners.push({ x: pieceX, y: pieceY });
+    corners.push({ x: pieceX + 2, y: pieceY });
+    corners.push({ x: pieceX, y: pieceY + 2 });
+    corners.push({ x: pieceX + 2, y: pieceY + 2 });
 
     return corners;
   }

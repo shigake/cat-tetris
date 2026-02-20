@@ -4,6 +4,22 @@
 
 // Catálogo de temas de peças
 export const PIECE_THEMES = {
+  classic: {
+    id: 'classic',
+    name: '🎮 Tetris Clássico',
+    description: 'Cores oficiais do Tetris',
+    price: 0,
+    default: true,
+    pieces: {
+      I: { emoji: '🟦', color: '#00F0F0' },
+      O: { emoji: '🟨', color: '#F0F000' },
+      T: { emoji: '🟪', color: '#A000F0' },
+      S: { emoji: '🟩', color: '#00F000' },
+      Z: { emoji: '🟥', color: '#F00000' },
+      J: { emoji: '🔵', color: '#0000F0' },
+      L: { emoji: '🟧', color: '#F0A000' }
+    }
+  },
   cats: {
     id: 'cats',
     name: '🐱 Gatos Clássicos',
@@ -167,8 +183,23 @@ export class ShopService {
 
   loadInventory() {
     const saved = this.gameRepository.load('shopInventory');
-    return saved || {
-      ownedThemes: ['cats'], // Default theme
+    if (saved) {
+      // Ensure free default themes are always owned
+      const freeThemes = Object.values(PIECE_THEMES)
+        .filter(t => t.price === 0)
+        .map(t => t.id);
+      let dirty = false;
+      for (const id of freeThemes) {
+        if (!saved.ownedThemes.includes(id)) {
+          saved.ownedThemes.push(id);
+          dirty = true;
+        }
+      }
+      if (dirty) this.gameRepository.save('shopInventory', saved);
+      return saved;
+    }
+    return {
+      ownedThemes: ['cats', 'classic'], // Default themes
       equippedTheme: 'cats',
       purchaseHistory: []
     };

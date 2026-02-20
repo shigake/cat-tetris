@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { getAudioContext } from '../utils/sharedAudioContext';
 
 export function useBackgroundMusic() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -67,11 +68,8 @@ export function useBackgroundMusic() {
     stopMusic();
 
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
+      const audioContext = getAudioContext();
+      if (!audioContext) return;
 
       const notes = [
         { freq: 523.25, duration: 0.4 }, // C5
@@ -158,11 +156,8 @@ export function useBackgroundMusic() {
     stopMusic();
 
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
+      const audioContext = getAudioContext();
+      if (!audioContext) return;
 
       const notes = [
         { freq: 261.63, duration: 0.2 }, // C4

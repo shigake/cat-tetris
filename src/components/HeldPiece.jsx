@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { getPieceColor } from '../utils/PieceGenerator';
 
 const HeldPiece = ({ heldPiece, canHold }) => {
@@ -16,16 +15,9 @@ const HeldPiece = ({ heldPiece, canHold }) => {
     const maxHeight = heldPiece.shape.length;
 
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="bg-gray-800/50 p-3 rounded-lg border border-white/20"
+      <div
+        className="bg-gray-800/50 p-1.5 rounded-lg border border-white/20"
       >
-        <div className="text-center mb-3">
-          <span className="text-xs text-white/70 font-medium">Guardada</span>
-        </div>
-        
         <div className="flex justify-center">
           <div 
             className="grid gap-1" 
@@ -53,51 +45,23 @@ const HeldPiece = ({ heldPiece, canHold }) => {
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 p-2 lg:p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[100px] lg:min-w-[220px]"
+    <div
+      className="bg-gray-900/50 p-2 rounded-xl border-2 border-white/20 shadow-2xl w-24"
     >
-      <h2 className="text-sm lg:text-xl font-cat font-bold text-white mb-2 lg:mb-4 text-center flex items-center justify-center gap-1 lg:gap-2">
+      <h2 className="text-xs font-bold text-white mb-1 text-center flex items-center justify-center gap-1">
         <span>💾</span>
-        <span className="hidden lg:inline">Peça Guardada</span>
+        <span className="hidden lg:inline">Guardada</span>
       </h2>
       
-      <div className="space-y-3">
+      <div>
         {renderHeldPiece()}
-        
-        <div className={`text-center p-2 rounded-lg ${
-          canHold 
-            ? 'bg-green-500/20 border border-green-400/30' 
-            : 'bg-red-500/20 border border-red-400/30'
-        }`}>
-          <span className={`text-sm font-medium ${
-            canHold ? 'text-green-400' : 'text-red-400'
-          }`}>
-            {canHold ? '✅ Pode guardar' : '❌ Já guardou'}
-          </span>
-        </div>
       </div>
-      
-      <div className="mt-2 lg:mt-4 pt-2 lg:pt-4 border-t border-white/20 hidden lg:block">
-        <div className="text-center text-white/60 text-sm space-y-1">
-          <p className="flex items-center justify-center gap-1">
-            <span>💾</span>
-            <span>Guarde uma peça para usar depois</span>
-          </p>
-          <p className="flex items-center justify-center gap-1">
-            <span>🔄</span>
-            <span>Só pode guardar uma vez por peça</span>
-          </p>
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 };
 

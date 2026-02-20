@@ -263,11 +263,11 @@ export class DemonstrationRecorder {
    * Captura snapshot do estado do jogo
    */
   captureGameState() {
-    const state = this.gameService.getState();
+    const state = this.gameService.getGameState();
     return {
       score: state.score?.points || 0,
       level: state.score?.level || 1,
-      combo: state.combo || 0,
+      combo: state.score?.combo || 0,
       backToBack: state.backToBack || false
     };
   }

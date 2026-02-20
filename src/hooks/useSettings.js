@@ -6,7 +6,9 @@ export function useSettings() {
     volume: 80,
     gameSpeed: 'normal',
     soundEnabled: true,
-    particlesEnabled: true
+    particlesEnabled: true,
+    das: 167,
+    arr: 33
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,7 +21,9 @@ export function useSettings() {
         volume: 80,
         gameSpeed: 'normal',
         soundEnabled: true,
-        particlesEnabled: true
+        particlesEnabled: true,
+        das: 167,
+        arr: 33
       });
       setLoading(false);
     } catch (err) {
@@ -29,7 +33,9 @@ export function useSettings() {
         volume: 80,
         gameSpeed: 'normal',
         soundEnabled: true,
-        particlesEnabled: true
+        particlesEnabled: true,
+        das: 167,
+        arr: 33
       });
     }
   }, []);

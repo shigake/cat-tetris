@@ -54,16 +54,20 @@ export function useStatistics() {
   }, []);
 
   useEffect(() => {
-    if (!statistics) return;
+    if (loading) return;
 
     const timer = setInterval(() => {
-      const statisticsService = serviceContainer.resolve('statisticsService');
-      statisticsService.incrementPlayTime();
-      setStatistics(statisticsService.getStats());
+      try {
+        const statisticsService = serviceContainer.resolve('statisticsService');
+        statisticsService.incrementPlayTime();
+        setStatistics(statisticsService.getStats());
+      } catch (e) {
+        // ignore
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [statistics]);
+  }, [loading]);
 
   const resetStatistics = useCallback(() => {
     try {

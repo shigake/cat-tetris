@@ -22,6 +22,14 @@ function ShopPanel({ onClose }) {
   console.log('[ShopPanel] stats:', stats);
 
   // Safety checks
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="text-white text-lg">Carregando loja...</div>
+      </div>
+    );
+  }
+
   if (!themes || themes.length === 0) {
     console.warn('[ShopPanel] No themes available');
     return (

@@ -14,9 +14,9 @@ import DailyMissionsPanel from './components/DailyMissionsPanel';
 import AchievementsPanel from './components/AchievementsPanel';
 import AchievementNotification from './components/AchievementNotification';
 import MultiplayerGame from './components/MultiplayerGame';
+import AIShowcase from './components/AIShowcase';
 import ShopPanel from './components/ShopPanel';
 import GameModesPanel from './components/GameModesPanel';
-import LeaderboardPanel from './components/LeaderboardPanel';
 import MultiplayerPanel from './components/MultiplayerPanel';
 import Tutorial from './components/Tutorial';
 import TutorialHub from './components/TutorialHub';
@@ -25,7 +25,6 @@ import RewardNotification from './components/RewardNotification';
 import { serviceContainer } from './core/container/ServiceRegistration';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
-import { useStatistics } from './hooks/useStatistics';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
@@ -35,11 +34,11 @@ import { useAchievements } from './hooks/useAchievements';
 import { usePlayerStats } from './hooks/usePlayerStats';
 import { useShop } from './hooks/useShop';
 import { useGameModes } from './hooks/useGameModes';
-import { useLeaderboard } from './hooks/useLeaderboard';
 import GamepadIndicator from './components/GamepadIndicator';
+import DebugPanel from './components/DebugPanel';
 import { getPieceColor } from './utils/PieceGenerator';
+import { errorLogger } from './services/ErrorLogger';
 
-const Statistics = lazy(() => import('./components/Statistics'));
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
 
 function LoadingSpinner() {
@@ -59,15 +58,31 @@ function LoadingSpinner() {
 function GameScreen({ 
   gameState, 
   actions, 
-  onShowStats, 
   onBackToMenu,
-  showStats,
-  setShowStats,
-  statistics,
   isGamepadActive,
   controllerCount,
   getGamepadInfo
 }) {
+  // Memoize drop preview - recompute when piece changes
+  // NOTE: gameState?.board is excluded from deps because getBoardState() always
+  // creates new array references, which would defeat memoization entirely.
+  // The board only changes when a piece is placed, which also changes currentPiece.
+  const dropPreview = React.useMemo(() => {
+    if (!gameState?.currentPiece || gameState?.gameOver || gameState?.isPaused) return null;
+    try {
+      return actions.getDropPreview();
+    } catch (e) {
+      return null;
+    }
+  }, [
+    gameState?.currentPiece?.position?.x,
+    gameState?.currentPiece?.position?.y,
+    gameState?.currentPiece?.type,
+    gameState?.currentPiece?.shape,
+    gameState?.gameOver,
+    gameState?.isPaused
+  ]);
+
   const [actionCooldowns, setActionCooldowns] = React.useState({
     hardDrop: false,
     hold: false,
@@ -112,54 +127,48 @@ function GameScreen({
     }, 300);
   }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
   return (
-    <div className="min-h-screen cat-bg flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="game-container rounded-2xl p-6 shadow-2xl relative"
-      >
-        <motion.button
-          onClick={onBackToMenu}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="absolute top-4 left-4 z-10 bg-white/20 hover:bg-white/30 text-white p-2 rounded-lg transition-colors backdrop-blur-sm"
-          title="Voltar ao Menu"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-          </svg>
-        </motion.button>
-
-        <div className="text-center mb-6">
-          <h1 className="text-4xl md:text-6xl font-cat font-bold text-white mb-2">
-            🐱 Cat Tetris 🐱
-          </h1>
-          <p className="text-white/80 text-lg">Jogue com seus amigos felinos!</p>
-          
-          <div className="flex gap-4 mb-6">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onBackToMenu}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-            >
-              🏠 Menu
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onShowStats}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              📊 Estatísticas
-            </motion.button>
-          </div>
+    <div className="h-screen cat-bg flex flex-col overflow-hidden">
+      {/* ── Compact top bar ── */}
+      <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 backdrop-blur-sm border-b border-white/10 shrink-0">
+        <div className="flex items-center gap-2">
+          <motion.button
+            onClick={onBackToMenu}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors"
+            title="Voltar ao Menu"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </motion.button>
+          <span className="text-white font-bold text-sm">🐱 Cat Tetris</span>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">{/* Removed: hidden, w-full, items-start */}
-            <div className="flex flex-col gap-6 min-w-[200px]">
+        <div className="flex items-center gap-3 text-xs text-white/70">
+          <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()} pts</span>
+          <span>Nv.{gameState.score.level}</span>
+          <span>{gameState.score.lines} linhas</span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={gameState.isPaused ? actions.resume : actions.pause}
+            disabled={gameState.gameOver}
+            className="bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-lg text-xs transition-colors disabled:opacity-50"
+          >
+            {gameState.isPaused ? '▶️' : '⏸️'}
+          </motion.button>
+        </div>
+      </div>
+
+      {/* ── Game area — fills remaining space ── */}
+      <div className="flex-1 flex items-center justify-center overflow-hidden p-2">
+        <div className="flex flex-col lg:flex-row gap-2 items-center justify-center">
+          <div className="hidden lg:flex flex-col lg:flex-row gap-2 items-center justify-center">
+            <div className="flex flex-col gap-2">
               <HeldPiece 
                 heldPiece={gameState.heldPiece}
                 canHold={gameState.canHold}
@@ -172,7 +181,7 @@ function GameScreen({
               <TetrisBoard 
                 board={gameState.board} 
                 currentPiece={gameState.currentPiece}
-                dropPreview={actions.getDropPreview()}
+                dropPreview={dropPreview}
                 gameOver={gameState.gameOver}
               />
               
@@ -188,7 +197,7 @@ function GameScreen({
               />
             </div>
 
-            <div className="flex flex-col gap-6 min-w-[200px]">
+            <div className="flex flex-col gap-2">
               <Scoreboard 
                 score={gameState.score.points}
                 level={gameState.score.level}
@@ -270,7 +279,7 @@ function GameScreen({
                 <TetrisBoard 
                   board={gameState.board} 
                   currentPiece={gameState.currentPiece}
-                  dropPreview={actions.getDropPreview()}
+                  dropPreview={dropPreview}
                   gameOver={gameState.gameOver}
                 />
               </div>
@@ -363,30 +372,18 @@ function GameScreen({
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {showStats && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <Statistics 
-                stats={statistics || {}}
-                onClose={() => setShowStats(false)}
-              />
-            </Suspense>
-          )}
-        </AnimatePresence>
-
         <GamepadIndicator
           isConnected={isGamepadActive}
           controllerCount={controllerCount}
           gamepadInfo={getGamepadInfo()}
         />
-      </motion.div>
+      </div>
     </div>
   );
 }
 
 function GameComponent() {
   const [currentScreen, setCurrentScreen] = useState('menu');
-  const [showStats, setShowStats] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showPWAPrompt, setShowPWAPrompt] = useState(false);
   const [canInstallPWA, setCanInstallPWA] = useState(false);
@@ -395,16 +392,25 @@ function GameComponent() {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showGameModes, setShowGameModes] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showMultiplayer, setShowMultiplayer] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
   const [showTutorialHub, setShowTutorialHub] = useState(false);
   const [rewardNotification, setRewardNotification] = useState(null);
   const [multiplayerMatch, setMultiplayerMatch] = useState(null);
+  const [showAIShowcase, setShowAIShowcase] = useState(false);
   
   const { gameState, actions } = useGameService();
+  
+  // Conectar ErrorLogger ao game state
+  React.useEffect(() => {
+    errorLogger.setGameStateProvider(() => {
+      try {
+        const gs = serviceContainer.resolve('gameService');
+        return gs.getGameState();
+      } catch { return null; }
+    });
+  }, []);
   const { settings, updateSettings } = useSettings();
-  const { statistics } = useStatistics();
   const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
   const { 
     isGamepadActive, 
@@ -419,12 +425,32 @@ function GameComponent() {
   usePlayerStats();
   useShop();
   useGameModes();
-  useLeaderboard(); // Initialize leaderboard
   
   useSoundManager();
   
   const isInGame = currentScreen === 'game';
-  useKeyboardInput(actions, gameState, isInGame);
+  const { setDAS, setARR } = useKeyboardInput(actions, gameState, isInGame);
+
+  // Apply saved DAS/ARR settings on mount
+  React.useEffect(() => {
+    if (settings?.das != null) setDAS(settings.das);
+    if (settings?.arr != null) setARR(settings.arr);
+  }, [settings?.das, settings?.arr, setDAS, setARR]);
+
+  // Listen for game mode changes and pass to GameService
+  React.useEffect(() => {
+    const handleModeChanged = (event) => {
+      try {
+        const gameService = serviceContainer.resolve('gameService');
+        gameService.setGameMode(event.detail.mode);
+      } catch (error) {
+        console.error('Failed to set game mode:', error);
+      }
+    };
+    
+    window.addEventListener('gameModeChanged', handleModeChanged);
+    return () => window.removeEventListener('gameModeChanged', handleModeChanged);
+  }, []);
 
 
   React.useEffect(() => {
@@ -487,6 +513,10 @@ function GameComponent() {
 
   const handleSettingsChange = (newSettings) => {
     updateSettings(newSettings);
+
+    // Apply DAS/ARR to keyboard input service
+    if (newSettings.das != null) setDAS(newSettings.das);
+    if (newSettings.arr != null) setARR(newSettings.arr);
     
     if (newSettings.soundEnabled) {
       if (currentScreen === 'menu') {
@@ -508,6 +538,9 @@ function GameComponent() {
       actions.restart();
     } else if (gameState?.isPaused) {
       actions.resume();
+    } else if (!gameState?.isPlaying) {
+      // First game start - isPlaying was false after initializeGame
+      actions.restart();
     }
   };
 
@@ -539,13 +572,6 @@ function GameComponent() {
     }
   };
 
-  const handleShowStats = () => {
-    if (currentScreen === 'menu') {
-      setShowStats(true);
-    } else {
-      setShowStats(!showStats);
-    }
-  };
 
   const handleShowSettings = () => {
     if (currentScreen === 'menu') {
@@ -558,6 +584,13 @@ function GameComponent() {
   const handleShowInstallPrompt = () => {
     setShowPWAPrompt(true);
   };
+
+  // Renderizar AI Showcase se ativo
+  if (showAIShowcase) {
+    return (
+      <AIShowcase onClose={() => setShowAIShowcase(false)} />
+    );
+  }
 
   // Renderizar jogo multiplayer se ativo
   if (multiplayerMatch) {
@@ -580,8 +613,6 @@ function GameComponent() {
           onStartGame={hasActiveGame ? handleContinueGame : handleStartGame}
           onNewGame={handleNewGame}
           onShowSettings={() => setShowSettings(true)}
-          onShowStatistics={() => setShowStats(true)}
-          onShowLeaderboard={() => setShowLeaderboard(true)}
           onShowGameModes={() => setShowGameModes(true)}
           onShowShop={() => setShowShop(true)}
           onShowMissions={() => setShowMissions(true)}
@@ -589,30 +620,12 @@ function GameComponent() {
           onShowMultiplayer={() => setShowMultiplayer(true)}
           onShowTutorial={() => setShowTutorial(true)}
           onShowTutorialHub={() => setShowTutorialHub(true)}
+          onShowAIShowcase={() => setShowAIShowcase(true)}
           onShowInstallPrompt={handleShowInstallPrompt}
           canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
           gameState={gameState}
         />
-
-        <AnimatePresence>
-          {showStats && statistics && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <Statistics 
-                stats={statistics}
-                onClose={() => setShowStats(false)}
-              />
-            </Suspense>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {showLeaderboard && (
-            <LeaderboardPanel 
-              onClose={() => setShowLeaderboard(false)}
-            />
-          )}
-        </AnimatePresence>
 
         <AnimatePresence>
           {showMultiplayer && (
@@ -630,7 +643,7 @@ function GameComponent() {
           {showGameModes && (
             <GameModesPanel 
               onClose={() => setShowGameModes(false)}
-              onStartGame={handleStartGame}
+              onStartGame={handleNewGame}
             />
           )}
         </AnimatePresence>
@@ -668,26 +681,41 @@ function GameComponent() {
                 if (!result || !result.rewards) return;
 
                 // Creditar moedas
-                const currencyService = serviceContainer.resolve('currencyService');
-                currencyService.addFishCoins(
-                  result.rewards.fishCoins,
-                  `Tutorial: ${result.lessonTitle || 'Lesson'}`
-                );
+                try {
+                  const currencyService = serviceContainer.resolve('currencyService');
+                  if (result.rewards.fishCoins) {
+                    currencyService.addFish(
+                      result.rewards.fishCoins,
+                      `Tutorial: ${result.lessonTitle || 'Lesson'}`
+                    );
+                  }
+                } catch (e) {
+                  console.warn('Could not credit fish coins:', e);
+                }
 
-                // Creditar XP
-                const playerStatsService = serviceContainer.resolve('playerStatsService');
-                playerStatsService.addXP(result.rewards.xp);
+                // Creditar XP via incrementStat
+                try {
+                  if (result.rewards.xp) {
+                    const playerStatsService = serviceContainer.resolve('playerStatsService');
+                    playerStatsService.incrementStat('totalPlayTime', result.rewards.xp);
+                  }
+                } catch (e) {
+                  console.warn('Could not credit XP:', e);
+                }
 
-                // Desbloquear achievement se houver
-                if (result.rewards.achievement) {
-                  const achievementsService = serviceContainer.resolve('achievementsService');
-                  achievementsService.unlock(result.rewards.achievement);
+                // Verificar conquistas (não unlock direto — usa checkAchievements)
+                try {
+                  if (result.rewards.achievement) {
+                    const achievementsService = serviceContainer.resolve('achievementsService');
+                    const playerStatsService = serviceContainer.resolve('playerStatsService');
+                    achievementsService.checkAchievements(playerStatsService.getStats());
+                  }
+                } catch (e) {
+                  console.warn('Could not check achievements:', e);
                 }
 
                 // Mostrar notificação de recompensa
                 setRewardNotification(result);
-
-                console.log('✅ Recompensas creditadas:', result.rewards);
               }}
             />
           )}
@@ -726,7 +754,7 @@ function GameComponent() {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen cat-bg flex items-center justify-center">
+      <div className="h-screen cat-bg flex items-center justify-center overflow-hidden">
         <div className="text-white text-xl">Carregando...</div>
       </div>
     );
@@ -737,11 +765,7 @@ function GameComponent() {
       <GameScreen
         gameState={gameState}
         actions={actions}
-        onShowStats={handleShowStats}
         onBackToMenu={handleBackToMenu}
-        showStats={showStats}
-        setShowStats={setShowStats}
-        statistics={statistics}
         isGamepadActive={isGamepadActive}
         controllerCount={controllerCount}
         getGamepadInfo={getGamepadInfo}
@@ -762,6 +786,7 @@ function App() {
     <ErrorBoundary>
       <GameComponent />
       <ToastNotification />
+      <DebugPanel />
     </ErrorBoundary>
   );
 }

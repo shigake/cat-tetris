@@ -1,76 +1,32 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
 export function useKeyboardInput(gameActions, gameState, isActive = true) {
-  const setupKeyboardHandlers = useCallback(() => {
-    console.log('useKeyboardInput setup:', { gameActions, gameState, isActive });
-    if (!gameActions || !isActive) {
-      console.log('useKeyboardInput: skipping setup - no actions or not active');
-      return () => {};
-    }
+  const gameStateRef = useRef(gameState);
+  gameStateRef.current = gameState;
+
+  const gameActionsRef = useRef(gameActions);
+  gameActionsRef.current = gameActions;
+
+  useEffect(() => {
+    if (!gameActions || !isActive) return;
 
     try {
       const keyboardService = serviceContainer.resolve('keyboardInputService');
-      console.log('useKeyboardInput: keyboardService resolved');
 
-      const handleMoveLeft = () => {
-        console.log('handleMoveLeft called');
-        if (!gameState?.gameOver) {
-          console.log('calling gameActions.movePiece(left)');
-          gameActions.movePiece('left');
-        }
-      };
+      const notOver = () => !gameStateRef.current?.gameOver;
 
-      const handleMoveRight = () => {
-        console.log('handleMoveRight called');
-        if (!gameState?.gameOver) {
-          console.log('calling gameActions.movePiece(right)');
-          gameActions.movePiece('right');
-        }
-      };
-
-      const handleMoveDown = () => {
-        console.log('handleMoveDown called');
-        if (!gameState?.gameOver) {
-          console.log('calling gameActions.movePiece(down)');
-          gameActions.movePiece('down');
-        }
-      };
-
-      const handleRotate = () => {
-        console.log('handleRotate called');
-        if (!gameState?.gameOver) {
-          console.log('calling gameActions.rotatePiece()');
-          gameActions.rotatePiece();
-        }
-      };
-
-      const handleHardDrop = () => {
-        console.log('handleHardDrop called');
-        if (!gameState?.gameOver) {
-          console.log('calling gameActions.hardDrop()');
-          gameActions.hardDrop();
-        }
-      };
-
-      const handleHold = () => {
-        console.log('handleHold called');
-        if (!gameState?.gameOver) {
-          console.log('calling gameActions.holdPiece()');
-          gameActions.holdPiece();
-        }
-      };
-
-      const handlePause = () => {
-        console.log('handlePause called');
-        if (!gameState?.gameOver) {
-          if (gameState?.isPaused) {
-            console.log('calling gameActions.resume()');
-            gameActions.resume();
-          } else {
-            console.log('calling gameActions.pause()');
-            gameActions.pause();
-          }
+      const handleMoveLeft  = () => { if (notOver()) gameActionsRef.current.movePiece('left'); };
+      const handleMoveRight = () => { if (notOver()) gameActionsRef.current.movePiece('right'); };
+      const handleMoveDown  = () => { if (notOver()) gameActionsRef.current.movePiece('down'); };
+      const handleRotate    = () => { if (notOver()) gameActionsRef.current.rotatePiece(); };
+      const handleRotateLeft = () => { if (notOver()) gameActionsRef.current.rotatePieceLeft?.(); };
+      const handleHardDrop  = () => { if (notOver()) gameActionsRef.current.hardDrop(); };
+      const handleHold      = () => { if (notOver()) gameActionsRef.current.holdPiece(); };
+      const handlePause     = () => {
+        if (!gameStateRef.current?.gameOver) {
+          if (gameStateRef.current?.isPaused) gameActionsRef.current.resume();
+          else gameActionsRef.current.pause();
         }
       };
 
@@ -78,6 +34,7 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
       keyboardService.registerHandler('moveRight', handleMoveRight);
       keyboardService.registerHandler('moveDown', handleMoveDown);
       keyboardService.registerHandler('rotate', handleRotate);
+      keyboardService.registerHandler('rotateLeft', handleRotateLeft);
       keyboardService.registerHandler('hardDrop', handleHardDrop);
       keyboardService.registerHandler('hold', handleHold);
       keyboardService.registerHandler('pause', handlePause);
@@ -89,6 +46,7 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
         keyboardService.unregisterHandler('moveRight', handleMoveRight);
         keyboardService.unregisterHandler('moveDown', handleMoveDown);
         keyboardService.unregisterHandler('rotate', handleRotate);
+        keyboardService.unregisterHandler('rotateLeft', handleRotateLeft);
         keyboardService.unregisterHandler('hardDrop', handleHardDrop);
         keyboardService.unregisterHandler('hold', handleHold);
         keyboardService.unregisterHandler('pause', handlePause);
@@ -98,12 +56,7 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
       console.error('Failed to setup keyboard handlers:', error);
       return () => {};
     }
-  }, [gameActions, gameState, isActive]);
-
-  useEffect(() => {
-    const cleanup = setupKeyboardHandlers();
-    return cleanup;
-  }, [setupKeyboardHandlers]);
+  }, [isActive]);
 
   const customizeKeyMapping = useCallback((key, action) => {
     try {
@@ -124,8 +77,36 @@ export function useKeyboardInput(gameActions, gameState, isActive = true) {
     }
   }, []);
 
+  const setDAS = useCallback((ms) => {
+    try {
+      const keyboardService = serviceContainer.resolve('keyboardInputService');
+      keyboardService.setDAS(ms);
+    } catch (e) { /* ignore */ }
+  }, []);
+
+  const setARR = useCallback((ms) => {
+    try {
+      const keyboardService = serviceContainer.resolve('keyboardInputService');
+      keyboardService.setARR(ms);
+    } catch (e) { /* ignore */ }
+  }, []);
+
+  const getDAS = useCallback(() => {
+    try { return serviceContainer.resolve('keyboardInputService').getDAS(); }
+    catch (e) { return 133; }
+  }, []);
+
+  const getARR = useCallback(() => {
+    try { return serviceContainer.resolve('keyboardInputService').getARR(); }
+    catch (e) { return 10; }
+  }, []);
+
   return {
     customizeKeyMapping,
-    getKeyMappings
+    getKeyMappings,
+    setDAS,
+    setARR,
+    getDAS,
+    getARR
   };
 } 

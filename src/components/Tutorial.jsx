@@ -114,7 +114,7 @@ function Tutorial({ onComplete }) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-gradient-to-br from-purple-900/95 to-indigo-900/95 rounded-2xl p-8 max-w-lg w-full border-2 border-white/20 shadow-2xl"
+        className="bg-gradient-to-br from-purple-900/95 to-indigo-900/95 rounded-2xl p-8 max-w-lg w-full border-2 border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto"
       >
         {/* Progress */}
         <div className="flex gap-2 mb-6">

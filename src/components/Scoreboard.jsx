@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { scoreService } from '../services/ScoreService';
 
 const Scoreboard = ({ score, level, lines, combo }) => {
@@ -16,66 +15,54 @@ const Scoreboard = ({ score, level, lines, combo }) => {
   }, [score]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 p-2 lg:p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[140px] lg:min-w-[200px]"
+    <div
+      className="bg-gray-900/50 p-2 rounded-xl border-2 border-white/20 shadow-2xl w-28"
     >
-      <h2 className="text-lg lg:text-2xl font-cat font-bold text-white mb-2 lg:mb-4 text-center">
-        📊 <span className="hidden lg:inline">Pontuação</span>
+      <h2 className="text-xs font-bold text-white mb-1 text-center">
+        📊 Pontuação
       </h2>
       
-      <div className="space-y-1 lg:space-y-3">
+      <div className="space-y-0.5 text-xs">
         <div className="flex justify-between items-center">
-          <span className="text-white/80 text-sm lg:text-base">Pontos:</span>
-          <span className="text-yellow-400 font-bold text-sm lg:text-lg">
+          <span className="text-white/70">Pontos:</span>
+          <span className="text-yellow-400 font-bold">
             {score.toLocaleString()}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-white/80 text-sm lg:text-base">Recorde:</span>
-          <span className="text-green-400 font-bold text-sm lg:text-lg">
+          <span className="text-white/70">Recorde:</span>
+          <span className="text-green-400 font-bold">
             {highScore.toLocaleString()}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-white/80 text-sm lg:text-base">Nível:</span>
-          <span className="text-blue-400 font-bold text-sm lg:text-lg">
+          <span className="text-white/70">Nível:</span>
+          <span className="text-blue-400 font-bold">
             {level}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-white/80 text-sm lg:text-base">Linhas:</span>
-          <span className="text-purple-400 font-bold text-sm lg:text-lg">
+          <span className="text-white/70">Linhas:</span>
+          <span className="text-purple-400 font-bold">
             {lines}
           </span>
         </div>
         
         {combo > 0 && (
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            className="flex justify-between items-center bg-orange-500/20 p-2 rounded-lg border border-orange-400/30"
+          <div
+            className="flex justify-between items-center bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-400/30 mt-0.5"
           >
             <span className="text-white/90">Combo:</span>
-            <span className="text-orange-400 font-bold text-lg">
+            <span className="text-orange-400 font-bold">
               {combo}x
             </span>
-          </motion.div>
+          </div>
         )}
       </div>
-      
-      <div className="mt-4 pt-4 border-t border-white/20">
-        <div className="text-center text-white/60 text-sm">
-          <p>🎯 Objetivo: Limpar linhas!</p>
-          <p>⚡ Combos dão pontos extras</p>
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -94,8 +94,9 @@ export class Board {
   }
 
   isGameOver() {
-    const result = this.grid[0].some(cell => cell !== null);
-    return result;
+    // Check rows 0 and 1 for blocks (standard Tetris lockout)
+    return this.grid[0].some(cell => cell !== null) || 
+           this.grid[1].some(cell => cell !== null);
   }
 
   getBoardState() {

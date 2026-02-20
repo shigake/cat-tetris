@@ -1,38 +1,45 @@
 import { useCallback } from 'react';
+import { getAudioContext } from '../utils/sharedAudioContext';
 
 export function useGameSounds() {
   const createOscillator = useCallback((frequency, duration, type = 'sine', volume = 0.1) => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-    oscillator.type = type;
-    
-    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration);
+    const audioContext = getAudioContext();
+    if (!audioContext) return;
+    try {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+      oscillator.type = type;
+      
+      gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration);
+    } catch { /* ignore audio errors */ }
   }, []);
 
   const playNoiseSound = useCallback((duration, volume = 0.05) => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const bufferSize = audioContext.sampleRate * duration;
-    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = (Math.random() * 2 - 1) * volume;
-    }
-    
-    const source = audioContext.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioContext.destination);
-    source.start();
+    const audioContext = getAudioContext();
+    if (!audioContext) return;
+    try {
+      const bufferSize = audioContext.sampleRate * duration;
+      const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * volume;
+      }
+      
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start();
+    } catch { /* ignore audio errors */ }
   }, []);
 
   const playPieceSound = useCallback((pieceType) => {
@@ -134,6 +141,39 @@ export function useGameSounds() {
 
   const playPieceLand = useCallback(() => {
     createOscillator(200, 0.05, 'square', 0.03);
+    createOscillator(120, 0.06, 'sine', 0.04);
+  }, [createOscillator]);
+
+  const playHardDrop = useCallback(() => {
+    // Punchy bass thud + noise burst
+    playNoiseSound(0.04, 0.08);
+    createOscillator(80, 0.08, 'square', 0.12);
+    createOscillator(60, 0.1, 'sine', 0.1);
+  }, [createOscillator, playNoiseSound]);
+
+  const playTSpin = useCallback(() => {
+    // Dramatic rising chord
+    playNoiseSound(0.03, 0.04);
+    [349, 440, 523, 659, 784].forEach((freq, i) => {
+      setTimeout(() => createOscillator(freq, 0.2, 'sawtooth', 0.1), i * 40);
+    });
+    setTimeout(() => {
+      createOscillator(1047, 0.4, 'triangle', 0.15);
+    }, 250);
+  }, [createOscillator, playNoiseSound]);
+
+  const playBackToBack = useCallback(() => {
+    // Sparkle ascending
+    [660, 880, 1100, 1320, 1760].forEach((freq, i) => {
+      setTimeout(() => createOscillator(freq, 0.12, 'triangle', 0.08), i * 50);
+    });
+  }, [createOscillator]);
+
+  const playCombo = useCallback((comboCount) => {
+    // Pitch rises with combo count
+    const baseFreq = 400 + (comboCount * 80);
+    createOscillator(baseFreq, 0.1, 'triangle', 0.08);
+    setTimeout(() => createOscillator(baseFreq * 1.25, 0.08, 'triangle', 0.06), 50);
   }, [createOscillator]);
 
   const playGameOver = useCallback(() => {
@@ -170,6 +210,10 @@ export function useGameSounds() {
     playLineClear,
     playLevelUp,
     playPieceLand,
+    playHardDrop,
+    playTSpin,
+    playBackToBack,
+    playCombo,
     playGameOver,
     playPause,
     playResume,

@@ -1,207 +1,232 @@
 /**
  * AIOpponentService - IA adversária com múltiplos níveis
+ * Works with Piece entities that have: type, shape, color, emoji, position: {x,y}
+ * Board is a 2D array (20 rows x 10 cols), null = empty, non-null = filled
  */
 
 export class AIOpponentService {
   constructor() {
-    this.difficulty = 'medium'; // easy, medium, hard, expert
-    this.thinkingTime = 100; // ms entre decisões
+    this.difficulty = 'medium';
+    this.thinkingTime = 100;
     this.lastDecision = Date.now();
+    // Persistent action queue: once AI picks a target, execute the full sequence
+    this._actionQueue = [];
   }
 
   setDifficulty(difficulty) {
     this.difficulty = difficulty;
-    
-    // Ajusta velocidade de decisão baseada na dificuldade
     switch (difficulty) {
-      case 'easy':
-        this.thinkingTime = 300;
-        break;
-      case 'medium':
-        this.thinkingTime = 150;
-        break;
-      case 'hard':
-        this.thinkingTime = 80;
-        break;
-      case 'expert':
-        this.thinkingTime = 30;
-        break;
+      case 'easy':   this.thinkingTime = 300; break;
+      case 'medium': this.thinkingTime = 150; break;
+      case 'hard':   this.thinkingTime = 80;  break;
+      case 'expert': this.thinkingTime = 30;  break;
     }
   }
 
   /**
-   * Decide próxima ação da IA
-   * @param {Object} gameState - Estado atual do jogo
-   * @returns {Object} - { action: 'left'|'right'|'rotate'|'down'|'drop', reason: string }
+   * Decide the next single action for the AI.
+   * Uses an internal action queue: evaluates the best placement once,
+   * then feeds one action per call until the queue is drained.
    */
   decideNextMove(gameState) {
     const now = Date.now();
-    if (now - this.lastDecision < this.thinkingTime) {
-      return null; // Ainda pensando...
-    }
-    
+    if (now - this.lastDecision < this.thinkingTime) return null;
     this.lastDecision = now;
-    
-    const { currentPiece, board, nextPieces } = gameState;
-    
+
+    const { currentPiece, board } = gameState;
     if (!currentPiece) return null;
 
-    // Avalia todas as posições possíveis
-    const possibleMoves = this.evaluateAllPositions(currentPiece, board);
-    
-    // Escolhe a melhor baseada na dificuldade
-    const bestMove = this.selectBestMove(possibleMoves, gameState);
-    
+    // If we still have queued actions for THIS piece, return next
+    if (this._actionQueue.length > 0) {
+      return this._actionQueue.shift();
+    }
+
+    // Evaluate best placement and build a new action queue
+    try {
+      const bestMove = this._findBestMove(currentPiece, board);
+      if (!bestMove) return { action: 'down' };
+
+      this._actionQueue = this._buildActionSequence(
+        currentPiece,
+        bestMove.rotations,
+        bestMove.targetX
+      );
+    } catch (e) {
+      // Fallback: just drop
+      this._actionQueue = [{ action: 'drop' }];
+    }
+
+    return this._actionQueue.length > 0
+      ? this._actionQueue.shift()
+      : { action: 'down' };
+  }
+
+  // ─── Core evaluation ───────────────────────────────────────
+
+  _findBestMove(piece, board) {
+    let bestScore = -Infinity;
+    let bestMove = null;
+    const boardHeight = board.length;
+    const boardWidth = board[0]?.length || 10;
+
+    // Try 0-3 rotations
+    for (let rot = 0; rot < 4; rot++) {
+      const rotatedShape = this._rotateShape(piece.shape, rot);
+      const pieceW = rotatedShape[0].length;
+      const pieceH = rotatedShape.length;
+
+      // Try every valid column
+      for (let col = -1; col <= boardWidth - pieceW + 1; col++) {
+        // Drop the shape to find landing row
+        const landingRow = this._findLandingRow(rotatedShape, board, col, boardHeight, boardWidth);
+        if (landingRow === null) continue; // invalid placement
+
+        // Check if the placement is fully on the board
+        if (landingRow < 0) continue;
+
+        // Simulate placing
+        const simBoard = this._placeOnBoard(rotatedShape, board, col, landingRow);
+        if (!simBoard) continue;
+
+        let score = this._evaluateBoard(simBoard, piece);
+
+        // Difficulty-based noise
+        if (this.difficulty === 'easy') {
+          score += (Math.random() - 0.5) * 1000;
+        } else if (this.difficulty === 'medium' && Math.random() < 0.15) {
+          score += (Math.random() - 0.5) * 500;
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = { rotations: rot, targetX: col };
+        }
+      }
+    }
+
     return bestMove;
   }
 
-  /**
-   * Avalia todas as posições possíveis para a peça atual
-   */
-  evaluateAllPositions(piece, board) {
-    const moves = [];
-    const rotations = [0, 1, 2, 3];
-    
-    for (const rotation of rotations) {
-      // Simula cada rotação
-      const rotatedPiece = this.simulateRotation(piece, rotation);
-      
-      // Para cada coluna possível
-      for (let col = 0; col < 10; col++) {
-        const score = this.evaluatePosition(rotatedPiece, board, col, rotation);
-        
-        moves.push({
-          rotation,
-          column: col,
-          score,
-          piece: rotatedPiece
-        });
-      }
-    }
-    
-    return moves.sort((a, b) => b.score - a.score);
-  }
-
-  /**
-   * Avalia qualidade de uma posição específica
-   */
-  evaluatePosition(piece, board, targetCol, rotation) {
+  _evaluateBoard(board, piece) {
     let score = 0;
-    
-    // Simula colocação da peça
-    const simulatedBoard = this.simulatePlacement(piece, board, targetCol);
-    
-    if (!simulatedBoard) return -10000; // Posição inválida
-    
-    // Fatores de avaliação:
-    
-    // 1. Linhas completas (MUITO BOM!)
-    const linesCleared = this.countCompletedLines(simulatedBoard);
+
+    const linesCleared = this.countCompletedLines(board);
     score += linesCleared * 1000;
-    
-    // 2. Altura do tabuleiro (quanto menor, melhor)
-    const height = this.calculateHeight(simulatedBoard);
+
+    const height = this.calculateHeight(board);
     score -= height * 50;
-    
-    // 3. Buracos (MUITO RUIM!)
-    const holes = this.countHoles(simulatedBoard);
+
+    const holes = this.countHoles(board);
     score -= holes * 500;
-    
-    // 4. Suavidade (diferença de altura entre colunas)
-    const bumpiness = this.calculateBumpiness(simulatedBoard);
+
+    const bumpiness = this.calculateBumpiness(board);
     score -= bumpiness * 40;
-    
-    // 5. Linhas completas adjacentes (combos!)
-    const potentialCombo = this.evaluatePotentialCombo(simulatedBoard);
-    score += potentialCombo * 300;
-    
-    // 6. Teto nivelado (bom para T-spins)
-    const flatness = this.calculateFlatness(simulatedBoard);
+
+    const combo = this.evaluatePotentialCombo(board);
+    score += combo * 300;
+
+    const flatness = this.calculateFlatness(board);
     score += flatness * 20;
-    
-    // Ajustes por dificuldade
-    if (this.difficulty === 'easy') {
-      // IA fácil comete erros propositais
-      score += (Math.random() - 0.5) * 1000;
-    } else if (this.difficulty === 'expert') {
-      // IA expert prioriza T-spins
-      const tSpinPotential = this.evaluateTSpinSetup(simulatedBoard, piece);
-      score += tSpinPotential * 800;
+
+    if (this.difficulty === 'expert') {
+      score += this.evaluateTSpinSetup(board, piece) * 800;
     }
-    
+
     return score;
   }
 
-  /**
-   * Seleciona melhor movimento baseado na avaliação
-   */
-  selectBestMove(possibleMoves, gameState) {
-    if (possibleMoves.length === 0) return { action: 'down' };
-    
-    // Dificuldades mais baixas podem escolher movimentos subótimos
-    let selectedMove;
-    
-    if (this.difficulty === 'easy' && Math.random() < 0.3) {
-      // 30% de chance de escolher movimento ruim
-      selectedMove = possibleMoves[Math.floor(Math.random() * Math.min(5, possibleMoves.length))];
-    } else if (this.difficulty === 'medium' && Math.random() < 0.15) {
-      // 15% de chance de não escolher o ótimo
-      selectedMove = possibleMoves[Math.floor(Math.random() * Math.min(3, possibleMoves.length))];
-    } else {
-      // Escolhe o melhor
-      selectedMove = possibleMoves[0];
-    }
-    
-    // Calcula sequência de ações para chegar lá
-    const actions = this.calculateActionSequence(
-      gameState.currentPiece,
-      selectedMove.rotation,
-      selectedMove.column
-    );
-    
-    return actions[0] || { action: 'down' };
-  }
+  // ─── Action sequence builder ───────────────────────────────
 
-  /**
-   * Calcula sequência de ações para alcançar posição alvo
-   */
-  calculateActionSequence(currentPiece, targetRotation, targetColumn) {
+  _buildActionSequence(currentPiece, targetRotations, targetX) {
     const actions = [];
-    
-    // Rotações necessárias
-    const rotationsNeeded = (targetRotation - currentPiece.rotation + 4) % 4;
-    for (let i = 0; i < rotationsNeeded; i++) {
+
+    // Rotations first
+    const rots = targetRotations % 4;
+    for (let i = 0; i < rots; i++) {
       actions.push({ action: 'rotate' });
     }
-    
-    // Movimentos horizontais necessários
-    const horizontalDiff = targetColumn - currentPiece.x;
-    const direction = horizontalDiff > 0 ? 'right' : 'left';
-    for (let i = 0; i < Math.abs(horizontalDiff); i++) {
-      actions.push({ action: direction });
+
+    // Horizontal movement — use piece position.x as reference
+    const currentX = currentPiece.position?.x ?? 3;
+    const diff = targetX - currentX;
+    const dir = diff > 0 ? 'right' : 'left';
+    for (let i = 0; i < Math.abs(diff); i++) {
+      actions.push({ action: dir });
     }
-    
-    // Drop final
+
+    // Hard drop at the end
     actions.push({ action: 'drop' });
-    
+
     return actions;
   }
 
-  // Métodos de avaliação do tabuleiro
-  
+  // ─── Shape manipulation helpers ────────────────────────────
+
+  _rotateShape(shape, times) {
+    let s = shape;
+    for (let i = 0; i < (times % 4); i++) {
+      s = s[0].map((_, idx) => s.map(row => row[idx]).reverse());
+    }
+    return s;
+  }
+
+  _findLandingRow(shape, board, col, boardHeight, boardWidth) {
+    const pieceH = shape.length;
+    const pieceW = shape[0].length;
+
+    // Start from top and move down until collision
+    for (let row = -pieceH; row < boardHeight; row++) {
+      if (this._collides(shape, board, col, row + 1, boardHeight, boardWidth)) {
+        return row; // land at 'row'
+      }
+    }
+    return boardHeight - pieceH; // bottom
+  }
+
+  _collides(shape, board, col, row, boardHeight, boardWidth) {
+    for (let sy = 0; sy < shape.length; sy++) {
+      for (let sx = 0; sx < shape[0].length; sx++) {
+        if (!shape[sy][sx]) continue;
+        const bx = col + sx;
+        const by = row + sy;
+        if (bx < 0 || bx >= boardWidth || by >= boardHeight) return true;
+        if (by >= 0 && board[by][bx] != null) return true;
+      }
+    }
+    return false;
+  }
+
+  _placeOnBoard(shape, board, col, row) {
+    const boardHeight = board.length;
+    const boardWidth = board[0].length;
+    const newBoard = board.map(r => [...r]);
+
+    for (let sy = 0; sy < shape.length; sy++) {
+      for (let sx = 0; sx < shape[0].length; sx++) {
+        if (!shape[sy][sx]) continue;
+        const bx = col + sx;
+        const by = row + sy;
+        if (bx < 0 || bx >= boardWidth || by < 0 || by >= boardHeight) return null;
+        if (newBoard[by][bx] != null) return null;
+        newBoard[by][bx] = 1; // mark filled
+      }
+    }
+    return newBoard;
+  }
+
+  // ─── Board evaluation helpers ──────────────────────────────
+
   countCompletedLines(board) {
     let count = 0;
-    for (let row of board) {
-      if (row.every(cell => cell !== 0)) count++;
+    for (const row of board) {
+      if (row.every(cell => cell != null)) count++;
     }
     return count;
   }
 
   calculateHeight(board) {
     for (let y = 0; y < board.length; y++) {
-      if (board[y].some(cell => cell !== 0)) {
-        return board.length - y;
-      }
+      if (board[y].some(cell => cell != null)) return board.length - y;
     }
     return 0;
   }
@@ -209,119 +234,78 @@ export class AIOpponentService {
   countHoles(board) {
     let holes = 0;
     const width = board[0].length;
-    
     for (let x = 0; x < width; x++) {
       let blockFound = false;
       for (let y = 0; y < board.length; y++) {
-        if (board[y][x] !== 0) {
-          blockFound = true;
-        } else if (blockFound && board[y][x] === 0) {
-          holes++;
-        }
+        if (board[y][x] != null) blockFound = true;
+        else if (blockFound) holes++;
       }
     }
-    
     return holes;
   }
 
   calculateBumpiness(board) {
     const heights = [];
     const width = board[0].length;
-    
     for (let x = 0; x < width; x++) {
-      let height = 0;
+      let h = 0;
       for (let y = 0; y < board.length; y++) {
-        if (board[y][x] !== 0) {
-          height = board.length - y;
-          break;
-        }
+        if (board[y][x] != null) { h = board.length - y; break; }
       }
-      heights.push(height);
+      heights.push(h);
     }
-    
-    let bumpiness = 0;
+    let bump = 0;
     for (let i = 0; i < heights.length - 1; i++) {
-      bumpiness += Math.abs(heights[i] - heights[i + 1]);
+      bump += Math.abs(heights[i] - heights[i + 1]);
     }
-    
-    return bumpiness;
+    return bump;
   }
 
   evaluatePotentialCombo(board) {
-    // Conta linhas quase completas adjacentes
-    let potentialCombo = 0;
+    let combo = 0;
     for (let y = 0; y < board.length - 1; y++) {
-      const filled1 = board[y].filter(cell => cell !== 0).length;
-      const filled2 = board[y + 1].filter(cell => cell !== 0).length;
-      if (filled1 >= 8 && filled2 >= 8) {
-        potentialCombo++;
-      }
+      const f1 = board[y].filter(c => c != null).length;
+      const f2 = board[y + 1].filter(c => c != null).length;
+      if (f1 >= 8 && f2 >= 8) combo++;
     }
-    return potentialCombo;
+    return combo;
   }
 
   calculateFlatness(board) {
     const heights = [];
     const width = board[0].length;
-    
     for (let x = 0; x < width; x++) {
+      let found = false;
       for (let y = 0; y < board.length; y++) {
-        if (board[y][x] !== 0) {
-          heights.push(board.length - y);
-          break;
-        }
+        if (board[y][x] != null) { heights.push(board.length - y); found = true; break; }
       }
-      if (heights.length === x) heights.push(0);
+      if (!found) heights.push(0);
     }
-    
-    const variance = heights.reduce((sum, h) => sum + Math.pow(h - heights[0], 2), 0);
-    return 100 - variance; // Quanto menor a variância, mais plano
+    const avg = heights.reduce((s, h) => s + h, 0) / heights.length;
+    const variance = heights.reduce((s, h) => s + Math.pow(h - avg, 2), 0) / heights.length;
+    return Math.max(0, 100 - variance);
   }
 
   evaluateTSpinSetup(board, piece) {
-    // Avalia se há setup para T-spin (simplificado)
-    if (piece.type !== 'T') return 0;
-    
-    // Procura por "slots" em formato de T
-    let tSpinSlots = 0;
+    if (piece?.type !== 'T') return 0;
+    let slots = 0;
     for (let y = 1; y < board.length - 1; y++) {
       for (let x = 1; x < board[0].length - 1; x++) {
-        if (this.isTSpinSlot(board, x, y)) {
-          tSpinSlots++;
-        }
+        if (this._isTSpinSlot(board, x, y)) slots++;
       }
     }
-    
-    return tSpinSlots;
+    return slots;
   }
 
-  isTSpinSlot(board, x, y) {
-    // Detecta se posição pode receber T-spin (simplificado)
-    return board[y][x] === 0 &&
-           board[y][x-1] !== 0 &&
-           board[y][x+1] !== 0 &&
-           board[y-1][x] === 0;
+  _isTSpinSlot(board, x, y) {
+    return board[y][x] == null &&
+           board[y][x - 1] != null &&
+           board[y][x + 1] != null &&
+           board[y - 1][x] == null;
   }
 
-  simulatePlacement(piece, board, targetCol) {
-    // Simula colocação da peça (retorna novo board ou null se inválido)
-    // Implementação simplificada
-    const newBoard = board.map(row => [...row]);
-    
-    // TODO: Implementar lógica completa de simulação
-    // Por ora, retorna board original
-    return newBoard;
-  }
+  // ─── Public helpers ────────────────────────────────────────
 
-  simulateRotation(piece, rotations) {
-    // Simula rotação da peça
-    return {
-      ...piece,
-      rotation: rotations
-    };
-  }
-
-  // Getters para dificuldade
   getDifficulties() {
     return [
       { id: 'easy', name: 'Fácil', emoji: '🐱', description: 'IA iniciante' },

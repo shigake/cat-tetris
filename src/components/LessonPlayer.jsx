@@ -1,246 +1,145 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePracticeGame } from '../hooks/usePracticeGame';
+import { useDemoGame } from '../hooks/useDemoGame';
 import { useKeyboardInput } from '../hooks/useKeyboardInput';
-import { DemonstrationPlayer } from '../core/services/DemonstrationPlayer';
-import { getDemonstration, hasDemonstration } from '../core/services/DemonstrationLibrary';
 import CelebrationParticles from './CelebrationParticles';
 import IntroductionScreen from './lesson/IntroductionScreen';
-import DemonstrationScreen from './lesson/DemonstrationScreen';
+import DemoScreen from './lesson/DemoScreen';
 import PracticeScreen from './lesson/PracticeScreen';
 
 /**
- * LessonPlayer - Coordenador principal das lições
- * Gerencia transição entre: introdução → demonstração → prática
+ * LessonPlayer - Coordena introdução → demo (IA) → prática
  */
 function LessonPlayer({ lesson, onComplete, onExit }) {
-  // Estados
   const [mode, setMode] = useState('introduction');
   const [practiceState, setPracticeState] = useState({
-    attempts: 0,
     progress: 0,
     feedback: '',
     complete: false
   });
-  const [showHint, setShowHint] = useState(null);
-  const [demonstrationState, setDemonstrationState] = useState({
-    isPlaying: false,
-    isPaused: false,
-    progress: 0,
-    currentNarration: ''
-  });
   const [showCelebration, setShowCelebration] = useState(false);
-  
-  const demonstrationPlayerRef = useRef(null);
-  const hasDemoAvailable = hasDemonstration(lesson.id);
 
-  // Hooks
+  // Demo game (AI plays) — passa lessonId para IA adaptar comportamento
+  const {
+    gameState: demoGameState,
+    isInitialized: demoInitialized,
+    demoComplete,
+    statusLabel: demoStatusLabel,
+    getDropPreview: getDemoPreview
+  } = useDemoGame(mode === 'demo', lesson?.id);
+
+  const demoDropPreview = useMemo(() => {
+    if (mode !== 'demo' || !demoInitialized) return null;
+    return getDemoPreview?.() || null;
+  }, [mode, demoInitialized, getDemoPreview, demoGameState]);
+
+  // Practice game (player plays)
   const { gameState, actions, isInitialized, getValidationState } = usePracticeGame(
     mode === 'practice' ? lesson : null
   );
   useKeyboardInput(actions, gameState, mode === 'practice' && isInitialized);
 
-  // ===== DEMONSTRAÇÃO =====
-  const startDemonstration = useCallback(() => {
-    if (!hasDemoAvailable || !gameState) return;
+  // Ghost / drop preview for practice
+  const dropPreview = useMemo(() => {
+    if (mode !== 'practice' || !isInitialized) return null;
+    return actions.getDropPreview?.() || null;
+  }, [mode, isInitialized, actions, gameState]);
 
-    const demo = getDemonstration(lesson.id);
-    if (!demo) return;
-
-    if (!demonstrationPlayerRef.current) {
-      demonstrationPlayerRef.current = new DemonstrationPlayer(actions);
-      
-      demonstrationPlayerRef.current.onStep((step) => {
-        setDemonstrationState(prev => ({
-          ...prev,
-          currentNarration: step.narration || ''
-        }));
-      });
-
-      demonstrationPlayerRef.current.onComplete(() => {
-        setDemonstrationState(prev => ({
-          ...prev,
-          isPlaying: false,
-          progress: 1.0
-        }));
-      });
-    }
-
-    demonstrationPlayerRef.current.loadRecording(demo);
-    demonstrationPlayerRef.current.play();
-
-    setDemonstrationState(prev => ({
-      ...prev,
-      isPlaying: true,
-      isPaused: false
-    }));
-  }, [hasDemoAvailable, gameState, lesson.id, actions]);
-
-  const pauseDemonstration = useCallback(() => {
-    demonstrationPlayerRef.current?.pause();
-    setDemonstrationState(prev => ({ ...prev, isPaused: true }));
-  }, []);
-
-  const resumeDemonstration = useCallback(() => {
-    demonstrationPlayerRef.current?.resume();
-    setDemonstrationState(prev => ({ ...prev, isPaused: false }));
-  }, []);
-
-  const stopDemonstration = useCallback(() => {
-    demonstrationPlayerRef.current?.stop();
-    setDemonstrationState({
-      isPlaying: false,
-      isPaused: false,
-      progress: 0,
-      currentNarration: ''
-    });
-  }, []);
-
-  // Atualizar progresso da demonstração
-  useEffect(() => {
-    if (!demonstrationState.isPlaying || demonstrationState.isPaused) return;
-
-    const interval = setInterval(() => {
-      if (demonstrationPlayerRef.current) {
-        const progress = demonstrationPlayerRef.current.getProgress();
-        setDemonstrationState(prev => ({ ...prev, progress }));
-      }
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [demonstrationState.isPlaying, demonstrationState.isPaused]);
-
-  // ===== PRÁTICA =====
+  // ===== VALIDAÇÃO DA PRÁTICA =====
   useEffect(() => {
     if (mode !== 'practice' || !isInitialized || !gameState) return;
 
     const validationState = getValidationState();
-    if (!validationState) return;
+    if (!validationState || !lesson.practice?.validate) return;
 
-    const validation = lesson.practice.validation(validationState);
-    
+    const result = lesson.practice.validate(validationState);
+
     setPracticeState(prev => ({
       ...prev,
-      progress: validation.progress || 0,
-      feedback: validation.feedback || '',
-      complete: validation.complete || false
+      progress: result.progress || 0,
+      feedback: result.feedback || '',
+      complete: result.complete || false
     }));
 
-    if (validation.complete && !practiceState.complete) {
+    if (result.complete && !practiceState.complete) {
       setShowCelebration(true);
       setTimeout(() => {
-        onComplete(lesson.id, { attempts: practiceState.attempts + 1 });
+        onComplete(lesson.id, { score: validationState.score });
       }, 2000);
     }
   }, [mode, isInitialized, gameState, lesson, getValidationState, practiceState.complete, onComplete]);
 
-  // Sistema de hints
-  useEffect(() => {
-    if (mode !== 'practice') return;
-    
-    if (lesson.practice.hints && practiceState.attempts > 2) {
-      const hints = lesson.practice.hints;
-      const timer = setTimeout(() => {
-        const randomHint = hints[Math.floor(Math.random() * hints.length)];
-        setShowHint(randomHint);
-        
-        setTimeout(() => setShowHint(null), 8000);
-      }, 10000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [mode, lesson, practiceState]);
+  const handleStartDemo = useCallback(() => {
+    setMode('demo');
+  }, []);
 
-  // ===== HANDLERS =====
-  const handleStartDemo = () => {
-    setMode('demonstration');
-    startDemonstration();
-  };
-
-  const handleStartPractice = () => {
+  const handleStartPractice = useCallback(() => {
     setMode('practice');
-  };
+    setPracticeState({ progress: 0, feedback: '', complete: false });
+  }, []);
 
-  const handleSkipDemo = () => {
-    stopDemonstration();
-    setMode('practice');
-  };
+  const handleRestart = useCallback(() => {
+    actions.restart?.();
+    setPracticeState({ progress: 0, feedback: '', complete: false });
+  }, [actions]);
 
-  // ===== RENDER =====
-  const getModeIcon = () => {
-    switch (mode) {
-      case 'introduction': return '📖';
-      case 'demonstration': return '🎬';
-      case 'practice': return '🎮';
-      default: return '📖';
-    }
-  };
-
-  const getModeLabel = () => {
-    switch (mode) {
-      case 'introduction': return 'Introdução';
-      case 'demonstration': return 'Demonstração';
-      case 'practice': return 'Prática';
-      default: return 'Introdução';
-    }
-  };
+  const modeLabel = mode === 'introduction' ? '📖 Introdução'
+    : mode === 'demo' ? '🤖 Demonstração'
+    : '🎮 Prática';
 
   return (
-    <div className="fixed inset-0 bg-black/95 z-50 flex flex-col">
+    <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-50 flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 p-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <div className="bg-black/30 border-b border-white/[0.06] px-4 py-2 flex-shrink-0">
+        <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center gap-3">
-            <span className="text-4xl">
-              {lesson.module === 'fundamentals' ? '🎮' : 
+            <span className="text-2xl">
+              {lesson.module === 'fundamentals' ? '🎮' :
                lesson.module === 'intermediate' ? '🌀' :
                lesson.module === 'advanced' ? '💎' : '🏆'}
             </span>
             <div>
-              <h2 className="text-2xl font-bold text-white">{lesson.title}</h2>
-              <p className="text-white/70">{lesson.description}</p>
+              <h2 className="text-lg font-bold text-white">{lesson.title}</h2>
+              <p className="text-white/40 text-xs">{lesson.description}</p>
             </div>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="text-right text-white/80">
-              <div className="text-sm uppercase">Modo</div>
-              <div className="text-lg font-bold">
-                {getModeIcon()} {getModeLabel()}
-              </div>
-            </div>
-            
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-white/30 bg-white/[0.06] px-2 py-1 rounded">
+              {modeLabel}
+            </span>
             <button
               onClick={onExit}
-              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors"
+              className="text-white/40 hover:text-white/70 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg px-3 py-1.5 text-sm transition-all"
             >
-              ❌ Sair
+              ✕ Sair
             </button>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
-        <div className="max-w-7xl w-full">
+      <div className="flex-1 overflow-auto p-3">
+        <div className="max-w-4xl w-full mx-auto">
           <AnimatePresence mode="wait">
             {mode === 'introduction' && (
               <IntroductionScreen
                 lesson={lesson}
-                hasDemoAvailable={hasDemoAvailable}
                 onStartDemo={handleStartDemo}
                 onStartPractice={handleStartPractice}
               />
             )}
 
-            {mode === 'demonstration' && (
-              <DemonstrationScreen
-                gameState={gameState}
-                isInitialized={isInitialized}
-                demonstrationState={demonstrationState}
-                onPause={pauseDemonstration}
-                onResume={resumeDemonstration}
-                onSkip={handleSkipDemo}
+            {mode === 'demo' && (
+              <DemoScreen
+                lesson={lesson}
+                gameState={demoGameState}
+                isInitialized={demoInitialized}
+                demoComplete={demoComplete}
+                dropPreview={demoDropPreview}
+                statusLabel={demoStatusLabel}
+                onSkip={handleStartPractice}
               />
             )}
 
@@ -250,7 +149,8 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                 gameState={gameState}
                 isInitialized={isInitialized}
                 practiceState={practiceState}
-                showHint={showHint}
+                onRestart={handleRestart}
+                dropPreview={dropPreview}
               />
             )}
           </AnimatePresence>

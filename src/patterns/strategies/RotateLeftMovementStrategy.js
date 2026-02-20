@@ -16,7 +16,11 @@ export class RotateLeftMovementStrategy extends BaseMovementStrategy {
       return rotated.setTSpin(isTSpin);
     }
 
-    const kicks = GameConfig.KICK_OFFSETS;
+    // Use proper SRS kicks for counter-clockwise rotation
+    const fromRot = piece.rotationState ?? 0;
+    const toRot = (fromRot + 3) % 4; // CCW: 0→3, 1→0, 2→1, 3→2
+    const kickKey = `${fromRot}>${toRot}`;
+    const kicks = GameConfig.SRS_KICKS_CCW?.[kickKey] || GameConfig.KICK_OFFSETS;
 
     for (const kick of kicks) {
       const kickedPosition = {
@@ -54,10 +58,11 @@ export class RotateLeftMovementStrategy extends BaseMovementStrategy {
     const pieceX = piece.position.x;
     const pieceY = piece.position.y;
 
-    corners.push({ x: pieceX - 1, y: pieceY - 1 });
-    corners.push({ x: pieceX + 3, y: pieceY - 1 });
-    corners.push({ x: pieceX - 1, y: pieceY + 3 });
-    corners.push({ x: pieceX + 3, y: pieceY + 3 });
+    // T-piece is 3x3, corners of bounding box are (0,0), (2,0), (0,2), (2,2)
+    corners.push({ x: pieceX, y: pieceY });
+    corners.push({ x: pieceX + 2, y: pieceY });
+    corners.push({ x: pieceX, y: pieceY + 2 });
+    corners.push({ x: pieceX + 2, y: pieceY + 2 });
 
     return corners;
   }
@@ -77,7 +82,8 @@ export class RotateLeftMovementStrategy extends BaseMovementStrategy {
       piece.color,
       piece.emoji,
       piece.position,
-      piece.isTSpin
+      piece.isTSpin,
+      (piece.rotationState + 3) % 4 // CCW: 0→3, 1→0, 2→1, 3→2
     );
   }
 } 

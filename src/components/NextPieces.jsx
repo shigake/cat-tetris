@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { getPieceColor } from '../utils/PieceGenerator';
 
 const NextPieces = ({ pieces }) => {
@@ -10,17 +9,10 @@ const NextPieces = ({ pieces }) => {
     const maxHeight = piece.shape.length;
 
     return (
-      <motion.div
+      <div
         key={index}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, delay: index * 0.1 }}
-        className="bg-gray-800/50 p-3 rounded-lg border border-white/20"
+        className="bg-gray-800/50 p-1.5 rounded-lg border border-white/20"
       >
-        <div className="text-center mb-3">
-          <span className="text-xs text-white/70 font-medium">Próxima {index + 1}</span>
-        </div>
-        
         <div className="flex justify-center">
           <div 
             className="grid gap-1" 
@@ -48,39 +40,23 @@ const NextPieces = ({ pieces }) => {
             )}
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-900/50 p-2 lg:p-4 rounded-xl border-2 border-white/20 shadow-2xl min-w-[100px] lg:min-w-[220px]"
+    <div
+      className="bg-gray-900/50 p-2 rounded-xl border-2 border-white/20 shadow-2xl w-24"
     >
-      <h2 className="text-sm lg:text-xl font-cat font-bold text-white mb-2 lg:mb-4 text-center flex items-center justify-center gap-1 lg:gap-2">
+      <h2 className="text-xs font-bold text-white mb-1 text-center flex items-center justify-center gap-1">
         <span>🔮</span>
-        <span className="hidden lg:inline">Próximas Peças</span>
+        <span className="hidden lg:inline">Próximas</span>
       </h2>
       
-      <div className="space-y-3">
+      <div className="space-y-1.5">
         {pieces.map((piece, index) => renderPiece(piece, index))}
       </div>
-      
-      <div className="mt-2 lg:mt-4 pt-2 lg:pt-4 border-t border-white/20 hidden lg:block">
-        <div className="text-center text-white/60 text-sm space-y-1">
-          <p className="flex items-center justify-center gap-1">
-            <span>👀</span>
-            <span>Prepare sua estratégia!</span>
-          </p>
-          <p className="flex items-center justify-center gap-1">
-            <span>🎯</span>
-            <span>Planeje os próximos movimentos</span>
-          </p>
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 };
 

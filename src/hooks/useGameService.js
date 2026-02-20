@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
+import { errorLogger } from '../services/ErrorLogger.js';
 
 export function useGameService() {
   const [gameState, setGameState] = useState(null);
@@ -8,6 +9,7 @@ export function useGameService() {
   const gameLoopRef = useRef(null);
   const lastTimeRef = useRef(0);
   const initializedRef = useRef(false);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     if (initializedRef.current) return;
@@ -19,27 +21,28 @@ export function useGameService() {
       gameService.initializeGame();
       setGameState(gameService.getGameState());
 
-      const handleGameStateUpdate = () => {
-        if (gameServiceRef.current) {
-          const newState = gameServiceRef.current.getGameState();
-          setGameState(newState);
-        }
+      // Instead of calling setGameState on every event (causes cascade),
+      // just mark state as dirty. The game loop syncs once per frame.
+      const markDirty = () => {
+        dirtyRef.current = true;
       };
 
       Object.values(GAME_EVENTS).forEach(event => {
-        gameEvents.on(event, handleGameStateUpdate);
+        gameEvents.on(event, markDirty);
       });
 
       return () => {
         Object.values(GAME_EVENTS).forEach(event => {
-          gameEvents.off(event, handleGameStateUpdate);
+          gameEvents.off(event, markDirty);
         });
         if (gameLoopRef.current) {
           cancelAnimationFrame(gameLoopRef.current);
         }
       };
     } catch (error) {
-      console.error('Failed to initialize game service:', error);
+      errorLogger.logError('useGameService', 'init', error.message, {
+        stack: error.stack
+      });
       throw error;
     }
   }, []);
@@ -56,9 +59,17 @@ export function useGameService() {
       lastTimeRef.current = currentTime;
 
       if (gameServiceRef.current) {
-        const currentGameState = gameServiceRef.current.getGameState();
-        if (!currentGameState.isPaused && !currentGameState.gameOver) {
+        // Run game logic when actively playing
+        if (gameServiceRef.current.isPlaying &&
+            !gameServiceRef.current.isPaused &&
+            !gameServiceRef.current.gameOver) {
           gameServiceRef.current.updateGame(deltaTime);
+        }
+
+        // Sync React state at most once per animation frame
+        if (dirtyRef.current) {
+          dirtyRef.current = false;
+          setGameState(gameServiceRef.current.getGameState());
         }
       }
       
@@ -78,9 +89,21 @@ export function useGameService() {
     return (...args) => {
       if (gameServiceRef.current && typeof gameServiceRef.current[actionName] === 'function') {
         try {
+          if (!['getDropPreview', 'updateGame', 'getGameState'].includes(actionName)) {
+            errorLogger.logAction('useGameService', actionName, {
+              args: args.length > 0 ? args : undefined
+            });
+          }
           return gameServiceRef.current[actionName](...args);
         } catch (error) {
-          console.error(`Error executing ${actionName}:`, error);
+          errorLogger.logError('useGameService', actionName, error.message, {
+            stack: error.stack,
+            args: args.map(a => String(a).slice(0, 100))
+          });
+          // Don't re-throw for read-only actions called during render
+          if (actionName === 'getDropPreview') {
+            return null;
+          }
           throw error;
         }
       }

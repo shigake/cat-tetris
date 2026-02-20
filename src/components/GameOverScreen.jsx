@@ -33,7 +33,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
         initial={{ scale: 0.8, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         transition={{ type: "spring", damping: 15 }}
-        className="bg-gray-900/90 p-8 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4"
+        className="bg-gray-900/90 p-8 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
       >
         <div className="text-center">
           <motion.div
