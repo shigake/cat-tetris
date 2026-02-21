@@ -24,7 +24,7 @@ function RewardNotification({ reward, onClose }) {
           <div className="text-4xl">🎉</div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-white mb-2">
-              Lesson Completa!
+              Lição Completa!
             </h3>
             {reward.lessonTitle && (
               <p className="text-white/90 text-sm mb-3">
