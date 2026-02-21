@@ -135,13 +135,21 @@ export class Board {
       garbageRows.push(row);
     }
 
-    const removedFromGrid = this.grid.splice(0, count);
-    const removedFromBuffer = this._buffer.splice(0, count);
-    this._buffer.push(...removedFromGrid);
+    // Join buffer + grid + garbage, then keep only the bottom (bufferHeight + height) rows.
+    // This guarantees the grid and buffer never grow beyond their fixed sizes.
+    const fullBoard = [...this._buffer, ...this.grid, ...garbageRows];
+    const totalSize = this.bufferHeight + this.height;
 
-    this.grid.push(...garbageRows);
+    // Rows pushed off the top are overflow
+    const overflowRows = fullBoard.length > totalSize
+      ? fullBoard.slice(0, fullBoard.length - totalSize)
+      : [];
+    const overflow = overflowRows.some(row => row.some(cell => cell !== null));
 
-    const overflow = removedFromBuffer.some(row => row.some(cell => cell !== null));
+    const kept = fullBoard.slice(-totalSize);
+    this._buffer = kept.slice(0, this.bufferHeight);
+    this.grid = kept.slice(this.bufferHeight);
+
     return overflow;
   }
 }

@@ -2,9 +2,11 @@ import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ShareButtons from './ShareButtons';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
 
+  const { t } = useI18n();
   const scoreValue = typeof score === 'number' ? score : score.points;
   const level = typeof score === 'object' ? score.level : 1;
   const lines = typeof score === 'object' ? score.lines : 0;
@@ -22,10 +24,10 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
   });
 
   const getMotivationalMessage = (score) => {
-    if (score < 1000) return "Não desista! Cada tentativa te torna melhor! 😸";
-    if (score < 5000) return "Bom trabalho! Continue praticando! 😺";
-    if (score < 10000) return "Excelente! Você está ficando muito bom! 😸";
-    return "Incrível! Você é um mestre do Cat Tetris! 😻";
+    if (score < 1000) return t('gameOver.msgLow');
+    if (score < 5000) return t('gameOver.msgMed');
+    if (score < 10000) return t('gameOver.msgHigh');
+    return t('gameOver.msgTop');
   };
 
   const getCatEmoji = (score) => {
@@ -64,7 +66,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             transition={{ delay: 0.3 }}
             className="text-3xl font-cat font-bold text-white mb-2"
           >
-            Game Over!
+            {t('gameOver.title')}
           </motion.h1>
 
           <motion.div
@@ -73,7 +75,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             transition={{ delay: 0.4 }}
             className="bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold text-xl p-3 rounded-lg mb-4"
           >
-            {scoreValue.toLocaleString()} pontos
+            {t('gameOver.points', { score: scoreValue.toLocaleString() })}
           </motion.div>
 
           <motion.p
@@ -111,7 +113,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
               whileTap={{ scale: 0.95 }}
               className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300 shadow-lg ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900 scale-105' : ''}`}
             >
-              🎮 Jogar Novamente
+              {t('gameOver.playAgain')}
             </motion.button>
 
             <motion.button
@@ -120,7 +122,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
               whileTap={{ scale: 0.95 }}
               className={`w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-400 hover:to-cyan-500 transition-all duration-300 shadow-lg ${selectedIndex === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900 scale-105' : ''}`}
             >
-              🏠 Voltar ao Menu
+              {t('gameOver.backToMenu')}
             </motion.button>
           </motion.div>
 
@@ -130,8 +132,8 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
             transition={{ delay: 0.8 }}
             className="mt-6 text-center text-white/60 text-sm"
           >
-            <p>💡 Dica: Use a sombra para planejar melhor!</p>
-            <p>🎯 Tente fazer combos para mais pontos!</p>
+            <p>{t('gameOver.tip1')}</p>
+            <p>{t('gameOver.tip2')}</p>
           </motion.div>
         </div>
       </motion.div>

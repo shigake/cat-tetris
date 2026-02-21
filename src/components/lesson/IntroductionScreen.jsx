@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
+function IntroductionScreen({ lesson, onStartDemo, onStartPractice, gamepadSelectedIndex }) {
   return (
     <motion.div
       key="intro"
@@ -51,9 +51,9 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={onStartDemo}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
+          className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
                    text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/30 transition-all
-                   flex items-center gap-2"
+                   flex items-center gap-2 ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
         >
           <span>🤖</span>
           <span>Ver IA Jogar Primeiro</span>
@@ -61,7 +61,7 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice }) {
 
         <button
           onClick={onStartPractice}
-          className="text-white/30 hover:text-white/50 text-xs transition-all"
+          className={`text-white/30 hover:text-white/50 text-xs transition-all ${gamepadSelectedIndex === 2 ? 'ring-2 ring-yellow-400 rounded-lg px-2 py-1' : ''}`}
         >
           Ir direto para prática →
         </button>

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { loadGamepadMappings } from '../config/GamepadConfig';
 
 const BUTTON_MAPPINGS = {
   DPAD_UP: 12,
@@ -104,12 +105,49 @@ export const useGamepad = (gameActions = null) => {
     const now = Date.now();
     const { movePiece, rotatePiece, rotatePieceLeft, hardDrop, holdPiece, pause, resume, togglePause } = gameActions;
 
-    // Guard: if no movePiece, actions not available yet
+    // Read user-configured button mappings
+    const cfg = loadGamepadMappings();
+
+    // System buttons: always active (pause, back to menu)
+    const systemButtons = [
+      {
+        button: cfg.pause,
+        action: () => {
+          if (togglePause) {
+            togglePause();
+          } else if (pause) {
+            pause();
+          }
+        }
+      },
+      {
+        button: cfg.backToMenu,
+        action: () => {
+          if (gameActions.backToMenu) {
+            gameActions.backToMenu();
+          }
+        }
+      }
+    ];
+
+    systemButtons.forEach(({ button, action }) => {
+      const pressed = gamepad.buttons[button]?.pressed;
+      const wasPressed = lastButtonStatesRef.current[button];
+
+      lastButtonStatesRef.current[button] = pressed;
+
+      if (pressed && !wasPressed) {
+        action();
+        triggerVibration(gamepad, button);
+      }
+    });
+
+    // Guard: if no movePiece, game actions not available yet
     if (!movePiece) {
       return;
     }
 
-    // Guard: don't process game actions if game is over (except pause/back)
+    // Guard: don't process game actions if game is over
     const isGameOver = gameActions.isGameOver?.() ?? false;
 
     const checkMovement = (action, buttonPressed) => {
@@ -157,7 +195,6 @@ export const useGamepad = (gameActions = null) => {
       const leftPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_LEFT]?.pressed || stickDir === 'left';
       const rightPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_RIGHT]?.pressed || stickDir === 'right';
       const downPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_DOWN]?.pressed || stickDir === 'down';
-      const upPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_UP]?.pressed || stickDir === 'up';
 
       checkMovement('left', leftPressed);
       checkMovement('right', rightPressed);
@@ -166,17 +203,34 @@ export const useGamepad = (gameActions = null) => {
       // Hard drop from D-Pad Up or stick up (one-shot, not continuous)
       const currentButtonStates = {};
 
-      const gameButtons = [
-        { button: BUTTON_MAPPINGS.DPAD_UP, action: () => hardDrop?.() },
-        { button: BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM, action: () => rotatePiece?.() },      // A/X -> CW
-        { button: BUTTON_MAPPINGS.FACE_BUTTON_RIGHT, action: () => rotatePieceLeft?.() },    // B/Circle -> CCW
-        { button: BUTTON_MAPPINGS.FACE_BUTTON_LEFT, action: () => rotatePiece?.() },         // X/Square -> CW
-        { button: BUTTON_MAPPINGS.FACE_BUTTON_TOP, action: () => rotatePiece?.() },          // Y/Triangle -> CW
-        { button: BUTTON_MAPPINGS.BUMPER_LEFT, action: () => holdPiece?.() },                // LB/L1 -> Hold
-        { button: BUTTON_MAPPINGS.BUMPER_RIGHT, action: () => holdPiece?.() },               // RB/R1 -> Hold
-        { button: BUTTON_MAPPINGS.TRIGGER_LEFT, action: () => rotatePieceLeft?.(), isTrigger: true },  // LT/L2 -> CCW
-        { button: BUTTON_MAPPINGS.TRIGGER_RIGHT, action: () => rotatePiece?.(), isTrigger: true },   // RT/R2 -> CW
-      ];
+      // Build game buttons from user config
+      // Collect unique button->action mappings, avoiding duplicates
+      const gameButtonMap = new Map();
+      const addBtn = (btn, action, isTrigger = false) => {
+        if (btn !== undefined && btn !== null && !gameButtonMap.has(btn)) {
+          gameButtonMap.set(btn, { action, isTrigger: isTrigger || btn === 6 || btn === 7 });
+        }
+      };
+
+      addBtn(cfg.rotateCW, () => rotatePiece?.());
+      addBtn(cfg.rotateCCW, () => rotatePieceLeft?.());
+      addBtn(cfg.hardDrop, () => hardDrop?.());
+      addBtn(cfg.hold, () => holdPiece?.());
+
+      // Also keep some extra default bindings for buttons not remapped
+      // X/Square and Y/Triangle rotate CW if not already used
+      if (!gameButtonMap.has(2)) addBtn(2, () => rotatePiece?.());
+      if (!gameButtonMap.has(3)) addBtn(3, () => rotatePiece?.());
+      // Both bumpers hold if not already used
+      if (!gameButtonMap.has(4)) addBtn(4, () => holdPiece?.());
+      if (!gameButtonMap.has(5)) addBtn(5, () => holdPiece?.());
+      // Triggers for rotation if not already used
+      if (!gameButtonMap.has(6)) addBtn(6, () => rotatePieceLeft?.(), true);
+      if (!gameButtonMap.has(7)) addBtn(7, () => rotatePiece?.(), true);
+
+      const gameButtons = Array.from(gameButtonMap.entries()).map(([button, { action, isTrigger }]) => ({
+        button, action, isTrigger
+      }));
 
       gameButtons.forEach(({ button, action, isTrigger }) => {
         // For analog triggers (L2/R2), use threshold instead of .pressed
@@ -203,40 +257,6 @@ export const useGamepad = (gameActions = null) => {
 
       lastButtonStatesRef.current = { ...lastButtonStatesRef.current, ...currentButtonStates };
     }
-
-    // System buttons: always active (Start = toggle pause, Back = back to menu)
-    const systemButtons = [
-      {
-        button: BUTTON_MAPPINGS.BUTTON_START,
-        action: () => {
-          if (togglePause) {
-            togglePause();
-          } else if (pause) {
-            pause();
-          }
-        }
-      },
-      {
-        button: BUTTON_MAPPINGS.BUTTON_BACK,
-        action: () => {
-          if (gameActions.backToMenu) {
-            gameActions.backToMenu();
-          }
-        }
-      }
-    ];
-
-    systemButtons.forEach(({ button, action }) => {
-      const pressed = gamepad.buttons[button]?.pressed;
-      const wasPressed = lastButtonStatesRef.current[button];
-
-      lastButtonStatesRef.current[button] = pressed;
-
-      if (pressed && !wasPressed) {
-        action();
-        triggerVibration(gamepad, button);
-      }
-    });
 
   }, [isGamepadActive, getStickDirection, gameActions]);
 

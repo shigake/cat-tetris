@@ -8,7 +8,6 @@ import NextPieces from './components/NextPieces';
 import HeldPiece from './components/HeldPiece';
 import ErrorBoundary from './components/ErrorBoundary';
 import MainMenu from './components/MainMenu';
-import PWAInstallPrompt from './components/PWAInstallPrompt';
 import CurrencyDisplay from './components/CurrencyDisplay';
 import DailyMissionsPanel from './components/DailyMissionsPanel';
 import AchievementsPanel from './components/AchievementsPanel';
@@ -39,6 +38,7 @@ import { useGameModes } from './hooks/useGameModes';
 import GamepadIndicator from './components/GamepadIndicator';
 import { getPieceColor } from './utils/PieceGenerator';
 import { errorLogger } from './services/ErrorLogger';
+import { useI18n } from './hooks/useI18n';
 
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
 
@@ -66,6 +66,7 @@ function GameScreen({
   getGamepadInfo
 }) {
 
+  const { t } = useI18n();
   const dropPreview = React.useMemo(() => {
     if (!gameState?.currentPiece || gameState?.gameOver || gameState?.isPaused) return null;
     try {
@@ -88,13 +89,22 @@ function GameScreen({
     pause: false
   });
 
+  const cooldownTimersRef = React.useRef({});
+
+  React.useEffect(() => {
+    return () => {
+      Object.values(cooldownTimersRef.current).forEach(clearTimeout);
+    };
+  }, []);
+
   const handleHardDropWithDelay = React.useCallback(() => {
     if (actionCooldowns.hardDrop || gameState?.gameOver) return;
 
     actions.hardDrop();
     setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
 
-    setTimeout(() => {
+    clearTimeout(cooldownTimersRef.current.hardDrop);
+    cooldownTimersRef.current.hardDrop = setTimeout(() => {
       setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
     }, 300);
   }, [actions, actionCooldowns.hardDrop, gameState?.gameOver]);
@@ -105,7 +115,8 @@ function GameScreen({
     actions.holdPiece();
     setActionCooldowns(prev => ({ ...prev, hold: true }));
 
-    setTimeout(() => {
+    clearTimeout(cooldownTimersRef.current.hold);
+    cooldownTimersRef.current.hold = setTimeout(() => {
       setActionCooldowns(prev => ({ ...prev, hold: false }));
     }, 500);
   }, [actions, actionCooldowns.hold, gameState?.gameOver, gameState?.canHold]);
@@ -121,7 +132,8 @@ function GameScreen({
 
     setActionCooldowns(prev => ({ ...prev, pause: true }));
 
-    setTimeout(() => {
+    clearTimeout(cooldownTimersRef.current.pause);
+    cooldownTimersRef.current.pause = setTimeout(() => {
       setActionCooldowns(prev => ({ ...prev, pause: false }));
     }, 300);
   }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
@@ -135,7 +147,7 @@ function GameScreen({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors"
-            title="Voltar ao Menu"
+            title={t('game.backToMenu')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
@@ -147,7 +159,7 @@ function GameScreen({
         <div className="flex items-center gap-3 text-xs text-white/70">
           <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()} pts</span>
           <span>Nv.{gameState.score.level}</span>
-          <span>{gameState.score.lines} linhas</span>
+          <span>{gameState.score.lines} {t('common.lines')}</span>
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -216,7 +228,7 @@ function GameScreen({
                 {gameState.heldPiece && (
                   <div className="text-xs text-white/60">💾</div>
                 )}
-                <div className="text-xs text-white/60">Próxima:</div>
+                <div className="text-xs text-white/60">{t('game.nextLabel')}</div>
                 <div className="bg-gray-800/50 p-1 rounded">
                   {gameState.nextPieces[0] ? (
                     <div className="grid gap-0.5" style={{
@@ -253,7 +265,7 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onTouchStart={() => actions.rotatePiece()}
+                  onTouchStart={(e) => { e.preventDefault(); actions.rotatePiece(); }}
                   onClick={() => actions.rotatePiece()}
                   disabled={gameState.gameOver}
                   className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 touch-manipulation text-lg"
@@ -264,7 +276,7 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onTouchStart={() => actions.movePiece('left')}
+                  onTouchStart={(e) => { e.preventDefault(); actions.movePiece('left'); }}
                   onClick={() => actions.movePiece('left')}
                   disabled={gameState.gameOver}
                   className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
@@ -286,7 +298,7 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onTouchStart={handleHardDropWithDelay}
+                  onTouchStart={(e) => { e.preventDefault(); handleHardDropWithDelay(); }}
                   onClick={handleHardDropWithDelay}
                   disabled={gameState.gameOver || actionCooldowns.hardDrop}
                   className={`text-white p-4 rounded-full shadow-lg disabled:opacity-50 touch-manipulation text-lg ${
@@ -301,7 +313,7 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onTouchStart={() => actions.movePiece('right')}
+                  onTouchStart={(e) => { e.preventDefault(); actions.movePiece('right'); }}
                   onClick={() => actions.movePiece('right')}
                   disabled={gameState.gameOver}
                   className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
@@ -315,7 +327,7 @@ function GameScreen({
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onTouchStart={() => actions.movePiece('down')}
+                onTouchStart={(e) => { e.preventDefault(); actions.movePiece('down'); }}
                 onClick={() => actions.movePiece('down')}
                 disabled={gameState.gameOver}
                 className="bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-gray-600 disabled:opacity-50 touch-manipulation"
@@ -327,7 +339,7 @@ function GameScreen({
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onTouchStart={handleHoldWithDelay}
+                  onTouchStart={(e) => { e.preventDefault(); handleHoldWithDelay(); }}
                   onClick={handleHoldWithDelay}
                   disabled={gameState.gameOver || !gameState.canHold || actionCooldowns.hold}
                   className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
@@ -345,7 +357,7 @@ function GameScreen({
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onTouchStart={handlePauseWithDelay}
+                onTouchStart={(e) => { e.preventDefault(); handlePauseWithDelay(); }}
                 onClick={handlePauseWithDelay}
                 disabled={gameState.gameOver || actionCooldowns.pause}
                 className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
@@ -383,8 +395,7 @@ function GameScreen({
 function GameComponent() {
   const [currentScreen, setCurrentScreen] = useState('menu');
   const [showSettings, setShowSettings] = useState(false);
-  const [showPWAPrompt, setShowPWAPrompt] = useState(false);
-  const [canInstallPWA, setCanInstallPWA] = useState(false);
+
   const [hasActiveGame, setHasActiveGame] = useState(false);
   const [showMissions, setShowMissions] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
@@ -425,6 +436,10 @@ function GameComponent() {
       },
       isGameOver: () => gameState?.gameOver ?? false,
       backToMenu: () => {
+        // Exit any sub-screens (creator mode, multiplayer, AI showcase)
+        setShowCreatorMode(false);
+        setMultiplayerMatch(null);
+        setShowAIShowcase(false);
         setCurrentScreen('menu');
         if (settings?.soundEnabled) {
           startBackgroundMusic?.();
@@ -500,7 +515,7 @@ function GameComponent() {
 
   // Track if any overlay is open — suppresses game gamepad input
   const hasOverlayOpen = showSettings || showShop || showMissions || showAchievements ||
-    showGameModes || showMultiplayer || showTutorialHub || showPWAPrompt;
+    showGameModes || showMultiplayer || showTutorialHub;
 
   React.useEffect(() => {
     if (isGamepadActive && currentScreen === 'game' && !hasOverlayOpen && !gameState?.gameOver) {
@@ -512,29 +527,7 @@ function GameComponent() {
     }
   }, [isGamepadActive, currentScreen, processGamepadInput, hasOverlayOpen, gameState?.gameOver]);
 
-  React.useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setCanInstallPWA(true);
-    };
 
-    const handleAppInstalled = () => {
-      setCanInstallPWA(false);
-      setShowPWAPrompt(false);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleAppInstalled);
-
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setCanInstallPWA(false);
-    }
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.removeEventListener('appinstalled', handleAppInstalled);
-    };
-  }, []);
 
   const handleSettingsChange = (newSettings) => {
     updateSettings(newSettings);
@@ -609,10 +602,6 @@ function GameComponent() {
     }
   };
 
-  const handleShowInstallPrompt = () => {
-    setShowPWAPrompt(true);
-  };
-
   if (showCreatorMode) {
     return (
       <CreatorMode onExit={() => setShowCreatorMode(false)} />
@@ -656,10 +645,9 @@ function GameComponent() {
           onShowTutorialHub={() => setShowTutorialHub(true)}
           onShowAIShowcase={() => setShowAIShowcase(true)}
           onShowCreatorMode={() => setShowCreatorMode(true)}
-          onShowInstallPrompt={handleShowInstallPrompt}
-          canInstallPWA={canInstallPWA}
           hasActiveGame={hasActiveGame}
           gameState={gameState}
+          hasOverlayOpen={hasOverlayOpen}
         />
 
         <AnimatePresence>
@@ -762,10 +750,6 @@ function GameComponent() {
             />
           </Suspense>
         </AnimatePresence>
-
-        {showPWAPrompt && (
-          <PWAInstallPrompt onClose={() => setShowPWAPrompt(false)} />
-        )}
 
         <AchievementNotification />
 

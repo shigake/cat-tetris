@@ -5,7 +5,7 @@ import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
 
-function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRestart, dropPreview }) {
+function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRestart, dropPreview, gamepadSelectedIndex }) {
   if (!gameState || !isInitialized) {
     return (
       <div className="text-center text-white/40 text-sm py-12">
@@ -93,7 +93,7 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
           <p className="text-white/40 text-sm mb-2">Game Over — tente de novo!</p>
           <button
             onClick={onRestart}
-            className="bg-white/[0.08] hover:bg-white/[0.12] text-white text-sm px-4 py-2 rounded-lg transition-all"
+            className={`bg-white/[0.08] hover:bg-white/[0.12] text-white text-sm px-4 py-2 rounded-lg transition-all ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
           >
             🔄 Recomeçar
           </button>

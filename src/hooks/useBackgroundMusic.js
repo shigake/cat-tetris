@@ -33,34 +33,18 @@ export function useBackgroundMusic() {
   const startBackgroundMusic = useCallback(async () => {
     try {
       stopMusic();
-
-      const audio = new Audio('/cat-tetris/sounds/background-music.mp3');
-      audio.loop = true;
-      audio.volume = 0.3;
-      audioRef.current = audio;
-
-      await audio.play();
-      setIsPlaying(true);
-      setCurrentTrack('background');
-    } catch (error) {
       playCheerfulMelody();
+    } catch (error) {
+      // Fallback failed silently
     }
   }, [stopMusic]);
 
   const startGameMusic = useCallback(async () => {
     try {
       stopMusic();
-
-      const audio = new Audio('/cat-tetris/sounds/game-music.mp3');
-      audio.loop = true;
-      audio.volume = 0.4;
-      audioRef.current = audio;
-
-      await audio.play();
-      setIsPlaying(true);
-      setCurrentTrack('game');
-    } catch (error) {
       playEnergeticMelody();
+    } catch (error) {
+      // Fallback failed silently
     }
   }, [stopMusic]);
 

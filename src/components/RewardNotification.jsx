@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useI18n } from '../hooks/useI18n';
 
 function RewardNotification({ reward, onClose }) {
+  const { t } = useI18n();
+
   React.useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -24,7 +27,7 @@ function RewardNotification({ reward, onClose }) {
           <div className="text-4xl">🎉</div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-white mb-2">
-              Lição Completa!
+              {t('reward.lessonComplete')}
             </h3>
             {reward.lessonTitle && (
               <p className="text-white/90 text-sm mb-3">
@@ -39,7 +42,7 @@ function RewardNotification({ reward, onClose }) {
                   <div className="text-lg font-bold text-white">
                     +{reward.rewards.fishCoins}
                   </div>
-                  <div className="text-xs text-white/70">Peixes</div>
+                  <div className="text-xs text-white/70">{t('reward.fish')}</div>
                 </div>
               )}
 
@@ -49,7 +52,7 @@ function RewardNotification({ reward, onClose }) {
                   <div className="text-lg font-bold text-white">
                     +{reward.rewards.xp}
                   </div>
-                  <div className="text-xs text-white/70">XP</div>
+                  <div className="text-xs text-white/70">{t('reward.xp')}</div>
                 </div>
               )}
 
@@ -57,7 +60,7 @@ function RewardNotification({ reward, onClose }) {
                 <div className="bg-white/10 rounded-lg p-2 text-center">
                   <div className="text-xl">🏅</div>
                   <div className="text-xs font-bold text-white mt-1">
-                    Badge
+                    {t('reward.badge')}
                   </div>
                   <div className="text-xs text-white/70">
                     {reward.rewards.badge.split('_')[0]}

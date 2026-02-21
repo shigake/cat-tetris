@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n, LANGUAGES } from '../hooks/useI18n';
 import CurrencyDisplay from './CurrencyDisplay';
 
 export default function MainMenu({
@@ -16,13 +17,14 @@ export default function MainMenu({
   onShowTutorialHub,
   onShowAIShowcase,
   onShowCreatorMode,
-  onShowInstallPrompt,
-  canInstallPWA,
   hasActiveGame,
-  gameState
+  gameState,
+  hasOverlayOpen
 }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showLangPicker, setShowLangPicker] = useState(false);
   const sounds = useMenuSounds();
+  const { t, language, setLanguage } = useI18n();
 
   const play = useCallback((fn) => {
     if (soundEnabled) sounds.playMenuSelect?.();
@@ -33,21 +35,58 @@ export default function MainMenu({
   const menuItems = useMemo(() => {
     const items = [];
     if (hasActiveGame) {
-      items.push({ label: 'Continuar', action: onStartGame });
-      items.push({ label: 'Novo Jogo', action: onNewGame });
+      items.push({ id: 'continue', action: onStartGame });
+      items.push({ id: 'newGame', action: onNewGame });
     } else {
-      items.push({ label: 'Jogar', action: onStartGame });
+      items.push({ id: 'play', action: onStartGame });
     }
-    items.push({ label: 'VS IA', action: onShowMultiplayer });
-    items.push({ label: 'Tutorial', action: onShowTutorialHub });
-    items.push({ label: 'Criador', action: onShowCreatorMode });
-    items.push({ label: 'IA Expert', action: onShowAIShowcase });
-    items.push({ label: 'Loja', action: onShowShop });
-    items.push({ label: 'Missões', action: onShowMissions });
-    items.push({ label: 'Conquistas', action: onShowAchievements });
-    items.push({ label: 'Config', action: onShowSettings });
+    items.push({ id: 'vsAI', action: onShowMultiplayer });
+    items.push({ id: 'tutorial', action: onShowTutorialHub });
+    items.push({ id: 'creator', action: onShowCreatorMode });
+    items.push({ id: 'aiExpert', action: onShowAIShowcase });
+    items.push({ id: 'shop', action: onShowShop });
+    items.push({ id: 'missions', action: onShowMissions });
+    items.push({ id: 'achievements', action: onShowAchievements });
+    items.push({ id: 'settings', action: onShowSettings });
     return items;
   }, [hasActiveGame, onStartGame, onNewGame, onShowMultiplayer, onShowTutorialHub, onShowCreatorMode, onShowAIShowcase, onShowShop, onShowMissions, onShowAchievements, onShowSettings]);
+
+  // Spatial navigation map matching visual layout:
+  // Row 0: [Play]  (or [Continue][NewGame])
+  // Row 1: [vsAI][Tutorial]
+  // Row 2: [Creator][AI Expert]
+  // Row 3: [Shop][Missions][Achievements][Settings]
+  const spatialNavMap = useMemo(() => {
+    if (hasActiveGame) {
+      // 0:continue 1:newGame | 2:vsAI 3:tutorial | 4:creator 5:aiExpert | 6:shop 7:missions 8:achievements 9:settings
+      // Visual positions: row0 ~33%,~67% | row1 ~33%,~67% | row2 ~33%,~67% | row3 ~12%,~37%,~62%,~87%
+      return {
+        0: { up: 7, down: 2, left: 1, right: 1 },      // Continue(33%) ↑Missions(37%)
+        1: { up: 8, down: 3, left: 0, right: 0 },      // NewGame(67%) ↑Achievements(62%)
+        2: { up: 0, down: 4, left: 3, right: 3 },      // vsAI(33%) ↑Continue(33%)
+        3: { up: 1, down: 5, left: 2, right: 2 },      // Tutorial(67%) ↑NewGame(67%)
+        4: { up: 2, down: 7, left: 5, right: 5 },      // Creator(33%) ↓Missions(37%)
+        5: { up: 3, down: 8, left: 4, right: 4 },      // AIExpert(67%) ↓Achievements(62%)
+        6: { up: 4, down: 0, left: 9, right: 7 },      // Shop(12%)
+        7: { up: 4, down: 0, left: 6, right: 8 },      // Missions(37%) ↑Creator(33%)
+        8: { up: 5, down: 1, left: 7, right: 9 },      // Achievements(62%) ↑AIExpert(67%)
+        9: { up: 5, down: 1, left: 8, right: 6 },      // Settings(87%)
+      };
+    }
+    // 0:play | 1:vsAI 2:tutorial | 3:creator 4:aiExpert | 5:shop 6:missions 7:achievements 8:settings
+    // Visual positions: row0 ~50% | row1 ~33%,~67% | row2 ~33%,~67% | row3 ~12%,~37%,~62%,~87%
+    return {
+      0: { up: 6, down: 1, left: 0, right: 0 },        // Play(50%) ↑Missions(37%) closest center
+      1: { up: 0, down: 3, left: 2, right: 2 },        // vsAI(33%) ↑Play
+      2: { up: 0, down: 4, left: 1, right: 1 },        // Tutorial(67%) ↑Play
+      3: { up: 1, down: 6, left: 4, right: 4 },        // Creator(33%) ↓Missions(37%)
+      4: { up: 2, down: 7, left: 3, right: 3 },        // AIExpert(67%) ↓Achievements(62%)
+      5: { up: 3, down: 0, left: 8, right: 6 },        // Shop(12%) ↑Creator(33%)
+      6: { up: 3, down: 0, left: 5, right: 7 },        // Missions(37%) ↑Creator(33%)
+      7: { up: 4, down: 0, left: 6, right: 8 },        // Achievements(62%) ↑AIExpert(67%)
+      8: { up: 4, down: 0, left: 7, right: 5 },        // Settings(87%) ↑AIExpert(67%)
+    };
+  }, [hasActiveGame]);
 
   const handleGamepadConfirm = useCallback((index) => {
     if (menuItems[index]) {
@@ -58,13 +97,14 @@ export default function MainMenu({
   const { selectedIndex } = useGamepadNav({
     itemCount: menuItems.length,
     onConfirm: handleGamepadConfirm,
-    active: true,
+    active: !hasOverlayOpen && !showLangPicker,
     wrap: true,
+    navMap: spatialNavMap,
   });
 
   // Helper to check if a menu item is selected by gamepad
-  const isSelected = useCallback((label) => {
-    return menuItems[selectedIndex]?.label === label;
+  const isSelected = useCallback((id) => {
+    return menuItems[selectedIndex]?.id === id;
   }, [menuItems, selectedIndex]);
 
   useEffect(() => {
@@ -100,9 +140,9 @@ export default function MainMenu({
 
         <motion.div {...fadeUp(0)} className="text-center mb-4">
           <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-lg select-none">
-            🐱 Cat Tetris
+            {t('menu.title')}
           </h1>
-          <p className="text-white/50 text-xs mt-1">Empilhe blocos com seus amigos felinos</p>
+          <p className="text-white/50 text-xs mt-1">{t('menu.subtitle')}</p>
         </motion.div>
 
         <motion.div {...fadeUp(0.1)} className="w-full space-y-2 mb-4">
@@ -110,42 +150,42 @@ export default function MainMenu({
             <>
               <button
                 onClick={() => play(onStartGame)}
-                className={`w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150 ${isSelected('Continuar') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
+                className={`w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150 ${isSelected('continue') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
               >
-                ▶ Continuar
+                {t('menu.continue')}
                 <span className="block text-emerald-100/70 text-xs font-normal mt-0.5">
-                  Nível {gameState?.score?.level || 1} • {(gameState?.score?.points || 0).toLocaleString()} pts
+                  {t('menu.continueInfo', { level: gameState?.score?.level || 1, points: (gameState?.score?.points || 0).toLocaleString() })}
                 </span>
               </button>
               <button
                 onClick={() => play(onNewGame)}
-                className={`w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150 ${isSelected('Novo Jogo') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
+                className={`w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150 ${isSelected('newGame') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
               >
-                Novo Jogo
+                {t('menu.newGame')}
               </button>
             </>
           ) : (
             <button
               onClick={() => play(onStartGame)}
-              className={`w-full py-5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 ${isSelected('Jogar') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
+              className={`w-full py-5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 ${isSelected('play') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
             >
-              🎮 Jogar
+              {t('menu.play')}
             </button>
           )}
         </motion.div>
 
         <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-2 gap-2 mb-4">
-          <MenuCard icon="⚔️" label="VS IA"      sub="Desafie o bot"      onClick={() => play(onShowMultiplayer)} selected={isSelected('VS IA')} />
-          <MenuCard icon="📚" label="Tutorial"   sub="Aprenda a jogar"    onClick={() => play(onShowTutorialHub)} selected={isSelected('Tutorial')} />
-          <MenuCard icon="🎨" label="Criador"    sub="Treine T-Spins"     onClick={() => play(onShowCreatorMode)} selected={isSelected('Criador')} />
-          <MenuCard icon="🤖" label="IA Expert"  sub="Assista a IA jogar" onClick={() => play(onShowAIShowcase)} selected={isSelected('IA Expert')} />
+          <MenuCard icon="⚔️" label={t('menu.vsAI')}      sub={t('menu.vsAISub')}      onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
+          <MenuCard icon="📚" label={t('menu.tutorial')}   sub={t('menu.tutorialSub')}    onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
+          <MenuCard icon="🎨" label={t('menu.creator')}    sub={t('menu.creatorSub')}     onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
+          <MenuCard icon="🤖" label={t('menu.aiExpert')}  sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
         </motion.div>
 
         <motion.div {...fadeUp(0.25)} className="w-full grid grid-cols-4 gap-1 mb-4">
-          <QuickBtn icon="🛍️" label="Loja"       onClick={() => play(onShowShop)} selected={isSelected('Loja')} />
-          <QuickBtn icon="📋" label="Missões"     onClick={() => play(onShowMissions)} selected={isSelected('Missões')} />
-          <QuickBtn icon="🏅" label="Conquistas"  onClick={() => play(onShowAchievements)} selected={isSelected('Conquistas')} />
-          <QuickBtn icon="⚙️" label="Config"      onClick={() => play(onShowSettings)} selected={isSelected('Config')} />
+          <QuickBtn icon="🛍️" label={t('menu.shop')}       onClick={() => play(onShowShop)} selected={isSelected('shop')} />
+          <QuickBtn icon="📋" label={t('menu.missions')}     onClick={() => play(onShowMissions)} selected={isSelected('missions')} />
+          <QuickBtn icon="🏅" label={t('menu.achievements')}  onClick={() => play(onShowAchievements)} selected={isSelected('achievements')} />
+          <QuickBtn icon="⚙️" label={t('menu.settings')}      onClick={() => play(onShowSettings)} selected={isSelected('settings')} />
         </motion.div>
 
         <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
@@ -156,17 +196,34 @@ export default function MainMenu({
             {soundEnabled ? '🔊' : '🔇'}
           </button>
 
-          {canInstallPWA && (
-            <button
-              onClick={() => play(onShowInstallPrompt)}
-              className="hover:text-white/50 transition-colors"
-            >
-              📱 Instalar
-            </button>
-          )}
+          <button
+            onClick={() => setShowLangPicker(p => !p)}
+            className="hover:text-white/50 transition-colors flex items-center gap-1"
+          >
+            {LANGUAGES.find(l => l.code === language)?.flag || '🌐'} {language.toUpperCase()}
+          </button>
 
           <span className="select-none">v1.0</span>
         </motion.div>
+
+        {/* Language picker dropdown */}
+        {showLangPicker && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute bottom-16 bg-slate-800/95 backdrop-blur-sm rounded-xl border border-white/10 p-2 z-50 shadow-xl"
+          >
+            {LANGUAGES.map(lang => (
+              <button
+                key={lang.code}
+                onClick={() => { setLanguage(lang.code); setShowLangPicker(false); }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${language === lang.code ? 'bg-purple-600/40 text-white font-semibold' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
       </div>
     </div>
   );

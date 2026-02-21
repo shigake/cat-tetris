@@ -4,6 +4,7 @@ import { useShop } from '../hooks/useShop';
 import { useCurrency } from '../hooks/useCurrency';
 import { showToast } from './ToastNotification';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 function ShopPanel({ onClose }) {
 
@@ -13,37 +14,15 @@ function ShopPanel({ onClose }) {
 
   const [selectedTheme, setSelectedTheme] = useState(null);
 
-  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
+  const { t } = useI18n();
 
   const stats = getStats();
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-lg">Carregando loja...</div>
-      </div>
-    );
-  }
-
-  if (!themes || themes.length === 0) {
-
-    return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-red-900/90 text-white p-6 rounded-lg">
-          <p className="text-xl">❌ Erro ao carregar temas</p>
-          <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
-            Fechar
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const handlePurchase = (themeId) => {
     const result = purchaseTheme(themeId);
 
     if (result.success) {
-      showToast(`✅ ${result.theme.name} comprado com sucesso!`, 'success');
+      showToast(t('shop.purchaseSuccess', { name: result.theme.name }), 'success');
     } else {
       showToast(`❌ ${result.error}`, 'error');
     }
@@ -53,16 +32,53 @@ function ShopPanel({ onClose }) {
     const result = equipTheme(themeId);
 
     if (result.success) {
-      showToast(`🎨 ${result.theme.name} equipado!`, 'success');
+      showToast(t('shop.equipSuccess', { name: result.theme.name }), 'success');
     } else {
       showToast(`❌ ${result.error}`, 'error');
     }
   };
 
+  const { selectedIndex } = useGamepadNav({
+    itemCount: themes?.length || 0,
+    onConfirm: (index) => {
+      const theme = themes[index];
+      if (!theme) return;
+      if (!theme.owned) {
+        handlePurchase(theme.id);
+      } else if (!theme.equipped) {
+        handleEquip(theme.id);
+      }
+    },
+    onBack: onClose,
+    active: !selectedTheme && !loading,
+    wrap: true,
+  });
+
+  useGamepadNav({
+    itemCount: 1,
+    onConfirm: () => setSelectedTheme(null),
+    onBack: () => setSelectedTheme(null),
+    active: !!selectedTheme,
+  });
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-xl">Carregando loja...</div>
+        <div className="text-white text-lg">{t('shop.loading')}</div>
+      </div>
+    );
+  }
+
+  if (!themes || themes.length === 0) {
+
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-red-900/90 text-white p-6 rounded-lg">
+          <p className="text-xl">{t('shop.errorLoading')}</p>
+          <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
+            {t('shop.close')}
+          </button>
+        </div>
       </div>
     );
   }
@@ -86,10 +102,10 @@ function ShopPanel({ onClose }) {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              🛍️ Loja de Temas
+              {t('shop.title')}
             </h2>
             <p className="text-white/60 text-sm mt-1">
-              Personalize suas peças de Tetris
+              {t('shop.subtitle')}
             </p>
           </div>
           <button
@@ -106,25 +122,25 @@ function ShopPanel({ onClose }) {
               <div className="text-2xl font-bold text-yellow-400 flex items-center justify-center gap-1">
                 🐟 {currency?.fish?.toLocaleString() || 0}
               </div>
-              <div className="text-white/60 text-sm">Seus Peixes</div>
+              <div className="text-white/60 text-sm">{t('shop.yourFish')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-white">
                 {stats?.ownedThemes}/{stats?.totalThemes}
               </div>
-              <div className="text-white/60 text-sm">Temas Desbloqueados</div>
+              <div className="text-white/60 text-sm">{t('shop.themesUnlocked')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-400">
-                {Math.floor((stats?.ownedThemes / stats?.totalThemes) * 100)}%
+                {stats?.totalThemes ? Math.floor((stats.ownedThemes / stats.totalThemes) * 100) : 0}%
               </div>
-              <div className="text-white/60 text-sm">Coleção</div>
+              <div className="text-white/60 text-sm">{t('shop.collection')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-400 flex items-center justify-center gap-1">
                 🐟 {stats?.totalSpent?.toLocaleString() || 0}
               </div>
-              <div className="text-white/60 text-sm">Gasto Total</div>
+              <div className="text-white/60 text-sm">{t('shop.totalSpent')}</div>
             </div>
           </div>
         </div>
@@ -145,18 +161,18 @@ function ShopPanel({ onClose }) {
                     : theme.owned
                     ? 'border-white/20'
                     : 'border-white/10'
-                }`}
+                } ${index === selectedIndex ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-purple-900 scale-[1.02]' : ''}`}
               >
 
                 {theme.equipped && (
                   <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
-                    ✓ Equipado
+                    {t('shop.equipped')}
                   </div>
                 )}
 
                 {theme.premium && (
                   <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">
-                    ⭐ Premium
+                    {t('shop.premium')}
                   </div>
                 )}
 
@@ -195,7 +211,7 @@ function ShopPanel({ onClose }) {
                       }`}
                     >
                       {theme.default ? (
-                        'Gratuito'
+                        t('shop.free')
                       ) : (
                         <>
                           🐟 {theme.price.toLocaleString()}
@@ -207,14 +223,14 @@ function ShopPanel({ onClose }) {
                       onClick={() => handleEquip(theme.id)}
                       className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded-lg font-bold transition-colors"
                     >
-                      Equipar
+                      {t('shop.equip')}
                     </button>
                   ) : (
                     <button
                       disabled
                       className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-bold cursor-default"
                     >
-                      Em Uso
+                      {t('shop.inUse')}
                     </button>
                   )}
 
@@ -266,7 +282,7 @@ function ShopPanel({ onClose }) {
                   onClick={() => setSelectedTheme(null)}
                   className="w-full bg-purple-600 hover:bg-purple-500 text-white py-2 rounded-lg font-bold"
                 >
-                  Fechar
+                  {t('shop.close')}
                 </button>
               </motion.div>
             </motion.div>

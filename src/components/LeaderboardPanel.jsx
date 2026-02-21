@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLeaderboard } from '../hooks/useLeaderboard';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 const COUNTRY_FLAGS = {
   BR: '🇧🇷', US: '🇺🇸', JP: '🇯🇵', KR: '🇰🇷', FR: '🇫🇷',
@@ -31,6 +32,28 @@ function LeaderboardPanel({ onClose }) {
   const [displayedLeaderboard, setDisplayedLeaderboard] = useState([]);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState('');
+
+  const tabs = ['global', 'weekly', 'country', 'around'];
+  // Items: 4 tabs + refresh + close = 6; without playerRank: 4 tabs + close = 5
+  const hasRefresh = !!playerRank;
+  const itemCount = tabs.length + (hasRefresh ? 1 : 0) + 1; // +1 for close
+
+  const handleNavConfirm = useCallback((idx) => {
+    if (idx < tabs.length) {
+      setSelectedTab(tabs[idx]);
+    } else if (hasRefresh && idx === tabs.length) {
+      refreshLeaderboard();
+    } else {
+      onClose();
+    }
+  }, [hasRefresh, refreshLeaderboard, onClose]);
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount,
+    onConfirm: handleNavConfirm,
+    onBack: onClose,
+    active: !loading && !editingName,
+  });
 
   useEffect(() => {
     switch (selectedTab) {
@@ -101,7 +124,7 @@ function LeaderboardPanel({ onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="text-white/60 hover:text-white text-2xl transition-colors"
+            className={`text-white/60 hover:text-white text-2xl transition-colors ${selectedIndex === itemCount - 1 ? 'ring-2 ring-yellow-400 rounded-lg' : ''}`}
           >
             ✕
           </button>
@@ -152,7 +175,7 @@ function LeaderboardPanel({ onClose }) {
               </div>
               <button
                 onClick={refreshLeaderboard}
-                className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold transition-colors"
+                className={`bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold transition-colors ${hasRefresh && selectedIndex === tabs.length ? 'ring-2 ring-yellow-400' : ''}`}
               >
                 🔄 Atualizar
               </button>
@@ -166,7 +189,7 @@ function LeaderboardPanel({ onClose }) {
             { id: 'weekly', label: '📅 Semanal', desc: 'Esta semana' },
             { id: 'country', label: '🇧🇷 Brasil', desc: 'Seu país' },
             { id: 'around', label: '📍 Ao Redor', desc: 'Perto de você' }
-          ].map(tab => (
+          ].map((tab, tabIdx) => (
             <button
               key={tab.id}
               onClick={() => setSelectedTab(tab.id)}
@@ -174,7 +197,7 @@ function LeaderboardPanel({ onClose }) {
                 selectedTab === tab.id
                   ? 'bg-white text-black'
                   : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
+              } ${selectedIndex === tabIdx ? 'ring-2 ring-yellow-400' : ''}`}
             >
               <div>{tab.label}</div>
               <div className="text-xs opacity-70">{tab.desc}</div>
@@ -264,7 +287,7 @@ function LeaderboardPanel({ onClose }) {
         </div>
 
         <div className="mt-4 text-center text-white/40 text-sm">
-          💡 Jogue mais para subir no ranking!
+          💡 Jogue mais para subir no ranking! | 🎮 Ⓑ Voltar
         </div>
       </motion.div>
     </motion.div>

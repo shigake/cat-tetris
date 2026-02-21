@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function Tutorial({ onComplete }) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -98,6 +99,24 @@ function Tutorial({ onComplete }) {
 
   const step = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
+  // Items: on non-last step = [Skip, Next] = 2; on last step = [Start] = 1
+  const navItemCount = isLastStep ? 1 : 2;
+
+  const handleNavConfirm = useCallback((idx) => {
+    if (isLastStep) {
+      handleNext();
+    } else {
+      if (idx === 0) handleSkip();
+      else handleNext();
+    }
+  }, [isLastStep, currentStep]);
+
+  const { selectedIndex: tutSelectedIndex } = useGamepadNav({
+    itemCount: navItemCount,
+    onConfirm: handleNavConfirm,
+    onBack: handleSkip,
+    active: show,
+  });
 
   return (
     <motion.div
@@ -165,21 +184,21 @@ function Tutorial({ onComplete }) {
           {!isLastStep && (
             <button
               onClick={handleSkip}
-              className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              className={`flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-lg transition-colors ${tutSelectedIndex === 0 ? 'ring-2 ring-yellow-400' : ''}`}
             >
               Pular Tutorial
             </button>
           )}
           <button
             onClick={handleNext}
-            className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg"
+            className={`flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg ${(isLastStep ? tutSelectedIndex === 0 : tutSelectedIndex === 1) ? 'ring-2 ring-yellow-400' : ''}`}
           >
             {isLastStep ? '🎮 Começar a Jogar!' : 'Próximo →'}
           </button>
         </div>
 
         <div className="text-center mt-4 text-white/40 text-sm">
-          Passo {currentStep + 1} de {steps.length}
+          Passo {currentStep + 1} de {steps.length} | 🎮 Ⓑ Pular
         </div>
       </motion.div>
     </motion.div>

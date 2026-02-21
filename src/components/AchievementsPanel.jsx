@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAchievements } from '../hooks/useAchievements';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 function AchievementsPanel({ onClose }) {
   const { achievements, loading, getStats, getAchievementsByTier } = useAchievements();
+  const { t } = useI18n();
   const [selectedTier, setSelectedTier] = useState('all');
-
-  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
-
-  const stats = getStats();
 
   const tierColors = {
     bronze: 'from-amber-700 to-amber-900',
@@ -25,6 +23,17 @@ function AchievementsPanel({ onClose }) {
     platinum: '💎'
   };
 
+  const tiers = ['all', ...Object.keys(tierEmojis)];
+  const { selectedIndex } = useGamepadNav({
+    itemCount: tiers.length,
+    onConfirm: (index) => setSelectedTier(tiers[index]),
+    onBack: onClose,
+    active: !loading,
+    wrap: true,
+  });
+
+  const stats = getStats();
+
   const filteredAchievements = selectedTier === 'all'
     ? achievements
     : getAchievementsByTier(selectedTier);
@@ -32,7 +41,7 @@ function AchievementsPanel({ onClose }) {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-xl">Carregando conquistas...</div>
+        <div className="text-white text-xl">{t('achievements.loading')}</div>
       </div>
     );
   }
@@ -56,10 +65,10 @@ function AchievementsPanel({ onClose }) {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              🏆 Conquistas
+              {t('achievements.title')}
             </h2>
             <p className="text-white/60 text-sm mt-1">
-              Desbloqueie conquistas para ganhar 🐟 Peixes
+              {t('achievements.subtitle')}
             </p>
           </div>
           <button
@@ -77,25 +86,25 @@ function AchievementsPanel({ onClose }) {
                 <div className="text-2xl font-bold text-white">
                   {stats.unlocked}/{stats.total}
                 </div>
-                <div className="text-white/60 text-sm">Desbloqueadas</div>
+                <div className="text-white/60 text-sm">{t('achievements.unlocked')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-400">
                   {stats.percentage}%
                 </div>
-                <div className="text-white/60 text-sm">Completo</div>
+                <div className="text-white/60 text-sm">{t('achievements.complete')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-400 flex items-center justify-center gap-1">
                   🐟 {stats.earnedRewards.toLocaleString()}
                 </div>
-                <div className="text-white/60 text-sm">Ganhos</div>
+                <div className="text-white/60 text-sm">{t('achievements.earned')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-white/40 flex items-center justify-center gap-1">
                   🐟 {stats.totalRewards.toLocaleString()}
                 </div>
-                <div className="text-white/60 text-sm">Total</div>
+                <div className="text-white/60 text-sm">{t('achievements.total')}</div>
               </div>
             </div>
 
@@ -127,9 +136,9 @@ function AchievementsPanel({ onClose }) {
               selectedTier === 'all'
                 ? 'bg-white text-black'
                 : 'bg-white/20 text-white hover:bg-white/30'
-            }`}
+            } ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-indigo-900' : ''}`}
           >
-            Todas
+            {t('achievements.filterAll')}
           </button>
           {Object.keys(tierEmojis).map(tier => (
             <button
@@ -139,7 +148,7 @@ function AchievementsPanel({ onClose }) {
                 selectedTier === tier
                   ? `bg-gradient-to-r ${tierColors[tier]} text-white`
                   : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
+              } ${selectedIndex === tiers.indexOf(tier) ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-indigo-900' : ''}`}
             >
               {tierEmojis[tier]} {tier.charAt(0).toUpperCase() + tier.slice(1)}
             </button>
@@ -196,7 +205,7 @@ function AchievementsPanel({ onClose }) {
                     {!achievement.unlocked && (
                       <div className="mt-2">
                         <div className="flex justify-between text-xs text-white/40 mb-1">
-                          <span>Progresso</span>
+                          <span>{t('achievements.progress')}</span>
                           <span>{progress}/{target}</span>
                         </div>
                         <div className="w-full bg-gray-700/50 rounded-full h-2">
@@ -210,7 +219,7 @@ function AchievementsPanel({ onClose }) {
 
                     {achievement.unlocked && achievement.unlockedAt && (
                       <div className="text-xs text-white/60 mt-2">
-                        Desbloqueado em {new Date(achievement.unlockedAt).toLocaleDateString()}
+                        {t('achievements.unlockedAt', { date: new Date(achievement.unlockedAt).toLocaleDateString() })}
                       </div>
                     )}
                   </div>
@@ -222,7 +231,7 @@ function AchievementsPanel({ onClose }) {
 
         {filteredAchievements.length === 0 && (
           <div className="text-center text-white/40 py-8">
-            Nenhuma conquista nesta categoria
+            {t('achievements.noneInCategory')}
           </div>
         )}
       </motion.div>

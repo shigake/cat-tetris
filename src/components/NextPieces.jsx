@@ -1,7 +1,9 @@
 import React from 'react';
 import { getPieceColor } from '../utils/PieceGenerator';
+import { useI18n } from '../hooks/useI18n';
 
 const NextPieces = ({ pieces }) => {
+  const { t } = useI18n();
   const renderPiece = (piece, index) => {
     if (!piece) return null;
 
@@ -50,7 +52,7 @@ const NextPieces = ({ pieces }) => {
     >
       <h2 className="text-xs font-bold text-white mb-1 text-center flex items-center justify-center gap-1">
         <span>🔮</span>
-        <span className="hidden lg:inline">Próximas</span>
+        <span className="hidden lg:inline">{t('game.next')}</span>
       </h2>
 
       <div className="space-y-1.5">

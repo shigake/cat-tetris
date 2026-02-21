@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Celebration from './Celebration';
+import { useI18n } from '../hooks/useI18n';
 
 function AchievementNotification() {
+  const { t } = useI18n();
   const [notifications, setNotifications] = useState([]);
   const [showCelebration, setShowCelebration] = useState(false);
 
@@ -76,7 +78,7 @@ function AchievementNotification() {
                 </div>
                 <div className="flex-1">
                   <div className="text-white/90 text-sm font-bold mb-1">
-                    🎉 CONQUISTA DESBLOQUEADA!
+                    {t('achievements.unlockBanner')}
                   </div>
                   <h3 className="text-white font-bold text-lg">
                     {achievement.title}
@@ -97,7 +99,7 @@ function AchievementNotification() {
 
       <Celebration
         trigger={showCelebration}
-        message="💎 Conquista Lendária! 💎"
+        message={t('achievements.legendary')}
         duration={3000}
       />
     </div>

@@ -68,6 +68,23 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   const [flashOpacity, setFlashOpacity] = useState(0);
   const textIdRef = useRef(0);
   const boardRef = useRef(null);
+  const timersRef = useRef([]);
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+    };
+  }, []);
+
+  const safeTimeout = useCallback((fn, ms) => {
+    const id = setTimeout(() => {
+      timersRef.current = timersRef.current.filter(t => t !== id);
+      fn();
+    }, ms);
+    timersRef.current.push(id);
+    return id;
+  }, []);
 
   const boardWidth = board?.[0]?.length || 10;
   const extendedBoard = useMemo(
@@ -78,11 +95,11 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   useEffect(() => {
     const handleHardDrop = () => {
       setFlashOpacity(0.12);
-      setTimeout(() => setFlashOpacity(0), 150);
+      safeTimeout(() => setFlashOpacity(0), 150);
     };
     gameEvents.on('hard_drop', handleHardDrop);
     return () => gameEvents.off('hard_drop', handleHardDrop);
-  }, []);
+  }, [safeTimeout]);
 
   useEffect(() => {
     const linesToClear = [];
@@ -94,8 +111,8 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
     if (linesToClear.length > 0) {
       setClearingLines(linesToClear);
       setFlashOpacity(linesToClear.length >= 4 ? 0.3 : 0.18);
-      setTimeout(() => setFlashOpacity(0), 250);
-      setTimeout(() => setClearingLines([]), 800);
+      safeTimeout(() => setFlashOpacity(0), 250);
+      safeTimeout(() => setClearingLines([]), 800);
     }
   }, [board]);
 
@@ -110,11 +127,11 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       else { text = '\u2728 TETRIS!! \u2728'; color = '#FFD700'; }
       const id = ++textIdRef.current;
       setFloatingTexts(prev => [...prev, { id, text, color }]);
-      setTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
+      safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
     };
     gameEvents.on('line_cleared', handleLineClear);
     return () => gameEvents.off('line_cleared', handleLineClear);
-  }, []);
+  }, [safeTimeout]);
 
   useEffect(() => {
     const handleScore = (data) => {
@@ -122,32 +139,32 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       if (combo >= 2) {
         const id = ++textIdRef.current;
         setFloatingTexts(prev => [...prev, { id, text: `${combo}x Combo! \uD83D\uDD25`, color: '#FF6B6B' }]);
-        setTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
+        safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
       }
     };
     gameEvents.on('score_updated', handleScore);
     return () => gameEvents.off('score_updated', handleScore);
-  }, []);
+  }, [safeTimeout]);
 
   useEffect(() => {
     const handleB2B = () => {
       const id = ++textIdRef.current;
       setFloatingTexts(prev => [...prev, { id, text: '\uD83C\uDF1F Back-to-Back!', color: '#FBBF24' }]);
-      setTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
+      safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
     };
     gameEvents.on('back_to_back', handleB2B);
     return () => gameEvents.off('back_to_back', handleB2B);
-  }, []);
+  }, [safeTimeout]);
 
   useEffect(() => {
     const handleTSpin = () => {
       const id = ++textIdRef.current;
       setFloatingTexts(prev => [...prev, { id, text: 'T-SPIN!', color: '#C084FC' }]);
-      setTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
+      safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
     };
     gameEvents.on('t_spin', handleTSpin);
     return () => gameEvents.off('t_spin', handleTSpin);
-  }, []);
+  }, [safeTimeout]);
 
   const renderCell = useCallback((cell, x, boardY, isBufferRow) => {
     let currentPieceCell = null;

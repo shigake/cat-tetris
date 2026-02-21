@@ -11,6 +11,7 @@ import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import GamepadIndicator from './GamepadIndicator';
 import { useGamepad } from '../hooks/useGamepad';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onExit }) {
   const [player1State, setPlayer1State] = useState(null);
@@ -200,12 +201,22 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [winner]);
+  }, [winner, mode]);
 
   // Gamepad support for multiplayer (Player 1 controls)
   const gamepadP1Actions = React.useMemo(() => {
-    if (winner || mode === 'aiVsAI') return null;
+    // Always provide backToMenu so gamepad back button works
+    const base = {
+      backToMenu: onExit,
+      togglePause: () => {},
+      isGameOver: () => {
+        const p1 = servicesRef.current.p1;
+        return p1?.gameOver ?? true;
+      }
+    };
+    if (winner || mode === 'aiVsAI') return base;
     return {
+      ...base,
       movePiece: (dir) => {
         const p1 = servicesRef.current.p1;
         if (p1 && !p1.gameOver) p1.movePiece(dir);
@@ -226,23 +237,44 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         const p1 = servicesRef.current.p1;
         if (p1 && !p1.gameOver) p1.holdPiece();
       },
-      isGameOver: () => {
-        const p1 = servicesRef.current.p1;
-        return p1?.gameOver ?? false;
-      },
-      backToMenu: onExit
     };
   }, [winner, mode, onExit]);
 
   const { isGamepadActive, controllerCount, processGamepadInput, getGamepadInfo } = useGamepad(gamepadP1Actions);
 
   useEffect(() => {
-    if (!isGamepadActive || winner || mode === 'aiVsAI') return;
+    if (!isGamepadActive) return;
     const interval = setInterval(() => processGamepadInput(), 16);
     return () => clearInterval(interval);
-  }, [isGamepadActive, winner, mode, processGamepadInput]);
+  }, [isGamepadActive, processGamepadInput]);
 
+  const handleRestart = useCallback(() => {
+    const { p1, p2, ai, ai1, ai2 } = servicesRef.current;
+    if (p1) { p1.initializeGame(); p1.isPlaying = true; }
+    if (p2) { p2.initializeGame(); p2.isPlaying = true; }
+    if (ai) ai.reset?.();
+    if (ai1) ai1.reset?.();
+    if (ai2) ai2.reset?.();
+    winnerRef.current = null;
+    lastTimeRef.current = 0;
+    setWinner(null);
+    setP1Garbage(0);
+    setP2Garbage(0);
+    if (p1) setPlayer1State(p1.getGameState());
+    if (p2) setPlayer2State(p2.getGameState());
+  }, []);
 
+  // Gamepad nav for winner screen buttons (Restart / Menu)
+  const { selectedIndex: winnerSelIdx } = useGamepadNav({
+    itemCount: 2,
+    onConfirm: (index) => {
+      if (index === 0) handleRestart();
+      else onExit();
+    },
+    onBack: onExit,
+    active: !!winner,
+    wrap: true,
+  });
 
   const p1DropPreview = React.useMemo(() => {
     if (!player1State?.currentPiece || player1State?.gameOver) return null;
@@ -365,8 +397,8 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
                 </div>
               </div>
               <div className="flex gap-4">
-                <button onClick={() => window.location.reload()} className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors">🔄 Jogar Novamente</button>
-                <button onClick={onExit} className="bg-gray-700 hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors">← Menu</button>
+                <button onClick={handleRestart} className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors ${winnerSelIdx === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-orange-600' : ''}`}>🔄 Jogar Novamente</button>
+                <button onClick={onExit} className={`bg-gray-700 hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors ${winnerSelIdx === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-orange-600' : ''}`}>← Menu</button>
               </div>
             </motion.div>
           </motion.div>

@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TetrisBoard from './TetrisBoard';
 import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import { useAIShowcase } from '../hooks/useAIShowcase';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 export default function AIShowcase({ onClose }) {
   const {
@@ -13,6 +14,15 @@ export default function AIShowcase({ onClose }) {
     comboFlash,
     getDropPreview
   } = useAIShowcase(true);
+
+  const handleBack = useCallback(() => onClose(), [onClose]);
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount: 1,
+    onConfirm: handleBack,
+    onBack: handleBack,
+    active: true,
+  });
 
   const dropPreview = useMemo(() => getDropPreview(), [gameState, getDropPreview]);
 
@@ -39,7 +49,7 @@ export default function AIShowcase({ onClose }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onClose}
-            className="bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors"
+            className={`bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors ${selectedIndex === 0 ? 'ring-2 ring-yellow-400' : ''}`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>

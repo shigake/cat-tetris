@@ -130,6 +130,7 @@ export default defineConfig({
         share_target: {
           action: '/cat-tetris/',
           method: 'GET',
+          enctype: 'application/x-www-form-urlencoded',
           params: {
             title: 'title',
             text: 'text',
@@ -153,7 +154,7 @@ export default defineConfig({
           }
         ],
         scope_extensions: [
-          { origin: '*.github.io' }
+          { type: 'origin', origin: 'https://*.github.io' }
         ],
         file_handlers: [
           {

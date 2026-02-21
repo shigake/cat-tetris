@@ -78,6 +78,7 @@ export class Score {
     score.tSpins = this.tSpins;
     score.backToBack = this.backToBack;
     score.tetrisCount = this.tetrisCount;
+    score._fixedLevel = this._fixedLevel;
     return score;
   }
 
@@ -89,7 +90,8 @@ export class Score {
       combo: this.combo,
       tSpins: this.tSpins,
       backToBack: this.backToBack,
-      tetrisCount: this.tetrisCount
+      tetrisCount: this.tetrisCount,
+      _fixedLevel: this._fixedLevel
     };
   }
 }

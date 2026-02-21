@@ -9,6 +9,8 @@ import TetrisBoard from './TetrisBoard';
 import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
+import { useGamepad } from '../hooks/useGamepad';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 const BOARD_W = 10;
 const BOARD_H = 20;
@@ -358,6 +360,33 @@ export default function CreatorMode({ onExit }) {
     persist(copy);
   }, [allSetups, persist]);
 
+  // Gamepad nav for menu screen: [Voltar, Criar Novo, Importar, Exportar, Resetar, ...cards]
+  const MENU_ACTION_COUNT = 5; // back + 4 action buttons
+  const menuItemCount = MENU_ACTION_COUNT + allSetups.length;
+
+  const handleMenuNavConfirm = useCallback((idx) => {
+    switch (idx) {
+      case 0: onExit(); break;
+      case 1: openNewEditor(); break;
+      case 2: fileInputRef.current?.click(); break;
+      case 3: handleExportAll(); break;
+      case 4: resetDefaults(); break;
+      default: {
+        const cardIdx = idx - MENU_ACTION_COUNT;
+        if (cardIdx >= 0 && cardIdx < allSetups.length) {
+          playSetup(allSetups[cardIdx]);
+        }
+      }
+    }
+  }, [onExit, openNewEditor, handleExportAll, resetDefaults, allSetups, playSetup]);
+
+  const { selectedIndex: menuSelIdx } = useGamepadNav({
+    itemCount: menuItemCount,
+    onConfirm: handleMenuNavConfirm,
+    onBack: onExit,
+    active: screen === 'menu',
+  });
+
   if (screen === 'play' && activeTemplate) {
     return <PlayScreen template={activeTemplate}
       onBack={() => setScreen('menu')} onExit={onExit} />;
@@ -379,23 +408,23 @@ export default function CreatorMode({ onExit }) {
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-4 overflow-auto">
       <div className="flex justify-between items-center w-full max-w-lg mb-4">
         <h1 className="text-2xl font-bold text-white">🎨 Modo Criador</h1>
-        <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold">← Voltar</button>
+        <button onClick={onExit} className={`bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold ${menuSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>← Voltar</button>
       </div>
-      <p className="text-white/50 text-sm mb-4 text-center max-w-md">Crie, edite e organize seus setups de treino!</p>
+      <p className="text-white/50 text-sm mb-4 text-center max-w-md">Crie, edite e organize seus setups de treino! | 🎮 Ⓑ Voltar</p>
 
       {/* Action bar */}
       <div className="flex gap-2 w-full max-w-lg mb-4 flex-wrap justify-center">
         <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={openNewEditor}
-          className="flex-1 min-w-[140px] p-3 rounded-xl bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 hover:from-violet-600/40 hover:to-fuchsia-600/40 border border-violet-500/30 hover:border-violet-500/50 transition-all flex items-center gap-3">
+          className={`flex-1 min-w-[140px] p-3 rounded-xl bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 hover:from-violet-600/40 hover:to-fuchsia-600/40 border border-violet-500/30 hover:border-violet-500/50 transition-all flex items-center gap-3 ${menuSelIdx === 1 ? 'ring-2 ring-yellow-400' : ''}`}>
           <span className="text-2xl">➕</span>
           <div className="text-left">
             <div className="text-white font-bold text-sm">Criar Novo</div>
             <div className="text-white/40 text-[10px]">Monte do zero</div>
           </div>
         </motion.button>
-        <button onClick={() => fileInputRef.current?.click()} className="bg-green-600/40 hover:bg-green-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-green-500/20">📥 Importar</button>
-        <button onClick={handleExportAll} className="bg-blue-600/40 hover:bg-blue-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-blue-500/20" disabled={allSetups.length === 0}>📤 Exportar</button>
-        <button onClick={resetDefaults} className="bg-orange-600/40 hover:bg-orange-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-orange-500/20">🔄 Resetar Padrão</button>
+        <button onClick={() => fileInputRef.current?.click()} className={`bg-green-600/40 hover:bg-green-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-green-500/20 ${menuSelIdx === 2 ? 'ring-2 ring-yellow-400' : ''}`}>📥 Importar</button>
+        <button onClick={handleExportAll} className={`bg-blue-600/40 hover:bg-blue-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-blue-500/20 ${menuSelIdx === 3 ? 'ring-2 ring-yellow-400' : ''}`} disabled={allSetups.length === 0}>📤 Exportar</button>
+        <button onClick={resetDefaults} className={`bg-orange-600/40 hover:bg-orange-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-orange-500/20 ${menuSelIdx === 4 ? 'ring-2 ring-yellow-400' : ''}`}>🔄 Resetar Padrão</button>
       </div>
 
       <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
@@ -414,7 +443,8 @@ export default function CreatorMode({ onExit }) {
             onDelete={() => deleteSetup(s.id)}
             onExport={() => exportSetups([s])}
             onMoveUp={i > 0 ? () => moveSetup(s.id, -1) : null}
-            onMoveDown={i < allSetups.length - 1 ? () => moveSetup(s.id, 1) : null} />
+            onMoveDown={i < allSetups.length - 1 ? () => moveSetup(s.id, 1) : null}
+            isHighlighted={menuSelIdx === MENU_ACTION_COUNT + i} />
         ))}
         {allSetups.length === 0 && (
           <div className="text-center py-8 text-white/30 text-sm">
@@ -426,13 +456,13 @@ export default function CreatorMode({ onExit }) {
   );
 }
 
-function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMoveDown }) {
+function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMoveDown, isHighlighted }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isDefault = setup.isDefault;
   return (
     <div className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
       isDefault ? 'bg-white/[0.04] border-white/[0.06] hover:bg-white/[0.07]' : 'bg-violet-500/[0.06] border-violet-500/[0.12] hover:bg-violet-500/[0.1]'
-    }`}>
+    } ${isHighlighted ? 'ring-2 ring-yellow-400' : ''}`}>
       <div className="flex flex-col items-center min-w-[44px]">
         <BoardMini boardRows={setup.board} />
       </div>
@@ -549,6 +579,41 @@ function PlayScreen({ template, onBack, onExit }) {
     return () => window.removeEventListener('keydown', handle);
   }, [initGame]);
 
+  // Gamepad support for Creator Mode play
+  const creatorGamepadActions = useMemo(() => ({
+    movePiece: (dir) => {
+      const gs = gsRef.current;
+      if (gs && !gs.gameOver) gs.movePiece(dir);
+    },
+    rotatePiece: () => {
+      const gs = gsRef.current;
+      if (gs && !gs.gameOver) gs.rotatePiece();
+    },
+    rotatePieceLeft: () => {
+      const gs = gsRef.current;
+      if (gs && !gs.gameOver) gs.rotatePieceLeft();
+    },
+    hardDrop: () => {
+      const gs = gsRef.current;
+      if (gs && !gs.gameOver) gs.hardDrop();
+    },
+    holdPiece: () => {
+      const gs = gsRef.current;
+      if (gs && !gs.gameOver) gs.holdPiece();
+    },
+    isGameOver: () => gsRef.current?.gameOver ?? false,
+    backToMenu: onExit,
+    togglePause: () => {},
+  }), [onExit]);
+
+  const { isGamepadActive, processGamepadInput } = useGamepad(creatorGamepadActions);
+
+  useEffect(() => {
+    if (!isGamepadActive) return;
+    const interval = setInterval(() => processGamepadInput(), 16);
+    return () => clearInterval(interval);
+  }, [isGamepadActive, processGamepadInput]);
+
   const dropPreview = useMemo(() => {
     if (!gameState?.currentPiece || gameState?.gameOver) return null;
     try { return gsRef.current?.getDropPreview(); } catch { return null; }
@@ -617,13 +682,30 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
     });
   }, [setBoard]);
 
+  // Gamepad nav for editor: [Back, Exit, Save, Play Test] = 4
+  const handleEditorNav = useCallback((idx) => {
+    switch (idx) {
+      case 0: onBack(); break;
+      case 1: onExit(); break;
+      case 2: onSave(); break;
+      case 3: onPlay(); break;
+    }
+  }, [onBack, onExit, onSave, onPlay]);
+
+  const { selectedIndex: editorSelIdx } = useGamepadNav({
+    itemCount: 4,
+    onConfirm: handleEditorNav,
+    onBack: onBack,
+    active: true,
+  });
+
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-3 overflow-auto">
       <div className="flex justify-between items-center w-full max-w-2xl mb-3">
         <h1 className="text-xl font-bold text-white">{isEditing ? '✏️ Editar Setup' : '🛠️ Criar Meu Setup'}</h1>
         <div className="flex gap-2">
-          <button onClick={onBack} className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-sm font-bold">← Voltar</button>
-          <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-bold">Sair</button>
+          <button onClick={onBack} className={`bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-sm font-bold ${editorSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>← Voltar</button>
+          <button onClick={onExit} className={`bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-bold ${editorSelIdx === 1 ? 'ring-2 ring-yellow-400' : ''}`}>Sair</button>
         </div>
       </div>
       <div className="flex gap-4 items-start justify-center flex-wrap max-w-2xl">
@@ -687,8 +769,8 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
               className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-xs placeholder-white/20 focus:border-violet-500/50 focus:outline-none mb-3" />
           </div>
           <div className="flex flex-col gap-2">
-            <button onClick={onSave} className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white font-bold text-base shadow-lg shadow-violet-500/25 transition-all active:scale-95">{isEditing ? '💾 Salvar Alterações' : '💾 Salvar Setup'}</button>
-            <button onClick={onPlay} className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all active:scale-95">🎮 Testar (sem salvar)</button>
+            <button onClick={onSave} className={`w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white font-bold text-base shadow-lg shadow-violet-500/25 transition-all active:scale-95 ${editorSelIdx === 2 ? 'ring-2 ring-yellow-400' : ''}`}>{isEditing ? '💾 Salvar Alterações' : '💾 Salvar Setup'}</button>
+            <button onClick={onPlay} className={`w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all active:scale-95 ${editorSelIdx === 3 ? 'ring-2 ring-yellow-400' : ''}`}>🎮 Testar (sem salvar)</button>
           </div>
         </div>
       </div>

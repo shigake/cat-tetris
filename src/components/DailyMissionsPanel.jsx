@@ -1,22 +1,35 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMissions } from '../hooks/useMissions';
+import { useI18n } from '../hooks/useI18n';
 import Celebration from './Celebration';
 import { showToast } from './ToastNotification';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function DailyMissionsPanel({ onClose }) {
+  const { t } = useI18n();
   const { missions, loading, claimReward, getMissionsStats } = useMissions();
   const [showCelebration, setShowCelebration] = React.useState(false);
 
-  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
+  const { selectedIndex } = useGamepadNav({
+    itemCount: missions?.length || 0,
+    onConfirm: (index) => {
+      const mission = missions[index];
+      if (mission && mission.completed && !mission.claimed) {
+        handleClaim(mission.id);
+      }
+    },
+    onBack: onClose,
+    active: true,
+    wrap: true,
+  });
   const stats = getMissionsStats();
 
   const handleClaim = (missionId) => {
     const result = claimReward(missionId);
     if (result.success) {
 
-      showToast(`✅ Recompensa coletada: +${result.reward} 🐟`, 'success');
+      showToast(t('missions.claimSuccess', { reward: result.reward }), 'success');
 
       const updatedStats = getMissionsStats();
       if (updatedStats.allClaimed) {
@@ -39,9 +52,9 @@ function DailyMissionsPanel({ onClose }) {
 
   const getDifficultyBadge = (difficulty) => {
     switch (difficulty) {
-      case 'easy': return '🟢 Fácil';
-      case 'medium': return '🟡 Médio';
-      case 'hard': return '🔴 Difícil';
+      case 'easy': return t('missions.easy');
+      case 'medium': return t('missions.medium');
+      case 'hard': return t('missions.hard');
       default: return difficulty;
     }
   };
@@ -49,7 +62,7 @@ function DailyMissionsPanel({ onClose }) {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-xl">Carregando missões...</div>
+        <div className="text-white text-xl">{t('missions.loading')}</div>
       </div>
     );
   }
@@ -73,10 +86,10 @@ function DailyMissionsPanel({ onClose }) {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              📋 Missões Diárias
+              {t('missions.title')}
             </h2>
             <p className="text-white/60 text-sm mt-1">
-              Complete missões para ganhar 🐟 Peixes
+              {t('missions.subtitle')}
             </p>
           </div>
           <button
@@ -90,13 +103,13 @@ function DailyMissionsPanel({ onClose }) {
         {stats && (
           <div className="bg-black/30 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center">
-              <span className="text-white/80">Progresso Diário:</span>
+              <span className="text-white/80">{t('missions.dailyProgress')}</span>
               <span className="text-white font-bold">
-                {stats.completed}/{stats.total} completas
+                {t('missions.completedOf', { completed: stats.completed, total: stats.total })}
               </span>
             </div>
             <div className="flex justify-between items-center mt-2">
-              <span className="text-white/80">Recompensas Disponíveis:</span>
+              <span className="text-white/80">{t('missions.rewardsAvailable')}</span>
               <span className="text-yellow-400 font-bold flex items-center gap-1">
                 🐟 {stats.claimedRewards}/{stats.totalRewards}
               </span>
@@ -119,7 +132,7 @@ function DailyMissionsPanel({ onClose }) {
                   mission.completed
                     ? 'border-green-500/50'
                     : 'border-white/10'
-                }`}
+                } ${index === selectedIndex ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-purple-900' : ''}`}
               >
 
                 <div className="flex justify-between items-start mb-2">
@@ -135,7 +148,7 @@ function DailyMissionsPanel({ onClose }) {
                       )}
                       {mission.claimed && (
                         <span className="text-white/40 text-sm">
-                          (Coletado)
+                          {t('missions.claimed')}
                         </span>
                       )}
                     </div>
@@ -157,7 +170,7 @@ function DailyMissionsPanel({ onClose }) {
 
                 <div className="mt-3">
                   <div className="flex justify-between text-sm text-white/60 mb-1">
-                    <span>Progresso</span>
+                    <span>{t('missions.progress')}</span>
                     <span>{progress}/{mission.target}</span>
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
@@ -181,7 +194,7 @@ function DailyMissionsPanel({ onClose }) {
                     onClick={() => handleClaim(mission.id)}
                     className="w-full mt-3 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg transition-colors"
                   >
-                    🎁 Coletar Recompensa
+                    {t('missions.claimReward')}
                   </motion.button>
                 )}
               </motion.div>
@@ -190,13 +203,13 @@ function DailyMissionsPanel({ onClose }) {
         </div>
 
         <div className="mt-6 text-center text-white/40 text-sm">
-          As missões resetam todos os dias às 00:00
+          {t('missions.resetNote')}
         </div>
       </motion.div>
 
       <Celebration
         trigger={showCelebration}
-        message="🎉 Todas as missões completas! 🎉"
+        message={t('missions.allCompleted')}
         duration={3000}
       />
     </motion.div>

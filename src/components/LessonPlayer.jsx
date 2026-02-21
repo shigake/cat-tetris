@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePracticeGame } from '../hooks/usePracticeGame';
 import { useDemoGame } from '../hooks/useDemoGame';
 import { useKeyboardInput } from '../hooks/useKeyboardInput';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 import CelebrationParticles from './CelebrationParticles';
 import IntroductionScreen from './lesson/IntroductionScreen';
 import DemoScreen from './lesson/DemoScreen';
@@ -77,9 +78,35 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
     setPracticeState({ progress: 0, feedback: '', complete: false });
   }, [actions]);
 
-  const modeLabel = mode === 'introduction' ? '📖 Introdução'
-    : mode === 'demo' ? '🤖 Demonstração'
-    : '🎮 Prática';
+  // Gamepad navigation for lesson UI buttons
+  const isPracticing = mode === 'practice' && isInitialized && gameState && !gameState.gameOver;
+  const navItemCount = mode === 'introduction' ? 3 // exit + demo + practice
+    : mode === 'demo' ? 2 // exit + skip/start
+    : (gameState?.gameOver && !practiceState.complete) ? 2 // exit + restart
+    : 1; // exit only
+
+  const handleLessonNavConfirm = useCallback((idx) => {
+    if (idx === 0) { onExit(); return; }
+    if (mode === 'introduction') {
+      if (idx === 1) handleStartDemo();
+      else if (idx === 2) handleStartPractice();
+    } else if (mode === 'demo') {
+      if (idx === 1) handleStartPractice();
+    } else if (mode === 'practice' && gameState?.gameOver) {
+      if (idx === 1) handleRestart();
+    }
+  }, [mode, gameState?.gameOver, onExit, handleStartDemo, handleStartPractice, handleRestart]);
+
+  const { selectedIndex: lessonSelIdx } = useGamepadNav({
+    itemCount: navItemCount,
+    onConfirm: handleLessonNavConfirm,
+    onBack: onExit,
+    active: !isPracticing,
+  });
+
+  const modeLabel = mode === 'introduction' ? '📖'
+    : mode === 'demo' ? '🤖'
+    : '🎮';
 
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-50 flex flex-col">
@@ -104,9 +131,9 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
             </span>
             <button
               onClick={onExit}
-              className="text-white/40 hover:text-white/70 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg px-3 py-1.5 text-sm transition-all"
+              className={`text-white/40 hover:text-white/70 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg px-3 py-1.5 text-sm transition-all ${lessonSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}
             >
-              ✕ Sair
+              ✕
             </button>
           </div>
         </div>
@@ -120,6 +147,7 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                 lesson={lesson}
                 onStartDemo={handleStartDemo}
                 onStartPractice={handleStartPractice}
+                gamepadSelectedIndex={lessonSelIdx}
               />
             )}
 
@@ -132,6 +160,7 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                 dropPreview={demoDropPreview}
                 statusLabel={demoStatusLabel}
                 onSkip={handleStartPractice}
+                gamepadSelectedIndex={lessonSelIdx}
               />
             )}
 
@@ -143,6 +172,7 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                 practiceState={practiceState}
                 onRestart={handleRestart}
                 dropPreview={dropPreview}
+                gamepadSelectedIndex={lessonSelIdx}
               />
             )}
           </AnimatePresence>

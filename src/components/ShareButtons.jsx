@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../hooks/useI18n';
 
 function ShareButtons({ scoreData, onClose }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
-  const shareText = `🐱 Cat Tetris!\n🎮 ${scoreData.score.toLocaleString()} pontos\n📈 Nível ${scoreData.level}\n🧹 ${scoreData.lines} linhas\n\nConsegue me superar? 🏆`;
+  const shareText = t('share.text', { score: scoreData.score, level: scoreData.level, lines: scoreData.lines });
 
   const handleCopy = async () => {
     try {
@@ -20,7 +22,7 @@ function ShareButtons({ scoreData, onClose }) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'Minha pontuação no Cat Tetris',
+          title: t('share.title'),
           text: shareText
         });
       } catch (error) {
@@ -48,7 +50,7 @@ function ShareButtons({ scoreData, onClose }) {
       className="bg-black/40 rounded-lg p-4 mt-4"
     >
       <div className="text-white/80 text-sm mb-3 text-center">
-        Compartilhe sua pontuação:
+        {t('share.prompt')}
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center">
@@ -60,7 +62,7 @@ function ShareButtons({ scoreData, onClose }) {
             onClick={handleNativeShare}
             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors"
           >
-            📤 Compartilhar
+            {t('share.share')}
           </motion.button>
         )}
 
@@ -72,7 +74,7 @@ function ShareButtons({ scoreData, onClose }) {
             copied ? 'bg-green-600' : 'bg-gray-600 hover:bg-gray-500'
           } text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors`}
         >
-          {copied ? '✓ Copiado!' : '📋 Copiar'}
+          {copied ? t('share.copied') : t('share.copy')}
         </motion.button>
 
         <motion.button
@@ -81,7 +83,7 @@ function ShareButtons({ scoreData, onClose }) {
           onClick={handleTwitter}
           className="bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors"
         >
-          🐦 Twitter
+          {t('share.twitter')}
         </motion.button>
 
         <motion.button
@@ -90,7 +92,7 @@ function ShareButtons({ scoreData, onClose }) {
           onClick={handleWhatsApp}
           className="bg-[#25D366] hover:bg-[#20bd5a] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors"
         >
-          💬 WhatsApp
+          {t('share.whatsapp')}
         </motion.button>
       </div>
 
@@ -100,7 +102,7 @@ function ShareButtons({ scoreData, onClose }) {
             onClick={onClose}
             className="text-white/60 hover:text-white text-sm transition-colors"
           >
-            Fechar
+            {t('share.close')}
           </button>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { loadGamepadMappings } from '../config/GamepadConfig';
 
 /**
  * Hook for gamepad-based UI navigation.
@@ -21,14 +22,29 @@ export function useGamepadNav({
   vertical = true,
   columns = 1,
   wrap = true,
+  navMap = null,
 } = {}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedIndexRef = useRef(0);
   const lastNavTimeRef = useRef({});
   const lastButtonStatesRef = useRef({});
   const NAV_REPEAT_DELAY = 250;
   const NAV_FIRST_DELAY = 400;
   const navStartRef = useRef({});
   const STICK_DEADZONE = 0.5;
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex;
+  }, [selectedIndex]);
+
+  // Store callbacks in refs to avoid recreating processNavigation
+  const onConfirmRef = useRef(onConfirm);
+  const onBackRef = useRef(onBack);
+  const navMapRef = useRef(navMap);
+  useEffect(() => { onConfirmRef.current = onConfirm; }, [onConfirm]);
+  useEffect(() => { onBackRef.current = onBack; }, [onBack]);
+  useEffect(() => { navMapRef.current = navMap; }, [navMap]);
 
   // Reset selection when item count changes
   useEffect(() => {
@@ -38,9 +54,25 @@ export function useGamepadNav({
     });
   }, [itemCount]);
 
-  // Reset to 0 when becoming active
+  // Reset to 0 when becoming active, and snapshot current button states
+  // so that buttons already held from a previous screen don't double-fire.
   useEffect(() => {
-    if (active) setSelectedIndex(0);
+    if (active) {
+      setSelectedIndex(0);
+      // Pre-seed button states with whatever is currently held
+      try {
+        const gamepads = navigator.getGamepads();
+        const gp = Array.from(gamepads).find(g => g && g.connected);
+        if (gp) {
+          const m = loadGamepadMappings();
+          lastButtonStatesRef.current = {
+            confirm: gp.buttons[m.menuConfirm]?.pressed || false,
+            back: gp.buttons[m.menuBack]?.pressed || false,
+            altConfirm: gp.buttons[m.menuAltConfirm]?.pressed || false,
+          };
+        }
+      } catch (e) { /* ignore */ }
+    }
   }, [active]);
 
   const getStickDirection = useCallback((axes) => {
@@ -97,6 +129,16 @@ export function useGamepadNav({
     const doNav = (direction) => {
       setSelectedIndex(prev => {
         let next = prev;
+
+        // Use spatial navMap if provided
+        if (navMapRef.current) {
+          const mapping = navMapRef.current[prev];
+          if (mapping && mapping[direction] !== undefined) {
+            return mapping[direction];
+          }
+          return prev;
+        }
+
         if (columns === 1) {
           // 1D navigation
           if (direction === 'up' || direction === 'left') {
@@ -152,20 +194,24 @@ export function useGamepadNav({
     if (vertical) {
       handleNav('up', upPressed);
       handleNav('down', downPressed);
-      if (columns > 1) {
-        handleNav('left', leftPressed);
-        handleNav('right', rightPressed);
-      }
+      handleNav('left', leftPressed);
+      handleNav('right', rightPressed);
     } else {
       handleNav('left', leftPressed);
       handleNav('right', rightPressed);
     }
 
-    // A button = confirm
-    const aPressed = gamepad.buttons[0]?.pressed;
-    const aWasPressed = lastButtonStatesRef.current[0];
-    if (aPressed && !aWasPressed) {
-      onConfirm?.(selectedIndex);
+    // Read user-configured button mappings
+    const mappings = loadGamepadMappings();
+    const confirmBtn = mappings.menuConfirm;
+    const backBtn = mappings.menuBack;
+    const altConfirmBtn = mappings.menuAltConfirm;
+
+    // Confirm button
+    const confirmPressed = gamepad.buttons[confirmBtn]?.pressed;
+    const confirmWasPressed = lastButtonStatesRef.current['confirm'];
+    if (confirmPressed && !confirmWasPressed) {
+      onConfirmRef.current?.(selectedIndexRef.current);
       try {
         if (gamepad.vibrationActuator) {
           gamepad.vibrationActuator.playEffect('dual-rumble', {
@@ -175,28 +221,31 @@ export function useGamepadNav({
       } catch (e) { /* ignore */ }
     }
 
-    // B button = back
-    const bPressed = gamepad.buttons[1]?.pressed;
-    const bWasPressed = lastButtonStatesRef.current[1];
-    if (bPressed && !bWasPressed) {
-      onBack?.();
+    // Back button
+    const backPressed = gamepad.buttons[backBtn]?.pressed;
+    const backWasPressed = lastButtonStatesRef.current['back'];
+    if (backPressed && !backWasPressed) {
+      onBackRef.current?.();
     }
 
-    // Start button = confirm (alternative)
-    const startPressed = gamepad.buttons[9]?.pressed;
-    const startWasPressed = lastButtonStatesRef.current[9];
-    if (startPressed && !startWasPressed) {
-      onConfirm?.(selectedIndex);
+    // Alt confirm button (only if different from confirm)
+    let altPressed = false;
+    if (altConfirmBtn !== confirmBtn) {
+      altPressed = gamepad.buttons[altConfirmBtn]?.pressed;
+      const altWasPressed = lastButtonStatesRef.current['altConfirm'];
+      if (altPressed && !altWasPressed) {
+        onConfirmRef.current?.(selectedIndexRef.current);
+      }
     }
 
     // Update button states
     lastButtonStatesRef.current = {
-      0: aPressed,
-      1: bPressed,
-      9: startPressed,
+      confirm: confirmPressed,
+      back: backPressed,
+      altConfirm: altPressed,
     };
 
-  }, [active, itemCount, columns, wrap, vertical, onConfirm, onBack, getStickDirection, selectedIndex]);
+  }, [active, itemCount, columns, wrap, vertical, getStickDirection]);
 
   // Polling loop
   useEffect(() => {

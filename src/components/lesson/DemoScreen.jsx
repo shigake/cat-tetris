@@ -5,7 +5,7 @@ import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
 
-function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPreview, statusLabel, onSkip }) {
+function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPreview, statusLabel, onSkip, gamepadSelectedIndex }) {
   if (!gameState || !isInitialized) {
     return (
       <div className="text-center text-white/40 text-sm py-12">
@@ -82,15 +82,15 @@ function DemoScreen({ lesson, gameState, isInitialized, demoComplete, dropPrevie
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={onSkip}
-            className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
-                     text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/30 transition-all"
+            className={`bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
+                     text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-900/30 transition-all ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
           >
             🎮  Agora é sua vez!
           </motion.button>
         ) : (
           <button
             onClick={onSkip}
-            className="text-white/30 hover:text-white/50 text-xs transition-all"
+            className={`text-white/30 hover:text-white/50 text-xs transition-all ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400 rounded-lg px-2 py-1' : ''}`}
           >
             Pular demonstração →
           </button>

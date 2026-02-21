@@ -185,17 +185,25 @@ export class GameService extends IGameService {
   rotatePieceLeft() {
     if (!this.currentPiece || this.gameOver || this.isPaused) return;
 
-    const strategy = this.movementStrategyFactory.createStrategy('rotateLeft');
-    const result = strategy.execute(this.currentPiece, this.board.grid);
+    try {
+      const strategy = this.movementStrategyFactory.createStrategy('rotateLeft');
+      const result = strategy.execute(this.currentPiece, this.board.grid);
 
-    if (result !== this.currentPiece) {
-      this.currentPiece = result;
-      this._markDirty();
+      if (result !== this.currentPiece) {
+        this.currentPiece = result;
+        this._markDirty();
 
-      this._resetLockDelay();
+        this._resetLockDelay();
 
-      this._checkUngrounded();
-      gameEvents.emit(GAME_EVENTS.PIECE_ROTATED, { piece: result });
+        this._checkUngrounded();
+        gameEvents.emit(GAME_EVENTS.PIECE_ROTATED, { piece: result });
+      }
+    } catch (error) {
+      errorLogger.logError('GameService', 'rotatePieceLeft', error.message, {
+        pieceType: this.currentPiece?.type,
+        piecePos: this.currentPiece?.position,
+        stack: error.stack
+      });
     }
   }
 
@@ -216,6 +224,7 @@ export class GameService extends IGameService {
       this.score.incrementCombo();
 
       const isTSpin = this.currentPiece.isTSpin;
+      const prevBackToBack = this.backToBack;
       const points = this.scoringService.calculateScore(
         linesCleared,
         this.score.getLevel(),
@@ -250,7 +259,7 @@ export class GameService extends IGameService {
         isTSpin
       });
 
-      this._lastAttack = this._calculateAttack(linesCleared, isTSpin, this.score.combo, this.backToBack);
+      this._lastAttack = this._calculateAttack(linesCleared, isTSpin, this.score.combo, prevBackToBack);
 
       if (this._lastAttack > 0 && this.pendingGarbage > 0) {
         const cancelled = Math.min(this._lastAttack, this.pendingGarbage);
@@ -489,7 +498,6 @@ export class GameService extends IGameService {
     this.initializeGame();
     this.isPlaying = true;
     this.isPaused = false;
-    this.modeStartTime = Date.now();
     this._markDirty();
   }
 
@@ -552,6 +560,10 @@ export class GameService extends IGameService {
     this.gameOver = state.gameOver;
     this.backToBack = state.backToBack;
 
+    const fixedLevel = this.score._fixedLevel;
     Object.assign(this.score, state.score);
+    if (fixedLevel != null && state.score._fixedLevel == null) {
+      this.score._fixedLevel = fixedLevel;
+    }
   }
 }

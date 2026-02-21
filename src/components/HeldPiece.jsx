@@ -1,12 +1,14 @@
 import React from 'react';
 import { getPieceColor } from '../utils/PieceGenerator';
+import { useI18n } from '../hooks/useI18n';
 
 const HeldPiece = ({ heldPiece, canHold }) => {
+  const { t } = useI18n();
   const renderHeldPiece = () => {
     if (!heldPiece) {
       return (
         <div className="bg-gray-800/50 p-2 lg:p-4 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center">
-          <span className="text-white/40 text-xs lg:text-sm">Vazio</span>
+          <span className="text-white/40 text-xs lg:text-sm">{t('game.heldEmpty')}</span>
         </div>
       );
     }
@@ -55,7 +57,7 @@ const HeldPiece = ({ heldPiece, canHold }) => {
     >
       <h2 className="text-xs font-bold text-white mb-1 text-center flex items-center justify-center gap-1">
         <span>💾</span>
-        <span className="hidden lg:inline">Guardada</span>
+        <span className="hidden lg:inline">{t('game.held')}</span>
       </h2>
 
       <div>

@@ -2,21 +2,21 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LessonPlayer from './LessonPlayer';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [progress, setProgress] = useState(tutorialService.getProgress());
   const [selectedModule, setSelectedModule] = useState('fundamentals');
-
-  useGamepadNav({ itemCount: 0, onBack: onClose, active: !selectedLesson });
+  const { t } = useI18n();
 
   const lessons = tutorialService.lessons;
 
   const modules = [
-    { key: 'fundamentals',  icon: '🎮', name: 'Fundamentos',    desc: 'O básico do Tetris' },
-    { key: 'intermediate',  icon: '🌀', name: 'Intermediário',   desc: 'T-spins e combos' },
-    { key: 'advanced',      icon: '💎', name: 'Avançado',        desc: 'Setups e estratégias' },
-    { key: 'pro',           icon: '🏆', name: 'Profissional',    desc: 'Técnicas PRO' },
+    { key: 'fundamentals',  icon: '🎮', name: t('tutorial.fundamentals'),    desc: t('tutorial.fundamentalsDesc') },
+    { key: 'intermediate',  icon: '🌀', name: t('tutorial.intermediate'),   desc: t('tutorial.intermediateDesc') },
+    { key: 'advanced',      icon: '💎', name: t('tutorial.advanced'),        desc: t('tutorial.advancedDesc') },
+    { key: 'pro',           icon: '🏆', name: t('tutorial.pro'),    desc: t('tutorial.proDesc') },
   ];
 
   const moduleLessons = lessons.filter(l => l.module === selectedModule);
@@ -36,6 +36,17 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
 
   const isUnlocked   = (id) => progress.unlockedLessons.includes(id);
   const isCompleted   = (id) => progress.completedLessons.includes(id);
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount: moduleLessons.length,
+    onConfirm: (index) => {
+      const lesson = moduleLessons[index];
+      if (lesson && isUnlocked(lesson.id)) setSelectedLesson(lesson);
+    },
+    onBack: onClose,
+    active: !selectedLesson,
+    wrap: true,
+  });
 
   if (selectedLesson) {
     return (
@@ -62,20 +73,20 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-extrabold text-white">📚 Tutorial</h1>
-            <p className="text-white/40 text-sm mt-0.5">Aprenda do zero ao PRO</p>
+            <h1 className="text-2xl font-extrabold text-white">{t('tutorial.title')}</h1>
+            <p className="text-white/40 text-sm mt-0.5">{t('tutorial.subtitle')}</p>
           </div>
           <button
             onClick={onClose}
             className="text-white/40 hover:text-white/70 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg px-3 py-1.5 text-sm transition-all"
           >
-            ✕ Voltar
+            {t('tutorial.close')}
           </button>
         </div>
 
         <div className="mb-6">
           <div className="flex justify-between text-xs text-white/40 mb-1.5">
-            <span>Progresso geral</span>
+            <span>{t('tutorial.overallProgress')}</span>
             <span>{completedCount}/{totalCount} ({pct}%)</span>
           </div>
           <div className="h-2 bg-white/[0.08] rounded-full overflow-hidden">
@@ -144,7 +155,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
                       unlocked
                         ? 'bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.99]'
                         : 'bg-white/[0.02] border border-white/[0.03] opacity-40 cursor-not-allowed'
-                    } ${completed ? 'border-emerald-500/30' : ''}`}
+                    } ${completed ? 'border-emerald-500/30' : ''} ${idx === selectedIndex ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900' : ''}`}
                   >
 
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${
@@ -186,7 +197,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
 
               {moduleLessons.length === 0 && (
                 <div className="text-center py-12 text-white/20 text-sm">
-                  Nenhuma lição neste módulo
+                  {t('tutorial.noLessons')}
                 </div>
               )}
             </motion.div>
@@ -195,7 +206,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
 
         {progress.badges.length > 0 && (
           <div className="mt-6 pt-4 border-t border-white/[0.06]">
-            <div className="text-xs text-white/30 mb-2">Badges conquistadas</div>
+            <div className="text-xs text-white/30 mb-2">{t('tutorial.badgesEarned')}</div>
             <div className="flex flex-wrap gap-2">
               {progress.badges.map((badge) => (
                 <span

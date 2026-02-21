@@ -1,9 +1,24 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameModes } from '../hooks/useGameModes';
+import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 function GameModesPanel({ onClose, onStartGame }) {
   const { modes, currentMode, modeStats, loading, selectMode } = useGameModes();
+  const { t } = useI18n();
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount: modes?.length || 0,
+    columns: 2,
+    onConfirm: (index) => {
+      const mode = modes[index];
+      if (mode) handleSelectAndStart(mode.id);
+    },
+    onBack: onClose,
+    active: true,
+    wrap: true,
+  });
 
   const handleSelectAndStart = (modeId) => {
     selectMode(modeId);
@@ -22,7 +37,7 @@ function GameModesPanel({ onClose, onStartGame }) {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-xl">Carregando modos...</div>
+        <div className="text-white text-xl">{t('gameModes.loading')}</div>
       </div>
     );
   }
@@ -32,7 +47,7 @@ function GameModesPanel({ onClose, onStartGame }) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-red-900/90 text-white p-6 rounded-lg">
-          <p className="text-xl">❌ Erro ao carregar modos</p>
+          <p className="text-xl">{t('gameModes.errorLoading')}</p>
           <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
             Fechar
           </button>
@@ -60,10 +75,10 @@ function GameModesPanel({ onClose, onStartGame }) {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              🎮 Modos de Jogo
+              {t('gameModes.title')}
             </h2>
             <p className="text-white/60 text-sm mt-1">
-              Escolha seu desafio
+              {t('gameModes.subtitle')}
             </p>
           </div>
           <button
@@ -89,13 +104,13 @@ function GameModesPanel({ onClose, onStartGame }) {
                   isSelected
                     ? 'border-green-500 shadow-lg shadow-green-500/30'
                     : 'border-white/10 hover:border-white/30'
-                }`}
+                } ${index === selectedIndex ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-blue-900' : ''}`}
                 onClick={() => handleSelectAndStart(mode.id)}
               >
 
                 {isSelected && (
                   <div className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full font-bold">
-                    ✓ Selecionado
+                    {t('gameModes.selected')}
                   </div>
                 )}
 
@@ -115,32 +130,32 @@ function GameModesPanel({ onClose, onStartGame }) {
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {mode.rules.lineGoal && (
                       <div className="text-white/80">
-                        🎯 Meta: {mode.rules.lineGoal} linhas
+                        {t('gameModes.goalLines', { n: mode.rules.lineGoal })}
                       </div>
                     )}
                     {mode.rules.timeLimit && (
                       <div className="text-white/80">
-                        ⏱️ Tempo: {formatTime(mode.rules.timeLimit)}
+                        {t('gameModes.timeLimit', { time: formatTime(mode.rules.timeLimit) })}
                       </div>
                     )}
                     {mode.rules.gameOver !== undefined && (
                       <div className="text-white/80">
-                        {mode.rules.gameOver ? '💀 Game Over' : '✨ Sem Game Over'}
+                        {mode.rules.gameOver ? t('gameModes.gameOverYes') : t('gameModes.gameOverNo')}
                       </div>
                     )}
                     {mode.rules.speedIncrease !== undefined && (
                       <div className="text-white/80">
-                        {mode.rules.speedIncrease ? '⚡ Velocidade aumenta' : '🐢 Velocidade fixa'}
+                        {mode.rules.speedIncrease ? t('gameModes.speedUp') : t('gameModes.speedFixed')}
                       </div>
                     )}
                     {mode.rules.startLevel && (
                       <div className="text-white/80">
-                        🚀 Início: Nível {mode.rules.startLevel}
+                        {t('gameModes.startLevel', { n: mode.rules.startLevel })}
                       </div>
                     )}
                     {mode.rules.relaxed && (
                       <div className="text-white/80">
-                        😌 Modo relaxado
+                        {t('gameModes.relaxed')}
                       </div>
                     )}
                   </div>
@@ -148,20 +163,20 @@ function GameModesPanel({ onClose, onStartGame }) {
 
                 {stats && stats.gamesPlayed > 0 && (
                   <div className="bg-black/30 rounded-lg p-3">
-                    <div className="text-white/60 text-xs mb-2">Seus recordes:</div>
+                    <div className="text-white/60 text-xs mb-2">{t('gameModes.yourRecords')}</div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <div className="text-yellow-400 font-bold">
                           {stats.bestScore.toLocaleString()}
                         </div>
-                        <div className="text-white/40 text-xs">Melhor Pontuação</div>
+                        <div className="text-white/40 text-xs">{t('gameModes.bestScore')}</div>
                       </div>
                       {mode.rules.lineGoal && stats.bestTime > 0 && (
                         <div>
                           <div className="text-green-400 font-bold">
                             {formatTime(stats.bestTime)}
                           </div>
-                          <div className="text-white/40 text-xs">Melhor Tempo</div>
+                          <div className="text-white/40 text-xs">{t('gameModes.bestTime')}</div>
                         </div>
                       )}
                       {!mode.rules.lineGoal && (
@@ -169,12 +184,12 @@ function GameModesPanel({ onClose, onStartGame }) {
                           <div className="text-blue-400 font-bold">
                             {stats.bestLines}
                           </div>
-                          <div className="text-white/40 text-xs">Mais Linhas</div>
+                          <div className="text-white/40 text-xs">{t('gameModes.mostLines')}</div>
                         </div>
                       )}
                     </div>
                     <div className="text-white/40 text-xs mt-2">
-                      {stats.gamesPlayed} partidas jogadas
+                      {t('gameModes.gamesPlayed', { n: stats.gamesPlayed })}
                     </div>
                   </div>
                 )}
@@ -182,7 +197,7 @@ function GameModesPanel({ onClose, onStartGame }) {
                 {(!stats || stats.gamesPlayed === 0) && (
                   <div className="bg-black/30 rounded-lg p-3 text-center">
                     <div className="text-white/40 text-sm">
-                      🆕 Nenhum recorde ainda
+                      {t('gameModes.noRecords')}
                     </div>
                   </div>
                 )}
@@ -192,7 +207,7 @@ function GameModesPanel({ onClose, onStartGame }) {
                   whileTap={{ scale: 0.95 }}
                   className="w-full mt-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3 rounded-lg transition-colors"
                 >
-                  ▶️ Jogar
+                  {t('gameModes.play')}
                 </motion.button>
               </motion.div>
             );

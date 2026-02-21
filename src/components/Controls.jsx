@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../hooks/useI18n';
 
 const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gameOver, canHold }) => {
+  const { t } = useI18n();
   const handleKeyPress = (action) => {
     if (gameOver) return;
 
@@ -34,7 +36,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
     <div className="flex flex-col items-center gap-1">
       <div className="hidden lg:block">
         <div className="text-center text-white/50 text-[11px]">
-          <p>← → mover | ↑ girar | ↓ soft | Espaço = hard drop | C = hold</p>
+          <p>{t('controls.hint')}</p>
         </div>
       </div>
 
@@ -115,13 +117,13 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             disabled={gameOver}
             className="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPaused ? '▶️ Continuar' : '⏸️ Pausar'}
+            {isPaused ? t('controls.continue') : t('controls.pause')}
           </motion.button>
         </div>
 
         <div className="mt-4 text-center text-white/60 text-xs">
-          <p>🎮 Controles touch-friendly</p>
-          <p>💡 Use a sombra para planejar!</p>
+          <p>{t('controls.touchFriendly')}</p>
+          <p>{t('controls.useShadow')}</p>
         </div>
       </div>
     </div>
