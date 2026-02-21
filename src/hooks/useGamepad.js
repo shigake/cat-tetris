@@ -27,10 +27,12 @@ export const useGamepad = (gameActions = null) => {
   const [isGamepadActive, setIsGamepadActive] = useState(false);
 
   const lastInputTimeRef = useRef({});
-  const inputDelayRef = useRef(100);
+  const inputDelayRef = useRef(150);
   const lastButtonStatesRef = useRef({});
   const continuousInputRef = useRef({});
-  const firstInputDelayRef = useRef(200);
+  const firstInputDelayRef = useRef(300);
+  const TRIGGER_THRESHOLD = 0.5;
+  const STICK_DEADZONE = 0.5;
 
   useEffect(() => {
     const handleGamepadConnected = (e) => {
@@ -78,8 +80,9 @@ export const useGamepad = (gameActions = null) => {
     };
   }, []);
 
-  const getStickDirection = useCallback((x, y, deadzone = 0.3) => {
-    if (Math.abs(x) < deadzone && Math.abs(y) < deadzone) return null;
+  const getStickDirection = useCallback((x, y, deadzone) => {
+    const dz = deadzone ?? STICK_DEADZONE;
+    if (Math.abs(x) < dz && Math.abs(y) < dz) return null;
 
     if (Math.abs(x) > Math.abs(y)) {
       return x > 0 ? 'right' : 'left';
@@ -116,19 +119,19 @@ export const useGamepad = (gameActions = null) => {
 
       if (buttonPressed && !wasPressed) {
         continuousInputRef.current[actionKey] = true;
+        continuousInputRef.current[actionKey + '_start'] = now;
         lastInputTimeRef.current[actionKey] = now;
         executeMovementAction(action);
         return;
       }
 
       if (buttonPressed && wasPressed) {
-        const firstDelay = firstInputDelayRef.current;
-        const repeatDelay = inputDelayRef.current;
+        const timeSinceFirst = now - (continuousInputRef.current[actionKey + '_start'] || lastTime);
+        const delay = timeSinceFirst < firstInputDelayRef.current
+          ? firstInputDelayRef.current
+          : inputDelayRef.current;
 
-        const timeThreshold = (lastTime === lastInputTimeRef.current[actionKey] &&
-                             now - lastTime >= firstDelay) ? firstDelay : repeatDelay;
-
-        if (now - lastTime >= timeThreshold) {
+        if (now - lastTime >= delay) {
           lastInputTimeRef.current[actionKey] = now;
           executeMovementAction(action);
         }
@@ -137,6 +140,7 @@ export const useGamepad = (gameActions = null) => {
 
       if (!buttonPressed && wasPressed) {
         continuousInputRef.current[actionKey] = false;
+        continuousInputRef.current[actionKey + '_start'] = 0;
       }
     };
 
@@ -170,12 +174,15 @@ export const useGamepad = (gameActions = null) => {
         { button: BUTTON_MAPPINGS.FACE_BUTTON_TOP, action: () => rotatePiece?.() },          // Y/Triangle -> CW
         { button: BUTTON_MAPPINGS.BUMPER_LEFT, action: () => holdPiece?.() },                // LB/L1 -> Hold
         { button: BUTTON_MAPPINGS.BUMPER_RIGHT, action: () => holdPiece?.() },               // RB/R1 -> Hold
-        { button: BUTTON_MAPPINGS.TRIGGER_LEFT, action: () => rotatePieceLeft?.() },         // LT/L2 -> CCW
-        { button: BUTTON_MAPPINGS.TRIGGER_RIGHT, action: () => rotatePiece?.() },            // RT/R2 -> CW
+        { button: BUTTON_MAPPINGS.TRIGGER_LEFT, action: () => rotatePieceLeft?.(), isTrigger: true },  // LT/L2 -> CCW
+        { button: BUTTON_MAPPINGS.TRIGGER_RIGHT, action: () => rotatePiece?.(), isTrigger: true },   // RT/R2 -> CW
       ];
 
-      gameButtons.forEach(({ button, action }) => {
-        const pressed = gamepad.buttons[button]?.pressed;
+      gameButtons.forEach(({ button, action, isTrigger }) => {
+        // For analog triggers (L2/R2), use threshold instead of .pressed
+        const pressed = isTrigger
+          ? (gamepad.buttons[button]?.value ?? 0) > TRIGGER_THRESHOLD
+          : gamepad.buttons[button]?.pressed;
         const wasPressed = lastButtonStatesRef.current[button];
 
         currentButtonStates[button] = pressed;
@@ -193,12 +200,6 @@ export const useGamepad = (gameActions = null) => {
         triggerVibration(gamepad, BUTTON_MAPPINGS.DPAD_UP);
       }
       currentButtonStates[stickUpKey] = stickDir === 'up';
-
-      // Merge game button states
-      Object.assign(currentButtonStates, lastButtonStatesRef.current);
-      Object.keys(currentButtonStates).forEach(key => {
-        // Keep only current frame's data for game buttons
-      });
 
       lastButtonStatesRef.current = { ...lastButtonStatesRef.current, ...currentButtonStates };
     }
