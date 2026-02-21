@@ -1,30 +1,169 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Cabeça do gato -->
-  <circle cx="50" cy="45" r="25" fill="#FFB6C1" stroke="#FF69B4" stroke-width="2"/>
-  
-  <!-- Orelhas -->
-  <polygon points="30,25 35,15 45,25" fill="#FFB6C1" stroke="#FF69B4" stroke-width="1"/>
-  <polygon points="70,25 65,15 55,25" fill="#FFB6C1" stroke="#FF69B4" stroke-width="1"/>
-  
-  <!-- Olhos -->
-  <circle cx="42" cy="40" r="3" fill="#000"/>
-  <circle cx="58" cy="40" r="3" fill="#000"/>
-  
-  <!-- Nariz -->
-  <polygon points="50,45 48,50 52,50" fill="#FF69B4"/>
-  
-  <!-- Boca -->
-  <path d="M 45 55 Q 50 60 55 55" stroke="#000" stroke-width="1" fill="none"/>
-  
-  <!-- Bigodes -->
-  <line x1="25" y1="45" x2="35" y2="45" stroke="#000" stroke-width="1"/>
-  <line x1="25" y1="48" x2="35" y2="48" stroke="#000" stroke-width="1"/>
-  <line x1="75" y1="45" x2="65" y2="45" stroke="#000" stroke-width="1"/>
-  <line x1="75" y1="48" x2="65" y2="48" stroke="#000" stroke-width="1"/>
-  
-  <!-- Corpo -->
-  <ellipse cx="50" cy="75" rx="20" ry="15" fill="#FFB6C1" stroke="#FF69B4" stroke-width="2"/>
-  
-  <!-- Cauda -->
-  <path d="M 70 75 Q 85 65 80 85 Q 75 95 70 85" fill="#FFB6C1" stroke="#FF69B4" stroke-width="1"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+    <!-- Cat body gradient -->
+    <linearGradient id="catFur" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD5A0"/>
+      <stop offset="100%" style="stop-color:#FFB347"/>
+    </linearGradient>
+    <!-- Cat belly -->
+    <linearGradient id="belly" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF3E0"/>
+      <stop offset="100%" style="stop-color:#FFE0B2"/>
+    </linearGradient>
+    <!-- Glow -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded background -->
+  <rect width="512" height="512" rx="100" ry="100" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern (tetris feel) -->
+  <g opacity="0.06">
+    <line x1="128" y1="0" x2="128" y2="512" stroke="#fff" stroke-width="1"/>
+    <line x1="256" y1="0" x2="256" y2="512" stroke="#fff" stroke-width="1"/>
+    <line x1="384" y1="0" x2="384" y2="512" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="128" x2="512" y2="128" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="256" x2="512" y2="256" stroke="#fff" stroke-width="1"/>
+    <line x1="0" y1="384" x2="512" y2="384" stroke="#fff" stroke-width="1"/>
+  </g>
+
+  <!-- Tetris pieces in background -->
+  <!-- T-piece (purple) top-left -->
+  <g opacity="0.5" filter="url(#glow)">
+    <rect x="38" y="50" width="42" height="42" rx="6" fill="#9b59b6"/>
+    <rect x="80" y="50" width="42" height="42" rx="6" fill="#9b59b6"/>
+    <rect x="122" y="50" width="42" height="42" rx="6" fill="#9b59b6"/>
+    <rect x="80" y="8" width="42" height="42" rx="6" fill="#9b59b6"/>
+  </g>
+  <!-- S-piece (green) bottom-right -->
+  <g opacity="0.5" filter="url(#glow)">
+    <rect x="348" y="420" width="42" height="42" rx="6" fill="#2ecc71"/>
+    <rect x="390" y="420" width="42" height="42" rx="6" fill="#2ecc71"/>
+    <rect x="390" y="462" width="42" height="42" rx="6" fill="#2ecc71"/>
+    <rect x="432" y="462" width="42" height="42" rx="6" fill="#2ecc71"/>
+  </g>
+  <!-- L-piece (orange) top-right -->
+  <g opacity="0.4" filter="url(#glow)">
+    <rect x="380" y="65" width="36" height="36" rx="5" fill="#e67e22"/>
+    <rect x="380" y="101" width="36" height="36" rx="5" fill="#e67e22"/>
+    <rect x="380" y="137" width="36" height="36" rx="5" fill="#e67e22"/>
+    <rect x="416" y="137" width="36" height="36" rx="5" fill="#e67e22"/>
+  </g>
+  <!-- I-piece (cyan) bottom-left -->
+  <g opacity="0.4" filter="url(#glow)">
+    <rect x="40" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
+    <rect x="76" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
+    <rect x="112" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
+    <rect x="148" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
+  </g>
+
+  <!-- ===== CAT ===== -->
+  <g filter="url(#shadow)">
+    <!-- Cat ears -->
+    <polygon points="145,185 175,95 225,170" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+    <polygon points="367,185 337,95 287,170" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+    <!-- Inner ears -->
+    <polygon points="160,178 180,115 215,168" fill="#FFB6C1"/>
+    <polygon points="352,178 332,115 297,168" fill="#FFB6C1"/>
+
+    <!-- Cat head -->
+    <ellipse cx="256" cy="230" rx="115" ry="100" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+
+    <!-- Cat body -->
+    <ellipse cx="256" cy="370" rx="100" ry="80" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+    <!-- Belly -->
+    <ellipse cx="256" cy="375" rx="65" ry="55" fill="url(#belly)"/>
+
+    <!-- Tail -->
+    <path d="M 356 360 Q 410 310 420 350 Q 430 400 390 420" fill="none" stroke="url(#catFur)" stroke-width="22" stroke-linecap="round"/>
+    <path d="M 356 360 Q 410 310 420 350 Q 430 400 390 420" fill="none" stroke="#E8A020" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+    <!-- Tail tip darker -->
+    <circle cx="390" cy="418" r="12" fill="#E8A020" opacity="0.5"/>
+
+    <!-- Tabby stripes on forehead -->
+    <path d="M 230 175 Q 256 160 282 175" stroke="#D4891A" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.5"/>
+    <path d="M 220 190 Q 256 172 292 190" stroke="#D4891A" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
+
+    <!-- Eyes - big anime-style -->
+    <ellipse cx="215" cy="225" rx="28" ry="30" fill="#fff"/>
+    <ellipse cx="297" cy="225" rx="28" ry="30" fill="#fff"/>
+    <!-- Iris -->
+    <ellipse cx="220" cy="228" rx="18" ry="22" fill="#4CAF50"/>
+    <ellipse cx="292" cy="228" rx="18" ry="22" fill="#4CAF50"/>
+    <!-- Pupil -->
+    <ellipse cx="222" cy="230" rx="10" ry="15" fill="#1B5E20"/>
+    <ellipse cx="290" cy="230" rx="10" ry="15" fill="#1B5E20"/>
+    <!-- Eye highlights -->
+    <circle cx="228" cy="218" r="7" fill="#fff" opacity="0.9"/>
+    <circle cx="296" cy="218" r="7" fill="#fff" opacity="0.9"/>
+    <circle cx="215" cy="235" r="4" fill="#fff" opacity="0.5"/>
+    <circle cx="285" cy="235" r="4" fill="#fff" opacity="0.5"/>
+
+    <!-- Nose -->
+    <ellipse cx="256" cy="260" rx="10" ry="7" fill="#FF8A80"/>
+    <!-- Nose highlight -->
+    <ellipse cx="254" cy="258" rx="4" ry="3" fill="#FFB6C1" opacity="0.6"/>
+
+    <!-- Mouth -->
+    <path d="M 245 268 Q 250 278 256 268" stroke="#8D6E63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M 256 268 Q 262 278 267 268" stroke="#8D6E63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Tongue peeking out -->
+    <ellipse cx="256" cy="277" rx="6" ry="4" fill="#FF8A80" opacity="0.7"/>
+
+    <!-- Whiskers -->
+    <line x1="120" y1="245" x2="185" y2="255" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="125" y1="260" x2="185" y2="262" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="130" y1="275" x2="188" y2="270" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="392" y1="245" x2="327" y2="255" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="387" y1="260" x2="327" y2="262" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="382" y1="275" x2="324" y2="270" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+
+    <!-- Cheek blush -->
+    <circle cx="185" cy="256" r="18" fill="#FF8A80" opacity="0.25"/>
+    <circle cx="327" cy="256" r="18" fill="#FF8A80" opacity="0.25"/>
+
+    <!-- Paws holding a T-piece! -->
+    <!-- Left paw -->
+    <ellipse cx="185" cy="385" rx="28" ry="18" fill="url(#catFur)" stroke="#E8A020" stroke-width="2"/>
+    <circle cx="175" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="188" cy="393" r="6" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="200" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
+    <!-- Right paw -->
+    <ellipse cx="327" cy="385" rx="28" ry="18" fill="url(#catFur)" stroke="#E8A020" stroke-width="2"/>
+    <circle cx="317" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="330" cy="393" r="6" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="343" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
+
+    <!-- T-piece the cat is holding -->
+    <g filter="url(#glow)">
+      <rect x="210" y="395" width="30" height="30" rx="5" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+      <rect x="240" y="395" width="30" height="30" rx="5" fill="#af7ac5" stroke="#7d3c98" stroke-width="2"/>
+      <rect x="270" y="395" width="30" height="30" rx="5" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+      <rect x="240" y="425" width="30" height="30" rx="5" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+      <!-- Block shine -->
+      <rect x="214" y="399" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
+      <rect x="244" y="399" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
+      <rect x="274" y="399" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
+      <rect x="244" y="429" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
+    </g>
+  </g>
+
+  <!-- Sparkles -->
+  <g fill="#FFD700" opacity="0.8">
+    <polygon points="80,300 84,290 88,300 84,310" transform="rotate(22,84,300)"/>
+    <polygon points="430,200 434,190 438,200 434,210" transform="rotate(-15,434,200)"/>
+    <polygon points="100,150 103,143 106,150 103,157" transform="rotate(10,103,150)"/>
+    <polygon points="420,330 423,323 426,330 423,337"/>
+  </g>
 </svg> 
