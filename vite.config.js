@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['cat-icon.svg', 'sounds/*.mp3'],
+      includeAssets: ['cat-icon.svg', 'sounds/*.mp3', 'icons/*.png'],
       manifest: {
         name: 'Cat Tetris - Jogo de Tetris com Gatos',
         short_name: 'Cat Tetris',
@@ -16,14 +16,79 @@ export default defineConfig({
         theme_color: '#764ba2',
         background_color: '#667eea',
         display: 'standalone',
-        scope: '/',
-        start_url: '/',
+        orientation: 'portrait-primary',
+        lang: 'pt-BR',
+        scope: '/cat-tetris/',
+        start_url: '/cat-tetris/',
+        categories: ['games', 'entertainment'],
         icons: [
           {
-            src: '/cat-icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
+            src: 'icons/icon-48x48.png',
+            sizes: '48x48',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-72x72.png',
+            sizes: '72x72',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-128x128.png',
+            sizes: '128x128',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-144x144.png',
+            sizes: '144x144',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-384x384.png',
+            sizes: '384x384',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'icons/maskable-icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: 'icons/maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'Novo Jogo',
+            short_name: 'Jogar',
+            description: 'Iniciar um novo jogo de Cat Tetris',
+            url: '/cat-tetris/?action=new-game'
           }
         ]
       },
