@@ -27,10 +27,10 @@ export const useGamepad = (gameActions = null) => {
   const [isGamepadActive, setIsGamepadActive] = useState(false);
 
   const lastInputTimeRef = useRef({});
-  const inputDelayRef = useRef(150);
+  const inputDelayRef = useRef(33);
   const lastButtonStatesRef = useRef({});
   const continuousInputRef = useRef({});
-  const firstInputDelayRef = useRef(300);
+  const firstInputDelayRef = useRef(167);
   const TRIGGER_THRESHOLD = 0.5;
   const STICK_DEADZONE = 0.5;
 
