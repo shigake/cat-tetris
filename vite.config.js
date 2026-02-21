@@ -136,7 +136,13 @@ export default defineConfig({
             url: 'url'
           }
         },
-        related_applications: [],
+        related_applications: [
+          {
+            platform: 'webapp',
+            url: 'https://shigake.github.io/cat-tetris/',
+            id: '/cat-tetris/'
+          }
+        ],
         edge_side_panel: {
           preferred_width: 400
         },
