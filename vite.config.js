@@ -8,6 +8,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      srcDir: 'src',
+      filename: 'sw.js',
+      strategies: 'injectManifest',
       includeAssets: ['cat-icon.svg', 'sounds/*.mp3', 'icons/*.png', 'screenshots/*.png', 'offline.html'],
       manifest: {
         name: 'Cat Tetris - Jogo de Tetris com Gatos',
@@ -16,14 +19,15 @@ export default defineConfig({
         theme_color: '#764ba2',
         background_color: '#667eea',
         display: 'standalone',
+        display_override: ['window-controls-overlay', 'tabbed', 'standalone'],
         orientation: 'portrait-primary',
         lang: 'pt-BR',
         dir: 'ltr',
         scope: '/cat-tetris/',
         start_url: '/cat-tetris/',
         id: '/cat-tetris/',
-        categories: ['games', 'entertainment'],
-        iarc_rating_id: '',
+        categories: ['games', 'entertainment', 'puzzle'],
+        iarc_rating_id: 'e84b072d-71b3-4d3e-86ae-31a8ce4e53b7',
         prefer_related_applications: false,
         launch_handler: {
           client_mode: 'navigate-existing'
@@ -120,7 +124,7 @@ export default defineConfig({
             short_name: 'Jogar',
             description: 'Iniciar um novo jogo de Cat Tetris',
             url: '/cat-tetris/?action=new-game',
-            icons: [{ src: 'icons/icon-96x96.png', sizes: '96x96' }]
+            icons: [{ src: 'icons/icon-96x96.png', sizes: '96x96', type: 'image/png' }]
           }
         ],
         share_target: {
@@ -135,43 +139,52 @@ export default defineConfig({
         related_applications: [],
         edge_side_panel: {
           preferred_width: 400
-        }
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
-        navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api/],
-        runtimeCaching: [
+        },
+        protocol_handlers: [
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 30 * 24 * 60 * 60
-              }
-            }
-          },
+            protocol: 'web+cattetris',
+            url: '/cat-tetris/?game=%s'
+          }
+        ],
+        scope_extensions: [
+          { origin: '*.github.io' }
+        ],
+        file_handlers: [
           {
-            urlPattern: /\.(?:mp3|wav|ogg)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'audio',
-              expiration: {
-                maxEntries: 20,
-                maxAgeSeconds: 30 * 24 * 60 * 60
-              }
-            }
-          },
-          {
-            urlPattern: /\.(?:js|css)$/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'static-resources'
+            action: '/cat-tetris/',
+            accept: {
+              'application/json': ['.json']
             }
           }
-        ]
+        ],
+        widgets: [
+          {
+            name: 'Cat Tetris Score',
+            tag: 'cat-tetris-score',
+            ms_ac_template: 'widget/score',
+            data: '/cat-tetris/',
+            description: 'Mostra sua pontuação mais alta no Cat Tetris',
+            screenshots: [
+              {
+                src: 'screenshots/desktop-1.png',
+                sizes: '1920x1080',
+                label: 'Widget de pontuação'
+              }
+            ],
+            icons: [
+              {
+                src: 'icons/icon-96x96.png',
+                sizes: '96x96'
+              }
+            ]
+          }
+        ],
+        note_taking: {
+          new_note_url: '/cat-tetris/'
+        }
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}']
       },
       devOptions: {
         enabled: true

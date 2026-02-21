@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
+define(['./workbox-c5f6b949'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,11 +82,30 @@ define(['./workbox-54d0af47'], (function (workbox) { 'use strict';
     "revision": "51cda69969f4b7836580d3de0898756d"
   }, {
     "url": "index.html",
-    "revision": "0.eqo7ss8n4lg"
+    "revision": "0.htbhbviolig"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
+    allowlist: [/^\/$/],
+    denylist: [/^\/api/]
   }));
+  workbox.registerRoute(/\.(?:png|jpg|jpeg|svg|gif|webp)$/, new workbox.CacheFirst({
+    "cacheName": "images",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 60,
+      maxAgeSeconds: 2592000
+    })]
+  }), 'GET');
+  workbox.registerRoute(/\.(?:mp3|wav|ogg)$/, new workbox.CacheFirst({
+    "cacheName": "audio",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 20,
+      maxAgeSeconds: 2592000
+    })]
+  }), 'GET');
+  workbox.registerRoute(/\.(?:js|css)$/, new workbox.StaleWhileRevalidate({
+    "cacheName": "static-resources",
+    plugins: []
+  }), 'GET');
 
 }));
