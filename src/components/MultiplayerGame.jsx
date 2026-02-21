@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { serviceContainer } from '../core/container/ServiceRegistration';
 import { GameService } from '../core/services/GameService';
@@ -9,6 +9,8 @@ import TetrisBoard from './TetrisBoard';
 import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
+import GamepadIndicator from './GamepadIndicator';
+import { useGamepad } from '../hooks/useGamepad';
 
 function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onExit }) {
   const [player1State, setPlayer1State] = useState(null);
@@ -200,6 +202,46 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
     return () => window.removeEventListener('keydown', handle);
   }, [winner]);
 
+  // Gamepad support for multiplayer (Player 1 controls)
+  const gamepadP1Actions = React.useMemo(() => {
+    if (winner || mode === 'aiVsAI') return null;
+    return {
+      movePiece: (dir) => {
+        const p1 = servicesRef.current.p1;
+        if (p1 && !p1.gameOver) p1.movePiece(dir);
+      },
+      rotatePiece: () => {
+        const p1 = servicesRef.current.p1;
+        if (p1 && !p1.gameOver) p1.rotatePiece();
+      },
+      rotatePieceLeft: () => {
+        const p1 = servicesRef.current.p1;
+        if (p1 && !p1.gameOver) p1.rotatePiece('left');
+      },
+      hardDrop: () => {
+        const p1 = servicesRef.current.p1;
+        if (p1 && !p1.gameOver) p1.hardDrop();
+      },
+      holdPiece: () => {
+        const p1 = servicesRef.current.p1;
+        if (p1 && !p1.gameOver) p1.holdPiece();
+      },
+      isGameOver: () => {
+        const p1 = servicesRef.current.p1;
+        return p1?.gameOver ?? false;
+      },
+      backToMenu: onExit
+    };
+  }, [winner, mode, onExit]);
+
+  const { isGamepadActive, controllerCount, processGamepadInput, getGamepadInfo } = useGamepad(gamepadP1Actions);
+
+  useEffect(() => {
+    if (!isGamepadActive || winner || mode === 'aiVsAI') return;
+    const interval = setInterval(() => processGamepadInput(), 16);
+    return () => clearInterval(interval);
+  }, [isGamepadActive, winner, mode, processGamepadInput]);
+
 
 
   const p1DropPreview = React.useMemo(() => {
@@ -222,6 +264,14 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
 
   return (
     <div className="h-screen flex flex-col items-center bg-gradient-to-br from-purple-900 to-blue-900 p-2 overflow-hidden">
+
+      {isGamepadActive && (
+        <GamepadIndicator
+          isConnected={isGamepadActive}
+          controllerCount={controllerCount}
+          gamepadInfo={getGamepadInfo()}
+        />
+      )}
 
       <div className="flex justify-between items-center w-full max-w-5xl mb-2">
         <h1 className="text-xl sm:text-2xl font-bold text-white">

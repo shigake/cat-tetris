@@ -410,12 +410,38 @@ function GameComponent() {
   }, []);
   const { settings, updateSettings } = useSettings();
   const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
+
+  // Enhanced actions for gamepad: adds togglePause, isGameOver, backToMenu
+  const gamepadActions = React.useMemo(() => {
+    if (!actions) return null;
+    return {
+      ...actions,
+      togglePause: () => {
+        if (gameState?.isPaused) {
+          actions.resume?.();
+        } else {
+          actions.pause?.();
+        }
+      },
+      isGameOver: () => gameState?.gameOver ?? false,
+      backToMenu: () => {
+        setCurrentScreen('menu');
+        if (settings?.soundEnabled) {
+          startBackgroundMusic?.();
+        }
+        if (gameState && !gameState.gameOver) {
+          actions.pause();
+        }
+      }
+    };
+  }, [actions, gameState?.isPaused, gameState?.gameOver, settings?.soundEnabled, startBackgroundMusic]);
+
   const {
     isGamepadActive,
     controllerCount,
     processGamepadInput,
     getGamepadInfo
-  } = useGamepad(actions);
+  } = useGamepad(gamepadActions);
 
   useMissions();
   useStatistics();
@@ -473,7 +499,7 @@ function GameComponent() {
   }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
 
   React.useEffect(() => {
-    if (isGamepadActive && currentScreen === 'game') {
+    if (isGamepadActive && (currentScreen === 'game' || currentScreen === 'menu')) {
       const gamepadInterval = setInterval(() => {
         processGamepadInput();
       }, 16);

@@ -6,20 +6,20 @@ const BUTTON_MAPPINGS = {
   DPAD_LEFT: 14,
   DPAD_RIGHT: 15,
 
-  FACE_BUTTON_BOTTOM: 0,
-  FACE_BUTTON_RIGHT: 1,
-  FACE_BUTTON_LEFT: 2,
-  FACE_BUTTON_TOP: 3,
+  FACE_BUTTON_BOTTOM: 0,  // A (Xbox) / X (PS)
+  FACE_BUTTON_RIGHT: 1,   // B (Xbox) / Circle (PS)
+  FACE_BUTTON_LEFT: 2,    // X (Xbox) / Square (PS)
+  FACE_BUTTON_TOP: 3,     // Y (Xbox) / Triangle (PS)
 
-  BUMPER_LEFT: 4,
-  BUMPER_RIGHT: 5,
-  TRIGGER_LEFT: 6,
-  TRIGGER_RIGHT: 7,
+  BUMPER_LEFT: 4,          // LB / L1
+  BUMPER_RIGHT: 5,         // RB / R1
+  TRIGGER_LEFT: 6,         // LT / L2
+  TRIGGER_RIGHT: 7,        // RT / R2
 
-  BUTTON_BACK: 8,
-  BUTTON_START: 9,
-  STICK_LEFT: 10,
-  STICK_RIGHT: 11
+  BUTTON_BACK: 8,          // Back / Select / Share
+  BUTTON_START: 9,         // Start / Options
+  STICK_LEFT: 10,          // L3
+  STICK_RIGHT: 11          // R3
 };
 
 export const useGamepad = (gameActions = null) => {
@@ -34,20 +34,25 @@ export const useGamepad = (gameActions = null) => {
 
   useEffect(() => {
     const handleGamepadConnected = (e) => {
-      setConnectedGamepads(prev => [...prev, e.gamepad]);
+      setConnectedGamepads(prev => {
+        if (prev.some(gp => gp.index === e.gamepad.index)) return prev;
+        return [...prev, e.gamepad];
+      });
       setIsGamepadActive(true);
 
-      if (e.gamepad.vibrationActuator) {
-        e.gamepad.vibrationActuator.playEffect('dual-rumble', {
-          duration: 200,
-          strongMagnitude: 0.5,
-          weakMagnitude: 0.5
-        });
-      }
+      try {
+        if (e.gamepad.vibrationActuator) {
+          e.gamepad.vibrationActuator.playEffect('dual-rumble', {
+            duration: 200,
+            strongMagnitude: 0.5,
+            weakMagnitude: 0.5
+          });
+        }
+      } catch (err) { /* vibration not supported */ }
     };
 
     const handleGamepadDisconnected = (e) => {
-      setConnectedGamepads(prev => prev.filter(gp => gp.id !== e.gamepad.id));
+      setConnectedGamepads(prev => prev.filter(gp => gp.index !== e.gamepad.index));
 
       const remainingGamepads = navigator.getGamepads().filter(gp => gp && gp.connected);
       setIsGamepadActive(remainingGamepads.length > 0);
@@ -94,11 +99,15 @@ export const useGamepad = (gameActions = null) => {
     if (!gamepad) return;
 
     const now = Date.now();
-    const { movePiece, rotatePiece, rotatePieceLeft, hardDrop, holdPiece, pause } = gameActions;
+    const { movePiece, rotatePiece, rotatePieceLeft, hardDrop, holdPiece, pause, resume, togglePause } = gameActions;
 
+    // Guard: if no movePiece, actions not available yet
     if (!movePiece) {
       return;
     }
+
+    // Guard: don't process game actions if game is over (except pause/back)
+    const isGameOver = gameActions.isGameOver?.() ?? false;
 
     const checkMovement = (action, buttonPressed) => {
       const actionKey = `movement_${action}`;
@@ -137,64 +146,126 @@ export const useGamepad = (gameActions = null) => {
       }
     };
 
-    const leftPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_LEFT]?.pressed ||
-                       getStickDirection(gamepad.axes[0], gamepad.axes[1]) === 'left';
-    const rightPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_RIGHT]?.pressed ||
-                        getStickDirection(gamepad.axes[0], gamepad.axes[1]) === 'right';
-    const downPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_DOWN]?.pressed ||
-                       getStickDirection(gamepad.axes[0], gamepad.axes[1]) === 'down';
+    // Movement: only when game is active
+    if (!isGameOver) {
+      const stickDir = getStickDirection(gamepad.axes[0], gamepad.axes[1]);
 
-    checkMovement('left', leftPressed);
-    checkMovement('right', rightPressed);
-    checkMovement('down', downPressed);
+      const leftPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_LEFT]?.pressed || stickDir === 'left';
+      const rightPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_RIGHT]?.pressed || stickDir === 'right';
+      const downPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_DOWN]?.pressed || stickDir === 'down';
+      const upPressed = gamepad.buttons[BUTTON_MAPPINGS.DPAD_UP]?.pressed || stickDir === 'up';
 
-    const currentButtonStates = {};
+      checkMovement('left', leftPressed);
+      checkMovement('right', rightPressed);
+      checkMovement('down', downPressed);
 
-    [
-      { button: BUTTON_MAPPINGS.DPAD_UP, action: () => hardDrop?.() },
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM, action: () => rotatePiece?.() },
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_RIGHT, action: () => rotatePieceLeft?.() },
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_LEFT, action: () => rotatePiece?.() },
-      { button: BUTTON_MAPPINGS.FACE_BUTTON_TOP, action: () => rotatePiece?.() },
-      { button: BUTTON_MAPPINGS.BUMPER_LEFT, action: () => holdPiece?.() },
-      { button: BUTTON_MAPPINGS.BUMPER_RIGHT, action: () => holdPiece?.() },
-      { button: BUTTON_MAPPINGS.BUTTON_START, action: () => pause?.() }
-    ].forEach(({ button, action }) => {
+      // Hard drop from D-Pad Up or stick up (one-shot, not continuous)
+      const currentButtonStates = {};
+
+      const gameButtons = [
+        { button: BUTTON_MAPPINGS.DPAD_UP, action: () => hardDrop?.() },
+        { button: BUTTON_MAPPINGS.FACE_BUTTON_BOTTOM, action: () => rotatePiece?.() },      // A/X -> CW
+        { button: BUTTON_MAPPINGS.FACE_BUTTON_RIGHT, action: () => rotatePieceLeft?.() },    // B/Circle -> CCW
+        { button: BUTTON_MAPPINGS.FACE_BUTTON_LEFT, action: () => rotatePiece?.() },         // X/Square -> CW
+        { button: BUTTON_MAPPINGS.FACE_BUTTON_TOP, action: () => rotatePiece?.() },          // Y/Triangle -> CW
+        { button: BUTTON_MAPPINGS.BUMPER_LEFT, action: () => holdPiece?.() },                // LB/L1 -> Hold
+        { button: BUTTON_MAPPINGS.BUMPER_RIGHT, action: () => holdPiece?.() },               // RB/R1 -> Hold
+        { button: BUTTON_MAPPINGS.TRIGGER_LEFT, action: () => rotatePieceLeft?.() },         // LT/L2 -> CCW
+        { button: BUTTON_MAPPINGS.TRIGGER_RIGHT, action: () => rotatePiece?.() },            // RT/R2 -> CW
+      ];
+
+      gameButtons.forEach(({ button, action }) => {
+        const pressed = gamepad.buttons[button]?.pressed;
+        const wasPressed = lastButtonStatesRef.current[button];
+
+        currentButtonStates[button] = pressed;
+
+        if (pressed && !wasPressed) {
+          action();
+          triggerVibration(gamepad, button);
+        }
+      });
+
+      // Also check analog stick up as hard drop (one-shot)
+      const stickUpKey = 'stick_up_hardDrop';
+      if (stickDir === 'up' && !lastButtonStatesRef.current[stickUpKey]) {
+        hardDrop?.();
+        triggerVibration(gamepad, BUTTON_MAPPINGS.DPAD_UP);
+      }
+      currentButtonStates[stickUpKey] = stickDir === 'up';
+
+      // Merge game button states
+      Object.assign(currentButtonStates, lastButtonStatesRef.current);
+      Object.keys(currentButtonStates).forEach(key => {
+        // Keep only current frame's data for game buttons
+      });
+
+      lastButtonStatesRef.current = { ...lastButtonStatesRef.current, ...currentButtonStates };
+    }
+
+    // System buttons: always active (Start = toggle pause, Back = back to menu)
+    const systemButtons = [
+      {
+        button: BUTTON_MAPPINGS.BUTTON_START,
+        action: () => {
+          if (togglePause) {
+            togglePause();
+          } else if (pause) {
+            pause();
+          }
+        }
+      },
+      {
+        button: BUTTON_MAPPINGS.BUTTON_BACK,
+        action: () => {
+          if (gameActions.backToMenu) {
+            gameActions.backToMenu();
+          }
+        }
+      }
+    ];
+
+    systemButtons.forEach(({ button, action }) => {
       const pressed = gamepad.buttons[button]?.pressed;
       const wasPressed = lastButtonStatesRef.current[button];
 
-      currentButtonStates[button] = pressed;
+      lastButtonStatesRef.current[button] = pressed;
 
       if (pressed && !wasPressed) {
         action();
-
-        if (gamepad.vibrationActuator) {
-          const intensity = button === BUTTON_MAPPINGS.DPAD_UP ? 0.3 : 0.1;
-          gamepad.vibrationActuator.playEffect('dual-rumble', {
-            duration: 50,
-            strongMagnitude: intensity,
-            weakMagnitude: intensity * 0.5
-          });
-        }
+        triggerVibration(gamepad, button);
       }
     });
 
-    lastButtonStatesRef.current = currentButtonStates;
   }, [isGamepadActive, getStickDirection, gameActions]);
+
+  const triggerVibration = useCallback((gamepad, button) => {
+    try {
+      if (gamepad.vibrationActuator) {
+        const isHardDrop = button === BUTTON_MAPPINGS.DPAD_UP;
+        gamepad.vibrationActuator.playEffect('dual-rumble', {
+          duration: isHardDrop ? 80 : 50,
+          strongMagnitude: isHardDrop ? 0.3 : 0.1,
+          weakMagnitude: isHardDrop ? 0.15 : 0.05
+        });
+      }
+    } catch (err) { /* vibration not supported (Firefox, etc.) */ }
+  }, []);
 
   const getGamepadInfo = useCallback(() => {
     const gamepads = navigator.getGamepads();
-    const gamepad = Array.from(gamepads).find(gp => gp && gp.connected);
+    const connectedPads = Array.from(gamepads).filter(gp => gp && gp.connected);
 
-    if (!gamepad) return null;
+    if (connectedPads.length === 0) return [];
 
-    return {
-      id: gamepad.id,
-      index: gamepad.index,
-      connected: gamepad.connected,
-      buttonsCount: gamepad.buttons.length,
-      axesCount: gamepad.axes.length
-    };
+    return connectedPads.map(gp => ({
+      id: gp.id,
+      index: gp.index,
+      connected: gp.connected,
+      buttons: gp.buttons.length,
+      axes: gp.axes.length,
+      vibration: !!gp.vibrationActuator
+    }));
   }, []);
 
   return {

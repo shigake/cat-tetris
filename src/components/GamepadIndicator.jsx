@@ -83,8 +83,12 @@ const GamepadIndicator = ({
                     <div className="text-gray-400">Hard Drop</div>
                   </div>
                   <div>
-                    <span className="text-yellow-400">A/B/X/Y</span>
-                    <div className="text-gray-400">Girar</div>
+                    <span className="text-yellow-400">A/X/Y</span>
+                    <div className="text-gray-400">Girar →</div>
+                  </div>
+                  <div>
+                    <span className="text-yellow-400">B</span>
+                    <div className="text-gray-400">Girar ←</div>
                   </div>
                   <div>
                     <span className="text-yellow-400">L/R</span>
@@ -101,14 +105,17 @@ const GamepadIndicator = ({
                     ✨ Analog Stick Esquerdo também funciona!
                   </div>
                   <div className="text-blue-400 text-xs">
-                    🔄 Gatilhos L2/R2 para rotação
+                    🔄 L2/R2 também giram a peça
+                  </div>
+                  <div className="text-purple-400 text-xs">
+                    ⬅️ Back/Select = Voltar ao menu
                   </div>
                 </div>
 
-                {gamepadInfo && gamepadInfo.length > 0 && (
+                {gamepadInfo && (Array.isArray(gamepadInfo) ? gamepadInfo : [gamepadInfo]).length > 0 && (
                   <div className="mt-2 pt-2 border-t border-gray-700">
                     <div className="text-xs text-gray-400">
-                      {gamepadInfo.map((gp, index) => (
+                      {(Array.isArray(gamepadInfo) ? gamepadInfo : [gamepadInfo]).map((gp, index) => (
                         <div key={index} className="mb-1">
                           <div className="font-semibold text-white">
                             Controle {gp.index + 1}:
