@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useMultiplayer } from '../hooks/useMultiplayer';
 import { useAIOpponent } from '../hooks/useAIOpponent';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function MultiplayerPanel({ onClose, onStartMatch }) {
   const { getAvailableModes, stats, startLocalMatch, startAIMatch, startAIvsAIMatch } = useMultiplayer();
   const { getDifficulties } = useAIOpponent();
 
   const [selectedMode, setSelectedMode] = useState(null);
+
+  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
   const [player1Name, setPlayer1Name] = useState('Jogador 1');
   const [player2Name, setPlayer2Name] = useState('Jogador 2');
   const [aiDifficulty, setAiDifficulty] = useState('medium');

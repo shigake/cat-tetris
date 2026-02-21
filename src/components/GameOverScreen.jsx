@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { motion } from 'framer-motion';
 import ShareButtons from './ShareButtons';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
 
   const scoreValue = typeof score === 'number' ? score : score.points;
   const level = typeof score === 'object' ? score.level : 1;
   const lines = typeof score === 'object' ? score.lines : 0;
+
+  const gameOverActions = [onRestart, onBackToMenu];
+  const handleConfirm = useCallback((index) => {
+    gameOverActions[index]?.();
+  }, [onRestart, onBackToMenu]);
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount: 2,
+    onConfirm: handleConfirm,
+    active: true,
+    wrap: true,
+  });
 
   const getMotivationalMessage = (score) => {
     if (score < 1000) return "Não desista! Cada tentativa te torna melhor! 😸";
@@ -96,7 +109,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
               onClick={(e) => { e.stopPropagation(); onRestart(); }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300 shadow-lg"
+              className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-400 hover:to-emerald-500 transition-all duration-300 shadow-lg ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900 scale-105' : ''}`}
             >
               🎮 Jogar Novamente
             </motion.button>
@@ -105,7 +118,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
               onClick={(e) => { e.stopPropagation(); onBackToMenu(); }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-400 hover:to-cyan-500 transition-all duration-300 shadow-lg"
+              className={`w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white font-bold py-3 px-6 rounded-lg hover:from-blue-400 hover:to-cyan-500 transition-all duration-300 shadow-lg ${selectedIndex === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900 scale-105' : ''}`}
             >
               🏠 Voltar ao Menu
             </motion.button>

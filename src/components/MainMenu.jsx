@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useMenuSounds } from '../hooks/useMenuSounds';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 import CurrencyDisplay from './CurrencyDisplay';
 
 export default function MainMenu({
@@ -27,6 +28,44 @@ export default function MainMenu({
     if (soundEnabled) sounds.playMenuSelect?.();
     fn?.();
   }, [soundEnabled, sounds]);
+
+  // Build menu items list for gamepad navigation
+  const menuItems = useMemo(() => {
+    const items = [];
+    if (hasActiveGame) {
+      items.push({ label: 'Continuar', action: onStartGame });
+      items.push({ label: 'Novo Jogo', action: onNewGame });
+    } else {
+      items.push({ label: 'Jogar', action: onStartGame });
+    }
+    items.push({ label: 'VS IA', action: onShowMultiplayer });
+    items.push({ label: 'Tutorial', action: onShowTutorialHub });
+    items.push({ label: 'Criador', action: onShowCreatorMode });
+    items.push({ label: 'IA Expert', action: onShowAIShowcase });
+    items.push({ label: 'Loja', action: onShowShop });
+    items.push({ label: 'Missões', action: onShowMissions });
+    items.push({ label: 'Conquistas', action: onShowAchievements });
+    items.push({ label: 'Config', action: onShowSettings });
+    return items;
+  }, [hasActiveGame, onStartGame, onNewGame, onShowMultiplayer, onShowTutorialHub, onShowCreatorMode, onShowAIShowcase, onShowShop, onShowMissions, onShowAchievements, onShowSettings]);
+
+  const handleGamepadConfirm = useCallback((index) => {
+    if (menuItems[index]) {
+      play(menuItems[index].action);
+    }
+  }, [menuItems, play]);
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount: menuItems.length,
+    onConfirm: handleGamepadConfirm,
+    active: true,
+    wrap: true,
+  });
+
+  // Helper to check if a menu item is selected by gamepad
+  const isSelected = useCallback((label) => {
+    return menuItems[selectedIndex]?.label === label;
+  }, [menuItems, selectedIndex]);
 
   useEffect(() => {
     const handle = (e) => {
@@ -71,7 +110,7 @@ export default function MainMenu({
             <>
               <button
                 onClick={() => play(onStartGame)}
-                className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150"
+                className={`w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150 ${isSelected('Continuar') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
               >
                 ▶ Continuar
                 <span className="block text-emerald-100/70 text-xs font-normal mt-0.5">
@@ -80,7 +119,7 @@ export default function MainMenu({
               </button>
               <button
                 onClick={() => play(onNewGame)}
-                className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150"
+                className={`w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150 ${isSelected('Novo Jogo') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
               >
                 Novo Jogo
               </button>
@@ -88,7 +127,7 @@ export default function MainMenu({
           ) : (
             <button
               onClick={() => play(onStartGame)}
-              className="w-full py-5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150"
+              className={`w-full py-5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 ${isSelected('Jogar') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
             >
               🎮 Jogar
             </button>
@@ -96,17 +135,17 @@ export default function MainMenu({
         </motion.div>
 
         <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-2 gap-2 mb-4">
-          <MenuCard icon="⚔️" label="VS IA"      sub="Desafie o bot"      onClick={() => play(onShowMultiplayer)} />
-          <MenuCard icon="📚" label="Tutorial"   sub="Aprenda a jogar"    onClick={() => play(onShowTutorialHub)} />
-          <MenuCard icon="🎨" label="Criador"    sub="Treine T-Spins"     onClick={() => play(onShowCreatorMode)} />
-          <MenuCard icon="🤖" label="IA Expert"  sub="Assista a IA jogar" onClick={() => play(onShowAIShowcase)} />
+          <MenuCard icon="⚔️" label="VS IA"      sub="Desafie o bot"      onClick={() => play(onShowMultiplayer)} selected={isSelected('VS IA')} />
+          <MenuCard icon="📚" label="Tutorial"   sub="Aprenda a jogar"    onClick={() => play(onShowTutorialHub)} selected={isSelected('Tutorial')} />
+          <MenuCard icon="🎨" label="Criador"    sub="Treine T-Spins"     onClick={() => play(onShowCreatorMode)} selected={isSelected('Criador')} />
+          <MenuCard icon="🤖" label="IA Expert"  sub="Assista a IA jogar" onClick={() => play(onShowAIShowcase)} selected={isSelected('IA Expert')} />
         </motion.div>
 
         <motion.div {...fadeUp(0.25)} className="w-full grid grid-cols-4 gap-1 mb-4">
-          <QuickBtn icon="🛍️" label="Loja"       onClick={() => play(onShowShop)} />
-          <QuickBtn icon="📋" label="Missões"     onClick={() => play(onShowMissions)} />
-          <QuickBtn icon="🏅" label="Conquistas"  onClick={() => play(onShowAchievements)} />
-          <QuickBtn icon="⚙️" label="Config"      onClick={() => play(onShowSettings)} />
+          <QuickBtn icon="🛍️" label="Loja"       onClick={() => play(onShowShop)} selected={isSelected('Loja')} />
+          <QuickBtn icon="📋" label="Missões"     onClick={() => play(onShowMissions)} selected={isSelected('Missões')} />
+          <QuickBtn icon="🏅" label="Conquistas"  onClick={() => play(onShowAchievements)} selected={isSelected('Conquistas')} />
+          <QuickBtn icon="⚙️" label="Config"      onClick={() => play(onShowSettings)} selected={isSelected('Config')} />
         </motion.div>
 
         <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
@@ -133,11 +172,11 @@ export default function MainMenu({
   );
 }
 
-function MenuCard({ icon, label, sub, onClick }) {
+function MenuCard({ icon, label, sub, onClick, selected }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center text-center p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150"
+      className={`flex flex-col items-center text-center p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150 ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.12] border-yellow-400/30 scale-[1.03]' : ''}`}
     >
       <span className="text-2xl mb-1">{icon}</span>
       <span className="text-white font-semibold text-sm leading-tight">{label}</span>
@@ -146,11 +185,11 @@ function MenuCard({ icon, label, sub, onClick }) {
   );
 }
 
-function QuickBtn({ icon, label, onClick }) {
+function QuickBtn({ icon, label, onClick, selected }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-1 px-2 py-2 rounded-lg hover:bg-white/[0.07] active:scale-95 transition-all duration-150"
+      className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg hover:bg-white/[0.07] active:scale-95 transition-all duration-150 ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.1] scale-105' : ''}`}
     >
       <span className="text-lg">{icon}</span>
       <span className="text-white/40 text-[10px] leading-none">{label}</span>

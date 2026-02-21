@@ -498,15 +498,19 @@ function GameComponent() {
     };
   }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
 
+  // Track if any overlay is open — suppresses game gamepad input
+  const hasOverlayOpen = showSettings || showShop || showMissions || showAchievements ||
+    showGameModes || showMultiplayer || showTutorialHub || showPWAPrompt;
+
   React.useEffect(() => {
-    if (isGamepadActive && (currentScreen === 'game' || currentScreen === 'menu')) {
+    if (isGamepadActive && currentScreen === 'game' && !hasOverlayOpen && !gameState?.gameOver) {
       const gamepadInterval = setInterval(() => {
         processGamepadInput();
       }, 16);
 
       return () => clearInterval(gamepadInterval);
     }
-  }, [isGamepadActive, currentScreen, processGamepadInput]);
+  }, [isGamepadActive, currentScreen, processGamepadInput, hasOverlayOpen, gameState?.gameOver]);
 
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {

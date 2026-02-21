@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LessonPlayer from './LessonPlayer';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [progress, setProgress] = useState(tutorialService.getProgress());
   const [selectedModule, setSelectedModule] = useState('fundamentals');
+
+  useGamepadNav({ itemCount: 0, onBack: onClose, active: !selectedLesson });
 
   const lessons = tutorialService.lessons;
 

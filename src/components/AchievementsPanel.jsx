@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAchievements } from '../hooks/useAchievements';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function AchievementsPanel({ onClose }) {
   const { achievements, loading, getStats, getAchievementsByTier } = useAchievements();
   const [selectedTier, setSelectedTier] = useState('all');
+
+  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
 
   const stats = getStats();
 

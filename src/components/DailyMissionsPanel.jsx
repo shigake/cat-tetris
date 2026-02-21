@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useMissions } from '../hooks/useMissions';
 import Celebration from './Celebration';
 import { showToast } from './ToastNotification';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function DailyMissionsPanel({ onClose }) {
   const { missions, loading, claimReward, getMissionsStats } = useMissions();
   const [showCelebration, setShowCelebration] = React.useState(false);
+
+  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
   const stats = getMissionsStats();
 
   const handleClaim = (missionId) => {

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
   const [localSettings, setLocalSettings] = useState({
@@ -17,6 +18,19 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
     setLocalSettings({ ...settings, das: settings.das ?? 133, arr: settings.arr ?? 10 });
     onClose();
   };
+
+  const settingsActions = [handleSave, handleCancel];
+  const handleConfirm = useCallback((index) => {
+    settingsActions[index]?.();
+  }, [handleSave, handleCancel]);
+
+  const { selectedIndex } = useGamepadNav({
+    itemCount: 2,
+    onConfirm: handleConfirm,
+    onBack: handleCancel,
+    active: isOpen,
+    wrap: true,
+  });
 
   return (
     <AnimatePresence>
@@ -152,7 +166,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSave}
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700"
+                className={`flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900' : ''}`}
               >
                 Salvar
               </motion.button>
@@ -160,7 +174,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleCancel}
-                className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700"
+                className={`flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 ${selectedIndex === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900' : ''}`}
               >
                 Cancelar
               </motion.button>

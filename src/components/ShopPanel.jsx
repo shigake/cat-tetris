@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useShop } from '../hooks/useShop';
 import { useCurrency } from '../hooks/useCurrency';
 import { showToast } from './ToastNotification';
+import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function ShopPanel({ onClose }) {
 
@@ -11,6 +12,8 @@ function ShopPanel({ onClose }) {
   const { currency } = useCurrency();
 
   const [selectedTheme, setSelectedTheme] = useState(null);
+
+  useGamepadNav({ itemCount: 0, onBack: onClose, active: true });
 
   const stats = getStats();
 
