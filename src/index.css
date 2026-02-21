@@ -118,3 +118,17 @@ body {
     --cell: min(18px, 2.8vh);
   }
 }
+
+/* Multiplayer: smaller cells on mobile so both boards fit side-by-side */
+@media (max-width: 640px) {
+  .multiplayer-boards {
+    --cell: clamp(10px, calc((100vw - 100px) / 22), 14px);
+  }
+  .multiplayer-boards .tetris-grid {
+    padding: min(4px, 0.6vh);
+    gap: 0px;
+  }
+  .multiplayer-boards .tetris-cell {
+    font-size: 8px;
+  }
+}
