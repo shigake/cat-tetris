@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['cat-icon.svg', 'sounds/*.mp3', 'icons/*.png'],
+      includeAssets: ['cat-icon.svg', 'sounds/*.mp3', 'icons/*.png', 'screenshots/*.png', 'offline.html'],
       manifest: {
         name: 'Cat Tetris - Jogo de Tetris com Gatos',
         short_name: 'Cat Tetris',
@@ -18,9 +18,17 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait-primary',
         lang: 'pt-BR',
+        dir: 'ltr',
         scope: '/cat-tetris/',
         start_url: '/cat-tetris/',
+        id: '/cat-tetris/',
         categories: ['games', 'entertainment'],
+        iarc_rating_id: '',
+        prefer_related_applications: false,
+        launch_handler: {
+          client_mode: 'navigate-existing'
+        },
+        handle_links: 'preferred',
         icons: [
           {
             src: 'icons/icon-48x48.png',
@@ -83,17 +91,87 @@ export default defineConfig({
             purpose: 'maskable'
           }
         ],
+        screenshots: [
+          {
+            src: 'screenshots/mobile-1.png',
+            sizes: '1080x1920',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'Tela principal do Cat Tetris no celular'
+          },
+          {
+            src: 'screenshots/mobile-2.png',
+            sizes: '1080x1920',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'Conquistas e modos de jogo'
+          },
+          {
+            src: 'screenshots/desktop-1.png',
+            sizes: '1920x1080',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'Cat Tetris no desktop'
+          }
+        ],
         shortcuts: [
           {
             name: 'Novo Jogo',
             short_name: 'Jogar',
             description: 'Iniciar um novo jogo de Cat Tetris',
-            url: '/cat-tetris/?action=new-game'
+            url: '/cat-tetris/?action=new-game',
+            icons: [{ src: 'icons/icon-96x96.png', sizes: '96x96' }]
           }
-        ]
+        ],
+        share_target: {
+          action: '/cat-tetris/',
+          method: 'GET',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url'
+          }
+        },
+        related_applications: [],
+        edge_side_panel: {
+          preferred_width: 400
+        }
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 30 * 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: /\.(?:mp3|wav|ogg)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 30 * 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: /\.(?:js|css)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources'
+            }
+          }
+        ]
       },
       devOptions: {
         enabled: true
