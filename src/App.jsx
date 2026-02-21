@@ -172,7 +172,12 @@ function GameScreen({
                 canHold={gameState.canHold}
               />
 
-              <NextPieces pieces={gameState.nextPieces} />
+              <Scoreboard
+                score={gameState.score.points}
+                level={gameState.score.level}
+                lines={gameState.score.lines}
+                combo={gameState.score.combo}
+              />
             </div>
 
             <div className="flex flex-col items-center">
@@ -196,12 +201,7 @@ function GameScreen({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Scoreboard
-                score={gameState.score.points}
-                level={gameState.score.level}
-                lines={gameState.score.lines}
-                combo={gameState.score.combo}
-              />
+              <NextPieces pieces={gameState.nextPieces} />
             </div>
           </div>
 
