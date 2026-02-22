@@ -228,15 +228,15 @@ export class ShopService {
     const theme = PIECE_THEMES[themeId];
 
     if (!theme) {
-      return { success: false, error: 'Theme not found' };
+      return { success: false, error: 'shop.error.notFound' };
     }
 
     if (this.ownsTheme(themeId)) {
-      return { success: false, error: 'Already owned' };
+      return { success: false, error: 'shop.error.alreadyOwned' };
     }
 
     if (!this.currencyService.canAfford(theme.price)) {
-      return { success: false, error: 'Insufficient funds' };
+      return { success: false, error: 'shop.error.noFunds' };
     }
 
     const success = this.currencyService.spendFish(theme.price, `Theme: ${theme.name}`);
@@ -253,12 +253,12 @@ export class ShopService {
       return { success: true, theme };
     }
 
-    return { success: false, error: 'Purchase failed' };
+    return { success: false, error: 'shop.error.failed' };
   }
 
   equipTheme(themeId) {
     if (!this.ownsTheme(themeId)) {
-      return { success: false, error: 'Theme not owned' };
+      return { success: false, error: 'shop.error.notOwned' };
     }
 
     this.inventory.equippedTheme = themeId;

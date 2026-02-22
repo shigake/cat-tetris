@@ -22,9 +22,9 @@ function ShopPanel({ onClose }) {
     const result = purchaseTheme(themeId);
 
     if (result.success) {
-      showToast(t('shop.purchaseSuccess', { name: result.theme.name }), 'success');
+      showToast(t('shop.purchaseSuccess', { name: t(`shop.theme.${themeId}.name`) }), 'success');
     } else {
-      showToast(`❌ ${result.error}`, 'error');
+      showToast(`❌ ${t(result.error)}`, 'error');
     }
   };
 
@@ -32,9 +32,9 @@ function ShopPanel({ onClose }) {
     const result = equipTheme(themeId);
 
     if (result.success) {
-      showToast(t('shop.equipSuccess', { name: result.theme.name }), 'success');
+      showToast(t('shop.equipSuccess', { name: t(`shop.theme.${themeId}.name`) }), 'success');
     } else {
-      showToast(`❌ ${result.error}`, 'error');
+      showToast(`❌ ${t(result.error)}`, 'error');
     }
   };
 
@@ -178,10 +178,10 @@ function ShopPanel({ onClose }) {
 
                 <div className="mb-4">
                   <h3 className="text-white font-bold text-lg mb-1">
-                    {theme.name}
+                    {t(`shop.theme.${theme.id}.name`) || theme.name}
                   </h3>
                   <p className="text-white/60 text-sm">
-                    {theme.description}
+                    {t(`shop.theme.${theme.id}.desc`) || theme.description}
                   </p>
                 </div>
 
@@ -263,7 +263,7 @@ function ShopPanel({ onClose }) {
                 onClick={(e) => e.stopPropagation()}
               >
                 <h3 className="text-white font-bold text-2xl mb-4">
-                  {selectedTheme.name}
+                  {t(`shop.theme.${selectedTheme.id}.name`) || selectedTheme.name}
                 </h3>
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   {Object.entries(selectedTheme.pieces).map(([type, piece]) => (
