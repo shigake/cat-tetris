@@ -48,6 +48,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('rotate')}
             disabled={gameOver}
+            aria-label="Rotate"
             className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             🔄
@@ -59,6 +60,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('left')}
             disabled={gameOver}
+            aria-label="Move left"
             className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ⬅️
@@ -69,6 +71,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('down')}
             disabled={gameOver}
+            aria-label="Move down"
             className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ⬇️
@@ -79,6 +82,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('right')}
             disabled={gameOver}
+            aria-label="Move right"
             className="bg-gray-600 text-white p-4 rounded-full shadow-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ➡️
@@ -89,6 +93,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('hardDrop')}
             disabled={gameOver}
+            aria-label="Hard drop"
             className="bg-red-500 text-white p-4 rounded-full shadow-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ⚡
@@ -99,6 +104,7 @@ const Controls = ({ onMove, onRotate, onHardDrop, onPause, onHold, isPaused, gam
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeyPress('hold')}
             disabled={gameOver || !canHold}
+            aria-label="Hold piece"
             className={`p-4 rounded-full shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
               canHold
                 ? 'bg-green-500 text-white hover:bg-green-600'

@@ -69,7 +69,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
         <div className="bg-red-900/90 text-white p-6 rounded-lg">
           <p className="text-xl">{t('multiplayer.errorLoading')}</p>
           <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
-            Fechar
+            {t('common.close')}
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
               ← {t('multiplayer.back')}
             </button>
 
-            <p className="text-white/30 text-xs text-center mt-2">🎮 B = voltar</p>
+            <p className="text-white/30 text-xs text-center mt-2">{t('multiplayer.gamepadBack')}</p>
           </>
         ) : (
           <>
@@ -285,7 +285,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                 ← {t('multiplayer.back')}
               </button>
             </div>
-            <p className="text-white/30 text-xs text-center mt-2">🎮 B = voltar</p>
+            <p className="text-white/30 text-xs text-center mt-2">{t('multiplayer.gamepadBack')}</p>
           </>
         )}
       </motion.div>

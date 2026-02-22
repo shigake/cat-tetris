@@ -9,53 +9,61 @@ export class LocalStorageRepository extends IGameRepository {
   }
 
   saveHighScore(score) {
-    localStorage.setItem(this.highScoreKey, score.toString());
+    try { localStorage.setItem(this.highScoreKey, score.toString()); } catch { /* quota */ }
   }
 
   getHighScore() {
-    return parseInt(localStorage.getItem(this.highScoreKey) || '0');
+    try { return parseInt(localStorage.getItem(this.highScoreKey) || '0'); } catch { return 0; }
   }
 
   saveSettings(settings) {
-    localStorage.setItem(this.settingsKey, JSON.stringify(settings));
+    try { localStorage.setItem(this.settingsKey, JSON.stringify(settings)); } catch { /* quota */ }
   }
 
   getSettings() {
-    const settings = localStorage.getItem(this.settingsKey);
-    if (!settings) {
-      return {
-        volume: 80,
-        gameSpeed: 'normal',
-        soundEnabled: true,
-        particlesEnabled: true
-      };
+    try {
+      const settings = localStorage.getItem(this.settingsKey);
+      if (!settings) {
+        return {
+          volume: 80,
+          gameSpeed: 'normal',
+          soundEnabled: true,
+          particlesEnabled: true
+        };
+      }
+      return JSON.parse(settings);
+    } catch {
+      return { volume: 80, gameSpeed: 'normal', soundEnabled: true, particlesEnabled: true };
     }
-    return JSON.parse(settings);
   }
 
   saveGameState(state) {
-    localStorage.setItem(this.gameStateKey, JSON.stringify(state));
+    try { localStorage.setItem(this.gameStateKey, JSON.stringify(state)); } catch { /* quota */ }
   }
 
   getGameState() {
-    const state = localStorage.getItem(this.gameStateKey);
-    return state ? JSON.parse(state) : null;
+    try {
+      const state = localStorage.getItem(this.gameStateKey);
+      return state ? JSON.parse(state) : null;
+    } catch { return null; }
   }
 
   clearGameState() {
-    localStorage.removeItem(this.gameStateKey);
+    try { localStorage.removeItem(this.gameStateKey); } catch { /* ignore */ }
   }
 
   load(key) {
-    const data = localStorage.getItem(`cat-tetris-${key}`);
-    return data ? JSON.parse(data) : null;
+    try {
+      const data = localStorage.getItem(`cat-tetris-${key}`);
+      return data ? JSON.parse(data) : null;
+    } catch { return null; }
   }
 
   save(key, value) {
-    localStorage.setItem(`cat-tetris-${key}`, JSON.stringify(value));
+    try { localStorage.setItem(`cat-tetris-${key}`, JSON.stringify(value)); } catch { /* quota */ }
   }
 
   remove(key) {
-    localStorage.removeItem(`cat-tetris-${key}`);
+    try { localStorage.removeItem(`cat-tetris-${key}`); } catch { /* ignore */ }
   }
 }

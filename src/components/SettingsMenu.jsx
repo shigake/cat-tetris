@@ -217,10 +217,10 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
 
               {/* Gamepad Button Remapping */}
               <div className="border-t border-white/10 pt-4 mt-4">
-                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">🎮 Botões do Controle</div>
+                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.gamepadButtons')}</div>
 
                 <div className="mb-3">
-                  <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">Menu</div>
+                  <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">{t('settings.gamepadMenu')}</div>
                   <div className="space-y-1">
                     {MENU_ACTIONS.map(action => (
                       <button
@@ -231,7 +231,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                       >
                         <span className="text-white/70">{ACTION_LABELS[action]}</span>
                         <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
-                          {listeningAction === action ? 'Pressione...' : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
+                          {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
                         </span>
                       </button>
                     ))}
@@ -239,7 +239,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                 </div>
 
                 <div className="mb-3">
-                  <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">Jogo</div>
+                  <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">{t('settings.gamepadGame')}</div>
                   <div className="space-y-1">
                     {GAME_ACTIONS.map(action => (
                       <button
@@ -250,20 +250,20 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                       >
                         <span className="text-white/70">{ACTION_LABELS[action]}</span>
                         <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
-                          {listeningAction === action ? 'Pressione...' : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
+                          {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
                         </span>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div className="text-white/30 text-[10px] mb-2">D-Pad não pode ser remapeado (navegação)</div>
+                <div className="text-white/30 text-[10px] mb-2">{t('settings.dpadNote')}</div>
 
                 <button
                   onClick={handleResetGamepad}
                   className="w-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white/90 text-xs py-1.5 rounded-lg transition-colors"
                 >
-                  🔄 Restaurar Padrão
+                  {t('settings.gamepadReset')}
                 </button>
               </div>
 

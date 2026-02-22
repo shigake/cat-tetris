@@ -12,8 +12,10 @@ import Scoreboard from './Scoreboard';
 import GamepadIndicator from './GamepadIndicator';
 import { useGamepad } from '../hooks/useGamepad';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onExit }) {
+  const { t } = useI18n();
   const [player1State, setPlayer1State] = useState(null);
   const [player2State, setPlayer2State] = useState(null);
   const [winner, setWinner] = useState(null);
@@ -289,7 +291,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
   if (!player1State || !player2State) {
     return (
       <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
-        <div className="text-white text-2xl">Carregando multiplayer...</div>
+        <div className="text-white text-2xl">{t('multiplayer.loading')}</div>
       </div>
     );
   }
@@ -307,10 +309,10 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
 
       <div className="flex justify-between items-center w-full max-w-5xl mb-2">
         <h1 className="text-xl sm:text-2xl font-bold text-white">
-          {mode === 'aiVsAI' ? '🔬 IA vs IA (Debug)' : mode === 'vsAI' ? '🤖 vs IA' : '👥 1v1 Local'}
+          {mode === 'aiVsAI' ? t('multiplayer.aiVsAiTitle') : mode === 'vsAI' ? t('multiplayer.vsAiTitle') : t('multiplayer.localTitle')}
         </h1>
         <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-colors text-sm font-bold">
-          ← Voltar
+          {t('common.back')}
         </button>
       </div>
 
@@ -319,15 +321,15 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         {/* Player 1 */}
         <div className="flex flex-col items-center min-w-0">
           <div className="bg-blue-600 text-white px-2 sm:px-4 py-0.5 sm:py-1 rounded-t-lg font-bold text-xs sm:text-base truncate max-w-full">
-            {mode === 'aiVsAI' ? `🤖 IA1 (${ai1Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? '🎮 VOCÊ' : '🎮 P1'}
+            {mode === 'aiVsAI' ? `🤖 IA1 (${ai1Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? t('multiplayer.you') : t('multiplayer.p1')}
           </div>
           <div className="bg-black/40 p-1 sm:p-2 rounded-b-lg">
             <div className="flex gap-1 sm:gap-2">
               <div className="hidden sm:flex flex-col gap-2">
                 <HeldPiece heldPiece={player1State.heldPiece} canHold={player1State.canHold} />
                 {mode !== 'aiVsAI' && (
-                  <div className="text-white/60 text-[10px] leading-tight">
-                    ←→ mover<br/>↑ rotacionar<br/>C segurar<br/>Espaço dropar
+                  <div className="text-white/60 text-[10px] leading-tight whitespace-pre-line">
+                    {t('multiplayer.controlsP1')}
                   </div>
                 )}
               </div>
@@ -355,15 +357,15 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         {/* Player 2 */}
         <div className="flex flex-col items-center min-w-0">
           <div className="bg-red-600 text-white px-2 sm:px-4 py-0.5 sm:py-1 rounded-t-lg font-bold text-xs sm:text-base truncate max-w-full">
-            {mode === 'aiVsAI' ? `🤖 IA2 (${ai2Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : '🎮 P2'}
+            {mode === 'aiVsAI' ? `🤖 IA2 (${ai2Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : t('multiplayer.p2')}
           </div>
           <div className="bg-black/40 p-1 sm:p-2 rounded-b-lg">
             <div className="flex gap-1 sm:gap-2">
               <div className="hidden sm:flex flex-col gap-2">
                 <HeldPiece heldPiece={player2State.heldPiece} canHold={player2State.canHold} />
                 {mode === '1v1' && (
-                  <div className="text-white/60 text-[10px] leading-tight">
-                    Setas mover<br/>↑ rotacionar<br/>Ctrl segurar<br/>Enter dropar
+                  <div className="text-white/60 text-[10px] leading-tight whitespace-pre-line">
+                    {t('multiplayer.controlsP2')}
                   </div>
                 )}
               </div>
@@ -391,15 +393,15 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
               <div className="text-8xl mb-4">{winner === 'player1' ? '🏆' : (mode === 'aiVsAI' ? '🏆' : '💀')}</div>
               <h2 className="text-5xl font-bold text-white mb-4">
                 {mode === 'aiVsAI'
-                  ? (winner === 'player1' ? 'IA 1 VENCEU!' : 'IA 2 VENCEU!')
-                  : (winner === 'player1' ? 'VITÓRIA!' : 'DERROTA!')}
+                  ? (winner === 'player1' ? t('multiplayer.ai1Won') : t('multiplayer.ai2Won'))
+                  : (winner === 'player1' ? t('multiplayer.victory') : t('multiplayer.defeat'))}
               </h2>
               <p className="text-2xl text-white/80 mb-8">
                 {mode === 'aiVsAI'
-                  ? `${winner === 'player1' ? ai1Difficulty?.toUpperCase() : ai2Difficulty?.toUpperCase()} é superior!`
+                  ? `${winner === 'player1' ? ai1Difficulty?.toUpperCase() : ai2Difficulty?.toUpperCase()} ${t('multiplayer.isSuperior')}`
                   : winner === 'player1'
-                    ? (mode === 'vsAI' ? 'Você venceu a IA!' : 'Player 1 venceu!')
-                    : (mode === 'vsAI' ? 'IA venceu!' : 'Player 2 venceu!')}
+                    ? (mode === 'vsAI' ? t('multiplayer.youBeatAI') : t('multiplayer.player1Won'))
+                    : (mode === 'vsAI' ? t('multiplayer.aiBeatYou') : t('multiplayer.player2Won'))}
               </p>
               <div className="grid grid-cols-2 gap-4 mb-8 text-white">
                 <div className="bg-black/30 rounded-lg p-4">
@@ -412,8 +414,8 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
                 </div>
               </div>
               <div className="flex gap-4">
-                <button onClick={handleRestart} className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors ${winnerSelIdx === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-orange-600' : ''}`}>🔄 Jogar Novamente</button>
-                <button onClick={onExit} className={`bg-gray-700 hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors ${winnerSelIdx === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-orange-600' : ''}`}>← Menu</button>
+                <button onClick={handleRestart} className={`bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors ${winnerSelIdx === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-orange-600' : ''}`}>{t('multiplayer.playAgain')}</button>
+                <button onClick={onExit} className={`bg-gray-700 hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-bold text-xl transition-colors ${winnerSelIdx === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-orange-600' : ''}`}>{t('multiplayer.backToMenu')}</button>
               </div>
             </motion.div>
           </motion.div>

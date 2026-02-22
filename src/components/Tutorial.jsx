@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 function Tutorial({ onComplete }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [show, setShow] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
 
@@ -16,63 +18,63 @@ function Tutorial({ onComplete }) {
 
   const steps = [
     {
-      title: '🐱 Bem-vindo ao Cat Tetris!',
-      description: 'Um Tetris com gatinhos e sistema de progressão viciante!',
+      title: t('tutorial.step1Title'),
+      description: t('tutorial.step1Desc'),
       tips: [
-        '🎮 Use as setas para mover as peças',
-        '⬆️ Seta para cima para rotacionar',
-        '⬇️ Seta para baixo para drop rápido',
-        'C para segurar peça (Hold)'
+        t('tutorial.step1Tip1'),
+        t('tutorial.step1Tip2'),
+        t('tutorial.step1Tip3'),
+        t('tutorial.step1Tip4')
       ]
     },
     {
-      title: '🐟 Sistema de Moedas',
-      description: 'Ganhe Peixes (🐟) completando missões e conquistas!',
+      title: t('tutorial.step2Title'),
+      description: t('tutorial.step2Desc'),
       tips: [
-        '📋 3 missões diárias (resetam à meia-noite)',
-        '🏆 22 conquistas desbloqueáveis',
-        '🛍️ Use 🐟 para comprar temas na loja',
-        '💰 Quanto mais você joga, mais você ganha!'
+        t('tutorial.step2Tip1'),
+        t('tutorial.step2Tip2'),
+        t('tutorial.step2Tip3'),
+        t('tutorial.step2Tip4')
       ]
     },
     {
-      title: '🎯 Missões Diárias',
-      description: 'Complete desafios diários para ganhar recompensas!',
+      title: t('tutorial.step3Title'),
+      description: t('tutorial.step3Desc'),
       tips: [
-        '🟢 Missão Fácil: 100🐟',
-        '🟡 Missão Média: 200🐟',
-        '🔴 Missão Difícil: 400🐟',
-        '✨ Complete todas para celebração especial!'
+        t('tutorial.step3Tip1'),
+        t('tutorial.step3Tip2'),
+        t('tutorial.step3Tip3'),
+        t('tutorial.step3Tip4')
       ]
     },
     {
-      title: '🛍️ Loja e Personalização',
-      description: 'Customize suas peças com temas exclusivos!',
+      title: t('tutorial.step4Title'),
+      description: t('tutorial.step4Desc'),
       tips: [
-        '🐶 10 temas diferentes disponíveis',
-        '💎 Cristais e Espaço são os mais caros',
-        '🎨 Cada tema muda os emojis das peças',
-        '🔓 Desbloqueie todos com suas moedas!'
+        t('tutorial.step4Tip1'),
+        t('tutorial.step4Tip2'),
+        t('tutorial.step4Tip3'),
+        t('tutorial.step4Tip4')
       ]
     },
     {
-      title: '🏆 Ranking Global',
-      description: 'Compete com jogadores do mundo todo!',
+      title: t('tutorial.step5Title'),
+      description: t('tutorial.step5Desc'),
       tips: [
-        '🌍 Veja sua posição no ranking global',
-        '📊 4 tipos de ranking: Global, Semanal, País, Ao Redor',
-        '📤 Compartilhe seus recordes',
-        '🥇 Chegue ao Top 3 para medalha!'
+        t('tutorial.step5Tip1'),
+        t('tutorial.step5Tip2'),
+        t('tutorial.step5Tip3'),
+        t('tutorial.step5Tip4')
       ]
     },
     {
-      title: '🎮 Pronto para Jogar!',
-      description: 'Agora você sabe tudo. Divirta-se!',
+      title: t('tutorial.step6Title'),
+      description: t('tutorial.step6Desc'),
       tips: [
-        '💡 Dica: Use a sombra da peça para planejar',
-        '🔥 Faça combos para mais pontos',
-        '⚡ T-Spins valem MUITO mais',
-        '🌙 Modo Zen é perfeito para relaxar'
+        t('tutorial.step6Tip1'),
+        t('tutorial.step6Tip2'),
+        t('tutorial.step6Tip3'),
+        t('tutorial.step6Tip4')
       ]
     }
   ];
@@ -186,19 +188,19 @@ function Tutorial({ onComplete }) {
               onClick={handleSkip}
               className={`flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-lg transition-colors ${tutSelectedIndex === 0 ? 'ring-2 ring-yellow-400' : ''}`}
             >
-              Pular Tutorial
+              {t('tutorial.skip')}
             </button>
           )}
           <button
             onClick={handleNext}
             className={`flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg ${(isLastStep ? tutSelectedIndex === 0 : tutSelectedIndex === 1) ? 'ring-2 ring-yellow-400' : ''}`}
           >
-            {isLastStep ? '🎮 Começar a Jogar!' : 'Próximo →'}
+            {isLastStep ? t('tutorial.startPlaying') : t('tutorial.next')}
           </button>
         </div>
 
         <div className="text-center mt-4 text-white/40 text-sm">
-          Passo {currentStep + 1} de {steps.length} | 🎮 Ⓑ Pular
+          {t('tutorial.stepIndicator', { n: currentStep + 1, total: steps.length })}
         </div>
       </motion.div>
     </motion.div>

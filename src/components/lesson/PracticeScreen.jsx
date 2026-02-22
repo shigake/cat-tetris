@@ -4,12 +4,14 @@ import TetrisBoard from '../TetrisBoard';
 import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
+import { useI18n } from '../../hooks/useI18n';
 
 function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRestart, dropPreview, gamepadSelectedIndex }) {
+  const { t } = useI18n();
   if (!gameState || !isInitialized) {
     return (
       <div className="text-center text-white/40 text-sm py-12">
-        Carregando...
+        {t('lesson.loading')}
       </div>
     );
   }
@@ -70,7 +72,7 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
       </div>
 
       <div className="mt-3 text-white/20 text-[10px]">
-        ⬅️➡️ Mover  ⬆️ Rotação  ⬇️ Soft Drop  Espaço: Hard Drop  C: Hold
+        {t('lesson.practiceControls')}
       </div>
 
       {practiceState.feedback && !practiceState.complete && (
@@ -90,12 +92,12 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
           animate={{ opacity: 1, scale: 1 }}
           className="mt-4"
         >
-          <p className="text-white/40 text-sm mb-2">Game Over — tente de novo!</p>
+          <p className="text-white/40 text-sm mb-2">{t('lesson.practiceGameOver')}</p>
           <button
             onClick={onRestart}
             className={`bg-white/[0.08] hover:bg-white/[0.12] text-white text-sm px-4 py-2 rounded-lg transition-all ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
           >
-            🔄 Recomeçar
+            {t('lesson.restart')}
           </button>
         </motion.div>
       )}
@@ -108,7 +110,7 @@ function PracticeScreen({ lesson, gameState, isInitialized, practiceState, onRes
           className="mt-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-6 max-w-sm mx-auto"
         >
           <div className="text-4xl mb-2">🎉</div>
-          <h3 className="text-lg font-bold text-white mb-1">Parabéns!</h3>
+          <h3 className="text-lg font-bold text-white mb-1">{t('lesson.congratulations')}</h3>
           <p className="text-emerald-300/70 text-sm">{practiceState.feedback}</p>
         </motion.div>
       )}

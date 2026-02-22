@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../../hooks/useI18n';
 
 function IntroductionScreen({ lesson, onStartDemo, onStartPractice, gamepadSelectedIndex }) {
+  const { t } = useI18n();
   return (
     <motion.div
       key="intro"
@@ -13,7 +15,7 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice, gamepadSelec
 
       <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-6 mb-5 text-center">
         <div className="text-4xl mb-3">🎯</div>
-        <h3 className="text-lg font-bold text-white mb-2">Objetivo</h3>
+        <h3 className="text-lg font-bold text-white mb-2">{t('lesson.objective')}</h3>
         <p className="text-white/70 text-base leading-relaxed">
           {lesson.practice.objective}
         </p>
@@ -21,7 +23,7 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice, gamepadSelec
 
       {lesson.intro && lesson.intro.length > 0 && (
         <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 mb-5">
-          <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wide mb-3">Como funciona</h4>
+          <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wide mb-3">{t('lesson.howItWorks')}</h4>
           <div className="space-y-2.5">
             {lesson.intro.map((tip, idx) => (
               <motion.p
@@ -56,14 +58,14 @@ function IntroductionScreen({ lesson, onStartDemo, onStartPractice, gamepadSelec
                    flex items-center gap-2 ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
         >
           <span>🤖</span>
-          <span>Ver IA Jogar Primeiro</span>
+          <span>{t('lesson.watchAIFirst')}</span>
         </motion.button>
 
         <button
           onClick={onStartPractice}
           className={`text-white/30 hover:text-white/50 text-xs transition-all ${gamepadSelectedIndex === 2 ? 'ring-2 ring-yellow-400 rounded-lg px-2 py-1' : ''}`}
         >
-          Ir direto para prática →
+          {t('lesson.skipToPractice')}
         </button>
       </div>
     </motion.div>

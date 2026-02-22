@@ -20,7 +20,7 @@ function ErrorFallback({ error }) {
         >
           {t('error.restart')}
         </button>
-        {process.env.NODE_ENV === 'development' && (
+        {import.meta.env.DEV && (
           <details className="mt-4 text-left">
             <summary className="text-white/60 cursor-pointer">{t('error.details')}</summary>
             <pre className="text-red-400 text-xs mt-2 bg-black/20 p-2 rounded overflow-auto">

@@ -12,16 +12,9 @@ import CurrencyDisplay from './components/CurrencyDisplay';
 import DailyMissionsPanel from './components/DailyMissionsPanel';
 import AchievementsPanel from './components/AchievementsPanel';
 import AchievementNotification from './components/AchievementNotification';
-import MultiplayerGame from './components/MultiplayerGame';
-import AIShowcase from './components/AIShowcase';
-import CreatorMode from './components/CreatorMode';
-import ShopPanel from './components/ShopPanel';
-import GameModesPanel from './components/GameModesPanel';
-import MultiplayerPanel from './components/MultiplayerPanel';
-import Tutorial from './components/Tutorial';
-import TutorialHub from './components/TutorialHub';
 import ToastNotification from './components/ToastNotification';
 import RewardNotification from './components/RewardNotification';
+import Tutorial from './components/Tutorial';
 import { serviceContainer } from './core/container/ServiceRegistration';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
@@ -41,6 +34,13 @@ import { errorLogger } from './services/ErrorLogger';
 import { useI18n } from './hooks/useI18n';
 
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
+const MultiplayerGame = lazy(() => import('./components/MultiplayerGame'));
+const AIShowcase = lazy(() => import('./components/AIShowcase'));
+const CreatorMode = lazy(() => import('./components/CreatorMode'));
+const ShopPanel = lazy(() => import('./components/ShopPanel'));
+const GameModesPanel = lazy(() => import('./components/GameModesPanel'));
+const MultiplayerPanel = lazy(() => import('./components/MultiplayerPanel'));
+const TutorialHub = lazy(() => import('./components/TutorialHub'));
 
 function LoadingSpinner() {
   return (
@@ -158,7 +158,7 @@ function GameScreen({
 
         <div className="flex items-center gap-3 text-xs text-white/70">
           <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()} pts</span>
-          <span>Nv.{gameState.score.level}</span>
+          <span>{t('game.level', { level: gameState.score.level })}</span>
           <span>{gameState.score.lines} {t('common.lines')}</span>
         </div>
 
@@ -221,7 +221,7 @@ function GameScreen({
             <div className="flex justify-between items-center mb-2 px-2 bg-black/30 rounded-lg mx-2 py-1">
               <div className="text-white text-sm">
                 <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()}</span>
-                <span className="text-white/60 ml-2">Nv.{gameState.score.level}</span>
+                <span className="text-white/60 ml-2">{t('game.level', { level: gameState.score.level })}</span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ function GameScreen({
                 disabled={gameState.gameOver}
                 className="bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-gray-600 disabled:opacity-50 touch-manipulation"
               >
-                ⬇️ Acelerar
+                {t('game.accelerate')}
               </motion.button>
 
               {gameState.canHold && (
@@ -350,7 +350,7 @@ function GameScreen({
                         : 'bg-gray-500'
                   }`}
                 >
-                  💾 Guardar
+                  {t('game.hold')}
                 </motion.button>
               )}
 
@@ -604,28 +604,34 @@ function GameComponent() {
 
   if (showCreatorMode) {
     return (
-      <CreatorMode onExit={() => setShowCreatorMode(false)} />
+      <Suspense fallback={<LoadingSpinner />}>
+        <CreatorMode onExit={() => setShowCreatorMode(false)} />
+      </Suspense>
     );
   }
 
   if (showAIShowcase) {
     return (
-      <AIShowcase onClose={() => setShowAIShowcase(false)} />
+      <Suspense fallback={<LoadingSpinner />}>
+        <AIShowcase onClose={() => setShowAIShowcase(false)} />
+      </Suspense>
     );
   }
 
   if (multiplayerMatch) {
     return (
-      <MultiplayerGame
-        mode={multiplayerMatch.mode}
-        aiDifficulty={multiplayerMatch.aiDifficulty}
-        ai1Difficulty={multiplayerMatch.ai1Difficulty}
-        ai2Difficulty={multiplayerMatch.ai2Difficulty}
-        onExit={() => {
-          setMultiplayerMatch(null);
-          setCurrentScreen('menu');
-        }}
-      />
+      <Suspense fallback={<LoadingSpinner />}>
+        <MultiplayerGame
+          mode={multiplayerMatch.mode}
+          aiDifficulty={multiplayerMatch.aiDifficulty}
+          ai1Difficulty={multiplayerMatch.ai1Difficulty}
+          ai2Difficulty={multiplayerMatch.ai2Difficulty}
+          onExit={() => {
+            setMultiplayerMatch(null);
+            setCurrentScreen('menu');
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -652,30 +658,36 @@ function GameComponent() {
 
         <AnimatePresence>
           {showMultiplayer && (
-            <MultiplayerPanel
-              onClose={() => setShowMultiplayer(false)}
-              onStartMatch={(match) => {
-                setShowMultiplayer(false);
-                setMultiplayerMatch(match);
-              }}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              <MultiplayerPanel
+                onClose={() => setShowMultiplayer(false)}
+                onStartMatch={(match) => {
+                  setShowMultiplayer(false);
+                  setMultiplayerMatch(match);
+                }}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {showGameModes && (
-            <GameModesPanel
-              onClose={() => setShowGameModes(false)}
-              onStartGame={handleNewGame}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              <GameModesPanel
+                onClose={() => setShowGameModes(false)}
+                onStartGame={handleNewGame}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {showShop && (
-            <ShopPanel
-              onClose={() => setShowShop(false)}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              <ShopPanel
+                onClose={() => setShowShop(false)}
+              />
+            </Suspense>
           )}
         </AnimatePresence>
 
@@ -697,7 +709,8 @@ function GameComponent() {
 
         <AnimatePresence>
           {showTutorialHub && (
-            <TutorialHub
+            <Suspense fallback={<LoadingSpinner />}>
+              <TutorialHub
               tutorialService={serviceContainer.resolve('tutorialService')}
               onClose={() => setShowTutorialHub(false)}
               onLessonComplete={(result) => {
@@ -737,6 +750,7 @@ function GameComponent() {
                 setRewardNotification(result);
               }}
             />
+            </Suspense>
           )}
         </AnimatePresence>
 
@@ -768,7 +782,7 @@ function GameComponent() {
   if (!gameState) {
     return (
       <div className="h-screen cat-bg flex items-center justify-center overflow-hidden">
-        <div className="text-white text-xl">Carregando...</div>
+        <div className="text-white text-xl">{t('common.loading')}</div>
       </div>
     );
   }

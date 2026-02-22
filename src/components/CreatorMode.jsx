@@ -11,6 +11,7 @@ import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import { useGamepad } from '../hooks/useGamepad';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 const BOARD_W = 10;
 const BOARD_H = 20;
@@ -242,6 +243,7 @@ function makeGameService(boardData, queue) {
 }
 
 export default function CreatorMode({ onExit }) {
+  const { t } = useI18n();
   const [screen, setScreen] = useState('menu');
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [allSetups, setAllSetups] = useState(() => loadAllSetups());
@@ -268,7 +270,7 @@ export default function CreatorMode({ onExit }) {
 
   const startCustomPlay = useCallback(() => {
     setActiveTemplate({
-      id: 'custom_preview', name: customName || 'Setup Personalizado', emoji: customEmoji,
+      id: 'custom_preview', name: customName || t('creator.customSetupName'), emoji: customEmoji,
       board: null, queue: [...customQueue],
       _rawBoard: cloneBoard(customBoard),
     });
@@ -296,7 +298,7 @@ export default function CreatorMode({ onExit }) {
   }, []);
 
   const saveSetup = useCallback(() => {
-    const name = customName.trim() || 'Meu Setup';
+    const name = customName.trim() || t('creator.mySetup');
     const boardRows = boardToRows(customBoard);
     if (editingSetup) {
       const updated = allSetups.map(s =>
@@ -334,12 +336,12 @@ export default function CreatorMode({ onExit }) {
     if (!file) return;
     try {
       const imported = await importSetups(file);
-      if (imported.length === 0) { setImportMsg('Nenhum setup válido no arquivo.'); return; }
+      if (imported.length === 0) { setImportMsg(t('creator.importNoValid')); return; }
       persist([...allSetups, ...imported]);
-      setImportMsg(`${imported.length} setup(s) importado(s)!`);
+      setImportMsg(t('creator.importSuccess', { n: imported.length }));
       setTimeout(() => setImportMsg(null), 3000);
     } catch {
-      setImportMsg('Erro ao ler o arquivo JSON.');
+      setImportMsg(t('creator.importError'));
       setTimeout(() => setImportMsg(null), 3000);
     }
     e.target.value = '';
@@ -407,10 +409,10 @@ export default function CreatorMode({ onExit }) {
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-4 overflow-auto">
       <div className="flex justify-between items-center w-full max-w-lg mb-4">
-        <h1 className="text-2xl font-bold text-white">🎨 Modo Criador</h1>
-        <button onClick={onExit} className={`bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold ${menuSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>← Voltar</button>
+        <h1 className="text-2xl font-bold text-white">{t('creator.title')}</h1>
+        <button onClick={onExit} className={`bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-bold ${menuSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>{t('common.back')}</button>
       </div>
-      <p className="text-white/50 text-sm mb-4 text-center max-w-md">Crie, edite e organize seus setups de treino! | 🎮 Ⓑ Voltar</p>
+      <p className="text-white/50 text-sm mb-4 text-center max-w-md">{t('creator.subtitle')}</p>
 
       {/* Action bar */}
       <div className="flex gap-2 w-full max-w-lg mb-4 flex-wrap justify-center">
@@ -418,13 +420,13 @@ export default function CreatorMode({ onExit }) {
           className={`flex-1 min-w-[140px] p-3 rounded-xl bg-gradient-to-r from-violet-600/30 to-fuchsia-600/30 hover:from-violet-600/40 hover:to-fuchsia-600/40 border border-violet-500/30 hover:border-violet-500/50 transition-all flex items-center gap-3 ${menuSelIdx === 1 ? 'ring-2 ring-yellow-400' : ''}`}>
           <span className="text-2xl">➕</span>
           <div className="text-left">
-            <div className="text-white font-bold text-sm">Criar Novo</div>
-            <div className="text-white/40 text-[10px]">Monte do zero</div>
+            <div className="text-white font-bold text-sm">{t('creator.createNew')}</div>
+            <div className="text-white/40 text-[10px]">{t('creator.createNewDesc')}</div>
           </div>
         </motion.button>
-        <button onClick={() => fileInputRef.current?.click()} className={`bg-green-600/40 hover:bg-green-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-green-500/20 ${menuSelIdx === 2 ? 'ring-2 ring-yellow-400' : ''}`}>📥 Importar</button>
-        <button onClick={handleExportAll} className={`bg-blue-600/40 hover:bg-blue-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-blue-500/20 ${menuSelIdx === 3 ? 'ring-2 ring-yellow-400' : ''}`} disabled={allSetups.length === 0}>📤 Exportar</button>
-        <button onClick={resetDefaults} className={`bg-orange-600/40 hover:bg-orange-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-orange-500/20 ${menuSelIdx === 4 ? 'ring-2 ring-yellow-400' : ''}`}>🔄 Resetar Padrão</button>
+        <button onClick={() => fileInputRef.current?.click()} className={`bg-green-600/40 hover:bg-green-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-green-500/20 ${menuSelIdx === 2 ? 'ring-2 ring-yellow-400' : ''}`}>{t('creator.import')}</button>
+        <button onClick={handleExportAll} className={`bg-blue-600/40 hover:bg-blue-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-blue-500/20 ${menuSelIdx === 3 ? 'ring-2 ring-yellow-400' : ''}`} disabled={allSetups.length === 0}>{t('creator.export')}</button>
+        <button onClick={resetDefaults} className={`bg-orange-600/40 hover:bg-orange-600/60 text-white px-4 py-3 rounded-xl text-xs font-bold transition-colors border border-orange-500/20 ${menuSelIdx === 4 ? 'ring-2 ring-yellow-400' : ''}`}>{t('creator.resetDefaults')}</button>
       </div>
 
       <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
@@ -434,7 +436,7 @@ export default function CreatorMode({ onExit }) {
       )}
 
       {/* All setups */}
-      <div className="text-white/40 text-xs font-semibold uppercase tracking-wide mb-2">Todos os Setups ({allSetups.length})</div>
+      <div className="text-white/40 text-xs font-semibold uppercase tracking-wide mb-2">{t('creator.allSetups')} ({allSetups.length})</div>
       <div className="grid grid-cols-1 gap-2 w-full max-w-lg pb-8">
         {allSetups.map((s, i) => (
           <SetupCard key={s.id} setup={s}
@@ -444,11 +446,12 @@ export default function CreatorMode({ onExit }) {
             onExport={() => exportSetups([s])}
             onMoveUp={i > 0 ? () => moveSetup(s.id, -1) : null}
             onMoveDown={i < allSetups.length - 1 ? () => moveSetup(s.id, 1) : null}
-            isHighlighted={menuSelIdx === MENU_ACTION_COUNT + i} />
+            isHighlighted={menuSelIdx === MENU_ACTION_COUNT + i}
+            t={t} />
         ))}
         {allSetups.length === 0 && (
           <div className="text-center py-8 text-white/30 text-sm">
-            Nenhum setup. Clique em "Criar Novo" ou "Resetar Padrão".
+            {t('creator.noSetups')}
           </div>
         )}
       </div>
@@ -456,7 +459,7 @@ export default function CreatorMode({ onExit }) {
   );
 }
 
-function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMoveDown, isHighlighted }) {
+function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMoveDown, isHighlighted, t }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isDefault = setup.isDefault;
   return (
@@ -470,33 +473,33 @@ function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMove
         <div className="flex items-center gap-1.5">
           <span className="text-lg">{setup.emoji || '🎨'}</span>
           <span className="text-white font-bold text-sm truncate">{setup.name}</span>
-          {isDefault && <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/20 shrink-0">padrão</span>}
+          {isDefault && <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/20 shrink-0">{t('creator.defaultBadge')}</span>}
         </div>
         {setup.desc && <p className="text-white/40 text-[11px] mt-0.5 leading-tight truncate">{setup.desc}</p>}
         <div className="flex items-center gap-1.5 mt-1">
-          <span className="text-white/30 text-[10px]">Peças:</span>
-          {(setup.queue || []).map((t, i) => (
-            <span key={i} className="inline-block w-3.5 h-3.5 rounded" style={{ backgroundColor: PIECE_COLORS[t] }} title={t} />
+          <span className="text-white/30 text-[10px]">{t('creator.pieces')}</span>
+          {(setup.queue || []).map((p, i) => (
+            <span key={i} className="inline-block w-3.5 h-3.5 rounded" style={{ backgroundColor: PIECE_COLORS[p] }} title={p} />
           ))}
-          {(!setup.queue || setup.queue.length === 0) && <span className="text-white/20 text-[10px]">aleatória</span>}
+          {(!setup.queue || setup.queue.length === 0) && <span className="text-white/20 text-[10px]">{t('creator.randomQueue')}</span>}
         </div>
       </div>
       <div className="flex flex-col gap-1 shrink-0">
         <div className="flex gap-1">
-          <button onClick={onPlay} className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors" title="Jogar">🎮</button>
-          <button onClick={onEdit} className="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors" title="Editar">✏️</button>
-          <button onClick={onExport} className="bg-slate-600 hover:bg-slate-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors" title="Exportar">📤</button>
+          <button onClick={onPlay} className="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors" title={t('creator.playTitle')}>🎮</button>
+          <button onClick={onEdit} className="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors" title={t('creator.editTitle')}>✏️</button>
+          <button onClick={onExport} className="bg-slate-600 hover:bg-slate-500 text-white px-2.5 py-1 rounded text-[10px] font-bold transition-colors" title={t('creator.exportTitle')}>📤</button>
         </div>
         <div className="flex gap-1">
-          {onMoveUp && <button onClick={onMoveUp} className="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-[10px] font-bold flex-1" title="Mover pra cima">▲</button>}
-          {onMoveDown && <button onClick={onMoveDown} className="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-[10px] font-bold flex-1" title="Mover pra baixo">▼</button>}
+          {onMoveUp && <button onClick={onMoveUp} className="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-[10px] font-bold flex-1" title={t('creator.moveUp')}>▲</button>}
+          {onMoveDown && <button onClick={onMoveDown} className="bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded text-[10px] font-bold flex-1" title={t('creator.moveDown')}>▼</button>}
         </div>
         {!confirmDelete ? (
-          <button onClick={() => setConfirmDelete(true)} className="bg-red-700/40 hover:bg-red-700/70 text-red-300 px-2.5 py-1 rounded text-[10px] font-bold transition-colors w-full">🗑️ Excluir</button>
+          <button onClick={() => setConfirmDelete(true)} className="bg-red-700/40 hover:bg-red-700/70 text-red-300 px-2.5 py-1 rounded text-[10px] font-bold transition-colors w-full">{t('creator.delete')}</button>
         ) : (
           <div className="flex gap-1">
-            <button onClick={() => { onDelete(); setConfirmDelete(false); }} className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-[9px] font-bold flex-1">Sim</button>
-            <button onClick={() => setConfirmDelete(false)} className="bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-[9px] font-bold flex-1">Não</button>
+            <button onClick={() => { onDelete(); setConfirmDelete(false); }} className="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded text-[9px] font-bold flex-1">{t('common.yes')}</button>
+            <button onClick={() => setConfirmDelete(false)} className="bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-[9px] font-bold flex-1">{t('common.no')}</button>
           </div>
         )}
       </div>
@@ -522,6 +525,7 @@ function BoardMini({ boardRows }) {
 }
 
 function PlayScreen({ template, onBack, onExit }) {
+  const { t } = useI18n();
   const [gameState, setGameState] = useState(null);
   const [playId, setPlayId] = useState(0);
 
@@ -627,9 +631,9 @@ function PlayScreen({ template, onBack, onExit }) {
           {template.emoji} {template.name}
         </h1>
         <div className="flex gap-2">
-          <button onClick={initGame} className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-lg text-xs font-bold">🔄 Replay</button>
-          <button onClick={onBack} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs font-bold">← Voltar</button>
-          <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-xs font-bold">Sair</button>
+          <button onClick={initGame} className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-lg text-xs font-bold">{t('creator.replay')}</button>
+          <button onClick={onBack} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-xs font-bold">{t('common.back')}</button>
+          <button onClick={onExit} className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-xs font-bold">{t('common.exit')}</button>
         </div>
       </div>
 
@@ -637,7 +641,7 @@ function PlayScreen({ template, onBack, onExit }) {
         <div className="flex gap-3 items-start justify-center">
           <div className="flex flex-col gap-2">
             <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
-            <div className="text-white/50 text-[10px] leading-tight">←→ mover<br/>↑ girar<br/>C hold<br/>Espaço drop<br/>R replay</div>
+            <div className="text-white/50 text-[10px] leading-tight" dangerouslySetInnerHTML={{ __html: t('creator.playControls').replace(/  /g, '<br/>') }} />
           </div>
           <TetrisBoard board={gameState.board} currentPiece={gameState.currentPiece} dropPreview={dropPreview} gameOver={gameState.gameOver} />
           <div className="flex flex-col gap-2">
@@ -649,8 +653,8 @@ function PlayScreen({ template, onBack, onExit }) {
 
       {gameState?.gameOver && (
         <div className="mt-4 flex gap-3">
-          <button onClick={initGame} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg">🔄 Tentar Novamente</button>
-          <button onClick={onBack} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg">← Voltar</button>
+          <button onClick={initGame} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg">{t('creator.tryAgain')}</button>
+          <button onClick={onBack} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg">{t('common.back')}</button>
         </div>
       )}
     </div>
@@ -658,6 +662,7 @@ function PlayScreen({ template, onBack, onExit }) {
 }
 
 function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, setEmoji, desc, setDesc, selectedColor, setSelectedColor, onPlay, onSave, isEditing, onBack, onExit }) {
+  const { t } = useI18n();
   const toggleCell = useCallback((x, y) => {
     setBoard(prev => {
       const nb = prev.map(r => [...r]);
@@ -702,75 +707,75 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
   return (
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-3 overflow-auto">
       <div className="flex justify-between items-center w-full max-w-2xl mb-3">
-        <h1 className="text-xl font-bold text-white">{isEditing ? '✏️ Editar Setup' : '🛠️ Criar Meu Setup'}</h1>
+        <h1 className="text-xl font-bold text-white">{isEditing ? t('creator.editSetup') : t('creator.createMySetup')}</h1>
         <div className="flex gap-2">
-          <button onClick={onBack} className={`bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-sm font-bold ${editorSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>← Voltar</button>
-          <button onClick={onExit} className={`bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-bold ${editorSelIdx === 1 ? 'ring-2 ring-yellow-400' : ''}`}>Sair</button>
+          <button onClick={onBack} className={`bg-slate-600 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-sm font-bold ${editorSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>{t('common.back')}</button>
+          <button onClick={onExit} className={`bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-bold ${editorSelIdx === 1 ? 'ring-2 ring-yellow-400' : ''}`}>{t('common.exit')}</button>
         </div>
       </div>
       <div className="flex gap-4 items-start justify-center flex-wrap max-w-2xl">
         <div className="flex flex-col gap-2">
-          <div className="text-white/60 text-xs font-semibold mb-1">TABULEIRO (clique para editar)</div>
-          <BoardEditor board={board} onToggle={toggleCell} onFillRow={fillRow} onClearRow={clearRow} />
+          <div className="text-white/60 text-xs font-semibold mb-1">{t('creator.boardLabel')}</div>
+          <BoardEditor board={board} onToggle={toggleCell} onFillRow={fillRow} onClearRow={clearRow} t={t} />
           <div className="flex gap-1 items-center mt-1">
-            <span className="text-white/50 text-xs mr-1">Cor:</span>
-            {PIECE_TYPES.map(t => (
-              <button key={t} onClick={() => setSelectedColor(t)}
-                className={`w-6 h-6 rounded border-2 transition-all ${selectedColor === t ? 'border-white scale-110' : 'border-white/20'}`}
-                style={{ backgroundColor: PIECE_COLORS[t] }} title={t} />
+            <span className="text-white/50 text-xs mr-1">{t('creator.color')}</span>
+            {PIECE_TYPES.map(pt => (
+              <button key={pt} onClick={() => setSelectedColor(pt)}
+                className={`w-6 h-6 rounded border-2 transition-all ${selectedColor === pt ? 'border-white scale-110' : 'border-white/20'}`}
+                style={{ backgroundColor: PIECE_COLORS[pt] }} title={pt} />
             ))}
             <button onClick={() => setSelectedColor('G')}
               className={`w-6 h-6 rounded border-2 transition-all ${selectedColor === 'G' ? 'border-white scale-110' : 'border-white/20'}`}
-              style={{ backgroundColor: PIECE_COLORS.G }} title="Cinza" />
+              style={{ backgroundColor: PIECE_COLORS.G }} title={t('creator.gray')} />
           </div>
-          <button onClick={() => setBoard(emptyBoard())} className="bg-red-700/60 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-semibold mt-1 w-fit">Limpar Tudo</button>
+          <button onClick={() => setBoard(emptyBoard())} className="bg-red-700/60 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-semibold mt-1 w-fit">{t('creator.clearAll')}</button>
         </div>
 
         <div className="flex flex-col gap-3 min-w-[160px]">
           <div>
-            <div className="text-white/60 text-xs font-semibold mb-2">FILA DE PEÇAS</div>
+            <div className="text-white/60 text-xs font-semibold mb-2">{t('creator.queueLabel')}</div>
             <div className="flex flex-wrap gap-1 mb-2">
-              {PIECE_TYPES.map(t => (
-                <button key={t} onClick={() => setQueue(q => [...q, t])}
-                  className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 transition-all" title={`Adicionar ${t}`}>
-                  <PieceMini type={t} />
+              {PIECE_TYPES.map(pt => (
+                <button key={pt} onClick={() => setQueue(q => [...q, pt])}
+                  className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 border border-white/10 transition-all" title={t('creator.addPiece', { piece: pt })}>
+                  <PieceMini type={pt} />
                 </button>
               ))}
             </div>
             <div className="flex flex-col gap-1 min-h-[60px] bg-black/30 rounded-lg p-2">
               {queue.length === 0 ? (
-                <span className="text-white/30 text-xs text-center py-2">Clique nas peças acima<br/>(vazio = fila aleatória)</span>
+                <span className="text-white/30 text-xs text-center py-2" dangerouslySetInnerHTML={{ __html: t('creator.queueEmpty').replace('\n', '<br/>') }} />
               ) : (
                 <div className="flex flex-wrap gap-1">
-                  {queue.map((t, i) => (
+                  {queue.map((pt, i) => (
                     <button key={i} onClick={() => setQueue(q => q.filter((_, j) => j !== i))}
-                      className="flex items-center justify-center w-8 h-8 rounded bg-white/10 hover:bg-red-500/30 border border-white/10 transition-all group relative" title="Remover">
-                      <PieceMini type={t} size={10} />
+                      className="flex items-center justify-center w-8 h-8 rounded bg-white/10 hover:bg-red-500/30 border border-white/10 transition-all group relative" title={t('creator.removeTitle')}>
+                      <PieceMini type={pt} size={10} />
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] rounded-full w-3 h-3 flex items-center justify-center opacity-0 group-hover:opacity-100">×</span>
                     </button>
                   ))}
                 </div>
               )}
-              {queue.length > 0 && <button onClick={() => setQueue([])} className="text-red-400 text-[10px] mt-1 hover:text-red-300">Limpar fila</button>}
+              {queue.length > 0 && <button onClick={() => setQueue([])} className="text-red-400 text-[10px] mt-1 hover:text-red-300">{t('creator.clearQueue')}</button>}
             </div>
           </div>
           <div>
-            <div className="text-white/60 text-xs font-semibold mb-2">DETALHES</div>
+            <div className="text-white/60 text-xs font-semibold mb-2">{t('creator.detailsLabel')}</div>
             <div className="flex gap-2 mb-2">
               <input type="text" value={emoji} onChange={e => setEmoji(e.target.value)}
                 placeholder="🎨" maxLength={4}
                 className="w-14 px-2 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-center text-lg focus:border-violet-500/50 focus:outline-none" title="Emoji" />
               <input type="text" value={name} onChange={e => setName(e.target.value)}
-                placeholder="Nome do setup" maxLength={40}
+                placeholder={t('creator.namePlaceholder')} maxLength={40}
                 className="flex-1 px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-sm placeholder-white/20 focus:border-violet-500/50 focus:outline-none" />
             </div>
             <input type="text" value={desc} onChange={e => setDesc(e.target.value)}
-              placeholder="Descrição (opcional)" maxLength={80}
+              placeholder={t('creator.descPlaceholder')} maxLength={80}
               className="w-full px-3 py-2 rounded-lg bg-black/30 border border-white/10 text-white text-xs placeholder-white/20 focus:border-violet-500/50 focus:outline-none mb-3" />
           </div>
           <div className="flex flex-col gap-2">
-            <button onClick={onSave} className={`w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white font-bold text-base shadow-lg shadow-violet-500/25 transition-all active:scale-95 ${editorSelIdx === 2 ? 'ring-2 ring-yellow-400' : ''}`}>{isEditing ? '💾 Salvar Alterações' : '💾 Salvar Setup'}</button>
-            <button onClick={onPlay} className={`w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all active:scale-95 ${editorSelIdx === 3 ? 'ring-2 ring-yellow-400' : ''}`}>🎮 Testar (sem salvar)</button>
+            <button onClick={onSave} className={`w-full py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-400 hover:to-purple-400 text-white font-bold text-base shadow-lg shadow-violet-500/25 transition-all active:scale-95 ${editorSelIdx === 2 ? 'ring-2 ring-yellow-400' : ''}`}>{isEditing ? t('creator.saveChanges') : t('creator.saveSetup')}</button>
+            <button onClick={onPlay} className={`w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all active:scale-95 ${editorSelIdx === 3 ? 'ring-2 ring-yellow-400' : ''}`}>{t('creator.testWithoutSaving')}</button>
           </div>
         </div>
       </div>
@@ -778,7 +783,7 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
   );
 }
 
-function BoardEditor({ board, onToggle, onFillRow, onClearRow }) {
+function BoardEditor({ board, onToggle, onFillRow, onClearRow, t }) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragMode, setDragMode] = useState(null);
   const cellSize = 22;
@@ -804,7 +809,7 @@ function BoardEditor({ board, onToggle, onFillRow, onClearRow }) {
           ))}
           <button onClick={() => row.some(c => c) ? onClearRow(y) : onFillRow(y, Math.floor(Math.random() * BOARD_W))}
             className="ml-0.5 text-white/20 hover:text-white/60 text-[9px] w-4 flex items-center justify-center"
-            title={row.some(c => c) ? 'Limpar linha' : 'Preencher linha'}>
+            title={row.some(c => c) ? t('creator.clearLine') : t('creator.fillLine')}>
             {row.some(c => c) ? '×' : '+'}
           </button>
         </div>

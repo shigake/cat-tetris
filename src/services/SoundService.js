@@ -9,9 +9,9 @@ export class SoundService {
     try {
       const audio = new Audio(url);
       audio.preload = 'auto';
-      this.sounds[name] = audio;
+      this.sounds.set(name, audio);
     } catch (error) {
-      this.sounds[name] = null;
+      this.sounds.set(name, null);
     }
   }
 
@@ -28,7 +28,7 @@ export class SoundService {
   setVolume(volume) {
     this.volume = Math.max(0, Math.min(1, volume));
     this.sounds.forEach(sound => {
-      sound.volume = this.volume;
+      if (sound) sound.volume = this.volume;
     });
   }
 

@@ -4,6 +4,7 @@ import TetrisBoard from '../TetrisBoard';
 import NextPieces from '../NextPieces';
 import HeldPiece from '../HeldPiece';
 import Scoreboard from '../Scoreboard';
+import { useI18n } from '../../hooks/useI18n';
 
 function DemonstrationScreen({
   gameState,
@@ -13,6 +14,7 @@ function DemonstrationScreen({
   onResume,
   onSkip
 }) {
+  const { t } = useI18n();
   return (
     <motion.div
       key="demo"
@@ -39,7 +41,7 @@ function DemonstrationScreen({
         <div className="bg-gray-900/50 rounded-xl p-6">
           <div className="text-white/80 mb-4 text-center">
             <span className="text-2xl">🎬</span>
-            <span className="ml-2 text-lg font-bold">CPU jogando...</span>
+            <span className="ml-2 text-lg font-bold">{t('lesson.cpuPlaying')}</span>
           </div>
 
           <div className="flex gap-4">
@@ -72,14 +74,14 @@ function DemonstrationScreen({
               onClick={onResume}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
             >
-              ▶️ Continuar
+              {t('lesson.continue')}
             </button>
           ) : (
             <button
               onClick={onPause}
               className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
             >
-              ⏸️ Pausar
+              {t('lesson.pause')}
             </button>
           )
         )}
@@ -88,7 +90,7 @@ function DemonstrationScreen({
           onClick={onSkip}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
         >
-          ⏭️ Ir para Prática
+          {t('lesson.goToPractice')}
         </button>
 
         <div className="flex-1 bg-gray-700 rounded-full h-3 overflow-hidden min-w-[200px]">

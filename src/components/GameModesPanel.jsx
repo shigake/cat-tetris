@@ -49,7 +49,7 @@ function GameModesPanel({ onClose, onStartGame }) {
         <div className="bg-red-900/90 text-white p-6 rounded-lg">
           <p className="text-xl">{t('gameModes.errorLoading')}</p>
           <button onClick={onClose} className="mt-4 bg-white text-black px-4 py-2 rounded">
-            Fechar
+            {t('common.close')}
           </button>
         </div>
       </div>

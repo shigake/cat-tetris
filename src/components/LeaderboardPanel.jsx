@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 const COUNTRY_FLAGS = {
   BR: '🇧🇷', US: '🇺🇸', JP: '🇯🇵', KR: '🇰🇷', FR: '🇫🇷',
@@ -27,6 +28,7 @@ function LeaderboardPanel({ onClose }) {
     getPlayerName,
     setPlayerName
   } = useLeaderboard();
+  const { t } = useI18n();
 
   const [selectedTab, setSelectedTab] = useState('global');
   const [displayedLeaderboard, setDisplayedLeaderboard] = useState([]);
@@ -92,7 +94,7 @@ function LeaderboardPanel({ onClose }) {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-xl">Carregando ranking...</div>
+        <div className="text-white text-xl">{t('leaderboard.loading')}</div>
       </div>
     );
   }
@@ -116,10 +118,10 @@ function LeaderboardPanel({ onClose }) {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              🏆 Ranking Global
+              {t('leaderboard.title')}
             </h2>
             <p className="text-white/60 text-sm mt-1">
-              Competição mundial de Cat Tetris
+              {t('leaderboard.subtitle')}
             </p>
           </div>
           <button
@@ -138,7 +140,7 @@ function LeaderboardPanel({ onClose }) {
                   <div className="text-3xl font-bold text-green-400">
                     #{playerRank.rank}
                   </div>
-                  <div className="text-white/60 text-xs">Sua Posição</div>
+                  <div className="text-white/60 text-xs">{t('leaderboard.yourPosition')}</div>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -169,7 +171,7 @@ function LeaderboardPanel({ onClose }) {
                     )}
                   </div>
                   <div className="text-white/60 text-sm">
-                    Top {playerRank.percentile}% dos jogadores
+                    {t('leaderboard.topPercent', { n: playerRank.percentile })}
                   </div>
                 </div>
               </div>
@@ -177,7 +179,7 @@ function LeaderboardPanel({ onClose }) {
                 onClick={refreshLeaderboard}
                 className={`bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold transition-colors ${hasRefresh && selectedIndex === tabs.length ? 'ring-2 ring-yellow-400' : ''}`}
               >
-                🔄 Atualizar
+                                {t('leaderboard.refresh')}
               </button>
             </div>
           </div>
@@ -185,10 +187,10 @@ function LeaderboardPanel({ onClose }) {
 
         <div className="flex gap-2 mb-4 overflow-x-auto">
           {[
-            { id: 'global', label: '🌍 Global', desc: 'Top 100' },
-            { id: 'weekly', label: '📅 Semanal', desc: 'Esta semana' },
-            { id: 'country', label: '🇧🇷 Brasil', desc: 'Seu país' },
-            { id: 'around', label: '📍 Ao Redor', desc: 'Perto de você' }
+            { id: 'global', label: t('leaderboard.tabGlobal'), desc: t('leaderboard.tabGlobalDesc') },
+            { id: 'weekly', label: t('leaderboard.tabWeekly'), desc: t('leaderboard.tabWeeklyDesc') },
+            { id: 'country', label: t('leaderboard.tabCountry'), desc: t('leaderboard.tabCountryDesc') },
+            { id: 'around', label: t('leaderboard.tabAround'), desc: t('leaderboard.tabAroundDesc') }
           ].map((tab, tabIdx) => (
             <button
               key={tab.id}
@@ -210,11 +212,11 @@ function LeaderboardPanel({ onClose }) {
             <table className="w-full">
               <thead>
                 <tr className="bg-black/50 text-white/80 text-sm">
-                  <th className="text-left p-3">Rank</th>
-                  <th className="text-left p-3">Jogador</th>
-                  <th className="text-right p-3">Pontuação</th>
-                  <th className="text-right p-3">Nível</th>
-                  <th className="text-right p-3">Linhas</th>
+                  <th className="text-left p-3">{t('leaderboard.colRank')}</th>
+                  <th className="text-left p-3">{t('leaderboard.colPlayer')}</th>
+                  <th className="text-right p-3">{t('leaderboard.colScore')}</th>
+                  <th className="text-right p-3">{t('leaderboard.colLevel')}</th>
+                  <th className="text-right p-3">{t('leaderboard.colLines')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,7 +255,7 @@ function LeaderboardPanel({ onClose }) {
                             player.isPlayer ? 'text-green-400 font-bold' : 'text-white'
                           }`}>
                             {player.name}
-                            {player.isPlayer && ' (Você)'}
+                            {player.isPlayer && ` ${t('leaderboard.you')}`}
                           </span>
                         </div>
                       </td>
@@ -281,13 +283,13 @@ function LeaderboardPanel({ onClose }) {
 
           {displayedLeaderboard.length === 0 && (
             <div className="text-center text-white/40 py-8">
-              Nenhum jogador nesta categoria ainda
+              {t('leaderboard.noPlayers')}
             </div>
           )}
         </div>
 
         <div className="mt-4 text-center text-white/40 text-sm">
-          💡 Jogue mais para subir no ranking! | 🎮 Ⓑ Voltar
+          {t('leaderboard.footer')}
         </div>
       </motion.div>
     </motion.div>
