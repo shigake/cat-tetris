@@ -12,6 +12,7 @@ import Scoreboard from './Scoreboard';
 import { useGamepad } from '../hooks/useGamepad';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
+import { buildKeyToActionMap, loadKeyboardMappings } from '../config/KeyboardConfig';
 
 const BOARD_W = 10;
 const BOARD_H = 20;
@@ -565,18 +566,21 @@ function PlayScreen({ template, onBack, onExit }) {
   }, [playId]);
 
   useEffect(() => {
+    const keyMap = buildKeyToActionMap(loadKeyboardMappings());
     const handle = (e) => {
       const gs = gsRef.current;
       if (!gs || gs.gameOver) return;
-      switch (e.key) {
-        case 'ArrowLeft': e.preventDefault(); gs.movePiece('left'); break;
-        case 'ArrowRight': e.preventDefault(); gs.movePiece('right'); break;
-        case 'ArrowDown': e.preventDefault(); gs.movePiece('down'); break;
-        case 'ArrowUp': e.preventDefault(); gs.rotatePiece(); break;
-        case 'z': case 'Z': gs.rotatePieceLeft(); break;
-        case 'c': case 'C': case 'Shift': gs.holdPiece(); break;
-        case ' ': e.preventDefault(); gs.hardDrop(); break;
-        case 'r': case 'R': initGame(); break;
+      const action = keyMap[e.key];
+      if (e.key === 'r' || e.key === 'R') { initGame(); return; }
+      if (!action) return;
+      switch (action) {
+        case 'moveLeft': e.preventDefault(); gs.movePiece('left'); break;
+        case 'moveRight': e.preventDefault(); gs.movePiece('right'); break;
+        case 'moveDown': e.preventDefault(); gs.movePiece('down'); break;
+        case 'rotate': e.preventDefault(); gs.rotatePiece(); break;
+        case 'rotateLeft': gs.rotatePieceLeft(); break;
+        case 'hold': gs.holdPiece(); break;
+        case 'hardDrop': e.preventDefault(); gs.hardDrop(); break;
       }
     };
     window.addEventListener('keydown', handle);

@@ -13,6 +13,7 @@ import GamepadIndicator from './GamepadIndicator';
 import { useGamepad } from '../hooks/useGamepad';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
+import { buildKeyToActionMap, loadKeyboardMappings } from '../config/KeyboardConfig';
 
 function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onExit }) {
   const { t } = useI18n();
@@ -188,17 +189,20 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
 
   useEffect(() => {
     if (winner || mode === 'aiVsAI') return;
+    const keyMap = buildKeyToActionMap(loadKeyboardMappings());
     const handle = (e) => {
       const p1 = servicesRef.current.p1;
       if (!p1 || p1.gameOver) return;
-      switch (e.key) {
-        case 'ArrowLeft': e.preventDefault(); p1.movePiece('left'); break;
-        case 'ArrowRight': e.preventDefault(); p1.movePiece('right'); break;
-        case 'ArrowDown': e.preventDefault(); p1.movePiece('down'); break;
-        case 'ArrowUp': e.preventDefault(); p1.rotatePiece(); break;
-        case 'z': case 'Z': p1.rotatePiece('left'); break;
-        case 'c': case 'C': case 'Shift': p1.holdPiece(); break;
-        case ' ': e.preventDefault(); p1.hardDrop(); break;
+      const action = keyMap[e.key];
+      if (!action) return;
+      switch (action) {
+        case 'moveLeft': e.preventDefault(); p1.movePiece('left'); break;
+        case 'moveRight': e.preventDefault(); p1.movePiece('right'); break;
+        case 'moveDown': e.preventDefault(); p1.movePiece('down'); break;
+        case 'rotate': e.preventDefault(); p1.rotatePiece(); break;
+        case 'rotateLeft': p1.rotatePiece('left'); break;
+        case 'hold': p1.holdPiece(); break;
+        case 'hardDrop': e.preventDefault(); p1.hardDrop(); break;
       }
     };
     window.addEventListener('keydown', handle);

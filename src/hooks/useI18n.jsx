@@ -452,6 +452,19 @@ const en = {
   'settings.gamepadPress': 'Press...',
   'settings.dpadNote': 'D-Pad cannot be remapped (navigation)',
   'settings.gamepadReset': '🔄 Restore Defaults',
+
+  // Settings - Keyboard Remap
+  'settings.keyboardTitle': '⌨️ Keyboard Controls',
+  'settings.keyPress': 'Press a key...',
+  'settings.keyReset': '🔄 Restore Defaults',
+  'settings.keyAction.moveLeft': 'Move Left',
+  'settings.keyAction.moveRight': 'Move Right',
+  'settings.keyAction.moveDown': 'Soft Drop',
+  'settings.keyAction.rotate': 'Rotate →',
+  'settings.keyAction.rotateLeft': 'Rotate ←',
+  'settings.keyAction.hardDrop': 'Hard Drop',
+  'settings.keyAction.hold': 'Hold',
+  'settings.keyAction.pause': 'Pause',
 };
 
 // ─── PORTUGUESE ───
@@ -868,6 +881,18 @@ const pt = {
   'settings.gamepadPress': 'Pressione...',
   'settings.dpadNote': 'D-Pad não pode ser remapeado (navegação)',
   'settings.gamepadReset': '🔄 Restaurar Padrão',
+
+  'settings.keyboardTitle': '⌨️ Controles do Teclado',
+  'settings.keyPress': 'Pressione uma tecla...',
+  'settings.keyReset': '🔄 Restaurar Padrão',
+  'settings.keyAction.moveLeft': 'Mover Esquerda',
+  'settings.keyAction.moveRight': 'Mover Direita',
+  'settings.keyAction.moveDown': 'Soft Drop',
+  'settings.keyAction.rotate': 'Girar →',
+  'settings.keyAction.rotateLeft': 'Girar ←',
+  'settings.keyAction.hardDrop': 'Hard Drop',
+  'settings.keyAction.hold': 'Segurar',
+  'settings.keyAction.pause': 'Pausar',
 };
 
 // ─── SPANISH ───
@@ -1283,6 +1308,18 @@ const es = {
   'settings.gamepadPress': 'Pulsa...',
   'settings.dpadNote': 'D-Pad no se puede reasignar (navegación)',
   'settings.gamepadReset': '🔄 Restaurar Predeterminados',
+
+  'settings.keyboardTitle': '⌨️ Controles del Teclado',
+  'settings.keyPress': 'Pulsa una tecla...',
+  'settings.keyReset': '🔄 Restaurar Predeterminados',
+  'settings.keyAction.moveLeft': 'Mover Izquierda',
+  'settings.keyAction.moveRight': 'Mover Derecha',
+  'settings.keyAction.moveDown': 'Soft Drop',
+  'settings.keyAction.rotate': 'Girar →',
+  'settings.keyAction.rotateLeft': 'Girar ←',
+  'settings.keyAction.hardDrop': 'Hard Drop',
+  'settings.keyAction.hold': 'Mantener',
+  'settings.keyAction.pause': 'Pausar',
 };
 
 // ─── JAPANESE ───
@@ -1698,6 +1735,18 @@ const ja = {
   'settings.gamepadPress': 'ボタンを押して...',
   'settings.dpadNote': 'D-Padは再割り当て不可（ナビゲーション用）',
   'settings.gamepadReset': '🔄 デフォルトに戻す',
+
+  'settings.keyboardTitle': '⌨️ キーボード操作',
+  'settings.keyPress': 'キーを押してください...',
+  'settings.keyReset': '🔄 デフォルトに戻す',
+  'settings.keyAction.moveLeft': '左移動',
+  'settings.keyAction.moveRight': '右移動',
+  'settings.keyAction.moveDown': 'ソフトドロップ',
+  'settings.keyAction.rotate': '右回転',
+  'settings.keyAction.rotateLeft': '左回転',
+  'settings.keyAction.hardDrop': 'ハードドロップ',
+  'settings.keyAction.hold': 'ホールド',
+  'settings.keyAction.pause': 'ポーズ',
 };
 
 // ─── FRENCH ───
@@ -2113,6 +2162,18 @@ const fr = {
   'settings.gamepadPress': 'Appuyez...',
   'settings.dpadNote': 'D-Pad non réassignable (navigation)',
   'settings.gamepadReset': '🔄 Restaurer les Défauts',
+
+  'settings.keyboardTitle': '⌨️ Contrôles Clavier',
+  'settings.keyPress': 'Appuyez sur une touche...',
+  'settings.keyReset': '🔄 Restaurer les Défauts',
+  'settings.keyAction.moveLeft': 'Gauche',
+  'settings.keyAction.moveRight': 'Droite',
+  'settings.keyAction.moveDown': 'Soft Drop',
+  'settings.keyAction.rotate': 'Rotation →',
+  'settings.keyAction.rotateLeft': 'Rotation ←',
+  'settings.keyAction.hardDrop': 'Hard Drop',
+  'settings.keyAction.hold': 'Réserve',
+  'settings.keyAction.pause': 'Pause',
 };
 
 const translations = { en, pt, es, ja, fr };

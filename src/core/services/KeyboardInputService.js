@@ -1,25 +1,10 @@
 import { IKeyboardInputService } from '../../interfaces/IKeyboardInputService.js';
+import { buildKeyToActionMap, loadKeyboardMappings } from '../../config/KeyboardConfig.js';
 
 export class KeyboardInputService extends IKeyboardInputService {
   constructor() {
     super();
-    this.keyMappings = {
-      'ArrowLeft': 'moveLeft',
-      'ArrowRight': 'moveRight',
-      'ArrowDown': 'moveDown',
-      'ArrowUp': 'rotate',
-      'x': 'rotate',
-      'X': 'rotate',
-      'z': 'rotateLeft',
-      'Z': 'rotateLeft',
-      ' ': 'hardDrop',
-      'c': 'hold',
-      'C': 'hold',
-      'Shift': 'hold',
-      'p': 'pause',
-      'P': 'pause',
-      'Escape': 'pause'
-    };
+    this.keyMappings = buildKeyToActionMap(loadKeyboardMappings());
 
     this.preventDefaultKeys = [
       'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '
@@ -177,6 +162,18 @@ export class KeyboardInputService extends IKeyboardInputService {
 
   getKeyMappings() {
     return { ...this.keyMappings };
+  }
+
+  reloadMappings() {
+    this.keyMappings = buildKeyToActionMap(loadKeyboardMappings());
+    // Update preventDefaultKeys based on new mappings
+    const moveKeys = new Set();
+    for (const [key, action] of Object.entries(this.keyMappings)) {
+      if (['moveLeft', 'moveRight', 'moveDown', 'rotate', 'hardDrop'].includes(action)) {
+        moveKeys.add(key);
+      }
+    }
+    this.preventDefaultKeys = [...moveKeys];
   }
 
   clear() {

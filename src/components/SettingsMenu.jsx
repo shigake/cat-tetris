@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
+import { serviceContainer } from '../core/container/ServiceRegistration';
 import {
   loadGamepadMappings,
   saveGamepadMappings,
@@ -12,6 +13,13 @@ import {
   MENU_ACTIONS,
   GAME_ACTIONS,
 } from '../config/GamepadConfig';
+import {
+  loadKeyboardMappings,
+  saveKeyboardMappings,
+  resetKeyboardMappings,
+  keyDisplayName,
+  KEYBOARD_ACTIONS,
+} from '../config/KeyboardConfig';
 
 const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
   const { t } = useI18n();
@@ -26,9 +34,16 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
   const [listeningAction, setListeningAction] = useState(null);
   const listenIntervalRef = useRef(null);
 
+  // Keyboard remapping state
+  const [keyMappings, setKeyMappings] = useState(() => loadKeyboardMappings());
+  const [listeningKeyAction, setListeningKeyAction] = useState(null);
+
   // Refresh mappings when settings open
   useEffect(() => {
-    if (isOpen) setGamepadMappings(loadGamepadMappings());
+    if (isOpen) {
+      setGamepadMappings(loadGamepadMappings());
+      setKeyMappings(loadKeyboardMappings());
+    }
   }, [isOpen]);
 
   // Listen for button press to remap
@@ -78,8 +93,46 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
     setGamepadMappings(defaults);
   }, []);
 
+  // Listen for key press to remap keyboard
+  useEffect(() => {
+    if (!listeningKeyAction) return;
+
+    const handler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const newMappings = { ...keyMappings, [listeningKeyAction]: e.key };
+      setKeyMappings(newMappings);
+      saveKeyboardMappings(newMappings);
+      setListeningKeyAction(null);
+    };
+
+    // Small delay so the click that triggered listen mode doesn't interfere
+    const timeout = setTimeout(() => {
+      window.addEventListener('keydown', handler, { capture: true });
+    }, 100);
+
+    // Auto-cancel after 5 seconds
+    const cancelTimeout = setTimeout(() => setListeningKeyAction(null), 5000);
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(cancelTimeout);
+      window.removeEventListener('keydown', handler, { capture: true });
+    };
+  }, [listeningKeyAction, keyMappings]);
+
+  const handleResetKeyboard = useCallback(() => {
+    const defaults = resetKeyboardMappings();
+    setKeyMappings(defaults);
+  }, []);
+
   const handleSave = () => {
     onSettingsChange(localSettings);
+    // Reload keyboard mappings in the running service
+    try {
+      const kbService = serviceContainer.resolve('keyboardInputService');
+      kbService.reloadMappings();
+    } catch { /* ignore if not registered */ }
     onClose();
   };
 
@@ -189,30 +242,28 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
               </div>
 
               <div className="border-t border-white/10 pt-4 mt-4">
-                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.controls')}</div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-white/60">
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">← →</span> {t('settings.ctrlMove')}
-                  </div>
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">↑ / X</span> {t('settings.ctrlRotateR')}
-                  </div>
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">Z</span> {t('settings.ctrlRotateL')}
-                  </div>
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">↓</span> {t('settings.ctrlSoftDrop')}
-                  </div>
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">Espaço</span> {t('settings.ctrlHardDrop')}
-                  </div>
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">C / Shift</span> {t('settings.ctrlHold')}
-                  </div>
-                  <div className="bg-white/[0.04] rounded-lg p-2">
-                    <span className="text-white/40">P / Esc</span> {t('settings.ctrlPause')}
-                  </div>
+                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.keyboardTitle')}</div>
+                <div className="space-y-1">
+                  {KEYBOARD_ACTIONS.map(action => (
+                    <button
+                      key={action}
+                      onClick={() => { setListeningKeyAction(action); setListeningAction(null); }}
+                      className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
+                        ${listeningKeyAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
+                    >
+                      <span className="text-white/70">{t(`settings.keyAction.${action}`)}</span>
+                      <span className={`font-mono font-bold ${listeningKeyAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
+                        {listeningKeyAction === action ? t('settings.keyPress') : keyDisplayName(keyMappings[action])}
+                      </span>
+                    </button>
+                  ))}
                 </div>
+                <button
+                  onClick={handleResetKeyboard}
+                  className="w-full mt-2 bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white/90 text-xs py-1.5 rounded-lg transition-colors"
+                >
+                  {t('settings.keyReset')}
+                </button>
               </div>
 
               {/* Gamepad Button Remapping */}
