@@ -67,12 +67,10 @@ const DEFAULT_TEMPLATES = [
     name: 'TSD em Cadeia',
     emoji: '🔁',
     desc: 'Dois T-Spin Doubles seguidos — Back-to-Back!',
-    board: mkRows(12, [
-      'G....GGGGG',
-      'G...GGGGGG',
-      'GGG..GGGGG',
-      'GGG...GGGG',
-      'GGGG.GGGGG',
+    board: mkRows(14, [
+      'GGGGG..GGG',
+      'GGGG...GGG',
+      'GGGGG.GGGG',
       'GGG..GGGGG',
       'GGG...GGGG',
       'GGGG.GGGGG',

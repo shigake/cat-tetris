@@ -18,7 +18,6 @@ export const DEFAULT_KEY_MAPPINGS = {
   pause: 'Escape',
 };
 
-// Human-readable label for a key value
 export function keyDisplayName(key) {
   const names = {
     ' ': 'Space',
