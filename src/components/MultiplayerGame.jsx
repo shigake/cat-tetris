@@ -22,6 +22,10 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
   const [winner, setWinner] = useState(null);
   const [p1Garbage, setP1Garbage] = useState(0);
   const [p2Garbage, setP2Garbage] = useState(0);
+  const [p1Incoming, setP1Incoming] = useState(0);
+  const [p2Incoming, setP2Incoming] = useState(0);
+  const [p1GarbageQueue, setP1GarbageQueue] = useState([]);
+  const [p2GarbageQueue, setP2GarbageQueue] = useState([]);
   const servicesRef = useRef({ p1: null, p2: null, ai: null, ai1: null, ai2: null });
   const lastTimeRef = useRef(0);
   const loopRef = useRef(null);
@@ -170,11 +174,15 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
       if (p1.isDirty) {
         setPlayer1State(p1.getGameState());
         setP1Garbage(p1.pendingGarbage);
+        setP1Incoming(p1.incomingGarbage);
+        setP1GarbageQueue(p1._garbageQueue.map(g => ({ amount: g.amount, progress: Math.min(g.timer / p1._GARBAGE_DELAY, 1) })));
         p1.clearDirty();
       }
       if (p2.isDirty) {
         setPlayer2State(p2.getGameState());
         setP2Garbage(p2.pendingGarbage);
+        setP2Incoming(p2.incomingGarbage);
+        setP2GarbageQueue(p2._garbageQueue.map(g => ({ amount: g.amount, progress: Math.min(g.timer / p2._GARBAGE_DELAY, 1) })));
         p2.clearDirty();
       }
 
@@ -337,8 +345,11 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
                   </div>
                 )}
               </div>
-              <TetrisBoard board={player1State.board} currentPiece={player1State.currentPiece} dropPreview={p1DropPreview} gameOver={player1State.gameOver} />
-              {p1Garbage > 0 && <GarbageMeter count={p1Garbage} />}
+              <div className="relative">
+                <TetrisBoard board={player1State.board} currentPiece={player1State.currentPiece} dropPreview={p1DropPreview} gameOver={player1State.gameOver} />
+                <GarbageWarning incoming={p1Incoming} queue={p1GarbageQueue} t={t} />
+              </div>
+              {(p1Garbage > 0 || p1Incoming > 0) && <GarbageMeter pending={p1Garbage} incoming={p1Incoming} queue={p1GarbageQueue} />}
               <div className="hidden sm:flex flex-col gap-2">
                 <NextPieces pieces={player1State.nextPieces || []} />
                 <Scoreboard score={player1State.score?.points || 0} level={player1State.score?.level || 1} lines={player1State.score?.lines || 0} combo={player1State.score?.combo || 0} />
@@ -373,8 +384,11 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
                   </div>
                 )}
               </div>
-              <TetrisBoard board={player2State.board} currentPiece={player2State.currentPiece} dropPreview={p2DropPreview} gameOver={player2State.gameOver} />
-              {p2Garbage > 0 && <GarbageMeter count={p2Garbage} />}
+              <div className="relative">
+                <TetrisBoard board={player2State.board} currentPiece={player2State.currentPiece} dropPreview={p2DropPreview} gameOver={player2State.gameOver} />
+                <GarbageWarning incoming={p2Incoming} queue={p2GarbageQueue} t={t} />
+              </div>
+              {(p2Garbage > 0 || p2Incoming > 0) && <GarbageMeter pending={p2Garbage} incoming={p2Incoming} queue={p2GarbageQueue} />}
               <div className="hidden sm:flex flex-col gap-2">
                 <NextPieces pieces={player2State.nextPieces || []} />
                 <Scoreboard score={player2State.score?.points || 0} level={player2State.score?.level || 1} lines={player2State.score?.lines || 0} combo={player2State.score?.combo || 0} />
@@ -429,23 +443,107 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
   );
 }
 
-function GarbageMeter({ count }) {
+function GarbageMeter({ pending, incoming, queue }) {
   const maxDisplay = 20;
-  const display = Math.min(count, maxDisplay);
+  const total = pending + incoming;
+  const displayPending = Math.min(pending, maxDisplay);
+  const displayIncoming = Math.min(incoming, maxDisplay - displayPending);
+  const displayTotal = displayPending + displayIncoming;
+
+  if (displayTotal === 0) return null;
+
+  // Calculate the most-progressed queue item for the pulse speed
+  const maxProgress = queue && queue.length > 0
+    ? Math.max(...queue.map(g => g.progress))
+    : 0;
+
   return (
-    <div className="flex flex-col-reverse justify-end w-3 rounded overflow-hidden" style={{ height: 'calc(var(--cell) * 22 + 22px)' }}>
-      {Array.from({ length: display }, (_, i) => (
+    <div className="flex flex-col-reverse justify-end w-3 rounded overflow-hidden relative" style={{ height: 'calc(var(--cell) * 22 + 22px)' }}>
+      {/* Pending garbage (confirmed - red, solid) */}
+      {Array.from({ length: displayPending }, (_, i) => (
         <div
-          key={i}
+          key={`p-${i}`}
           className="w-full"
           style={{
             height: `${100 / maxDisplay}%`,
-            backgroundColor: count > 8 ? '#ef4444' : count > 4 ? '#f59e0b' : '#ef4444',
-            opacity: 0.7 + (i / display) * 0.3,
+            backgroundColor: '#ef4444',
+            opacity: 0.7 + (i / Math.max(displayTotal, 1)) * 0.3,
           }}
         />
       ))}
+      {/* Incoming garbage (warning - yellow, pulsing) */}
+      {Array.from({ length: displayIncoming }, (_, i) => (
+        <div
+          key={`i-${i}`}
+          className="w-full"
+          style={{
+            height: `${100 / maxDisplay}%`,
+            backgroundColor: '#f59e0b',
+            opacity: 0.4 + maxProgress * 0.5,
+            animation: 'garbagePulse 0.8s ease-in-out infinite',
+          }}
+        />
+      ))}
+      {/* Progress bar overlay for nearest-to-arriving garbage */}
+      {displayIncoming > 0 && (
+        <div
+          className="absolute bottom-0 left-0 w-full pointer-events-none"
+          style={{
+            height: `${(displayIncoming / maxDisplay) * 100}%`,
+            background: `linear-gradient(to top, rgba(239,68,68,${maxProgress * 0.6}) 0%, transparent 100%)`,
+          }}
+        />
+      )}
+      <style>{`
+        @keyframes garbagePulse {
+          0%, 100% { transform: scaleX(1); }
+          50% { transform: scaleX(1.3); }
+        }
+      `}</style>
     </div>
+  );
+}
+
+/** Warning overlay shown on the board when garbage is incoming */
+function GarbageWarning({ incoming, queue, t }) {
+  if (incoming <= 0) return null;
+
+  // Find the most-progressed queue item
+  const maxProgress = queue && queue.length > 0
+    ? Math.max(...queue.map(g => g.progress))
+    : 0;
+
+  // Only show urgent warning when garbage is >70% ready to arrive
+  const isUrgent = maxProgress > 0.7;
+
+  return (
+    <>
+      {/* Red flash on board edges when garbage is about to arrive */}
+      <div
+        className="absolute inset-0 pointer-events-none rounded"
+        style={{
+          boxShadow: isUrgent
+            ? `inset 0 -${incoming * 4}px 20px -5px rgba(239, 68, 68, ${0.2 + maxProgress * 0.4})`
+            : `inset 0 -${incoming * 3}px 15px -5px rgba(245, 158, 11, ${0.1 + maxProgress * 0.2})`,
+          transition: 'box-shadow 0.3s ease',
+        }}
+      />
+      {/* "⚠ INCOMING" text badge */}
+      {isUrgent && (
+        <div
+          className="absolute bottom-1 left-1/2 -translate-x-1/2 bg-red-600/90 text-white text-[9px] sm:text-xs font-bold px-2 py-0.5 rounded whitespace-nowrap z-10"
+          style={{ animation: 'warningBlink 0.5s ease-in-out infinite' }}
+        >
+          ⚠ {t('multiplayer.incoming')} x{incoming}
+        </div>
+      )}
+      <style>{`
+        @keyframes warningBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
+    </>
   );
 }
 

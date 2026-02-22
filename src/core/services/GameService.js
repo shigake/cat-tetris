@@ -47,6 +47,10 @@ export class GameService extends IGameService {
     this._lastAttack = 0;
     this._dirty = true;
     this._cachedState = null;
+
+    // Garbage queue system: incoming garbage waits before becoming pending
+    this._garbageQueue = []; // [{ amount, timer }]
+    this._GARBAGE_DELAY = 3000; // ms before queued garbage becomes pending
   }
 
   _markDirty() {
@@ -84,6 +88,7 @@ export class GameService extends IGameService {
     this.modeStartTime = Date.now();
     this.pendingGarbage = 0;
     this._lastAttack = 0;
+    this._garbageQueue = [];
 
     this.applyGameMode();
 
@@ -261,10 +266,22 @@ export class GameService extends IGameService {
 
       this._lastAttack = this._calculateAttack(linesCleared, isTSpin, this.score.combo, prevBackToBack);
 
-      if (this._lastAttack > 0 && this.pendingGarbage > 0) {
-        const cancelled = Math.min(this._lastAttack, this.pendingGarbage);
-        this._lastAttack -= cancelled;
-        this.pendingGarbage -= cancelled;
+      // Cancel incoming garbage first (queue), then pending garbage
+      if (this._lastAttack > 0) {
+        // Cancel from queue (oldest first)
+        while (this._lastAttack > 0 && this._garbageQueue.length > 0) {
+          const oldest = this._garbageQueue[0];
+          const cancel = Math.min(this._lastAttack, oldest.amount);
+          oldest.amount -= cancel;
+          this._lastAttack -= cancel;
+          if (oldest.amount <= 0) this._garbageQueue.shift();
+        }
+        // Then cancel from already-pending garbage
+        if (this._lastAttack > 0 && this.pendingGarbage > 0) {
+          const cancelled = Math.min(this._lastAttack, this.pendingGarbage);
+          this._lastAttack -= cancelled;
+          this.pendingGarbage -= cancelled;
+        }
       }
     } else {
       this.score.resetCombo();
@@ -340,9 +357,29 @@ export class GameService extends IGameService {
 
   receiveGarbage(count) {
     if (count > 0) {
-      this.pendingGarbage += count;
+      // Queue garbage with delay instead of adding immediately
+      this._garbageQueue.push({ amount: count, timer: 0 });
       this._markDirty();
     }
+  }
+
+  /** Total incoming garbage still in the warning queue */
+  get incomingGarbage() {
+    return this._garbageQueue.reduce((sum, g) => sum + g.amount, 0);
+  }
+
+  /** Process garbage queue timers; move expired entries to pendingGarbage */
+  _processGarbageQueue(deltaTime) {
+    let moved = false;
+    for (let i = this._garbageQueue.length - 1; i >= 0; i--) {
+      this._garbageQueue[i].timer += deltaTime;
+      if (this._garbageQueue[i].timer >= this._GARBAGE_DELAY) {
+        this.pendingGarbage += this._garbageQueue[i].amount;
+        this._garbageQueue.splice(i, 1);
+        moved = true;
+      }
+    }
+    if (moved) this._markDirty();
   }
 
   consumeAttack() {
@@ -432,6 +469,9 @@ export class GameService extends IGameService {
 
   updateGame(deltaTime) {
     if (!this.isPlaying || this.gameOver || this.isPaused) return;
+
+    // Process garbage queue timers
+    this._processGarbageQueue(deltaTime);
 
     if (this._modeRules?.timeLimit) {
       this.modeTimeElapsed = (Date.now() - this.modeStartTime) / 1000;
@@ -544,7 +584,9 @@ export class GameService extends IGameService {
       gameMode: this.gameMode,
       modeTimeElapsed: this._modeRules?.timeLimit
         ? Math.max(0, this._modeRules.timeLimit - (Date.now() - this.modeStartTime) / 1000)
-        : null
+        : null,
+      incomingGarbage: this.incomingGarbage,
+      garbageQueue: this._garbageQueue.map(g => ({ amount: g.amount, progress: Math.min(g.timer / this._GARBAGE_DELAY, 1) }))
     };
     return this._cachedState;
   }
