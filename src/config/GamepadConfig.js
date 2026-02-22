@@ -62,17 +62,17 @@ export const DEFAULT_MAPPINGS = {
   backToMenu: 8,     // Back = return to menu
 };
 
-// Descriptions for each action (Portuguese)
+// i18n keys for each action label (resolved via t() in components)
 export const ACTION_LABELS = {
-  menuConfirm: 'Confirmar (Menu)',
-  menuBack: 'Voltar (Menu)',
-  menuAltConfirm: 'Confirmar Alt (Menu)',
-  rotateCW: 'Rotação Horária',
-  rotateCCW: 'Rotação Anti-horária',
-  hardDrop: 'Hard Drop',
-  hold: 'Segurar Peça',
-  pause: 'Pausar',
-  backToMenu: 'Voltar ao Menu',
+  menuConfirm: 'gamepad.action.menuConfirm',
+  menuBack: 'gamepad.action.menuBack',
+  menuAltConfirm: 'gamepad.action.menuAltConfirm',
+  rotateCW: 'gamepad.action.rotateCW',
+  rotateCCW: 'gamepad.action.rotateCCW',
+  hardDrop: 'gamepad.action.hardDrop',
+  hold: 'gamepad.action.hold',
+  pause: 'gamepad.action.pause',
+  backToMenu: 'gamepad.action.backToMenu',
 };
 
 // Which actions are available for remapping (UI sections)

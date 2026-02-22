@@ -473,10 +473,10 @@ function SetupCard({ setup, onPlay, onEdit, onDelete, onExport, onMoveUp, onMove
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
           <span className="text-lg">{setup.emoji || '🎨'}</span>
-          <span className="text-white font-bold text-sm truncate">{setup.name}</span>
+          <span className="text-white font-bold text-sm truncate">{setup.isDefault ? t(`creator.tpl.${setup.id}.name`) : setup.name}</span>
           {isDefault && <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/20 shrink-0">{t('creator.defaultBadge')}</span>}
         </div>
-        {setup.desc && <p className="text-white/40 text-[11px] mt-0.5 leading-tight truncate">{setup.desc}</p>}
+        {setup.desc && <p className="text-white/40 text-[11px] mt-0.5 leading-tight truncate">{setup.isDefault ? t(`creator.tpl.${setup.id}.desc`) : setup.desc}</p>}
         <div className="flex items-center gap-1.5 mt-1">
           <span className="text-white/30 text-[10px]">{t('creator.pieces')}</span>
           {(setup.queue || []).map((p, i) => (
@@ -632,7 +632,7 @@ function PlayScreen({ template, onBack, onExit }) {
     <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-2 overflow-hidden">
       <div className="flex justify-between items-center w-full max-w-xl mb-2">
         <h1 className="text-lg font-bold text-white truncate">
-          {template.emoji} {template.name}
+          {template.emoji} {template.isDefault ? t(`creator.tpl.${template.id}.name`) : template.name}
         </h1>
         <div className="flex gap-2">
           <button onClick={initGame} className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-lg text-xs font-bold">{t('creator.replay')}</button>

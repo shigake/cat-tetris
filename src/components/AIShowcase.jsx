@@ -6,8 +6,10 @@ import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import { useAIShowcase } from '../hooks/useAIShowcase';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 
 export default function AIShowcase({ onClose }) {
+  const { t } = useI18n();
   const {
     gameState,
     stats,
@@ -29,7 +31,7 @@ export default function AIShowcase({ onClose }) {
   if (!gameState) {
     return (
       <div className="h-screen bg-gradient-to-b from-slate-950 via-violet-950 to-slate-950 flex items-center justify-center overflow-hidden">
-        <p className="text-white/50 animate-pulse">Preparando IA Expert...</p>
+        <p className="text-white/50 animate-pulse">{t('aiShowcase.loading')}</p>
       </div>
     );
   }
@@ -55,13 +57,13 @@ export default function AIShowcase({ onClose }) {
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
             </svg>
           </motion.button>
-          <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">🤖 Cat Tetris AI</span>
+          <span className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">{t('aiShowcase.title')}</span>
         </div>
 
         <div className={`flex items-center gap-3 text-xs px-3 py-1 rounded-full transition-colors duration-300 ${
           comboFlash ? 'bg-cyan-500/30 text-cyan-300' : 'text-white/60'
         }`}>
-          <span className="font-bold">{stats.lines} linhas</span>
+          <span className="font-bold">{t('aiShowcase.lines', { n: stats.lines })}</span>
           <span>T:{stats.tetrises}</span>
           <span>C:{stats.combos}</span>
           <span>Max:{stats.maxCombo}</span>
@@ -69,7 +71,7 @@ export default function AIShowcase({ onClose }) {
 
         <div className="text-xs text-white/50">
           <span className="text-yellow-400 font-bold">{(score?.points || 0).toLocaleString()}</span>
-          <span className="ml-2">Nv.{score?.level || 1}</span>
+          <span className="ml-2">{t('aiShowcase.level', { n: score?.level || 1 })}</span>
         </div>
       </div>
 
@@ -83,7 +85,7 @@ export default function AIShowcase({ onClose }) {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
           >
             <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-yellow-300 drop-shadow-[0_0_30px_rgba(34,211,238,0.7)]">
-              COMBO!
+              {t('aiShowcase.combo')}
             </div>
           </motion.div>
         )}

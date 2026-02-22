@@ -280,7 +280,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                         className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
                           ${listeningAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
                       >
-                        <span className="text-white/70">{ACTION_LABELS[action]}</span>
+                        <span className="text-white/70">{t(ACTION_LABELS[action])}</span>
                         <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
                           {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
                         </span>
@@ -299,7 +299,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
                         className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
                           ${listeningAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
                       >
-                        <span className="text-white/70">{ACTION_LABELS[action]}</span>
+                        <span className="text-white/70">{t(ACTION_LABELS[action])}</span>
                         <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
                           {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
                         </span>

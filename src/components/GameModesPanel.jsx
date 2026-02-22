@@ -118,10 +118,10 @@ function GameModesPanel({ onClose, onStartGame }) {
                   <div className="text-5xl">{mode.icon}</div>
                   <div className="flex-1">
                     <h3 className="text-white font-bold text-xl">
-                      {mode.name}
+                      {t('gameMode.' + mode.id + '.name')}
                     </h3>
                     <p className="text-white/60 text-sm">
-                      {mode.description}
+                      {t('gameMode.' + mode.id + '.desc')}
                     </p>
                   </div>
                 </div>

@@ -139,7 +139,7 @@ function DailyMissionsPanel({ onClose }) {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-white font-bold text-lg">
-                        {mission.title}
+                        {t('mission.' + mission.id + '.title')}
                       </h3>
                       {mission.completed && !mission.claimed && (
                         <span className="text-green-400 text-xl animate-pulse">
@@ -153,7 +153,7 @@ function DailyMissionsPanel({ onClose }) {
                       )}
                     </div>
                     <p className="text-white/60 text-sm">
-                      {mission.description}
+                      {t('mission.' + mission.id + '.desc')}
                     </p>
                     <span className={`text-xs ${getDifficultyColor(mission.difficulty)}`}>
                       {getDifficultyBadge(mission.difficulty)}

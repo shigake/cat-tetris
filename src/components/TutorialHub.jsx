@@ -169,8 +169,8 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-white truncate">{lesson.title}</div>
-                      <div className="text-xs text-white/35 mt-0.5 truncate">{lesson.description}</div>
+                      <div className="text-sm font-semibold text-white truncate">{t('tutorial.lesson.' + lesson.id + '.title')}</div>
+                      <div className="text-xs text-white/35 mt-0.5 truncate">{t('tutorial.lesson.' + lesson.id + '.desc')}</div>
                       <div className="flex items-center gap-3 mt-1.5 text-[10px] text-white/25">
                         <span>⏱ {lesson.estimatedTime}</span>
                         <span>🐟 {lesson.rewards?.fishCoins || 0}</span>

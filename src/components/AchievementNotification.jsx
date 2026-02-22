@@ -81,10 +81,10 @@ function AchievementNotification() {
                     {t('achievements.unlockBanner')}
                   </div>
                   <h3 className="text-white font-bold text-lg">
-                    {achievement.title}
+                    {t('achievement.' + achievement.id + '.title')}
                   </h3>
                   <p className="text-white/80 text-sm">
-                    {achievement.description}
+                    {t('achievement.' + achievement.id + '.desc')}
                   </p>
                   <div className="flex items-center gap-1 mt-2 text-yellow-200 font-bold">
                     <span className="text-xl">🐟</span>

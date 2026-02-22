@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPieceColor } from '../utils/PieceGenerator';
 import { gameEvents } from '../patterns/Observer.js';
+import { useI18n } from '../hooks/useI18n';
 
 const BUFFER_ROWS = 2;
 
@@ -63,6 +64,7 @@ function LineClearParticles({ lines }) {
 }
 
 const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
+  const { t } = useI18n();
   const [clearingLines, setClearingLines] = useState([]);
   const [floatingTexts, setFloatingTexts] = useState([]);
   const [flashOpacity, setFlashOpacity] = useState(0);
@@ -121,10 +123,10 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       const n = data?.linesCleared || 0;
       if (n <= 0) return;
       let text, color;
-      if (n === 1) { text = 'Single'; color = '#4ECDC4'; }
-      else if (n === 2) { text = 'Double!'; color = '#A78BFA'; }
-      else if (n === 3) { text = 'Triple!!'; color = '#F472B6'; }
-      else { text = '\u2728 TETRIS!! \u2728'; color = '#FFD700'; }
+      if (n === 1) { text = t('game.single'); color = '#4ECDC4'; }
+      else if (n === 2) { text = t('game.double'); color = '#A78BFA'; }
+      else if (n === 3) { text = t('game.triple'); color = '#F472B6'; }
+      else { text = t('game.tetris'); color = '#FFD700'; }
       const id = ++textIdRef.current;
       setFloatingTexts(prev => [...prev, { id, text, color }]);
       safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
@@ -138,7 +140,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
       const combo = data?.combo || 0;
       if (combo >= 2) {
         const id = ++textIdRef.current;
-        setFloatingTexts(prev => [...prev, { id, text: `${combo}x Combo! \uD83D\uDD25`, color: '#FF6B6B' }]);
+        setFloatingTexts(prev => [...prev, { id, text: t('game.combo', { n: combo }), color: '#FF6B6B' }]);
         safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
       }
     };
@@ -149,7 +151,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   useEffect(() => {
     const handleB2B = () => {
       const id = ++textIdRef.current;
-      setFloatingTexts(prev => [...prev, { id, text: '\uD83C\uDF1F Back-to-Back!', color: '#FBBF24' }]);
+      setFloatingTexts(prev => [...prev, { id, text: t('game.backToBack'), color: '#FBBF24' }]);
       safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
     };
     gameEvents.on('back_to_back', handleB2B);
@@ -159,7 +161,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
   useEffect(() => {
     const handleTSpin = () => {
       const id = ++textIdRef.current;
-      setFloatingTexts(prev => [...prev, { id, text: 'T-SPIN!', color: '#C084FC' }]);
+      setFloatingTexts(prev => [...prev, { id, text: t('game.tSpin'), color: '#C084FC' }]);
       safeTimeout(() => setFloatingTexts(prev => prev.filter(t => t.id !== id)), 1400);
     };
     gameEvents.on('t_spin', handleTSpin);
@@ -315,7 +317,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver }) => {
                 className="text-center"
               >
                 <div className="text-5xl mb-2">���</div>
-                <div className="text-white font-black text-xl drop-shadow-lg">Game Over!</div>
+                <div className="text-white font-black text-xl drop-shadow-lg">{t('game.gameOver')}</div>
               </motion.div>
             </motion.div>
           )}

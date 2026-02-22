@@ -150,7 +150,7 @@ function AchievementsPanel({ onClose }) {
                   : 'bg-white/20 text-white hover:bg-white/30'
               } ${selectedIndex === tiers.indexOf(tier) ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-indigo-900' : ''}`}
             >
-              {tierEmojis[tier]} {tier.charAt(0).toUpperCase() + tier.slice(1)}
+              {tierEmojis[tier]} {t('tier.' + tier)}
             </button>
           ))}
         </div>
@@ -188,12 +188,12 @@ function AchievementsPanel({ onClose }) {
                     <h3 className={`font-bold text-lg mb-1 ${
                       achievement.unlocked ? 'text-white' : 'text-white/60'
                     }`}>
-                      {achievement.title}
+                      {t('achievement.' + achievement.id + '.title')}
                     </h3>
                     <p className={`text-sm mb-2 ${
                       achievement.unlocked ? 'text-white/90' : 'text-white/40'
                     }`}>
-                      {achievement.description}
+                      {t('achievement.' + achievement.id + '.desc')}
                     </p>
 
                     <div className={`flex items-center gap-1 text-sm font-bold ${

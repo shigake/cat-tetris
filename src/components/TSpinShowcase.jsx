@@ -5,8 +5,10 @@ import NextPieces from './NextPieces';
 import HeldPiece from './HeldPiece';
 import Scoreboard from './Scoreboard';
 import { useTSpinShowcase } from '../hooks/useTSpinShowcase';
+import { useI18n } from '../hooks/useI18n';
 
 export default function TSpinShowcase({ onClose }) {
+  const { t } = useI18n();
   const {
     gameState,
     tspinCount,
@@ -19,7 +21,7 @@ export default function TSpinShowcase({ onClose }) {
   if (!gameState) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 via-violet-950 to-slate-950 flex items-center justify-center">
-        <p className="text-white/50 animate-pulse">Preparando IA T-Spin Expert...</p>
+        <p className="text-white/50 animate-pulse">{t('tspinShowcase.loading')}</p>
       </div>
     );
   }
@@ -35,9 +37,9 @@ export default function TSpinShowcase({ onClose }) {
 
       <div className="relative z-10 text-center mb-3">
         <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 tracking-tight">
-          🌀 T-Spin Master
+          {t('tspinShowcase.title')}
         </h1>
-        <p className="text-white/40 text-xs mt-1">IA Expert jogando — observe as T-Spins!</p>
+        <p className="text-white/40 text-xs mt-1">{t('tspinShowcase.subtitle')}</p>
       </div>
 
       <AnimatePresence>
@@ -51,7 +53,7 @@ export default function TSpinShowcase({ onClose }) {
               : 'bg-white/[0.05] border-white/[0.08]'
           }`}
         >
-          <span className="text-xs text-white/40 uppercase tracking-wider font-semibold">T-Spins</span>
+          <span className="text-xs text-white/40 uppercase tracking-wider font-semibold">{t('tspinShowcase.tspins')}</span>
           <div className={`text-4xl font-black tabular-nums transition-colors duration-300 ${
             tspinFlash ? 'text-purple-300' : 'text-white'
           }`}>
@@ -70,7 +72,7 @@ export default function TSpinShowcase({ onClose }) {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none"
           >
             <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.7)]">
-              T-SPIN!
+              {t('game.tSpin')}
             </div>
           </motion.div>
         )}
@@ -96,11 +98,11 @@ export default function TSpinShowcase({ onClose }) {
           />
 
           <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-3 text-xs space-y-1.5">
-            <Stat label="T-Spins" value={tspinCount} highlight />
-            <Stat label="Score" value={(score?.points || 0).toLocaleString()} />
-            <Stat label="Linhas" value={score?.lines || 0} />
-            <Stat label="Nível" value={score?.level || 1} />
-            <Stat label="Back-to-Back" value={gameState.backToBack ? '✓' : '–'} />
+            <Stat label={t('tspinShowcase.tspins')} value={tspinCount} highlight />
+            <Stat label={t('tspinShowcase.score')} value={(score?.points || 0).toLocaleString()} />
+            <Stat label={t('tspinShowcase.lines')} value={score?.lines || 0} />
+            <Stat label={t('tspinShowcase.level')} value={score?.level || 1} />
+            <Stat label={t('tspinShowcase.b2b')} value={gameState.backToBack ? '✓' : '–'} />
           </div>
         </div>
       </div>
@@ -111,7 +113,7 @@ export default function TSpinShowcase({ onClose }) {
         onClick={onClose}
         className="relative z-10 mt-4 px-6 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/70 hover:text-white text-sm font-medium border border-white/10 transition-all"
       >
-        ← Voltar ao Menu
+        {t('tspinShowcase.back')}
       </motion.button>
     </div>
   );

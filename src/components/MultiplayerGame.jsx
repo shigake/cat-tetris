@@ -347,8 +347,8 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
             {/* Compact mobile score */}
             <div className="sm:hidden flex justify-between text-[9px] text-white/70 mt-1 px-0.5 font-mono">
               <span>{(player1State.score?.points || 0).toLocaleString()}</span>
-              <span>Lv{player1State.score?.level || 1}</span>
-              <span>L{player1State.score?.lines || 0}</span>
+              <span>{t('multiplayer.lvAbbr', { n: player1State.score?.level || 1 })}</span>
+              <span>{t('multiplayer.linesAbbr', { n: player1State.score?.lines || 0 })}</span>
             </div>
           </div>
         </div>
@@ -383,8 +383,8 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
             {/* Compact mobile score */}
             <div className="sm:hidden flex justify-between text-[9px] text-white/70 mt-1 px-0.5 font-mono">
               <span>{(player2State.score?.points || 0).toLocaleString()}</span>
-              <span>Lv{player2State.score?.level || 1}</span>
-              <span>L{player2State.score?.lines || 0}</span>
+              <span>{t('multiplayer.lvAbbr', { n: player2State.score?.level || 1 })}</span>
+              <span>{t('multiplayer.linesAbbr', { n: player2State.score?.lines || 0 })}</span>
             </div>
           </div>
         </div>

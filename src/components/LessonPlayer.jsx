@@ -4,12 +4,14 @@ import { usePracticeGame } from '../hooks/usePracticeGame';
 import { useDemoGame } from '../hooks/useDemoGame';
 import { useKeyboardInput } from '../hooks/useKeyboardInput';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import { useI18n } from '../hooks/useI18n';
 import CelebrationParticles from './CelebrationParticles';
 import IntroductionScreen from './lesson/IntroductionScreen';
 import DemoScreen from './lesson/DemoScreen';
 import PracticeScreen from './lesson/PracticeScreen';
 
 function LessonPlayer({ lesson, onComplete, onExit }) {
+  const { t } = useI18n();
   const [mode, setMode] = useState('introduction');
   const [practiceState, setPracticeState] = useState({
     progress: 0,
@@ -120,8 +122,8 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
                lesson.module === 'advanced' ? '💎' : '🏆'}
             </span>
             <div>
-              <h2 className="text-lg font-bold text-white">{lesson.title}</h2>
-              <p className="text-white/40 text-xs">{lesson.description}</p>
+              <h2 className="text-lg font-bold text-white">{t('tutorial.lesson.' + lesson.id + '.title')}</h2>
+              <p className="text-white/40 text-xs">{t('tutorial.lesson.' + lesson.id + '.desc')}</p>
             </div>
           </div>
 
