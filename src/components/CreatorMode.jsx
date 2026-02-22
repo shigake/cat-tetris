@@ -664,21 +664,28 @@ function PlayScreen({ template, onBack, onExit }) {
 
 function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, setEmoji, desc, setDesc, selectedColor, setSelectedColor, onPlay, onSave, isEditing, onBack, onExit }) {
   const { t } = useI18n();
-  const toggleCell = useCallback((x, y) => {
+
+  // Paint cell: always applies selected color (overwrite), or erases if eraser selected
+  const paintCell = useCallback((x, y) => {
     setBoard(prev => {
       const nb = prev.map(r => [...r]);
-      nb[y][x] = nb[y][x] ? null : { type: selectedColor, color: PIECE_COLORS[selectedColor], emoji: '⬜' };
+      if (selectedColor === 'eraser') {
+        nb[y][x] = null;
+      } else {
+        nb[y][x] = { type: selectedColor, color: PIECE_COLORS[selectedColor], emoji: '⬜' };
+      }
       return nb;
     });
   }, [selectedColor, setBoard]);
 
   const fillRow = useCallback((y, gap) => {
+    const col = selectedColor === 'eraser' ? 'G' : selectedColor;
     setBoard(prev => {
       const nb = prev.map(r => [...r]);
-      for (let x = 0; x < BOARD_W; x++) nb[y][x] = x === gap ? null : { type: 'G', color: PIECE_COLORS.G, emoji: '⬜' };
+      for (let x = 0; x < BOARD_W; x++) nb[y][x] = x === gap ? null : { type: col, color: PIECE_COLORS[col], emoji: '⬜' };
       return nb;
     });
-  }, [setBoard]);
+  }, [setBoard, selectedColor]);
 
   const clearRow = useCallback((y) => {
     setBoard(prev => {
@@ -717,17 +724,36 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
       <div className="flex gap-4 items-start justify-center flex-wrap max-w-2xl">
         <div className="flex flex-col gap-2">
           <div className="text-white/60 text-xs font-semibold mb-1">{t('creator.boardLabel')}</div>
-          <BoardEditor board={board} onToggle={toggleCell} onFillRow={fillRow} onClearRow={clearRow} t={t} />
-          <div className="flex gap-1 items-center mt-1">
-            <span className="text-white/50 text-xs mr-1">{t('creator.color')}</span>
-            {PIECE_TYPES.map(pt => (
-              <button key={pt} onClick={() => setSelectedColor(pt)}
-                className={`w-6 h-6 rounded border-2 transition-all ${selectedColor === pt ? 'border-white scale-110' : 'border-white/20'}`}
-                style={{ backgroundColor: PIECE_COLORS[pt] }} title={pt} />
-            ))}
-            <button onClick={() => setSelectedColor('G')}
-              className={`w-6 h-6 rounded border-2 transition-all ${selectedColor === 'G' ? 'border-white scale-110' : 'border-white/20'}`}
-              style={{ backgroundColor: PIECE_COLORS.G }} title={t('creator.gray')} />
+          <BoardEditor board={board} onPaint={paintCell} onFillRow={fillRow} onClearRow={clearRow} selectedColor={selectedColor} t={t} />
+          {/* Paint palette */}
+          <div className="flex flex-col gap-1.5 mt-2">
+            <div className="text-white/50 text-xs font-semibold">{t('creator.paintTool')}</div>
+            <div className="flex gap-1 items-center flex-wrap">
+              {PIECE_TYPES.map(pt => (
+                <button key={pt} onClick={() => setSelectedColor(pt)}
+                  className={`w-7 h-7 rounded-md border-2 transition-all flex items-center justify-center text-[9px] font-bold text-white/80 ${
+                    selectedColor === pt ? 'border-white scale-110 shadow-lg shadow-white/20' : 'border-white/20 hover:border-white/40'
+                  }`}
+                  style={{ backgroundColor: PIECE_COLORS[pt] }} title={pt}>
+                  {pt}
+                </button>
+              ))}
+              <button onClick={() => setSelectedColor('G')}
+                className={`w-7 h-7 rounded-md border-2 transition-all flex items-center justify-center text-[9px] font-bold text-white/80 ${
+                  selectedColor === 'G' ? 'border-white scale-110 shadow-lg shadow-white/20' : 'border-white/20 hover:border-white/40'
+                }`}
+                style={{ backgroundColor: PIECE_COLORS.G }} title={t('creator.gray')}>
+                G
+              </button>
+              <div className="w-px h-6 bg-white/20 mx-0.5" />
+              <button onClick={() => setSelectedColor('eraser')}
+                className={`w-7 h-7 rounded-md border-2 transition-all flex items-center justify-center text-sm ${
+                  selectedColor === 'eraser' ? 'border-white scale-110 bg-white/20 shadow-lg shadow-white/20' : 'border-white/20 bg-white/5 hover:border-white/40'
+                }`}
+                title={t('creator.eraser')}>
+                🧹
+              </button>
+            </div>
           </div>
           <button onClick={() => setBoard(emptyBoard())} className="bg-red-700/60 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-semibold mt-1 w-fit">{t('creator.clearAll')}</button>
         </div>
@@ -784,18 +810,17 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
   );
 }
 
-function BoardEditor({ board, onToggle, onFillRow, onClearRow, t }) {
+function BoardEditor({ board, onPaint, onFillRow, onClearRow, selectedColor, t }) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragMode, setDragMode] = useState(null);
   const cellSize = 22;
+  const isEraser = selectedColor === 'eraser';
 
-  const handlePointerDown = (x, y) => { setIsDragging(true); setDragMode(!board[y][x] ? 'place' : 'erase'); onToggle(x, y); };
+  const handlePointerDown = (x, y) => { setIsDragging(true); onPaint(x, y); };
   const handlePointerEnter = (x, y) => {
     if (!isDragging) return;
-    if (dragMode === 'place' && !board[y][x]) onToggle(x, y);
-    if (dragMode === 'erase' && board[y][x]) onToggle(x, y);
+    onPaint(x, y);
   };
-  const handlePointerUp = () => { setIsDragging(false); setDragMode(null); };
+  const handlePointerUp = () => { setIsDragging(false); };
 
   useEffect(() => { window.addEventListener('pointerup', handlePointerUp); return () => window.removeEventListener('pointerup', handlePointerUp); }, []);
 
