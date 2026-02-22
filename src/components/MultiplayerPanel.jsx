@@ -160,9 +160,9 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-2xl">{mode.emoji}</span>
-                    <h3 className="text-base font-bold text-white">{mode.name}</h3>
+                    <h3 className="text-base font-bold text-white">{mode.id === 'vs-ai' ? t('multiplayer.mode.vsAi.name') : mode.id === 'ai-vs-ai' ? t('multiplayer.mode.aiVsAi.name') : mode.name}</h3>
                   </div>
-                  <p className="text-white/70 text-xs">{mode.description}</p>
+                  <p className="text-white/70 text-xs">{mode.id === 'vs-ai' ? t('multiplayer.mode.vsAi.desc') : mode.id === 'ai-vs-ai' ? t('multiplayer.mode.aiVsAi.desc') : mode.description}</p>
                   {mode.disabled && (
                     <div className="mt-1 text-yellow-400 text-xs font-bold">
                       {t('multiplayer.comingSoon')}
@@ -188,8 +188,8 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
             <div className="flex items-center gap-3 mb-3 bg-black/30 rounded-lg p-3">
               <span className="text-3xl">{selectedMode.emoji}</span>
               <div>
-                <h3 className="text-lg font-bold text-white">{selectedMode.name}</h3>
-                <p className="text-white/60 text-xs">{selectedMode.description}</p>
+                <h3 className="text-lg font-bold text-white">{selectedMode.id === 'vs-ai' ? t('multiplayer.mode.vsAi.name') : selectedMode.id === 'ai-vs-ai' ? t('multiplayer.mode.aiVsAi.name') : selectedMode.name}</h3>
+                <p className="text-white/60 text-xs">{selectedMode.id === 'vs-ai' ? t('multiplayer.mode.vsAi.desc') : selectedMode.id === 'ai-vs-ai' ? t('multiplayer.mode.aiVsAi.desc') : selectedMode.description}</p>
               </div>
             </div>
 
@@ -210,8 +210,8 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                       <div className="flex items-center gap-2">
                         <span className="text-xl">{diff.emoji}</span>
                         <div>
-                          <div className="text-white font-bold text-sm">{diff.name}</div>
-                          <div className="text-white/60 text-[10px]">{diff.description}</div>
+                          <div className="text-white font-bold text-sm">{t(`multiplayer.diff.${diff.id}`)}</div>
+                          <div className="text-white/60 text-[10px]">{t(`multiplayer.diff.${diff.id}Desc`)}</div>
                         </div>
                       </div>
                     </button>
@@ -236,7 +236,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{diff.emoji}</span>
-                        <div className="text-white font-bold text-xs">{diff.name}</div>
+                        <div className="text-white font-bold text-xs">{t(`multiplayer.diff.${diff.id}`)}</div>
                       </div>
                     </button>
                   ))}
@@ -256,7 +256,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{diff.emoji}</span>
-                        <div className="text-white font-bold text-xs">{diff.name}</div>
+                        <div className="text-white font-bold text-xs">{t(`multiplayer.diff.${diff.id}`)}</div>
                       </div>
                     </button>
                   ))}

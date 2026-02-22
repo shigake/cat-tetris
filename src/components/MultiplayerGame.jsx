@@ -325,7 +325,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         {/* Player 1 */}
         <div className="flex flex-col items-center min-w-0">
           <div className="bg-blue-600 text-white px-2 sm:px-4 py-0.5 sm:py-1 rounded-t-lg font-bold text-xs sm:text-base truncate max-w-full">
-            {mode === 'aiVsAI' ? `🤖 IA1 (${ai1Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? t('multiplayer.you') : t('multiplayer.p1')}
+            {mode === 'aiVsAI' ? `🤖 AI1 (${t(`multiplayer.diff.${ai1Difficulty}`)})` : mode === 'vsAI' ? t('multiplayer.you') : t('multiplayer.p1')}
           </div>
           <div className="bg-black/40 p-1 sm:p-2 rounded-b-lg">
             <div className="flex gap-1 sm:gap-2">
@@ -361,7 +361,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
         {/* Player 2 */}
         <div className="flex flex-col items-center min-w-0">
           <div className="bg-red-600 text-white px-2 sm:px-4 py-0.5 sm:py-1 rounded-t-lg font-bold text-xs sm:text-base truncate max-w-full">
-            {mode === 'aiVsAI' ? `🤖 IA2 (${ai2Difficulty?.toUpperCase() || 'EXPERT'})` : mode === 'vsAI' ? `🤖 IA (${aiDifficulty?.toUpperCase() || 'MEDIUM'})` : t('multiplayer.p2')}
+            {mode === 'aiVsAI' ? `🤖 AI2 (${t(`multiplayer.diff.${ai2Difficulty}`)})` : mode === 'vsAI' ? `🤖 AI (${t(`multiplayer.diff.${aiDifficulty}`)})` : t('multiplayer.p2')}
           </div>
           <div className="bg-black/40 p-1 sm:p-2 rounded-b-lg">
             <div className="flex gap-1 sm:gap-2">
@@ -409,11 +409,11 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
               </p>
               <div className="grid grid-cols-2 gap-4 mb-8 text-white">
                 <div className="bg-black/30 rounded-lg p-4">
-                  <div className="text-sm opacity-60">{mode === 'aiVsAI' ? `IA1 (${ai1Difficulty})` : 'Player 1'}</div>
+                  <div className="text-sm opacity-60">{mode === 'aiVsAI' ? `AI1 (${t(`multiplayer.diff.${ai1Difficulty}`)})` : t('multiplayer.player1')}</div>
                   <div className="text-3xl font-bold">{(player1State.score?.points || 0).toLocaleString()}</div>
                 </div>
                 <div className="bg-black/30 rounded-lg p-4">
-                  <div className="text-sm opacity-60">{mode === 'aiVsAI' ? `IA2 (${ai2Difficulty})` : mode === 'vsAI' ? 'IA' : 'Player 2'}</div>
+                  <div className="text-sm opacity-60">{mode === 'aiVsAI' ? `AI2 (${t(`multiplayer.diff.${ai2Difficulty}`)})` : mode === 'vsAI' ? 'AI' : t('multiplayer.player2')}</div>
                   <div className="text-3xl font-bold">{(player2State.score?.points || 0).toLocaleString()}</div>
                 </div>
               </div>
