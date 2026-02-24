@@ -39,8 +39,8 @@ export const BUTTON_NOVO_JOGO = `${BASE}cats/btn-vs-ia.png`;
 /** "VS IA" button (source: 05_icon_tutorial_cat_professor_square.png) */
 export const BUTTON_VS_IA = `${BASE}cats/btn-tutorial-icon.png`;
 
-/** "Criador" button with cat wearing a cap (source: 08_button_ia_expert_cat.png) */
-export const BUTTON_CRIADOR = `${BASE}cats/btn-ia-expert.png`;
+/** "Criador" button — cat with setup/paw (source: 06_button_criador_cat.png) */
+export const BUTTON_CRIADOR = `${BASE}cats/btn-criador.png`;
 
 /** "IA Expert" button (source: 09_button_loja_cat.png) */
 export const BUTTON_IA_EXPERT = `${BASE}cats/btn-loja.png`;
@@ -55,8 +55,8 @@ export const BUTTON_LOJA = `${BASE}cats/btn-tutorial.png`;
 /** Square tile — professor cat with book (source: 02_button_continuar.png) */
 export const ICON_TUTORIAL_PROFESSOR_TILE = `${BASE}cats/btn-continuar.png`;
 
-/** Square tile — professor cat waving/paw (source: 06_button_criador_cat.png) */
-export const TILE_TUTORIAL_CAT = `${BASE}cats/btn-criador.png`;
+/** Square tile — cat with cap (source: 08_button_ia_expert_cat.png) */
+export const TILE_TUTORIAL_CAT = `${BASE}cats/btn-ia-expert.png`;
 
 /** Professor head icon (source: 15_cat_professor_head.png) */
 export const ICON_PROFESSOR_HEAD = `${BASE}cats/professor-head.png`;

@@ -198,7 +198,7 @@ export default function MainMenu({
  onClick={() => play(onStartGame)}
  className={`w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('play') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
- <img src={mainMenu.buttons.continuar} alt="" className="w-14 h-auto drop-shadow-md" />
+ <img src={mainMenu.buttons.novoJogo} alt="" className="w-14 h-auto drop-shadow-md" />
  {t('menu.play')}
  </button>
  )}
