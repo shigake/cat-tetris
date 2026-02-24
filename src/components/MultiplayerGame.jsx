@@ -130,6 +130,11 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  };
  }, [mode, aiDifficulty, ai1Difficulty, ai2Difficulty]);
 
+ const lastRenderRef = useRef(0);
+ const RENDER_INTERVAL = 16; // ms - throttle React renders to ~60fps, skip unnecessary frames
+ const p1DirtyForRenderRef = useRef(false);
+ const p2DirtyForRenderRef = useRef(false);
+
  useEffect(() => {
  const gameLoop = (currentTime) => {
  if (!lastTimeRef.current) lastTimeRef.current = currentTime;
@@ -225,17 +230,26 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
   p2._markDirty();
  }
 
- if (p1.isDirty) {
- const s1 = p1.getGameState();
- setPlayer1State(s1);
- setP1Extra({ garbage: p1.pendingGarbage, incoming: s1.incomingGarbage, queue: s1.garbageQueue, sent: p1SentRef.current });
- p1.clearDirty();
- }
- if (p2.isDirty) {
- const s2 = p2.getGameState();
- setPlayer2State(s2);
- setP2Extra({ garbage: p2.pendingGarbage, incoming: s2.incomingGarbage, queue: s2.garbageQueue, sent: p2SentRef.current });
- p2.clearDirty();
+ // Track dirty flags
+ if (p1.isDirty) { p1DirtyForRenderRef.current = true; p1.clearDirty(); }
+ if (p2.isDirty) { p2DirtyForRenderRef.current = true; p2.clearDirty(); }
+
+ // Flush React state updates at a controlled rate to avoid excessive re-renders
+ const sinceLastRender = currentTime - lastRenderRef.current;
+ if (sinceLastRender >= RENDER_INTERVAL || p1DirtyForRenderRef.current || p2DirtyForRenderRef.current) {
+  if (p1DirtyForRenderRef.current) {
+   const s1 = p1.getGameState();
+   setPlayer1State(s1);
+   setP1Extra({ garbage: p1.pendingGarbage, incoming: s1.incomingGarbage, queue: s1.garbageQueue, sent: p1SentRef.current });
+   p1DirtyForRenderRef.current = false;
+  }
+  if (p2DirtyForRenderRef.current) {
+   const s2 = p2.getGameState();
+   setPlayer2State(s2);
+   setP2Extra({ garbage: p2.pendingGarbage, incoming: s2.incomingGarbage, queue: s2.garbageQueue, sent: p2SentRef.current });
+   p2DirtyForRenderRef.current = false;
+  }
+  lastRenderRef.current = currentTime;
  }
 
  loopRef.current = requestAnimationFrame(gameLoop);
@@ -252,15 +266,42 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  }
  }, [speedZoneFlash]);
 
+ // Helper to immediately flush p1 state to React after a player action
+ const flushP1 = React.useCallback(() => {
+  const p1 = servicesRef.current.p1;
+  if (p1?.isDirty) {
+   const s1 = p1.getGameState();
+   setPlayer1State(s1);
+   setP1Extra({ garbage: p1.pendingGarbage, incoming: s1.incomingGarbage, queue: s1.garbageQueue, sent: p1SentRef.current });
+   p1.clearDirty();
+   p1DirtyForRenderRef.current = false;
+  }
+ }, []);
+
  const p1KeyActions = React.useMemo(() => ({
- movePiece: (dir) => { const p1 = servicesRef.current.p1; if (p1 && !p1.gameOver) p1.movePiece(dir); },
- rotatePiece: () => { const p1 = servicesRef.current.p1; if (p1 && !p1.gameOver) p1.rotatePiece(); },
- rotatePieceLeft: () => { const p1 = servicesRef.current.p1; if (p1 && !p1.gameOver) p1.rotatePieceLeft(); },
- hardDrop: () => { const p1 = servicesRef.current.p1; if (p1 && !p1.gameOver) p1.hardDrop(); },
- holdPiece: () => { const p1 = servicesRef.current.p1; if (p1 && !p1.gameOver) p1.holdPiece(); },
+ movePiece: (dir) => {
+  const p1 = servicesRef.current.p1;
+  if (p1 && !p1.gameOver) { p1.movePiece(dir); flushP1(); }
+ },
+ rotatePiece: () => {
+  const p1 = servicesRef.current.p1;
+  if (p1 && !p1.gameOver) { p1.rotatePiece(); flushP1(); }
+ },
+ rotatePieceLeft: () => {
+  const p1 = servicesRef.current.p1;
+  if (p1 && !p1.gameOver) { p1.rotatePieceLeft(); flushP1(); }
+ },
+ hardDrop: () => {
+  const p1 = servicesRef.current.p1;
+  if (p1 && !p1.gameOver) { p1.hardDrop(); flushP1(); }
+ },
+ holdPiece: () => {
+  const p1 = servicesRef.current.p1;
+  if (p1 && !p1.gameOver) { p1.holdPiece(); flushP1(); }
+ },
  pause: () => {},
  resume: () => {},
- }), []);
+ }), [flushP1]);
 
  useKeyboardInput(p1KeyActions, player1State, !winner && mode !== 'aiVsAI');
 
@@ -279,26 +320,26 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  ...base,
  movePiece: (dir) => {
  const p1 = servicesRef.current.p1;
- if (p1 && !p1.gameOver) p1.movePiece(dir);
+ if (p1 && !p1.gameOver) { p1.movePiece(dir); flushP1(); }
  },
  rotatePiece: () => {
  const p1 = servicesRef.current.p1;
- if (p1 && !p1.gameOver) p1.rotatePiece();
+ if (p1 && !p1.gameOver) { p1.rotatePiece(); flushP1(); }
  },
  rotatePieceLeft: () => {
  const p1 = servicesRef.current.p1;
- if (p1 && !p1.gameOver) p1.rotatePiece('left');
+ if (p1 && !p1.gameOver) { p1.rotatePiece('left'); flushP1(); }
  },
  hardDrop: () => {
  const p1 = servicesRef.current.p1;
- if (p1 && !p1.gameOver) p1.hardDrop();
+ if (p1 && !p1.gameOver) { p1.hardDrop(); flushP1(); }
  },
  holdPiece: () => {
  const p1 = servicesRef.current.p1;
- if (p1 && !p1.gameOver) p1.holdPiece();
+ if (p1 && !p1.gameOver) { p1.holdPiece(); flushP1(); }
  },
  };
- }, [winner, mode, onExit]);
+ }, [winner, mode, onExit, flushP1]);
 
  const { isGamepadActive, controllerCount, processGamepadInput, getGamepadInfo } = useGamepad(gamepadP1Actions);
 
