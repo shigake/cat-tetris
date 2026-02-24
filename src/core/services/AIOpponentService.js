@@ -13,11 +13,11 @@ export class AIOpponentService {
  this.difficulty = difficulty;
  this._isExpert = difficulty.startsWith('expert');
  switch (difficulty) {
- case 'easy': this.thinkingTime = 250; break;
- case 'medium': this.thinkingTime = 120; break;
- case 'hard': this.thinkingTime = 60; break;
+ case 'easy': this.thinkingTime = 600; break;
+ case 'medium': this.thinkingTime = 350; break;
+ case 'hard': this.thinkingTime = 180; break;
  case 'expert': this.thinkingTime = 80; break;
- default: this.thinkingTime = 120;
+ default: this.thinkingTime = 350;
  }
  }
 
@@ -42,13 +42,25 @@ export class AIOpponentService {
  const { currentPiece, board, heldPiece, canHold, nextPieces } = gameState;
  if (!currentPiece) return null;
 
+ // Easy mode: 25% chance to just drop the piece immediately (make a mistake)
+ if (this.difficulty === 'easy' && Math.random() < 0.25) {
+ this._actionQueue = [{ action: 'drop' }];
+ return this._actionQueue.shift();
+ }
+ // Medium mode: 10% chance to just drop
+ if (this.difficulty === 'medium' && Math.random() < 0.10) {
+ this._actionQueue = [{ action: 'drop' }];
+ return this._actionQueue.shift();
+ }
+
  try {
  const nextPiece = nextPieces?.[0] || null;
 
  let bestResult = this._findBestMoveWithLookahead(currentPiece, board, nextPiece);
  let useHold = false;
 
- if (canHold) {
+ // Only use hold for hard+ difficulty
+ if (canHold && (this.difficulty === 'hard' || this._isExpert)) {
  const holdPiece = heldPiece || nextPiece;
  if (holdPiece && holdPiece.type !== currentPiece.type) {
  const lookAheadForHold = heldPiece ? nextPiece : nextPieces?.[1] || null;
@@ -83,6 +95,7 @@ export class AIOpponentService {
  let bestMove = null;
  const boardHeight = board.length;
  const boardWidth = board[0]?.length || 10;
+ // Only expert does lookahead
  const doLookahead = this._isExpert && nextPiece;
 
  for (let rot = 0; rot < 4; rot++) {
@@ -120,9 +133,11 @@ export class AIOpponentService {
  }
 
  if (this.difficulty === 'easy') {
- score += (Math.random() - 0.5) * 1200;
- } else if (this.difficulty === 'medium' && Math.random() < 0.2) {
- score += (Math.random() - 0.5) * 500;
+ score += (Math.random() - 0.5) * 4000;
+ } else if (this.difficulty === 'medium') {
+ score += (Math.random() - 0.5) * 2000;
+ } else if (this.difficulty === 'hard' && Math.random() < 0.3) {
+ score += (Math.random() - 0.5) * 800;
  } else if (this.difficulty === 'expert' && Math.random() < 0.12) {
  score += (Math.random() - 0.5) * 600;
  }

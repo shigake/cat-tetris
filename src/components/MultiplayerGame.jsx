@@ -185,7 +185,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  if (!aiSvc || gameSvc.gameOver) return;
  try {
  const isAiVsAi = mode === 'aiVsAI';
- const maxActions = isAiVsAi ? 3 : (aiSvc._isExpert ? 2 : 1);
+ const maxActions = isAiVsAi ? 3 : 1;
  for (let i = 0; i < maxActions; i++) {
  const d = aiSvc.decideNextMove(gameSvc.getGameState());
  if (!d) break;
@@ -476,7 +476,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
 
  {/* VS badge */}
  <div className="flex items-center justify-center self-center">
- <div className="bg-yellow-500 text-black font-bold text-sm sm:text-3xl px-2 sm:px-4 py-1 sm:py-2 rounded-full shadow-2xl animate-pulse">VS</div>
+ <div className="bg-yellow-500 text-black font-bold text-sm sm:text-3xl px-2 sm:px-4 py-1 sm:py-2 rounded-full shadow-lg">VS</div>
  </div>
 
  {/* Player 2 */}

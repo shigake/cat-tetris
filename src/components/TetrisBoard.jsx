@@ -17,7 +17,7 @@ function FloatingText({ text, color, id, index = 0 }) {
  exit={{ opacity: 0 }}
  transition={{ duration: 1.2, ease: 'easeOut' }}
  className="absolute left-1/2 top-1/3 -translate-x-1/2 pointer-events-none font-black text-lg drop-shadow-lg whitespace-nowrap"
- style={{ color, zIndex: 50 - index, textShadow: `0 0 12px ${color}` }}
+ style={{ color, zIndex: 50 - index, textShadow: `0 0 6px ${color}80` }}
  >
  {text}
  </motion.div>
@@ -104,8 +104,8 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
 
  useEffect(() => {
  const handleHardDrop = () => {
- setFlashOpacity(0.12);
- safeTimeout(() => setFlashOpacity(0), 150);
+ setFlashOpacity(0.06);
+ safeTimeout(() => setFlashOpacity(0), 100);
  };
  ev.on('hard_drop', handleHardDrop);
  return () => ev.off('hard_drop', handleHardDrop);
@@ -120,8 +120,8 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
  }
  if (linesToClear.length > 0) {
  setClearingLines(linesToClear);
- setFlashOpacity(linesToClear.length >= 4 ? 0.3 : 0.18);
- safeTimeout(() => setFlashOpacity(0), 250);
+ setFlashOpacity(linesToClear.length >= 4 ? 0.15 : 0.08);
+ safeTimeout(() => setFlashOpacity(0), 180);
  safeTimeout(() => setClearingLines([]), 800);
  }
  }, [board]);
