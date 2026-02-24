@@ -47,18 +47,24 @@ export function useAmbientMusic() {
 
  const oscillators = [];
 
- // Simple ambient pad: just 2-3 gentle oscillators
- const osc1 = createOscillator(220, 0, 6, 'sine', 0.015);
- const osc2 = createOscillator(330, 0.5, 5, 'sine', 0.012);
- const osc3 = createOscillator(440, 1, 4, 'triangle', 0.01);
- if (osc1) oscillators.push(osc1);
- if (osc2) oscillators.push(osc2);
- if (osc3) oscillators.push(osc3);
+ // Ambient pad: slowly evolving chord (Am7 voicing)
+ // Very quiet, long notes with slow fade-in/fade-out
+ const pads = [
+ { freq: 220.00, delay: 0, dur: 8 },    // A3
+ { freq: 261.63, delay: 0.5, dur: 7 },  // C4
+ { freq: 329.63, delay: 1, dur: 7 },    // E4
+ { freq: 392.00, delay: 1.5, dur: 6 },  // G4
+ ];
+
+ pads.forEach(({ freq, delay, dur }) => {
+ const osc = createOscillator(freq, delay, dur, 'sine', 0.012);
+ if (osc) oscillators.push(osc);
+ });
 
  const musicLoop = setTimeout(() => {
  currentMusicRef.current = null;
  startAmbientMusic();
- }, 8000);
+ }, 9000);
 
  currentMusicRef.current = { oscillators, musicLoop };
  }, [createOscillator]);
@@ -84,19 +90,23 @@ export function useAmbientMusic() {
  }
 
  const oscillators = [];
- const gameFreqs = [220.00, 246.94, 261.63, 293.66];
+ // Gentle rhythmic pulse for game ambient (A minor pulsing bass)
+ const gameNotes = [
+ { freq: 220.00, delay: 0, dur: 1.8 },
+ { freq: 196.00, delay: 2, dur: 1.8 },
+ { freq: 174.61, delay: 4, dur: 1.8 },
+ { freq: 196.00, delay: 6, dur: 1.8 },
+ ];
 
- gameFreqs.forEach((freq, i) => {
- setTimeout(() => {
- const osc = createOscillator(freq, 0, 1.5, 'sawtooth', 0.02);
+ gameNotes.forEach(({ freq, delay, dur }) => {
+ const osc = createOscillator(freq, delay, dur, 'triangle', 0.018);
  if (osc) oscillators.push(osc);
- }, i * 400);
  });
 
  gameMusicTimeoutRef.current = setTimeout(() => {
  gameMusicTimeoutRef.current = null;
  playGameMusic();
- }, 8000);
+ }, 8500);
 
  currentMusicRef.current = { oscillators, musicLoop: gameMusicTimeoutRef.current };
  }, [createOscillator, stopAmbientMusic]);
