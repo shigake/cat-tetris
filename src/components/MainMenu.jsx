@@ -261,7 +261,6 @@ function MenuCard({ icon, catImg, label, sub, onClick, selected }) {
  onClick={onClick}
  className={`relative flex flex-col items-center text-center p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150 overflow-hidden ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.12] border-yellow-400/30 scale-[1.03]' : ''}`}
  >
- {catImg && <img src={catImg} alt="" className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full opacity-20 pointer-events-none" />}
  <div className="text-white/80 mb-1">{icon}</div>
  <span className="text-white font-semibold text-sm leading-tight">{label}</span>
  <span className="text-white/40 text-[10px] mt-0.5 leading-tight">{sub}</span>
