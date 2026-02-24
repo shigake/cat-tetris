@@ -81,7 +81,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  >
  <BackIcon size={16} />
  </button>
- <img src={`${import.meta.env.BASE_URL}cats/tutor-1.png`} alt="" className="w-10 h-10 rounded-full border border-white/20" />
+ <img src={`${import.meta.env.BASE_URL}cats/professor-1.png`} alt="" className="w-12 h-auto rounded-lg" />
  <div>
  <h1 className="text-2xl font-extrabold text-white">{t('tutorial.title')}</h1>
  <p className="text-white/40 text-sm mt-0.5">{t('tutorial.subtitle')}</p>
@@ -182,11 +182,11 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  </div>
  </div>
 
- <div className="flex items-center gap-2 flex-shrink-0">
- <span className="text-[10px]" title={lesson.difficulty}>
- {lesson.difficulty === 'beginner' ? '🐾' :
- lesson.difficulty === 'intermediate' ? '🐾🐾' :
- lesson.difficulty === 'advanced' ? '🐾🐾🐾' : '🐾🐾🐾🐾'}
+ <div className="flex items-center gap-1 flex-shrink-0">
+ <span className="flex gap-0.5" title={lesson.difficulty}>
+ {Array.from({ length: lesson.difficulty === 'beginner' ? 1 : lesson.difficulty === 'intermediate' ? 2 : lesson.difficulty === 'advanced' ? 3 : 4 }).map((_, i) => (
+ <img key={i} src={`${import.meta.env.BASE_URL}cats/${lesson.difficulty === 'beginner' ? 'paw-green' : lesson.difficulty === 'intermediate' ? 'paw-blue' : lesson.difficulty === 'advanced' ? 'paw-purple' : 'paw-gold'}.png`} alt="" className="w-4 h-3 object-contain" />
+ ))}
  </span>
  {unlocked && (
  <svg className="w-4 h-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">

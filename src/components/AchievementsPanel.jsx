@@ -234,7 +234,7 @@ function AchievementsPanel({ onClose }) {
 
  {filteredAchievements.length === 0 && (
  <div className="text-center text-white/40 py-8 flex flex-col items-center gap-3">
- <img src={`${import.meta.env.BASE_URL}cats/cat-4.png`} alt="" className="w-20 h-20 rounded-full opacity-60" />
+ <img src={`${import.meta.env.BASE_URL}cats/sprite-21.png`} alt="" className="w-20 h-20 object-contain opacity-60" />
  {t('achievements.noneInCategory')}
  </div>
  )}

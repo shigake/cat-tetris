@@ -28,7 +28,7 @@ function LoadingSpinner({ size = 'md', message }) {
  <div className="w-10 h-10 border-4 border-purple-400/30 border-t-purple-400 rounded-full" />
  </motion.div>
  <motion.img
- src={`${import.meta.env.BASE_URL}cats/cat-3.png`}
+ src={`${import.meta.env.BASE_URL}cats/sprite-7.png`}
  alt=""
  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full"
  animate={{ scale: [1, 1.1, 1] }}
@@ -37,13 +37,15 @@ function LoadingSpinner({ size = 'md', message }) {
  </div>
 
  <div className="flex gap-1.5">
- {['🐾', '🐾', '🐾'].map((paw, i) => (
- <motion.span
+ {[1, 2, 3].map((_, i) => (
+ <motion.img
  key={i}
- className="text-sm"
+ src={`${import.meta.env.BASE_URL}cats/paw-purple.png`}
+ alt=""
+ className="w-5 h-4 object-contain"
  animate={{ opacity: [0.2, 1, 0.2], y: [0, -3, 0] }}
  transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
- >{paw}</motion.span>
+ />
  ))}
  </div>
 

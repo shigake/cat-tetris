@@ -157,7 +157,7 @@ function Tutorial({ onComplete }) {
  </div>
 
  <div className="flex justify-center mb-3">
- <img src={`${import.meta.env.BASE_URL}cats/tutor-${(currentStep % 6) + 1}.png`} alt="" className="w-16 h-16 rounded-full border-2 border-white/20 shadow-lg" />
+ <img src={`${import.meta.env.BASE_URL}cats/professor-${(currentStep % 6) + 1}.png`} alt="" className="w-20 h-auto rounded-lg border-2 border-white/20 shadow-lg" />
  </div>
 
  <motion.h2

@@ -45,7 +45,7 @@ const Statistics = ({ stats, onClose }) => {
  >
  <div className="flex justify-between items-center mb-6">
  <div className="flex items-center gap-2">
- <img src={`${import.meta.env.BASE_URL}cats/cat-2.png`} alt="" className="w-9 h-9 rounded-full border border-white/20" />
+ <img src={`${import.meta.env.BASE_URL}cats/sprite-3.png`} alt="" className="w-10 h-10 object-contain" />
  <h2 className="text-2xl font-cat font-bold text-white">
  {t('statistics.title')}
  </h2>

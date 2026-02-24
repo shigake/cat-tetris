@@ -20,7 +20,7 @@ const Scoreboard = ({ score, level, lines, combo, sent }) => {
  <div
  className="bg-gray-900/50 p-2 rounded-xl border-2 border-purple-500/20 shadow-2xl w-28 relative"
  >
- <div className="absolute -top-1.5 -right-1.5 text-[8px] opacity-30">🐾</div>
+ <img src={`${import.meta.env.BASE_URL}cats/paw-purple.png`} alt="" className="absolute -top-1.5 -right-1.5 w-4 h-3 object-contain opacity-30" />
  <h2 className="text-xs font-bold text-white mb-1 text-center">
  {t('game.scoreTitle')}
  </h2>

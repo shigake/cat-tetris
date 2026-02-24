@@ -173,46 +173,51 @@ export default function MainMenu({
  <>
  <button
  onClick={() => play(onStartGame)}
- className={`w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150 ${isSelected('continue') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
+ className={`w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('continue') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
+ <img src={`${import.meta.env.BASE_URL}cats/btn-continuar.png`} alt="" className="w-12 h-auto drop-shadow-md" />
+ <div className="text-left">
  {t('menu.continue')}
  <span className="block text-emerald-100/70 text-xs font-normal mt-0.5">
  {t('menu.continueInfo', { level: gameState?.score?.level || 1, points: (gameState?.score?.points || 0).toLocaleString() })}
  </span>
+ </div>
  </button>
  <button
  onClick={() => play(onNewGame)}
- className={`w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150 ${isSelected('newGame') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
+ className={`w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('newGame') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
+ <img src={`${import.meta.env.BASE_URL}cats/btn-novo-jogo.png`} alt="" className="w-10 h-auto drop-shadow-md" />
  {t('menu.newGame')}
  </button>
  </>
  ) : (
  <button
  onClick={() => play(onStartGame)}
- className={`w-full py-5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 ${isSelected('play') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
+ className={`w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('play') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
+ <img src={`${import.meta.env.BASE_URL}cats/btn-continuar.png`} alt="" className="w-14 h-auto drop-shadow-md" />
  {t('menu.play')}
  </button>
  )}
  </motion.div>
 
  <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-2 gap-2 mb-4">
- <MenuCard icon={<SwordsIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/cat-1.png`} label={t('menu.vsAI')} sub={t('menu.vsAISub')} onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
- <MenuCard icon={<BookIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/tutor-2.png`} label={t('menu.tutorial')} sub={t('menu.tutorialSub')} onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
- <MenuCard icon={<PaletteIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/cat-4.png`} label={t('menu.creator')} sub={t('menu.creatorSub')} onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
- <MenuCard icon={<BrainIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/cat-5.png`} label={t('menu.aiExpert')} sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
+ <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-vs-ia.png`} label={t('menu.vsAI')} sub={t('menu.vsAISub')} onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
+ <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-tutorial.png`} label={t('menu.tutorial')} sub={t('menu.tutorialSub')} onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
+ <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-criador.png`} label={t('menu.creator')} sub={t('menu.creatorSub')} onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
+ <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-ia-expert.png`} label={t('menu.aiExpert')} sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
  </motion.div>
 
  <motion.div {...fadeUp(0.25)} className="w-full grid grid-cols-4 gap-1 mb-4">
- <QuickBtn icon={<ShopBagIcon size={20} />} label={t('menu.shop')} onClick={() => play(onShowShop)} selected={isSelected('shop')} />
- <QuickBtn icon={<ClipboardIcon size={20} />} label={t('menu.missions')} onClick={() => play(onShowMissions)} selected={isSelected('missions')} />
- <QuickBtn icon={<TrophyIcon size={20} />} label={t('menu.achievements')} onClick={() => play(onShowAchievements)} selected={isSelected('achievements')} />
+ <QuickBtn catImg={`${import.meta.env.BASE_URL}cats/btn-loja.png`} icon={<ShopBagIcon size={20} />} label={t('menu.shop')} onClick={() => play(onShowShop)} selected={isSelected('shop')} />
+ <QuickBtn catImg={`${import.meta.env.BASE_URL}cats/paw-gold.png`} icon={<ClipboardIcon size={20} />} label={t('menu.missions')} onClick={() => play(onShowMissions)} selected={isSelected('missions')} />
+ <QuickBtn catImg={`${import.meta.env.BASE_URL}cats/paw-purple-star.png`} icon={<TrophyIcon size={20} />} label={t('menu.achievements')} onClick={() => play(onShowAchievements)} selected={isSelected('achievements')} />
  <QuickBtn icon={<GearIcon size={20} />} label={t('menu.settings')} onClick={() => play(onShowSettings)} selected={isSelected('settings')} />
  </motion.div>
 
  <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
- <span className="text-[10px] opacity-40">🐾</span>
+ <img src={`${import.meta.env.BASE_URL}cats/paw-white.png`} alt="" className="w-4 h-3 object-contain opacity-30" />
  <button
  onClick={toggleSound}
  className="hover:text-white/50 transition-colors"
@@ -229,7 +234,7 @@ export default function MainMenu({
  </button>
 
  <span className="select-none">v1.0</span>
- <span className="text-[10px] opacity-40">🐾</span>
+ <img src={`${import.meta.env.BASE_URL}cats/paw-white.png`} alt="" className="w-4 h-3 object-contain opacity-30" />
  </motion.div>
 
  {/* Language picker dropdown */}
@@ -255,26 +260,26 @@ export default function MainMenu({
  );
 }
 
-function MenuCard({ icon, catImg, label, sub, onClick, selected }) {
+function MenuCard({ catImg, label, sub, onClick, selected }) {
  return (
  <button
  onClick={onClick}
- className={`relative flex flex-col items-center text-center p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150 overflow-hidden ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.12] border-yellow-400/30 scale-[1.03]' : ''}`}
+ className={`relative flex flex-col items-center text-center p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150 overflow-hidden ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.12] border-yellow-400/30 scale-[1.03]' : ''}`}
  >
- <div className="text-white/80 mb-1">{icon}</div>
+ {catImg && <img src={catImg} alt="" className="w-16 h-auto max-h-14 object-contain drop-shadow-md mb-1" />}
  <span className="text-white font-semibold text-sm leading-tight">{label}</span>
  <span className="text-white/40 text-[10px] mt-0.5 leading-tight">{sub}</span>
  </button>
  );
 }
 
-function QuickBtn({ icon, label, onClick, selected }) {
+function QuickBtn({ icon, catImg, label, onClick, selected }) {
  return (
  <button
  onClick={onClick}
  className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg hover:bg-white/[0.07] active:scale-95 transition-all duration-150 ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.1] scale-105' : ''}`}
  >
- <div className="text-white/50">{icon}</div>
+ {catImg ? <img src={catImg} alt="" className="w-7 h-7 object-contain drop-shadow-sm" /> : <div className="text-white/50">{icon}</div>}
  <span className="text-white/40 text-[10px] leading-none">{label}</span>
  </button>
  );
