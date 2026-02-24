@@ -2,70 +2,79 @@ import React, { useState, useEffect } from 'react';
 import { scoreService } from '../services/ScoreService';
 import { useI18n } from '../hooks/useI18n';
 
-const Scoreboard = ({ score, level, lines, combo }) => {
-  const { t } = useI18n();
-  const [highScore, setHighScore] = useState(0);
+const Scoreboard = ({ score, level, lines, combo, sent }) => {
+ const { t } = useI18n();
+ const [highScore, setHighScore] = useState(0);
 
-  useEffect(() => {
-    setHighScore(scoreService.getHighScore());
-  }, []);
+ useEffect(() => {
+ setHighScore(scoreService.getHighScore());
+ }, []);
 
-  useEffect(() => {
-    if (scoreService.saveHighScore(score)) {
-      setHighScore(score);
-    }
-  }, [score]);
+ useEffect(() => {
+ if (scoreService.saveHighScore(score)) {
+ setHighScore(score);
+ }
+ }, [score]);
 
-  return (
-    <div
-      className="bg-gray-900/50 p-2 rounded-xl border-2 border-white/20 shadow-2xl w-28"
-    >
-      <h2 className="text-xs font-bold text-white mb-1 text-center">
-        {t('game.scoreTitle')}
-      </h2>
+ return (
+ <div
+ className="bg-gray-900/50 p-2 rounded-xl border-2 border-white/20 shadow-2xl w-28"
+ >
+ <h2 className="text-xs font-bold text-white mb-1 text-center">
+ {t('game.scoreTitle')}
+ </h2>
 
-      <div className="space-y-0.5 text-xs">
-        <div className="flex justify-between items-center">
-          <span className="text-white/70">{t('game.points')}</span>
-          <span className="text-yellow-400 font-bold">
-            {score.toLocaleString()}
-          </span>
-        </div>
+ <div className="space-y-0.5 text-xs">
+ <div className="flex justify-between items-center">
+ <span className="text-white/70">{t('game.points')}</span>
+ <span className="text-yellow-400 font-bold">
+ {score.toLocaleString()}
+ </span>
+ </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-white/70">{t('game.record')}</span>
-          <span className="text-green-400 font-bold">
-            {highScore.toLocaleString()}
-          </span>
-        </div>
+ <div className="flex justify-between items-center">
+ <span className="text-white/70">{t('game.record')}</span>
+ <span className="text-green-400 font-bold">
+ {highScore.toLocaleString()}
+ </span>
+ </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-white/70">{t('game.levelLabel')}</span>
-          <span className="text-blue-400 font-bold">
-            {level}
-          </span>
-        </div>
+ <div className="flex justify-between items-center">
+ <span className="text-white/70">{t('game.levelLabel')}</span>
+ <span className="text-blue-400 font-bold">
+ {level}
+ </span>
+ </div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-white/70">{t('game.linesLabel')}</span>
-          <span className="text-purple-400 font-bold">
-            {lines}
-          </span>
-        </div>
+ <div className="flex justify-between items-center">
+ <span className="text-white/70">{t('game.linesLabel')}</span>
+ <span className="text-purple-400 font-bold">
+ {lines}
+ </span>
+ </div>
 
-        {combo > 0 && (
-          <div
-            className="flex justify-between items-center bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-400/30 mt-0.5"
-          >
-            <span className="text-white/90">{t('game.comboLabel')}</span>
-            <span className="text-orange-400 font-bold">
-              {combo}x
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+ {sent != null && (
+ <div className="flex justify-between items-center">
+ <span className="text-white/70">{t('game.sentLabel')}</span>
+ <span className="text-red-400 font-bold">
+ {sent}
+ </span>
+ </div>
+ )}
+
+ {combo > 0 && (
+ <div
+ className="flex justify-between items-center bg-orange-500/20 px-1.5 py-0.5 rounded border border-orange-400/30 mt-0.5"
+ >
+ <span className="text-white/90">{t('game.comboLabel')}</span>
+ <span className="text-orange-400 font-bold">
+ {combo}x
+ </span>
+ </div>
+ )}
+ </div>
+ </div>
+ );
 };
 
 export default React.memo(Scoreboard);

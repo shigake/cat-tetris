@@ -3,105 +3,102 @@ import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
 
 export function useAchievements() {
-  const [achievements, setAchievements] = useState([]);
-  const [newUnlocks, setNewUnlocks] = useState([]);
-  const [loading, setLoading] = useState(true);
+ const [achievements, setAchievements] = useState([]);
+ const [newUnlocks, setNewUnlocks] = useState([]);
+ const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    try {
-      const achievementsService = serviceContainer.resolve('achievementsService');
-      setAchievements(achievementsService.getAchievements());
-      setLoading(false);
+ useEffect(() => {
+ try {
+ const achievementsService = serviceContainer.resolve('achievementsService');
+ setAchievements(achievementsService.getAchievements());
+ setLoading(false);
 
-      const runCheck = () => {
-        try {
-          const playerStatsService = serviceContainer.resolve('playerStatsService');
-          const stats = playerStatsService.getStats();
+ const runCheck = () => {
+ try {
+ const playerStatsService = serviceContainer.resolve('playerStatsService');
+ const stats = playerStatsService.getStats();
 
-          const unlocked = achievementsService.checkAchievements(stats);
+ const unlocked = achievementsService.checkAchievements(stats);
 
-          if (unlocked.length > 0) {
-            setAchievements(achievementsService.getAchievements());
-            setNewUnlocks(unlocked);
+ if (unlocked.length > 0) {
+ setAchievements(achievementsService.getAchievements());
+ setNewUnlocks(unlocked);
 
-            window.dispatchEvent(new CustomEvent('achievementsUnlocked', {
-              detail: unlocked
-            }));
+ window.dispatchEvent(new CustomEvent('achievementsUnlocked', {
+ detail: unlocked
+ }));
 
-            setTimeout(() => {
-              setNewUnlocks([]);
-            }, 5000);
-          }
-        } catch (e) {
-          // silent
-        }
-      };
+ setTimeout(() => {
+ setNewUnlocks([]);
+ }, 5000);
+ }
+ } catch (e) {
 
-      // Poll every 2 seconds
-      const checkInterval = setInterval(runCheck, 2000);
+ }
+ };
 
-      // Also check immediately when player stats are updated (game over)
-      const handleStatsUpdated = () => runCheck();
-      window.addEventListener('playerStatsUpdated', handleStatsUpdated);
+ const checkInterval = setInterval(runCheck, 2000);
 
-      return () => {
-        clearInterval(checkInterval);
-        window.removeEventListener('playerStatsUpdated', handleStatsUpdated);
-      };
-    } catch (error) {
+ const handleStatsUpdated = () => runCheck();
+ window.addEventListener('playerStatsUpdated', handleStatsUpdated);
 
-      setLoading(false);
-    }
-  }, []);
+ return () => {
+ clearInterval(checkInterval);
+ window.removeEventListener('playerStatsUpdated', handleStatsUpdated);
+ };
+ } catch (error) {
 
-  const getAchievementsByTier = useCallback((tier) => {
-    try {
-      const achievementsService = serviceContainer.resolve('achievementsService');
-      return achievementsService.getByTier(tier);
-    } catch (error) {
+ setLoading(false);
+ }
+ }, []);
 
-      return [];
-    }
-  }, []);
+ const getAchievementsByTier = useCallback((tier) => {
+ try {
+ const achievementsService = serviceContainer.resolve('achievementsService');
+ return achievementsService.getByTier(tier);
+ } catch (error) {
 
-  const getUnlocked = useCallback(() => {
-    try {
-      const achievementsService = serviceContainer.resolve('achievementsService');
-      return achievementsService.getUnlocked();
-    } catch (error) {
+ return [];
+ }
+ }, []);
 
-      return [];
-    }
-  }, []);
+ const getUnlocked = useCallback(() => {
+ try {
+ const achievementsService = serviceContainer.resolve('achievementsService');
+ return achievementsService.getUnlocked();
+ } catch (error) {
 
-  const getLocked = useCallback(() => {
-    try {
-      const achievementsService = serviceContainer.resolve('achievementsService');
-      return achievementsService.getLocked();
-    } catch (error) {
+ return [];
+ }
+ }, []);
 
-      return [];
-    }
-  }, []);
+ const getLocked = useCallback(() => {
+ try {
+ const achievementsService = serviceContainer.resolve('achievementsService');
+ return achievementsService.getLocked();
+ } catch (error) {
 
-  const getStats = useCallback(() => {
-    try {
-      const achievementsService = serviceContainer.resolve('achievementsService');
-      return achievementsService.getStats();
-    } catch (error) {
+ return [];
+ }
+ }, []);
 
-      return null;
-    }
-  }, []);
+ const getStats = useCallback(() => {
+ try {
+ const achievementsService = serviceContainer.resolve('achievementsService');
+ return achievementsService.getStats();
+ } catch (error) {
 
-  return {
-    achievements,
-    newUnlocks,
-    loading,
-    getAchievementsByTier,
-    getUnlocked,
-    getLocked,
-    getStats
-  };
+ return null;
+ }
+ }, []);
+
+ return {
+ achievements,
+ newUnlocks,
+ loading,
+ getAchievementsByTier,
+ getUnlocked,
+ getLocked,
+ getStats
+ };
 }
-

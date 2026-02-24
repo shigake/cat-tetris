@@ -2,182 +2,181 @@ import { IKeyboardInputService } from '../../interfaces/IKeyboardInputService.js
 import { buildKeyToActionMap, loadKeyboardMappings } from '../../config/KeyboardConfig.js';
 
 export class KeyboardInputService extends IKeyboardInputService {
-  constructor() {
-    super();
-    this.keyMappings = buildKeyToActionMap(loadKeyboardMappings());
+ constructor() {
+ super();
+ this.keyMappings = buildKeyToActionMap(loadKeyboardMappings());
 
-    this.preventDefaultKeys = [
-      'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '
-    ];
+ this.preventDefaultKeys = [
+ 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '
+ ];
 
-    this.handlers = new Map();
-    this.isListening = false;
+ this.handlers = new Map();
+ this.isListening = false;
 
-    this.das = 167;
-    this.arr = 33;
-    this.sdf = 5;
+ this.das = 167;
+ this.arr = 33;
+ this.sdf = 5;
 
-    this._dasActions = new Set(['moveLeft', 'moveRight', 'moveDown']);
+ this._dasActions = new Set(['moveLeft', 'moveRight', 'moveDown']);
 
-    this._pressedKeys = new Map();
-    this._rafId = null;
-    this._lastTime = 0;
-  }
+ this._pressedKeys = new Map();
+ this._rafId = null;
+ this._lastTime = 0;
+ }
 
-  setDAS(ms) { this.das = Math.max(0, ms); }
-  setARR(ms) { this.arr = Math.max(0, ms); }
-  getDAS() { return this.das; }
-  getARR() { return this.arr; }
+ setDAS(ms) { this.das = Math.max(0, ms); }
+ setARR(ms) { this.arr = Math.max(0, ms); }
+ getDAS() { return this.das; }
+ getARR() { return this.arr; }
 
-  registerHandler(action, handler) {
-    if (!this.handlers.has(action)) {
-      this.handlers.set(action, []);
-    }
-    this.handlers.get(action).push(handler);
-  }
+ registerHandler(action, handler) {
+ if (!this.handlers.has(action)) {
+ this.handlers.set(action, []);
+ }
+ this.handlers.get(action).push(handler);
+ }
 
-  unregisterHandler(action, handler) {
-    if (this.handlers.has(action)) {
-      const handlers = this.handlers.get(action);
-      const index = handlers.indexOf(handler);
-      if (index > -1) {
-        handlers.splice(index, 1);
-      }
-    }
-  }
+ unregisterHandler(action, handler) {
+ if (this.handlers.has(action)) {
+ const handlers = this.handlers.get(action);
+ const index = handlers.indexOf(handler);
+ if (index > -1) {
+ handlers.splice(index, 1);
+ }
+ }
+ }
 
-  _fireAction(action) {
-    if (this.handlers.has(action)) {
-      this.handlers.get(action).forEach(handler => {
-        try { handler(); } catch (e) {  }
-      });
-    }
-  }
+ _fireAction(action) {
+ if (this.handlers.has(action)) {
+ this.handlers.get(action).forEach(handler => {
+ try { handler(); } catch (e) { }
+ });
+ }
+ }
 
-  startListening() {
-    if (!this.isListening) {
-      window.addEventListener('keydown', this._handleKeyDown);
-      window.addEventListener('keyup', this._handleKeyUp);
-      window.addEventListener('blur', this._handleBlur);
-      this.isListening = true;
-      this._startLoop();
-    }
-  }
+ startListening() {
+ if (!this.isListening) {
+ window.addEventListener('keydown', this._handleKeyDown);
+ window.addEventListener('keyup', this._handleKeyUp);
+ window.addEventListener('blur', this._handleBlur);
+ this.isListening = true;
+ this._startLoop();
+ }
+ }
 
-  stopListening() {
-    if (this.isListening) {
-      window.removeEventListener('keydown', this._handleKeyDown);
-      window.removeEventListener('keyup', this._handleKeyUp);
-      window.removeEventListener('blur', this._handleBlur);
-      this.isListening = false;
-      this._stopLoop();
-      this._pressedKeys.clear();
-    }
-  }
+ stopListening() {
+ if (this.isListening) {
+ window.removeEventListener('keydown', this._handleKeyDown);
+ window.removeEventListener('keyup', this._handleKeyUp);
+ window.removeEventListener('blur', this._handleBlur);
+ this.isListening = false;
+ this._stopLoop();
+ this._pressedKeys.clear();
+ }
+ }
 
-  _handleKeyDown = (event) => {
-    if (this.preventDefaultKeys.includes(event.key)) {
-      event.preventDefault();
-    }
+ _handleKeyDown = (event) => {
+ if (this.preventDefaultKeys.includes(event.key)) {
+ event.preventDefault();
+ }
 
-    if (event.repeat) return;
+ if (event.repeat) return;
 
-    const action = this.keyMappings[event.key];
-    if (!action) return;
+ const action = this.keyMappings[event.key];
+ if (!action) return;
 
-    this._fireAction(action);
+ this._fireAction(action);
 
-    if (this._dasActions.has(action)) {
-      this._pressedKeys.set(event.key, {
-        action,
-        dasTimer: 0,
-        arrTimer: 0,
-        dasTriggered: false
-      });
-    }
-  }
+ if (this._dasActions.has(action)) {
+ this._pressedKeys.set(event.key, {
+ action,
+ dasTimer: 0,
+ arrTimer: 0,
+ dasTriggered: false
+ });
+ }
+ }
 
-  _handleKeyUp = (event) => {
-    this._pressedKeys.delete(event.key);
-  }
+ _handleKeyUp = (event) => {
+ this._pressedKeys.delete(event.key);
+ }
 
-  _handleBlur = () => {
-    this._pressedKeys.clear();
-  }
+ _handleBlur = () => {
+ this._pressedKeys.clear();
+ }
 
-  _startLoop() {
-    this._lastTime = performance.now();
-    const loop = (now) => {
-      const dt = now - this._lastTime;
-      this._lastTime = now;
-      this._updateDAS(dt);
-      this._rafId = requestAnimationFrame(loop);
-    };
-    this._rafId = requestAnimationFrame(loop);
-  }
+ _startLoop() {
+ this._lastTime = performance.now();
+ const loop = (now) => {
+ const dt = now - this._lastTime;
+ this._lastTime = now;
+ this._updateDAS(dt);
+ this._rafId = requestAnimationFrame(loop);
+ };
+ this._rafId = requestAnimationFrame(loop);
+ }
 
-  _stopLoop() {
-    if (this._rafId) {
-      cancelAnimationFrame(this._rafId);
-      this._rafId = null;
-    }
-  }
+ _stopLoop() {
+ if (this._rafId) {
+ cancelAnimationFrame(this._rafId);
+ this._rafId = null;
+ }
+ }
 
-  _updateDAS(dt) {
-    for (const [key, state] of this._pressedKeys) {
-      if (!state.dasTriggered) {
-        state.dasTimer += dt;
-        if (state.dasTimer >= this.das) {
-          state.dasTriggered = true;
-          state.arrTimer = 0;
+ _updateDAS(dt) {
+ for (const [key, state] of this._pressedKeys) {
+ if (!state.dasTriggered) {
+ state.dasTimer += dt;
+ if (state.dasTimer >= this.das) {
+ state.dasTriggered = true;
+ state.arrTimer = 0;
 
-          if (this.arr === 0) {
-            for (let i = 0; i < 20; i++) this._fireAction(state.action);
-          } else {
-            this._fireAction(state.action);
-          }
-        }
-      } else {
-        state.arrTimer += dt;
-        if (this.arr === 0) {
-          for (let i = 0; i < 20; i++) this._fireAction(state.action);
-          state.arrTimer = 0;
-        } else {
-          while (state.arrTimer >= this.arr) {
-            state.arrTimer -= this.arr;
-            this._fireAction(state.action);
-          }
-        }
-      }
-    }
-  }
+ if (this.arr === 0) {
+ for (let i = 0; i < 20; i++) this._fireAction(state.action);
+ } else {
+ this._fireAction(state.action);
+ }
+ }
+ } else {
+ state.arrTimer += dt;
+ if (this.arr === 0) {
+ for (let i = 0; i < 20; i++) this._fireAction(state.action);
+ state.arrTimer = 0;
+ } else {
+ while (state.arrTimer >= this.arr) {
+ state.arrTimer -= this.arr;
+ this._fireAction(state.action);
+ }
+ }
+ }
+ }
+ }
 
-  setKeyMapping(key, action) {
-    this.keyMappings[key] = action;
-  }
+ setKeyMapping(key, action) {
+ this.keyMappings[key] = action;
+ }
 
-  removeKeyMapping(key) {
-    delete this.keyMappings[key];
-  }
+ removeKeyMapping(key) {
+ delete this.keyMappings[key];
+ }
 
-  getKeyMappings() {
-    return { ...this.keyMappings };
-  }
+ getKeyMappings() {
+ return { ...this.keyMappings };
+ }
 
-  reloadMappings() {
-    this.keyMappings = buildKeyToActionMap(loadKeyboardMappings());
-    // Update preventDefaultKeys based on new mappings
-    const moveKeys = new Set();
-    for (const [key, action] of Object.entries(this.keyMappings)) {
-      if (['moveLeft', 'moveRight', 'moveDown', 'rotate', 'hardDrop'].includes(action)) {
-        moveKeys.add(key);
-      }
-    }
-    this.preventDefaultKeys = [...moveKeys];
-  }
+ reloadMappings() {
+ this.keyMappings = buildKeyToActionMap(loadKeyboardMappings());
+ const moveKeys = new Set();
+ for (const [key, action] of Object.entries(this.keyMappings)) {
+ if (['moveLeft', 'moveRight', 'moveDown', 'rotate', 'hardDrop'].includes(action)) {
+ moveKeys.add(key);
+ }
+ }
+ this.preventDefaultKeys = [...moveKeys];
+ }
 
-  clear() {
-    this.handlers.clear();
-    this.stopListening();
-  }
+ clear() {
+ this.handlers.clear();
+ this.stopListening();
+ }
 }

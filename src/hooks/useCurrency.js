@@ -3,76 +3,75 @@ import { serviceContainer } from '../core/container/ServiceRegistration.js';
 import { gameEvents, GAME_EVENTS } from '../patterns/Observer.js';
 
 export function useCurrency() {
-  const [currency, setCurrency] = useState(null);
-  const [loading, setLoading] = useState(true);
+ const [currency, setCurrency] = useState(null);
+ const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    try {
-      const currencyService = serviceContainer.resolve('currencyService');
-      setCurrency(currencyService.getCurrency());
-      setLoading(false);
+ useEffect(() => {
+ try {
+ const currencyService = serviceContainer.resolve('currencyService');
+ setCurrency(currencyService.getCurrency());
+ setLoading(false);
 
-      const updateCurrency = () => {
-        setCurrency(currencyService.getCurrency());
-      };
+ const updateCurrency = () => {
+ setCurrency(currencyService.getCurrency());
+ };
 
-      window.addEventListener('currencyUpdated', updateCurrency);
+ window.addEventListener('currencyUpdated', updateCurrency);
 
-      return () => {
-        window.removeEventListener('currencyUpdated', updateCurrency);
-      };
-    } catch (error) {
+ return () => {
+ window.removeEventListener('currencyUpdated', updateCurrency);
+ };
+ } catch (error) {
 
-      setLoading(false);
-    }
-  }, []);
+ setLoading(false);
+ }
+ }, []);
 
-  const addFish = useCallback((amount, reason) => {
-    try {
-      const currencyService = serviceContainer.resolve('currencyService');
-      const success = currencyService.addFish(amount, reason);
-      if (success) {
-        setCurrency(currencyService.getCurrency());
-        window.dispatchEvent(new Event('currencyUpdated'));
-      }
-      return success;
-    } catch (error) {
+ const addFish = useCallback((amount, reason) => {
+ try {
+ const currencyService = serviceContainer.resolve('currencyService');
+ const success = currencyService.addFish(amount, reason);
+ if (success) {
+ setCurrency(currencyService.getCurrency());
+ window.dispatchEvent(new Event('currencyUpdated'));
+ }
+ return success;
+ } catch (error) {
 
-      return false;
-    }
-  }, []);
+ return false;
+ }
+ }, []);
 
-  const spendFish = useCallback((amount, reason) => {
-    try {
-      const currencyService = serviceContainer.resolve('currencyService');
-      const success = currencyService.spendFish(amount, reason);
-      if (success) {
-        setCurrency(currencyService.getCurrency());
-        window.dispatchEvent(new Event('currencyUpdated'));
-      }
-      return success;
-    } catch (error) {
+ const spendFish = useCallback((amount, reason) => {
+ try {
+ const currencyService = serviceContainer.resolve('currencyService');
+ const success = currencyService.spendFish(amount, reason);
+ if (success) {
+ setCurrency(currencyService.getCurrency());
+ window.dispatchEvent(new Event('currencyUpdated'));
+ }
+ return success;
+ } catch (error) {
 
-      return false;
-    }
-  }, []);
+ return false;
+ }
+ }, []);
 
-  const canAfford = useCallback((amount) => {
-    try {
-      const currencyService = serviceContainer.resolve('currencyService');
-      return currencyService.canAfford(amount);
-    } catch (error) {
+ const canAfford = useCallback((amount) => {
+ try {
+ const currencyService = serviceContainer.resolve('currencyService');
+ return currencyService.canAfford(amount);
+ } catch (error) {
 
-      return false;
-    }
-  }, []);
+ return false;
+ }
+ }, []);
 
-  return {
-    currency,
-    loading,
-    addFish,
-    spendFish,
-    canAfford
-  };
+ return {
+ currency,
+ loading,
+ addFish,
+ spendFish,
+ canAfford
+ };
 }
-

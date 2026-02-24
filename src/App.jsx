@@ -15,6 +15,7 @@ import AchievementNotification from './components/AchievementNotification';
 import ToastNotification from './components/ToastNotification';
 import RewardNotification from './components/RewardNotification';
 import Tutorial from './components/Tutorial';
+import { BackIcon } from './components/Icons';
 import { serviceContainer } from './core/container/ServiceRegistration';
 import { useGameService } from './hooks/useGameService';
 import { useSettings } from './hooks/useSettings';
@@ -30,7 +31,6 @@ import { useShop } from './hooks/useShop';
 import { useGameModes } from './hooks/useGameModes';
 import GamepadIndicator from './components/GamepadIndicator';
 import { getPieceColor } from './utils/PieceGenerator';
-import { errorLogger } from './services/ErrorLogger';
 import { useI18n } from './hooks/useI18n';
 
 const SettingsMenu = lazy(() => import('./components/SettingsMenu'));
@@ -43,778 +43,761 @@ const MultiplayerPanel = lazy(() => import('./components/MultiplayerPanel'));
 const TutorialHub = lazy(() => import('./components/TutorialHub'));
 
 function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center p-8">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        className="text-4xl"
-      >
-        🐱
-      </motion.div>
-    </div>
-  );
+ return (
+ <div className="flex items-center justify-center p-8">
+ <motion.div
+ animate={{ rotate: 360 }}
+ transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+ className="text-4xl"
+ >
+
+ </motion.div>
+ </div>
+ );
 }
 
 function GameScreen({
-  gameState,
-  actions,
-  onBackToMenu,
-  onRestart,
-  isGamepadActive,
-  controllerCount,
-  getGamepadInfo
+ gameState,
+ actions,
+ onBackToMenu,
+ onRestart,
+ isGamepadActive,
+ controllerCount,
+ getGamepadInfo
 }) {
 
-  const { t } = useI18n();
-  const dropPreview = React.useMemo(() => {
-    if (!gameState?.currentPiece || gameState?.gameOver || gameState?.isPaused) return null;
-    try {
-      return actions.getDropPreview();
-    } catch (e) {
-      return null;
-    }
-  }, [
-    gameState?.currentPiece?.position?.x,
-    gameState?.currentPiece?.position?.y,
-    gameState?.currentPiece?.type,
-    gameState?.currentPiece?.shape,
-    gameState?.gameOver,
-    gameState?.isPaused
-  ]);
+ const { t } = useI18n();
+ const dropPreview = React.useMemo(() => {
+ if (!gameState?.currentPiece || gameState?.gameOver || gameState?.isPaused) return null;
+ try {
+ return actions.getDropPreview();
+ } catch (e) {
+ return null;
+ }
+ }, [
+ gameState?.currentPiece?.position?.x,
+ gameState?.currentPiece?.position?.y,
+ gameState?.currentPiece?.type,
+ gameState?.currentPiece?.shape,
+ gameState?.gameOver,
+ gameState?.isPaused
+ ]);
 
-  const [actionCooldowns, setActionCooldowns] = React.useState({
-    hardDrop: false,
-    hold: false,
-    pause: false
-  });
+ const [actionCooldowns, setActionCooldowns] = React.useState({
+ hardDrop: false,
+ hold: false,
+ pause: false
+ });
 
-  const cooldownTimersRef = React.useRef({});
+ const cooldownTimersRef = React.useRef({});
 
-  React.useEffect(() => {
-    return () => {
-      Object.values(cooldownTimersRef.current).forEach(clearTimeout);
-    };
-  }, []);
+ React.useEffect(() => {
+ return () => {
+ Object.values(cooldownTimersRef.current).forEach(clearTimeout);
+ };
+ }, []);
 
-  const handleHardDropWithDelay = React.useCallback(() => {
-    if (actionCooldowns.hardDrop || gameState?.gameOver) return;
+ const handleHardDropWithDelay = React.useCallback(() => {
+ if (actionCooldowns.hardDrop || gameState?.gameOver) return;
 
-    actions.hardDrop();
-    setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
+ actions.hardDrop();
+ setActionCooldowns(prev => ({ ...prev, hardDrop: true }));
 
-    clearTimeout(cooldownTimersRef.current.hardDrop);
-    cooldownTimersRef.current.hardDrop = setTimeout(() => {
-      setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
-    }, 300);
-  }, [actions, actionCooldowns.hardDrop, gameState?.gameOver]);
+ clearTimeout(cooldownTimersRef.current.hardDrop);
+ cooldownTimersRef.current.hardDrop = setTimeout(() => {
+ setActionCooldowns(prev => ({ ...prev, hardDrop: false }));
+ }, 300);
+ }, [actions, actionCooldowns.hardDrop, gameState?.gameOver]);
 
-  const handleHoldWithDelay = React.useCallback(() => {
-    if (actionCooldowns.hold || gameState?.gameOver || !gameState?.canHold) return;
+ const handleHoldWithDelay = React.useCallback(() => {
+ if (actionCooldowns.hold || gameState?.gameOver || !gameState?.canHold) return;
 
-    actions.holdPiece();
-    setActionCooldowns(prev => ({ ...prev, hold: true }));
+ actions.holdPiece();
+ setActionCooldowns(prev => ({ ...prev, hold: true }));
 
-    clearTimeout(cooldownTimersRef.current.hold);
-    cooldownTimersRef.current.hold = setTimeout(() => {
-      setActionCooldowns(prev => ({ ...prev, hold: false }));
-    }, 500);
-  }, [actions, actionCooldowns.hold, gameState?.gameOver, gameState?.canHold]);
+ clearTimeout(cooldownTimersRef.current.hold);
+ cooldownTimersRef.current.hold = setTimeout(() => {
+ setActionCooldowns(prev => ({ ...prev, hold: false }));
+ }, 500);
+ }, [actions, actionCooldowns.hold, gameState?.gameOver, gameState?.canHold]);
 
-  const handlePauseWithDelay = React.useCallback(() => {
-    if (actionCooldowns.pause || gameState?.gameOver) return;
+ const handlePauseWithDelay = React.useCallback(() => {
+ if (actionCooldowns.pause || gameState?.gameOver) return;
 
-    if (gameState?.isPaused) {
-      actions.resume();
-    } else {
-      actions.pause();
-    }
+ if (gameState?.isPaused) {
+ actions.resume();
+ } else {
+ actions.pause();
+ }
 
-    setActionCooldowns(prev => ({ ...prev, pause: true }));
+ setActionCooldowns(prev => ({ ...prev, pause: true }));
 
-    clearTimeout(cooldownTimersRef.current.pause);
-    cooldownTimersRef.current.pause = setTimeout(() => {
-      setActionCooldowns(prev => ({ ...prev, pause: false }));
-    }, 300);
-  }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
-  return (
-    <div className="h-screen cat-bg flex flex-col overflow-hidden">
+ clearTimeout(cooldownTimersRef.current.pause);
+ cooldownTimersRef.current.pause = setTimeout(() => {
+ setActionCooldowns(prev => ({ ...prev, pause: false }));
+ }, 300);
+ }, [actions, actionCooldowns.pause, gameState?.gameOver, gameState?.isPaused]);
+ return (
+ <div className="h-screen cat-bg flex flex-col overflow-hidden">
 
-      <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 backdrop-blur-sm border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-2">
-          <motion.button
-            onClick={onBackToMenu}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors"
-            title={t('game.backToMenu')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-            </svg>
-          </motion.button>
-          <span className="text-white font-bold text-sm">🐱 Cat Tetris</span>
-        </div>
+ <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 backdrop-blur-sm border-b border-white/10 shrink-0">
+ <div className="flex items-center gap-2">
+ <motion.button
+ onClick={onBackToMenu}
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ className="bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors"
+ title={t('game.backToMenu')}
+ >
+ <BackIcon size={16} />
+ </motion.button>
+ <span className="text-white font-bold text-sm"> Cat Tetris</span>
+ </div>
 
-        <div className="flex items-center gap-3 text-xs text-white/70">
-          <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()} pts</span>
-          <span>{t('game.level', { level: gameState.score.level })}</span>
-          <span>{gameState.score.lines} {t('common.lines')}</span>
-        </div>
+ <div className="flex items-center gap-3 text-xs text-white/70">
+ <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()} pts</span>
+ <span>{t('game.level', { level: gameState.score.level })}</span>
+ <span>{gameState.score.lines} {t('common.lines')}</span>
+ </div>
 
-        <div className="flex items-center gap-1.5">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={gameState.isPaused ? actions.resume : actions.pause}
-            disabled={gameState.gameOver}
-            className="bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-lg text-xs transition-colors disabled:opacity-50"
-          >
-            {gameState.isPaused ? '▶️' : '⏸️'}
-          </motion.button>
-        </div>
-      </div>
+ <div className="flex items-center gap-1.5">
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onClick={gameState.isPaused ? actions.resume : actions.pause}
+ disabled={gameState.gameOver}
+ className="bg-white/10 hover:bg-white/20 text-white px-2.5 py-1 rounded-lg text-xs transition-colors disabled:opacity-50"
+ >
+ {gameState.isPaused ? '' : ''}
+ </motion.button>
+ </div>
+ </div>
 
-      <div className="flex-1 flex items-center justify-center overflow-hidden p-2">
-        <div className="flex flex-col lg:flex-row gap-2 items-center justify-center">
-          <div className="hidden lg:flex flex-col lg:flex-row gap-2 items-center justify-center">
-            <div className="flex flex-col gap-2">
-              <HeldPiece
-                heldPiece={gameState.heldPiece}
-                canHold={gameState.canHold}
-              />
+ <div className="flex-1 flex items-center justify-center overflow-hidden p-2">
+ <div className="flex flex-col lg:flex-row gap-2 items-center justify-center">
+ <div className="hidden lg:flex flex-col lg:flex-row gap-2 items-center justify-center">
+ <div className="flex flex-col gap-2">
+ <HeldPiece
+ heldPiece={gameState.heldPiece}
+ canHold={gameState.canHold}
+ />
 
-              <Scoreboard
-                score={gameState.score.points}
-                level={gameState.score.level}
-                lines={gameState.score.lines}
-                combo={gameState.score.combo}
-              />
-            </div>
+ <Scoreboard
+ score={gameState.score.points}
+ level={gameState.score.level}
+ lines={gameState.score.lines}
+ combo={gameState.score.combo}
+ />
+ </div>
 
-            <div className="flex flex-col items-center">
-              <TetrisBoard
-                board={gameState.board}
-                currentPiece={gameState.currentPiece}
-                dropPreview={dropPreview}
-                gameOver={gameState.gameOver}
-              />
+ <div className="flex flex-col items-center">
+ <TetrisBoard
+ board={gameState.board}
+ currentPiece={gameState.currentPiece}
+ dropPreview={dropPreview}
+ gameOver={gameState.gameOver}
+ bufferRows={gameState.bufferRows}
+ />
 
-              <Controls
-                onMove={actions.movePiece}
-                onRotate={actions.rotatePiece}
-                onHardDrop={actions.hardDrop}
-                onPause={gameState.isPaused ? actions.resume : actions.pause}
-                onHold={actions.holdPiece}
-                isPaused={gameState.isPaused}
-                gameOver={gameState.gameOver}
-                canHold={gameState.canHold}
-              />
-            </div>
+ <Controls
+ onMove={actions.movePiece}
+ onRotate={actions.rotatePiece}
+ onHardDrop={actions.hardDrop}
+ onPause={gameState.isPaused ? actions.resume : actions.pause}
+ onHold={actions.holdPiece}
+ isPaused={gameState.isPaused}
+ gameOver={gameState.gameOver}
+ canHold={gameState.canHold}
+ />
+ </div>
 
-            <div className="flex flex-col gap-2">
-              <NextPieces pieces={gameState.nextPieces} />
-            </div>
-          </div>
+ <div className="flex flex-col gap-2">
+ <NextPieces pieces={gameState.nextPieces} />
+ </div>
+ </div>
 
-          <div className="flex lg:hidden flex-col w-full h-full" data-testid="mobile-layout">
-            <div className="flex justify-between items-center mb-2 px-2 bg-black/30 rounded-lg mx-2 py-1">
-              <div className="text-white text-sm">
-                <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()}</span>
-                <span className="text-white/60 ml-2">{t('game.level', { level: gameState.score.level })}</span>
-              </div>
+ <div className="flex lg:hidden flex-col w-full h-full" data-testid="mobile-layout">
+ <div className="flex justify-between items-center mb-2 px-2 bg-black/30 rounded-lg mx-2 py-1">
+ <div className="text-white text-sm">
+ <span className="text-yellow-400 font-bold">{gameState.score.points.toLocaleString()}</span>
+ <span className="text-white/60 ml-2">{t('game.level', { level: gameState.score.level })}</span>
+ </div>
 
-              <div className="flex items-center gap-2">
-                {gameState.heldPiece && (
-                  <div className="text-xs text-white/60">💾</div>
-                )}
-                <div className="text-xs text-white/60">{t('game.nextLabel')}</div>
-                <div className="bg-gray-800/50 p-1 rounded">
-                  {gameState.nextPieces[0] ? (
-                    <div className="grid gap-0.5" style={{
-                      gridTemplateColumns: `repeat(${Math.max(...gameState.nextPieces[0].shape.map(row => row.length))}, 8px)`,
-                      gridTemplateRows: `repeat(${gameState.nextPieces[0].shape.length}, 8px)`
-                    }}>
-                      {gameState.nextPieces[0].shape.map((row, y) =>
-                        row.map((cell, x) => (
-                          <div
-                            key={`next-${x}-${y}`}
-                            className="w-2 h-2 rounded-sm"
-                            style={{
-                              backgroundColor: cell ? getPieceColor(gameState.nextPieces[0].color) : 'transparent',
-                              border: cell ? '1px solid rgba(255,255,255,0.3)' : 'none'
-                            }}
-                          >
-                            {cell && gameState.nextPieces[0].emoji ? (
-                              <span className="text-[6px] leading-none block text-center">{gameState.nextPieces[0].emoji}</span>
-                            ) : null}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  ) : (
-                    <div className="w-8 h-6 flex items-center justify-center">
-                      <span className="text-xs text-white/40">?</span>
-                    </div>
-                  )}</div>
-              </div>
-            </div>
+ <div className="flex items-center gap-2">
+ {gameState.heldPiece && (
+ <div className="text-xs text-white/60"></div>
+ )}
+ <div className="text-xs text-white/60">{t('game.nextLabel')}</div>
+ <div className="bg-gray-800/50 p-1 rounded">
+ {gameState.nextPieces[0] ? (
+ <div className="grid gap-0.5" style={{
+ gridTemplateColumns: `repeat(${Math.max(...gameState.nextPieces[0].shape.map(row => row.length))}, 8px)`,
+ gridTemplateRows: `repeat(${gameState.nextPieces[0].shape.length}, 8px)`
+ }}>
+ {gameState.nextPieces[0].shape.map((row, y) =>
+ row.map((cell, x) => (
+ <div
+ key={`next-${x}-${y}`}
+ className="w-2 h-2 rounded-sm"
+ style={{
+ backgroundColor: cell ? getPieceColor(gameState.nextPieces[0].color) : 'transparent',
+ border: cell ? '1px solid rgba(255,255,255,0.3)' : 'none'
+ }}
+ />
+ ))
+ )}
+ </div>
+ ) : (
+ <div className="w-8 h-6 flex items-center justify-center">
+ <span className="text-xs text-white/40">?</span>
+ </div>
+ )}</div>
+ </div>
+ </div>
 
-            <div className="flex items-center justify-center flex-1 relative px-1">
-              <div className="flex flex-col gap-1 mr-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onTouchStart={(e) => { e.preventDefault(); actions.rotatePiece(); }}
-                  onClick={() => actions.rotatePiece()}
-                  disabled={gameState.gameOver}
-                  className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 touch-manipulation text-lg"
-                >
-                  🔄
-                </motion.button>
+ <div className="flex items-center justify-center flex-1 relative px-1">
+ <div className="flex flex-col gap-1 mr-2">
+ <motion.button
+ whileHover={{ scale: 1.1 }}
+ whileTap={{ scale: 0.9 }}
+ onTouchStart={(e) => { e.preventDefault(); actions.rotatePiece(); }}
+ onClick={() => actions.rotatePiece()}
+ disabled={gameState.gameOver}
+ className="bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 disabled:opacity-50 touch-manipulation text-lg"
+ >
 
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onTouchStart={(e) => { e.preventDefault(); actions.movePiece('left'); }}
-                  onClick={() => actions.movePiece('left')}
-                  disabled={gameState.gameOver}
-                  className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
-                >
-                  ⬅️
-                </motion.button>
-              </div>
+ </motion.button>
 
-              <div className="flex-shrink-0 mx-1">
-                <TetrisBoard
-                  board={gameState.board}
-                  currentPiece={gameState.currentPiece}
-                  dropPreview={dropPreview}
-                  gameOver={gameState.gameOver}
-                />
-              </div>
+ <motion.button
+ whileHover={{ scale: 1.1 }}
+ whileTap={{ scale: 0.9 }}
+ onTouchStart={(e) => { e.preventDefault(); actions.movePiece('left'); }}
+ onClick={() => actions.movePiece('left')}
+ disabled={gameState.gameOver}
+ className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
+ >
 
-              <div className="flex flex-col gap-1 ml-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onTouchStart={(e) => { e.preventDefault(); handleHardDropWithDelay(); }}
-                  onClick={handleHardDropWithDelay}
-                  disabled={gameState.gameOver || actionCooldowns.hardDrop}
-                  className={`text-white p-4 rounded-full shadow-lg disabled:opacity-50 touch-manipulation text-lg ${
-                    actionCooldowns.hardDrop
-                      ? 'bg-red-400'
-                      : 'bg-red-500 hover:bg-red-600'
-                  }`}
-                >
-                  ⚡
-                </motion.button>
+ </motion.button>
+ </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onTouchStart={(e) => { e.preventDefault(); actions.movePiece('right'); }}
-                  onClick={() => actions.movePiece('right')}
-                  disabled={gameState.gameOver}
-                  className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
-                >
-                  ➡️
-                </motion.button>
-              </div>
-            </div>
+ <div className="flex-shrink-0 mx-1">
+ <TetrisBoard
+ board={gameState.board}
+ currentPiece={gameState.currentPiece}
+ dropPreview={dropPreview}
+ gameOver={gameState.gameOver}
+ bufferRows={gameState.bufferRows}
+ />
+ </div>
 
-            <div className="flex justify-center gap-2 py-2 px-2">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onTouchStart={(e) => { e.preventDefault(); actions.movePiece('down'); }}
-                onClick={() => actions.movePiece('down')}
-                disabled={gameState.gameOver}
-                className="bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-gray-600 disabled:opacity-50 touch-manipulation"
-              >
-                {t('game.accelerate')}
-              </motion.button>
+ <div className="flex flex-col gap-1 ml-2">
+ <motion.button
+ whileHover={{ scale: 1.1 }}
+ whileTap={{ scale: 0.9 }}
+ onTouchStart={(e) => { e.preventDefault(); handleHardDropWithDelay(); }}
+ onClick={handleHardDropWithDelay}
+ disabled={gameState.gameOver || actionCooldowns.hardDrop}
+ className={`text-white p-4 rounded-full shadow-lg disabled:opacity-50 touch-manipulation text-lg ${
+ actionCooldowns.hardDrop
+ ? 'bg-red-400'
+ : 'bg-red-500 hover:bg-red-600'
+ }`}
+ >
 
-              {gameState.canHold && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onTouchStart={(e) => { e.preventDefault(); handleHoldWithDelay(); }}
-                  onClick={handleHoldWithDelay}
-                  disabled={gameState.gameOver || !gameState.canHold || actionCooldowns.hold}
-                  className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
-                    actionCooldowns.hold
-                      ? 'bg-green-400'
-                      : gameState.canHold
-                        ? 'bg-green-600 hover:bg-green-500'
-                        : 'bg-gray-500'
-                  }`}
-                >
-                  {t('game.hold')}
-                </motion.button>
-              )}
+ </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onTouchStart={(e) => { e.preventDefault(); handlePauseWithDelay(); }}
-                onClick={handlePauseWithDelay}
-                disabled={gameState.gameOver || actionCooldowns.pause}
-                className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
-                  actionCooldowns.pause
-                    ? 'bg-yellow-400'
-                    : 'bg-yellow-500 hover:bg-yellow-600'
-                }`}
-              >
-                {gameState.isPaused ? '▶️' : '⏸️'}
-              </motion.button>
-            </div>
-          </div>
-        </div>
+ <motion.button
+ whileHover={{ scale: 1.1 }}
+ whileTap={{ scale: 0.9 }}
+ onTouchStart={(e) => { e.preventDefault(); actions.movePiece('right'); }}
+ onClick={() => actions.movePiece('right')}
+ disabled={gameState.gameOver}
+ className="bg-gray-600 text-white p-4 rounded-lg shadow-lg hover:bg-gray-700 disabled:opacity-50 touch-manipulation text-lg"
+ >
 
-        <AnimatePresence>
-          {gameState.gameOver && (
-            <GameOverScreen
-              score={gameState.score}
-              onRestart={onRestart}
-              onBackToMenu={onBackToMenu}
-            />
-          )}
-        </AnimatePresence>
+ </motion.button>
+ </div>
+ </div>
 
-        <GamepadIndicator
-          isConnected={isGamepadActive}
-          controllerCount={controllerCount}
-          gamepadInfo={getGamepadInfo()}
-        />
-      </div>
-    </div>
-  );
+ <div className="flex justify-center gap-2 py-2 px-2">
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onTouchStart={(e) => { e.preventDefault(); actions.movePiece('down'); }}
+ onClick={() => actions.movePiece('down')}
+ disabled={gameState.gameOver}
+ className="bg-gray-700 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-gray-600 disabled:opacity-50 touch-manipulation"
+ >
+ {t('game.accelerate')}
+ </motion.button>
+
+ {gameState.canHold && (
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onTouchStart={(e) => { e.preventDefault(); handleHoldWithDelay(); }}
+ onClick={handleHoldWithDelay}
+ disabled={gameState.gameOver || !gameState.canHold || actionCooldowns.hold}
+ className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
+ actionCooldowns.hold
+ ? 'bg-green-400'
+ : gameState.canHold
+ ? 'bg-green-600 hover:bg-green-500'
+ : 'bg-gray-500'
+ }`}
+ >
+ {t('game.hold')}
+ </motion.button>
+ )}
+
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onTouchStart={(e) => { e.preventDefault(); handlePauseWithDelay(); }}
+ onClick={handlePauseWithDelay}
+ disabled={gameState.gameOver || actionCooldowns.pause}
+ className={`text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 touch-manipulation ${
+ actionCooldowns.pause
+ ? 'bg-yellow-400'
+ : 'bg-yellow-500 hover:bg-yellow-600'
+ }`}
+ >
+ {gameState.isPaused ? '' : ''}
+ </motion.button>
+ </div>
+ </div>
+ </div>
+
+ <AnimatePresence>
+ {gameState.gameOver && (
+ <GameOverScreen
+ score={gameState.score}
+ onRestart={onRestart}
+ onBackToMenu={onBackToMenu}
+ />
+ )}
+ </AnimatePresence>
+
+ <GamepadIndicator
+ isConnected={isGamepadActive}
+ controllerCount={controllerCount}
+ gamepadInfo={getGamepadInfo()}
+ />
+ </div>
+ </div>
+ );
 }
 
 function GameComponent() {
-  const [currentScreen, setCurrentScreen] = useState('menu');
-  const [showSettings, setShowSettings] = useState(false);
+ const [currentScreen, setCurrentScreen] = useState('menu');
+ const [showSettings, setShowSettings] = useState(false);
 
-  const [hasActiveGame, setHasActiveGame] = useState(false);
-  const [showMissions, setShowMissions] = useState(false);
-  const [showAchievements, setShowAchievements] = useState(false);
-  const [showShop, setShowShop] = useState(false);
-  const [showGameModes, setShowGameModes] = useState(false);
-  const [showMultiplayer, setShowMultiplayer] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(true);
-  const [showTutorialHub, setShowTutorialHub] = useState(false);
-  const [rewardNotification, setRewardNotification] = useState(null);
-  const [multiplayerMatch, setMultiplayerMatch] = useState(null);
-  const [showAIShowcase, setShowAIShowcase] = useState(false);
-  const [showCreatorMode, setShowCreatorMode] = useState(false);
+ const [hasActiveGame, setHasActiveGame] = useState(false);
+ const [showMissions, setShowMissions] = useState(false);
+ const [showAchievements, setShowAchievements] = useState(false);
+ const [showShop, setShowShop] = useState(false);
+ const [showGameModes, setShowGameModes] = useState(false);
+ const [showMultiplayer, setShowMultiplayer] = useState(false);
+ const [showTutorial, setShowTutorial] = useState(true);
+ const [showTutorialHub, setShowTutorialHub] = useState(false);
+ const [rewardNotification, setRewardNotification] = useState(null);
+ const [multiplayerMatch, setMultiplayerMatch] = useState(null);
+ const [showAIShowcase, setShowAIShowcase] = useState(false);
+ const [showCreatorMode, setShowCreatorMode] = useState(false);
 
-  const { gameState, actions } = useGameService();
+ const { gameState, actions } = useGameService();
 
-  React.useEffect(() => {
-    errorLogger.setGameStateProvider(() => {
-      try {
-        const gs = serviceContainer.resolve('gameService');
-        return gs.getGameState();
-      } catch { return null; }
-    });
-  }, []);
-  const { settings, updateSettings } = useSettings();
-  const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
+ const { settings, updateSettings } = useSettings();
+ const { startBackgroundMusic, startGameMusic, stopMusic } = useBackgroundMusic();
 
-  // Enhanced actions for gamepad: adds togglePause, isGameOver, backToMenu
-  const gamepadActions = React.useMemo(() => {
-    if (!actions) return null;
-    return {
-      ...actions,
-      togglePause: () => {
-        if (gameState?.isPaused) {
-          actions.resume?.();
-        } else {
-          actions.pause?.();
-        }
-      },
-      isGameOver: () => gameState?.gameOver ?? false,
-      backToMenu: () => {
-        // Exit any sub-screens (creator mode, multiplayer, AI showcase)
-        setShowCreatorMode(false);
-        setMultiplayerMatch(null);
-        setShowAIShowcase(false);
-        setCurrentScreen('menu');
-        if (settings?.soundEnabled) {
-          startBackgroundMusic?.();
-        }
-        if (gameState && !gameState.gameOver) {
-          actions.pause();
-        }
-      }
-    };
-  }, [actions, gameState?.isPaused, gameState?.gameOver, settings?.soundEnabled, startBackgroundMusic]);
+ const gamepadActions = React.useMemo(() => {
+ if (!actions) return null;
+ return {
+ ...actions,
+ togglePause: () => {
+ if (gameState?.isPaused) {
+ actions.resume?.();
+ } else {
+ actions.pause?.();
+ }
+ },
+ isGameOver: () => gameState?.gameOver ?? false,
+ backToMenu: () => {
+ setShowCreatorMode(false);
+ setMultiplayerMatch(null);
+ setShowAIShowcase(false);
+ setCurrentScreen('menu');
+ if (settings?.soundEnabled) {
+ startBackgroundMusic?.();
+ }
+ if (gameState && !gameState.gameOver) {
+ actions.pause();
+ }
+ }
+ };
+ }, [actions, gameState?.isPaused, gameState?.gameOver, settings?.soundEnabled, startBackgroundMusic]);
 
-  const {
-    isGamepadActive,
-    controllerCount,
-    processGamepadInput,
-    getGamepadInfo
-  } = useGamepad(gamepadActions);
+ const {
+ isGamepadActive,
+ controllerCount,
+ processGamepadInput,
+ getGamepadInfo
+ } = useGamepad(gamepadActions);
 
-  useMissions();
-  useStatistics();
-  useAchievements();
-  usePlayerStats();
-  useShop();
-  useGameModes();
+ useMissions();
+ useStatistics();
+ useAchievements();
+ usePlayerStats();
+ useShop();
+ useGameModes();
 
-  useSoundManager();
+ useSoundManager();
 
-  const isInGame = currentScreen === 'game';
-  const { setDAS, setARR } = useKeyboardInput(actions, gameState, isInGame);
+ const isInGame = currentScreen === 'game';
+ const { setDAS, setARR } = useKeyboardInput(actions, gameState, isInGame);
 
-  React.useEffect(() => {
-    if (settings?.das != null) setDAS(settings.das);
-    if (settings?.arr != null) setARR(settings.arr);
-  }, [settings?.das, settings?.arr, setDAS, setARR]);
+ React.useEffect(() => {
+ if (settings?.das != null) setDAS(settings.das);
+ if (settings?.arr != null) setARR(settings.arr);
+ }, [settings?.das, settings?.arr, setDAS, setARR]);
 
-  React.useEffect(() => {
-    const handleModeChanged = (event) => {
-      try {
-        const gameService = serviceContainer.resolve('gameService');
-        gameService.setGameMode(event.detail.mode);
-      } catch (error) {
+ React.useEffect(() => {
+ const handleModeChanged = (event) => {
+ try {
+ const gameService = serviceContainer.resolve('gameService');
+ gameService.setGameMode(event.detail.mode);
+ } catch (error) {
 
-      }
-    };
+ }
+ };
 
-    window.addEventListener('gameModeChanged', handleModeChanged);
-    return () => window.removeEventListener('gameModeChanged', handleModeChanged);
-  }, []);
+ window.addEventListener('gameModeChanged', handleModeChanged);
+ return () => window.removeEventListener('gameModeChanged', handleModeChanged);
+ }, []);
 
-  React.useEffect(() => {
-    if (gameState && !gameState.gameOver && gameState.score.points > 0 && gameState.isPlaying) {
-      setHasActiveGame(true);
-    } else {
-      setHasActiveGame(false);
-    }
-  }, [gameState]);
+ React.useEffect(() => {
+ if (gameState && !gameState.gameOver && gameState.score.points > 0 && gameState.isPlaying) {
+ setHasActiveGame(true);
+ } else {
+ setHasActiveGame(false);
+ }
+ }, [gameState]);
 
-  React.useEffect(() => {
-    if (startBackgroundMusic && stopMusic && settings?.soundEnabled) {
-      if (currentScreen === 'menu') {
-        startBackgroundMusic();
-      } else if (currentScreen === 'game') {
-        startGameMusic();
-      }
-    } else {
-      stopMusic();
-    }
+ React.useEffect(() => {
+ if (startBackgroundMusic && stopMusic && settings?.soundEnabled) {
+ if (currentScreen === 'menu') {
+ startBackgroundMusic();
+ } else if (currentScreen === 'game') {
+ startGameMusic();
+ }
+ } else {
+ stopMusic();
+ }
 
-    return () => {
-      stopMusic();
-    };
-  }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
+ return () => {
+ stopMusic();
+ };
+ }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
 
-  // Track if any overlay is open — suppresses game gamepad input
-  const hasOverlayOpen = showSettings || showShop || showMissions || showAchievements ||
-    showGameModes || showMultiplayer || showTutorialHub;
+ const hasOverlayOpen = showSettings || showShop || showMissions || showAchievements ||
+ showGameModes || showMultiplayer || showTutorialHub;
 
-  React.useEffect(() => {
-    if (isGamepadActive && currentScreen === 'game' && !hasOverlayOpen && !gameState?.gameOver) {
-      const gamepadInterval = setInterval(() => {
-        processGamepadInput();
-      }, 16);
+ React.useEffect(() => {
+ if (isGamepadActive && currentScreen === 'game' && !hasOverlayOpen && !gameState?.gameOver) {
+ const gamepadInterval = setInterval(() => {
+ processGamepadInput();
+ }, 16);
 
-      return () => clearInterval(gamepadInterval);
-    }
-  }, [isGamepadActive, currentScreen, processGamepadInput, hasOverlayOpen, gameState?.gameOver]);
+ return () => clearInterval(gamepadInterval);
+ }
+ }, [isGamepadActive, currentScreen, processGamepadInput, hasOverlayOpen, gameState?.gameOver]);
 
+ const handleSettingsChange = (newSettings) => {
+ updateSettings(newSettings);
 
+ if (newSettings.das != null) setDAS(newSettings.das);
+ if (newSettings.arr != null) setARR(newSettings.arr);
 
-  const handleSettingsChange = (newSettings) => {
-    updateSettings(newSettings);
+ if (newSettings.soundEnabled) {
+ if (currentScreen === 'menu') {
+ startBackgroundMusic?.();
+ } else if (currentScreen === 'game') {
+ startGameMusic?.();
+ }
+ } else {
+ stopMusic?.();
+ }
+ };
 
-    if (newSettings.das != null) setDAS(newSettings.das);
-    if (newSettings.arr != null) setARR(newSettings.arr);
+ const handleStartGame = () => {
+ setCurrentScreen('game');
+ if (settings?.soundEnabled) {
+ startGameMusic?.();
+ }
+ if (gameState?.gameOver) {
+ actions.restart();
+ } else if (gameState?.isPaused) {
+ actions.resume();
+ } else if (!gameState?.isPlaying) {
 
-    if (newSettings.soundEnabled) {
-      if (currentScreen === 'menu') {
-        startBackgroundMusic?.();
-      } else if (currentScreen === 'game') {
-        startGameMusic?.();
-      }
-    } else {
-      stopMusic?.();
-    }
-  };
+ actions.restart();
+ }
+ };
 
-  const handleStartGame = () => {
-    setCurrentScreen('game');
-    if (settings?.soundEnabled) {
-      startGameMusic?.();
-    }
-    if (gameState?.gameOver) {
-      actions.restart();
-    } else if (gameState?.isPaused) {
-      actions.resume();
-    } else if (!gameState?.isPlaying) {
+ const handleContinueGame = () => {
+ setCurrentScreen('game');
+ if (settings?.soundEnabled) {
+ startGameMusic?.();
+ }
+ if (gameState?.isPaused) {
+ actions.resume();
+ }
+ };
 
-      actions.restart();
-    }
-  };
+ const handleNewGame = () => {
+ setCurrentScreen('game');
+ if (settings?.soundEnabled) {
+ startGameMusic?.();
+ }
+ actions.restart();
+ };
 
-  const handleContinueGame = () => {
-    setCurrentScreen('game');
-    if (settings?.soundEnabled) {
-      startGameMusic?.();
-    }
-    if (gameState?.isPaused) {
-      actions.resume();
-    }
-  };
+ const handleRestartGame = () => {
+ actions.restart();
+ setCurrentScreen('game');
+ };
 
-  const handleNewGame = () => {
-    setCurrentScreen('game');
-    if (settings?.soundEnabled) {
-      startGameMusic?.();
-    }
-    actions.restart();
-  };
+ const handleBackToMenu = () => {
+ setCurrentScreen('menu');
+ if (settings?.soundEnabled) {
+ startBackgroundMusic?.();
+ }
+ if (gameState && !gameState.gameOver) {
+ actions.pause();
+ }
+ };
 
-  const handleRestartGame = () => {
-    actions.restart();
-    setCurrentScreen('game');
-  };
+ const handleShowSettings = () => {
+ if (currentScreen === 'menu') {
+ setShowSettings(true);
+ } else {
+ setShowSettings(!showSettings);
+ }
+ };
 
-  const handleBackToMenu = () => {
-    setCurrentScreen('menu');
-    if (settings?.soundEnabled) {
-      startBackgroundMusic?.();
-    }
-    if (gameState && !gameState.gameOver) {
-      actions.pause();
-    }
-  };
+ if (showCreatorMode) {
+ return (
+ <Suspense fallback={<LoadingSpinner />}>
+ <CreatorMode onExit={() => setShowCreatorMode(false)} />
+ </Suspense>
+ );
+ }
 
-  const handleShowSettings = () => {
-    if (currentScreen === 'menu') {
-      setShowSettings(true);
-    } else {
-      setShowSettings(!showSettings);
-    }
-  };
+ if (showAIShowcase) {
+ return (
+ <Suspense fallback={<LoadingSpinner />}>
+ <AIShowcase onClose={() => setShowAIShowcase(false)} />
+ </Suspense>
+ );
+ }
 
-  if (showCreatorMode) {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <CreatorMode onExit={() => setShowCreatorMode(false)} />
-      </Suspense>
-    );
-  }
+ if (multiplayerMatch) {
+ return (
+ <Suspense fallback={<LoadingSpinner />}>
+ <MultiplayerGame
+ mode={multiplayerMatch.mode}
+ aiDifficulty={multiplayerMatch.aiDifficulty}
+ ai1Difficulty={multiplayerMatch.ai1Difficulty}
+ ai2Difficulty={multiplayerMatch.ai2Difficulty}
+ onExit={() => {
+ setMultiplayerMatch(null);
+ setCurrentScreen('menu');
+ }}
+ />
+ </Suspense>
+ );
+ }
 
-  if (showAIShowcase) {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <AIShowcase onClose={() => setShowAIShowcase(false)} />
-      </Suspense>
-    );
-  }
+ if (currentScreen === 'menu') {
+ return (
+ <>
+ <MainMenu
+ onStartGame={hasActiveGame ? handleContinueGame : handleStartGame}
+ onNewGame={handleNewGame}
+ onShowSettings={() => setShowSettings(true)}
+ onShowGameModes={() => setShowGameModes(true)}
+ onShowShop={() => setShowShop(true)}
+ onShowMissions={() => setShowMissions(true)}
+ onShowAchievements={() => setShowAchievements(true)}
+ onShowMultiplayer={() => setShowMultiplayer(true)}
+ onShowTutorial={() => setShowTutorial(true)}
+ onShowTutorialHub={() => setShowTutorialHub(true)}
+ onShowAIShowcase={() => setShowAIShowcase(true)}
+ onShowCreatorMode={() => setShowCreatorMode(true)}
+ hasActiveGame={hasActiveGame}
+ gameState={gameState}
+ hasOverlayOpen={hasOverlayOpen}
+ />
 
-  if (multiplayerMatch) {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <MultiplayerGame
-          mode={multiplayerMatch.mode}
-          aiDifficulty={multiplayerMatch.aiDifficulty}
-          ai1Difficulty={multiplayerMatch.ai1Difficulty}
-          ai2Difficulty={multiplayerMatch.ai2Difficulty}
-          onExit={() => {
-            setMultiplayerMatch(null);
-            setCurrentScreen('menu');
-          }}
-        />
-      </Suspense>
-    );
-  }
+ <AnimatePresence>
+ {showMultiplayer && (
+ <Suspense fallback={<LoadingSpinner />}>
+ <MultiplayerPanel
+ onClose={() => setShowMultiplayer(false)}
+ onStartMatch={(match) => {
+ setShowMultiplayer(false);
+ setMultiplayerMatch(match);
+ }}
+ />
+ </Suspense>
+ )}
+ </AnimatePresence>
 
-  if (currentScreen === 'menu') {
-    return (
-      <>
-        <MainMenu
-          onStartGame={hasActiveGame ? handleContinueGame : handleStartGame}
-          onNewGame={handleNewGame}
-          onShowSettings={() => setShowSettings(true)}
-          onShowGameModes={() => setShowGameModes(true)}
-          onShowShop={() => setShowShop(true)}
-          onShowMissions={() => setShowMissions(true)}
-          onShowAchievements={() => setShowAchievements(true)}
-          onShowMultiplayer={() => setShowMultiplayer(true)}
-          onShowTutorial={() => setShowTutorial(true)}
-          onShowTutorialHub={() => setShowTutorialHub(true)}
-          onShowAIShowcase={() => setShowAIShowcase(true)}
-          onShowCreatorMode={() => setShowCreatorMode(true)}
-          hasActiveGame={hasActiveGame}
-          gameState={gameState}
-          hasOverlayOpen={hasOverlayOpen}
-        />
+ <AnimatePresence>
+ {showGameModes && (
+ <Suspense fallback={<LoadingSpinner />}>
+ <GameModesPanel
+ onClose={() => setShowGameModes(false)}
+ onStartGame={handleNewGame}
+ />
+ </Suspense>
+ )}
+ </AnimatePresence>
 
-        <AnimatePresence>
-          {showMultiplayer && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <MultiplayerPanel
-                onClose={() => setShowMultiplayer(false)}
-                onStartMatch={(match) => {
-                  setShowMultiplayer(false);
-                  setMultiplayerMatch(match);
-                }}
-              />
-            </Suspense>
-          )}
-        </AnimatePresence>
+ <AnimatePresence>
+ {showShop && (
+ <Suspense fallback={<LoadingSpinner />}>
+ <ShopPanel
+ onClose={() => setShowShop(false)}
+ />
+ </Suspense>
+ )}
+ </AnimatePresence>
 
-        <AnimatePresence>
-          {showGameModes && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <GameModesPanel
-                onClose={() => setShowGameModes(false)}
-                onStartGame={handleNewGame}
-              />
-            </Suspense>
-          )}
-        </AnimatePresence>
+ <AnimatePresence>
+ {showMissions && (
+ <DailyMissionsPanel
+ onClose={() => setShowMissions(false)}
+ />
+ )}
+ </AnimatePresence>
 
-        <AnimatePresence>
-          {showShop && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <ShopPanel
-                onClose={() => setShowShop(false)}
-              />
-            </Suspense>
-          )}
-        </AnimatePresence>
+ <AnimatePresence>
+ {showAchievements && (
+ <AchievementsPanel
+ onClose={() => setShowAchievements(false)}
+ />
+ )}
+ </AnimatePresence>
 
-        <AnimatePresence>
-          {showMissions && (
-            <DailyMissionsPanel
-              onClose={() => setShowMissions(false)}
-            />
-          )}
-        </AnimatePresence>
+ <AnimatePresence>
+ {showTutorialHub && (
+ <Suspense fallback={<LoadingSpinner />}>
+ <TutorialHub
+ tutorialService={serviceContainer.resolve('tutorialService')}
+ onClose={() => setShowTutorialHub(false)}
+ onLessonComplete={(result) => {
+ if (!result || !result.rewards) return;
 
-        <AnimatePresence>
-          {showAchievements && (
-            <AchievementsPanel
-              onClose={() => setShowAchievements(false)}
-            />
-          )}
-        </AnimatePresence>
+ try {
+ const currencyService = serviceContainer.resolve('currencyService');
+ if (result.rewards.fishCoins) {
+ currencyService.addFish(
+ result.rewards.fishCoins,
+ `Tutorial: ${result.lessonTitle || 'Lesson'}`
+ );
+ }
+ } catch (e) {
 
-        <AnimatePresence>
-          {showTutorialHub && (
-            <Suspense fallback={<LoadingSpinner />}>
-              <TutorialHub
-              tutorialService={serviceContainer.resolve('tutorialService')}
-              onClose={() => setShowTutorialHub(false)}
-              onLessonComplete={(result) => {
-                if (!result || !result.rewards) return;
+ }
 
-                try {
-                  const currencyService = serviceContainer.resolve('currencyService');
-                  if (result.rewards.fishCoins) {
-                    currencyService.addFish(
-                      result.rewards.fishCoins,
-                      `Tutorial: ${result.lessonTitle || 'Lesson'}`
-                    );
-                  }
-                } catch (e) {
+ try {
+ if (result.rewards.xp) {
+ const playerStatsService = serviceContainer.resolve('playerStatsService');
+ playerStatsService.incrementStat('totalPlayTime', result.rewards.xp);
+ }
+ } catch (e) {
 
-                }
+ }
 
-                try {
-                  if (result.rewards.xp) {
-                    const playerStatsService = serviceContainer.resolve('playerStatsService');
-                    playerStatsService.incrementStat('totalPlayTime', result.rewards.xp);
-                  }
-                } catch (e) {
+ try {
+ if (result.rewards.achievement) {
+ const achievementsService = serviceContainer.resolve('achievementsService');
+ const playerStatsService = serviceContainer.resolve('playerStatsService');
+ achievementsService.checkAchievements(playerStatsService.getStats());
+ }
+ } catch (e) {
 
-                }
+ }
 
-                try {
-                  if (result.rewards.achievement) {
-                    const achievementsService = serviceContainer.resolve('achievementsService');
-                    const playerStatsService = serviceContainer.resolve('playerStatsService');
-                    achievementsService.checkAchievements(playerStatsService.getStats());
-                  }
-                } catch (e) {
+ setRewardNotification(result);
+ }}
+ />
+ </Suspense>
+ )}
+ </AnimatePresence>
 
-                }
+ <AnimatePresence>
+ <Suspense fallback={<LoadingSpinner />}>
+ <SettingsMenu
+ isOpen={showSettings}
+ settings={settings || {}}
+ onSettingsChange={handleSettingsChange}
+ onClose={() => setShowSettings(false)}
+ />
+ </Suspense>
+ </AnimatePresence>
 
-                setRewardNotification(result);
-              }}
-            />
-            </Suspense>
-          )}
-        </AnimatePresence>
+ <AchievementNotification />
 
-        <AnimatePresence>
-          <Suspense fallback={<LoadingSpinner />}>
-            <SettingsMenu
-              isOpen={showSettings}
-              settings={settings || {}}
-              onSettingsChange={handleSettingsChange}
-              onClose={() => setShowSettings(false)}
-            />
-          </Suspense>
-        </AnimatePresence>
+ <AnimatePresence>
+ {rewardNotification && (
+ <RewardNotification
+ reward={rewardNotification}
+ onClose={() => setRewardNotification(null)}
+ />
+ )}
+ </AnimatePresence>
+ </>
+ );
+ }
 
-        <AchievementNotification />
+ if (!gameState) {
+ return (
+ <div className="h-screen cat-bg flex items-center justify-center overflow-hidden">
+ <div className="text-white text-xl">{t('common.loading')}</div>
+ </div>
+ );
+ }
 
-        <AnimatePresence>
-          {rewardNotification && (
-            <RewardNotification
-              reward={rewardNotification}
-              onClose={() => setRewardNotification(null)}
-            />
-          )}
-        </AnimatePresence>
-      </>
-    );
-  }
+ return (
+ <>
+ <GameScreen
+ gameState={gameState}
+ actions={actions}
+ onBackToMenu={handleBackToMenu}
+ onRestart={handleRestartGame}
+ isGamepadActive={isGamepadActive}
+ controllerCount={controllerCount}
+ getGamepadInfo={getGamepadInfo}
+ />
 
-  if (!gameState) {
-    return (
-      <div className="h-screen cat-bg flex items-center justify-center overflow-hidden">
-        <div className="text-white text-xl">{t('common.loading')}</div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <GameScreen
-        gameState={gameState}
-        actions={actions}
-        onBackToMenu={handleBackToMenu}
-        onRestart={handleRestartGame}
-        isGamepadActive={isGamepadActive}
-        controllerCount={controllerCount}
-        getGamepadInfo={getGamepadInfo}
-      />
-
-      <AnimatePresence>
-        {showTutorial && (
-          <Tutorial onComplete={() => setShowTutorial(false)} />
-        )}
-      </AnimatePresence>
-    </>
-  );
+ <AnimatePresence>
+ {showTutorial && (
+ <Tutorial onComplete={() => setShowTutorial(false)} />
+ )}
+ </AnimatePresence>
+ </>
+ );
 }
 
 function App() {
-  return (
-    <ErrorBoundary>
-      <GameComponent />
-      <ToastNotification />
-    </ErrorBoundary>
-  );
+ return (
+ <ErrorBoundary>
+ <GameComponent />
+ <ToastNotification />
+ </ErrorBoundary>
+ );
 }
 
 export default App;

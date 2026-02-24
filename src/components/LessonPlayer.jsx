@@ -5,189 +5,188 @@ import { useDemoGame } from '../hooks/useDemoGame';
 import { useKeyboardInput } from '../hooks/useKeyboardInput';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
+import { BackIcon } from './Icons';
 import CelebrationParticles from './CelebrationParticles';
 import IntroductionScreen from './lesson/IntroductionScreen';
 import DemoScreen from './lesson/DemoScreen';
 import PracticeScreen from './lesson/PracticeScreen';
 
 function LessonPlayer({ lesson, onComplete, onExit }) {
-  const { t } = useI18n();
-  const [mode, setMode] = useState('introduction');
-  const [practiceState, setPracticeState] = useState({
-    progress: 0,
-    feedback: '',
-    complete: false
-  });
-  const [showCelebration, setShowCelebration] = useState(false);
+ const { t } = useI18n();
+ const [mode, setMode] = useState('introduction');
+ const [practiceState, setPracticeState] = useState({
+ progress: 0,
+ feedback: '',
+ complete: false
+ });
+ const [showCelebration, setShowCelebration] = useState(false);
 
-  const {
-    gameState: demoGameState,
-    isInitialized: demoInitialized,
-    demoComplete,
-    statusLabel: demoStatusLabel,
-    getDropPreview: getDemoPreview
-  } = useDemoGame(mode === 'demo', lesson?.id);
+ const {
+ gameState: demoGameState,
+ isInitialized: demoInitialized,
+ demoComplete,
+ statusLabel: demoStatusLabel,
+ getDropPreview: getDemoPreview
+ } = useDemoGame(mode === 'demo', lesson?.id);
 
-  const demoDropPreview = useMemo(() => {
-    if (mode !== 'demo' || !demoInitialized) return null;
-    return getDemoPreview?.() || null;
-  }, [mode, demoInitialized, getDemoPreview, demoGameState]);
+ const demoDropPreview = useMemo(() => {
+ if (mode !== 'demo' || !demoInitialized) return null;
+ return getDemoPreview?.() || null;
+ }, [mode, demoInitialized, getDemoPreview, demoGameState]);
 
-  const { gameState, actions, isInitialized, getValidationState } = usePracticeGame(
-    mode === 'practice' ? lesson : null
-  );
-  useKeyboardInput(actions, gameState, mode === 'practice' && isInitialized);
+ const { gameState, actions, isInitialized, getValidationState } = usePracticeGame(
+ mode === 'practice' ? lesson : null
+ );
+ useKeyboardInput(actions, gameState, mode === 'practice' && isInitialized);
 
-  const dropPreview = useMemo(() => {
-    if (mode !== 'practice' || !isInitialized) return null;
-    return actions.getDropPreview?.() || null;
-  }, [mode, isInitialized, actions, gameState]);
+ const dropPreview = useMemo(() => {
+ if (mode !== 'practice' || !isInitialized) return null;
+ return actions.getDropPreview?.() || null;
+ }, [mode, isInitialized, actions, gameState]);
 
-  useEffect(() => {
-    if (mode !== 'practice' || !isInitialized || !gameState) return;
+ useEffect(() => {
+ if (mode !== 'practice' || !isInitialized || !gameState) return;
 
-    const validationState = getValidationState();
-    if (!validationState || !lesson.practice?.validate) return;
+ const validationState = getValidationState();
+ if (!validationState || !lesson.practice?.validate) return;
 
-    const result = lesson.practice.validate(validationState);
+ const result = lesson.practice.validate(validationState);
 
-    setPracticeState(prev => ({
-      ...prev,
-      progress: result.progress || 0,
-      feedback: result.feedback || '',
-      complete: result.complete || false
-    }));
+ setPracticeState(prev => ({
+ ...prev,
+ progress: result.progress || 0,
+ feedback: result.feedback || '',
+ complete: result.complete || false
+ }));
 
-    if (result.complete && !practiceState.complete) {
-      setShowCelebration(true);
-      setTimeout(() => {
-        onComplete(lesson.id, { score: validationState.score });
-      }, 2000);
-    }
-  }, [mode, isInitialized, gameState, lesson, getValidationState, practiceState.complete, onComplete]);
+ if (result.complete && !practiceState.complete) {
+ setShowCelebration(true);
+ setTimeout(() => {
+ onComplete(lesson.id, { score: validationState.score });
+ }, 2000);
+ }
+ }, [mode, isInitialized, gameState, lesson, getValidationState, practiceState.complete, onComplete]);
 
-  const handleStartDemo = useCallback(() => {
-    setMode('demo');
-  }, []);
+ const handleStartDemo = useCallback(() => {
+ setMode('demo');
+ }, []);
 
-  const handleStartPractice = useCallback(() => {
-    setMode('practice');
-    setPracticeState({ progress: 0, feedback: '', complete: false });
-  }, []);
+ const handleStartPractice = useCallback(() => {
+ setMode('practice');
+ setPracticeState({ progress: 0, feedback: '', complete: false });
+ }, []);
 
-  const handleRestart = useCallback(() => {
-    actions.restart?.();
-    setPracticeState({ progress: 0, feedback: '', complete: false });
-  }, [actions]);
+ const handleRestart = useCallback(() => {
+ actions.restart?.();
+ setPracticeState({ progress: 0, feedback: '', complete: false });
+ }, [actions]);
 
-  // Gamepad navigation for lesson UI buttons
-  const isPracticing = mode === 'practice' && isInitialized && gameState && !gameState.gameOver;
-  const navItemCount = mode === 'introduction' ? 3 // exit + demo + practice
-    : mode === 'demo' ? 2 // exit + skip/start
-    : (gameState?.gameOver && !practiceState.complete) ? 2 // exit + restart
-    : 1; // exit only
+ const isPracticing = mode === 'practice' && isInitialized && gameState && !gameState.gameOver;
+ const navItemCount = mode === 'introduction' ? 3
+ : mode === 'demo' ? 2
+ : (gameState?.gameOver && !practiceState.complete) ? 2
+ : 1;
 
-  const handleLessonNavConfirm = useCallback((idx) => {
-    if (idx === 0) { onExit(); return; }
-    if (mode === 'introduction') {
-      if (idx === 1) handleStartDemo();
-      else if (idx === 2) handleStartPractice();
-    } else if (mode === 'demo') {
-      if (idx === 1) handleStartPractice();
-    } else if (mode === 'practice' && gameState?.gameOver) {
-      if (idx === 1) handleRestart();
-    }
-  }, [mode, gameState?.gameOver, onExit, handleStartDemo, handleStartPractice, handleRestart]);
+ const handleLessonNavConfirm = useCallback((idx) => {
+ if (idx === 0) { onExit(); return; }
+ if (mode === 'introduction') {
+ if (idx === 1) handleStartDemo();
+ else if (idx === 2) handleStartPractice();
+ } else if (mode === 'demo') {
+ if (idx === 1) handleStartPractice();
+ } else if (mode === 'practice' && gameState?.gameOver) {
+ if (idx === 1) handleRestart();
+ }
+ }, [mode, gameState?.gameOver, onExit, handleStartDemo, handleStartPractice, handleRestart]);
 
-  const { selectedIndex: lessonSelIdx } = useGamepadNav({
-    itemCount: navItemCount,
-    onConfirm: handleLessonNavConfirm,
-    onBack: onExit,
-    active: !isPracticing,
-  });
+ const { selectedIndex: lessonSelIdx } = useGamepadNav({
+ itemCount: navItemCount,
+ onConfirm: handleLessonNavConfirm,
+ onBack: onExit,
+ active: !isPracticing,
+ });
 
-  const modeLabel = mode === 'introduction' ? '📖'
-    : mode === 'demo' ? '🤖'
-    : '🎮';
+ const modeLabel = mode === 'introduction' ? 'i'
+ : mode === 'demo' ? 'D'
+ : 'P';
 
-  return (
-    <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-50 flex flex-col">
+ return (
+ <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-50 flex flex-col">
 
-      <div className="bg-black/30 border-b border-white/[0.06] px-4 py-2 flex-shrink-0">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">
-              {lesson.module === 'fundamentals' ? '🎮' :
-               lesson.module === 'intermediate' ? '🌀' :
-               lesson.module === 'advanced' ? '💎' : '🏆'}
-            </span>
-            <div>
-              <h2 className="text-lg font-bold text-white">{t('tutorial.lesson.' + lesson.id + '.title')}</h2>
-              <p className="text-white/40 text-xs">{t('tutorial.lesson.' + lesson.id + '.desc')}</p>
-            </div>
-          </div>
+ <div className="bg-black/30 border-b border-white/[0.06] px-4 py-2 flex-shrink-0">
+ <div className="flex items-center justify-between max-w-4xl mx-auto">
+ <div className="flex items-center gap-3">
+ <span className="text-2xl font-bold">
+ {lesson.module === 'fundamentals' ? 'I' :
+ lesson.module === 'intermediate' ? 'II' :
+ lesson.module === 'advanced' ? 'III' : 'IV'}
+ </span>
+ <div>
+ <h2 className="text-lg font-bold text-white">{t('tutorial.lesson.' + lesson.id + '.title')}</h2>
+ <p className="text-white/40 text-xs">{t('tutorial.lesson.' + lesson.id + '.desc')}</p>
+ </div>
+ </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-white/30 bg-white/[0.06] px-2 py-1 rounded">
-              {modeLabel}
-            </span>
-            <button
-              onClick={onExit}
-              className={`text-white/40 hover:text-white/70 bg-white/[0.06] hover:bg-white/[0.1] rounded-lg px-3 py-1.5 text-sm transition-all ${lessonSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      </div>
+ <div className="flex items-center gap-2">
+ <span className="text-xs text-white/30 bg-white/[0.06] px-2 py-1 rounded">
+ {modeLabel}
+ </span>
+ <button
+ onClick={onExit}
+ className={`bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors ${lessonSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}
+ >
+ <BackIcon size={16} />
+ </button>
+ </div>
+ </div>
+ </div>
 
-      <div className="flex-1 overflow-auto p-3">
-        <div className="max-w-4xl w-full mx-auto">
-          <AnimatePresence mode="wait">
-            {mode === 'introduction' && (
-              <IntroductionScreen
-                lesson={lesson}
-                onStartDemo={handleStartDemo}
-                onStartPractice={handleStartPractice}
-                gamepadSelectedIndex={lessonSelIdx}
-              />
-            )}
+ <div className="flex-1 overflow-auto p-3">
+ <div className="max-w-4xl w-full mx-auto">
+ <AnimatePresence mode="wait">
+ {mode === 'introduction' && (
+ <IntroductionScreen
+ lesson={lesson}
+ onStartDemo={handleStartDemo}
+ onStartPractice={handleStartPractice}
+ gamepadSelectedIndex={lessonSelIdx}
+ />
+ )}
 
-            {mode === 'demo' && (
-              <DemoScreen
-                lesson={lesson}
-                gameState={demoGameState}
-                isInitialized={demoInitialized}
-                demoComplete={demoComplete}
-                dropPreview={demoDropPreview}
-                statusLabel={demoStatusLabel}
-                onSkip={handleStartPractice}
-                gamepadSelectedIndex={lessonSelIdx}
-              />
-            )}
+ {mode === 'demo' && (
+ <DemoScreen
+ lesson={lesson}
+ gameState={demoGameState}
+ isInitialized={demoInitialized}
+ demoComplete={demoComplete}
+ dropPreview={demoDropPreview}
+ statusLabel={demoStatusLabel}
+ onSkip={handleStartPractice}
+ gamepadSelectedIndex={lessonSelIdx}
+ />
+ )}
 
-            {mode === 'practice' && (
-              <PracticeScreen
-                lesson={lesson}
-                gameState={gameState}
-                isInitialized={isInitialized}
-                practiceState={practiceState}
-                onRestart={handleRestart}
-                dropPreview={dropPreview}
-                gamepadSelectedIndex={lessonSelIdx}
-              />
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+ {mode === 'practice' && (
+ <PracticeScreen
+ lesson={lesson}
+ gameState={gameState}
+ isInitialized={isInitialized}
+ practiceState={practiceState}
+ onRestart={handleRestart}
+ dropPreview={dropPreview}
+ gamepadSelectedIndex={lessonSelIdx}
+ />
+ )}
+ </AnimatePresence>
+ </div>
+ </div>
 
-      <CelebrationParticles
-        show={showCelebration}
-        onComplete={() => setShowCelebration(false)}
-      />
-    </div>
-  );
+ <CelebrationParticles
+ show={showCelebration}
+ onComplete={() => setShowCelebration(false)}
+ />
+ </div>
+ );
 }
 
 export default LessonPlayer;
-

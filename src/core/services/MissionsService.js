@@ -1,200 +1,199 @@
 const MISSION_TYPES = {
-  CLEAR_LINES: 'clear_lines',
-  T_SPINS: 't_spins',
-  COMBOS: 'combos',
-  SURVIVE_TIME: 'survive_time',
-  REACH_LEVEL: 'reach_level',
-  SCORE_POINTS: 'score_points',
-  PLACE_PIECES: 'place_pieces',
-  BACK_TO_BACK: 'back_to_back',
-  TETRIS_CLEAR: 'tetris_clear'
+ CLEAR_LINES: 'clear_lines',
+ T_SPINS: 't_spins',
+ COMBOS: 'combos',
+ SURVIVE_TIME: 'survive_time',
+ REACH_LEVEL: 'reach_level',
+ SCORE_POINTS: 'score_points',
+ PLACE_PIECES: 'place_pieces',
+ BACK_TO_BACK: 'back_to_back',
+ TETRIS_CLEAR: 'tetris_clear'
 };
 
 const MISSION_POOL = [
 
-  { id: 'clear_lines_20', type: MISSION_TYPES.CLEAR_LINES, target: 20, reward: 100, difficulty: 'easy',
-    title: 'Limpeza Básica', description: 'Limpe 20 linhas' },
-  { id: 'place_pieces_30', type: MISSION_TYPES.PLACE_PIECES, target: 30, reward: 100, difficulty: 'easy',
-    title: 'Gato Trabalhador', description: 'Coloque 30 peças' },
-  { id: 'survive_180', type: MISSION_TYPES.SURVIVE_TIME, target: 180, reward: 120, difficulty: 'easy',
-    title: 'Sobrevivente', description: 'Sobreviva por 3 minutos' },
-  { id: 'score_5000', type: MISSION_TYPES.SCORE_POINTS, target: 5000, reward: 150, difficulty: 'easy',
-    title: 'Fazendo Pontos', description: 'Alcance 5.000 pontos' },
+ { id: 'clear_lines_20', type: MISSION_TYPES.CLEAR_LINES, target: 20, reward: 100, difficulty: 'easy',
+ title: 'Limpeza Básica', description: 'Limpe 20 linhas' },
+ { id: 'place_pieces_30', type: MISSION_TYPES.PLACE_PIECES, target: 30, reward: 100, difficulty: 'easy',
+ title: 'Gato Trabalhador', description: 'Coloque 30 peças' },
+ { id: 'survive_180', type: MISSION_TYPES.SURVIVE_TIME, target: 180, reward: 120, difficulty: 'easy',
+ title: 'Sobrevivente', description: 'Sobreviva por 3 minutos' },
+ { id: 'score_5000', type: MISSION_TYPES.SCORE_POINTS, target: 5000, reward: 150, difficulty: 'easy',
+ title: 'Fazendo Pontos', description: 'Alcance 5.000 pontos' },
 
-  { id: 'clear_lines_40', type: MISSION_TYPES.CLEAR_LINES, target: 40, reward: 200, difficulty: 'medium',
-    title: 'Limpeza Profunda', description: 'Limpe 40 linhas em uma partida' },
-  { id: 'tspins_3', type: MISSION_TYPES.T_SPINS, target: 3, reward: 250, difficulty: 'medium',
-    title: 'Mestre do T-Spin', description: 'Faça 3 T-Spins' },
-  { id: 'combos_7', type: MISSION_TYPES.COMBOS, target: 7, reward: 200, difficulty: 'medium',
-    title: 'Combo Felino', description: 'Alcance um combo de 7x' },
-  { id: 'reach_level_8', type: MISSION_TYPES.REACH_LEVEL, target: 8, reward: 180, difficulty: 'medium',
-    title: 'Subindo de Nível', description: 'Alcance o nível 8' },
-  { id: 'tetris_2', type: MISSION_TYPES.TETRIS_CLEAR, target: 2, reward: 220, difficulty: 'medium',
-    title: 'Tetris Duplo', description: 'Faça 2 Tetris (4 linhas)' },
+ { id: 'clear_lines_40', type: MISSION_TYPES.CLEAR_LINES, target: 40, reward: 200, difficulty: 'medium',
+ title: 'Limpeza Profunda', description: 'Limpe 40 linhas em uma partida' },
+ { id: 'tspins_3', type: MISSION_TYPES.T_SPINS, target: 3, reward: 250, difficulty: 'medium',
+ title: 'Mestre do T-Spin', description: 'Faça 3 T-Spins' },
+ { id: 'combos_7', type: MISSION_TYPES.COMBOS, target: 7, reward: 200, difficulty: 'medium',
+ title: 'Combo Felino', description: 'Alcance um combo de 7x' },
+ { id: 'reach_level_8', type: MISSION_TYPES.REACH_LEVEL, target: 8, reward: 180, difficulty: 'medium',
+ title: 'Subindo de Nível', description: 'Alcance o nível 8' },
+ { id: 'tetris_2', type: MISSION_TYPES.TETRIS_CLEAR, target: 2, reward: 220, difficulty: 'medium',
+ title: 'Tetris Duplo', description: 'Faça 2 Tetris (4 linhas)' },
 
-  { id: 'tspins_5', type: MISSION_TYPES.T_SPINS, target: 5, reward: 350, difficulty: 'hard',
-    title: 'Ninja T-Spin', description: 'Faça 5 T-Spins em uma partida' },
-  { id: 'combos_10', type: MISSION_TYPES.COMBOS, target: 10, reward: 300, difficulty: 'hard',
-    title: 'Combo Insano', description: 'Alcance um combo de 10x' },
-  { id: 'survive_600', type: MISSION_TYPES.SURVIVE_TIME, target: 600, reward: 400, difficulty: 'hard',
-    title: 'Resistência Felina', description: 'Sobreviva por 10 minutos' },
-  { id: 'reach_level_12', type: MISSION_TYPES.REACH_LEVEL, target: 12, reward: 350, difficulty: 'hard',
-    title: 'Mestre dos Gatos', description: 'Alcance o nível 12' },
-  { id: 'score_50000', type: MISSION_TYPES.SCORE_POINTS, target: 50000, reward: 400, difficulty: 'hard',
-    title: 'Pontuação Lendária', description: 'Alcance 50.000 pontos' },
-  { id: 'back_to_back_3', type: MISSION_TYPES.BACK_TO_BACK, target: 3, reward: 380, difficulty: 'hard',
-    title: 'Back-to-Back Master', description: 'Faça 3 back-to-backs' },
+ { id: 'tspins_5', type: MISSION_TYPES.T_SPINS, target: 5, reward: 350, difficulty: 'hard',
+ title: 'Ninja T-Spin', description: 'Faça 5 T-Spins em uma partida' },
+ { id: 'combos_10', type: MISSION_TYPES.COMBOS, target: 10, reward: 300, difficulty: 'hard',
+ title: 'Combo Insano', description: 'Alcance um combo de 10x' },
+ { id: 'survive_600', type: MISSION_TYPES.SURVIVE_TIME, target: 600, reward: 400, difficulty: 'hard',
+ title: 'Resistência Felina', description: 'Sobreviva por 10 minutos' },
+ { id: 'reach_level_12', type: MISSION_TYPES.REACH_LEVEL, target: 12, reward: 350, difficulty: 'hard',
+ title: 'Mestre dos Gatos', description: 'Alcance o nível 12' },
+ { id: 'score_50000', type: MISSION_TYPES.SCORE_POINTS, target: 50000, reward: 400, difficulty: 'hard',
+ title: 'Pontuação Lendária', description: 'Alcance 50.000 pontos' },
+ { id: 'back_to_back_3', type: MISSION_TYPES.BACK_TO_BACK, target: 3, reward: 380, difficulty: 'hard',
+ title: 'Back-to-Back Master', description: 'Faça 3 back-to-backs' },
 ];
 
 export class MissionsService {
-  constructor(gameRepository, currencyService) {
-    this.gameRepository = gameRepository;
-    this.currencyService = currencyService;
-    this.missions = this.loadMissions();
-    this.checkAndResetDaily();
-  }
+ constructor(gameRepository, currencyService) {
+ this.gameRepository = gameRepository;
+ this.currencyService = currencyService;
+ this.missions = this.loadMissions();
+ this.checkAndResetDaily();
+ }
 
-  loadMissions() {
-    const saved = this.gameRepository.load('dailyMissions');
-    return saved || this.generateNewMissions();
-  }
+ loadMissions() {
+ const saved = this.gameRepository.load('dailyMissions');
+ return saved || this.generateNewMissions();
+ }
 
-  save() {
-    this.gameRepository.save('dailyMissions', this.missions);
-  }
+ save() {
+ this.gameRepository.save('dailyMissions', this.missions);
+ }
 
-  checkAndResetDaily() {
-    const now = new Date();
-    const today = now.toDateString();
+ checkAndResetDaily() {
+ const now = new Date();
+ const today = now.toDateString();
 
-    if (this.missions.lastResetDate !== today) {
+ if (this.missions.lastResetDate !== today) {
 
-      this.missions = this.generateNewMissions();
-      this.save();
-    }
-  }
+ this.missions = this.generateNewMissions();
+ this.save();
+ }
+ }
 
-  generateNewMissions() {
-    const easyMissions = MISSION_POOL.filter(m => m.difficulty === 'easy');
-    const mediumMissions = MISSION_POOL.filter(m => m.difficulty === 'medium');
-    const hardMissions = MISSION_POOL.filter(m => m.difficulty === 'hard');
+ generateNewMissions() {
+ const easyMissions = MISSION_POOL.filter(m => m.difficulty === 'easy');
+ const mediumMissions = MISSION_POOL.filter(m => m.difficulty === 'medium');
+ const hardMissions = MISSION_POOL.filter(m => m.difficulty === 'hard');
 
-    const selectedMissions = [
-      this.selectRandomMission(easyMissions),
-      this.selectRandomMission(mediumMissions),
-      this.selectRandomMission(hardMissions)
-    ];
+ const selectedMissions = [
+ this.selectRandomMission(easyMissions),
+ this.selectRandomMission(mediumMissions),
+ this.selectRandomMission(hardMissions)
+ ];
 
-    const now = new Date();
+ const now = new Date();
 
-    return {
-      lastResetDate: now.toDateString(),
-      missions: selectedMissions.map((mission, index) => ({
-        id: `mission_${now.getTime()}_${index}`,
-        ...mission,
-        progress: 0,
-        completed: false,
-        claimed: false
-      }))
-    };
-  }
+ return {
+ lastResetDate: now.toDateString(),
+ missions: selectedMissions.map((mission, index) => ({
+ id: `mission_${now.getTime()}_${index}`,
+ ...mission,
+ progress: 0,
+ completed: false,
+ claimed: false
+ }))
+ };
+ }
 
-  selectRandomMission(pool) {
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
+ selectRandomMission(pool) {
+ return pool[Math.floor(Math.random() * pool.length)];
+ }
 
-  getMissions() {
-    this.checkAndResetDaily();
-    return this.missions.missions;
-  }
+ getMissions() {
+ this.checkAndResetDaily();
+ return this.missions.missions;
+ }
 
-  updateProgress(type, value) {
-    let updated = false;
+ updateProgress(type, value) {
+ let updated = false;
 
-    this.missions.missions.forEach(mission => {
-      if (mission.type === type && !mission.completed) {
-        mission.progress = Math.max(mission.progress, value);
+ this.missions.missions.forEach(mission => {
+ if (mission.type === type && !mission.completed) {
+ mission.progress = Math.max(mission.progress, value);
 
-        if (mission.progress >= mission.target) {
-          mission.completed = true;
-          updated = true;
+ if (mission.progress >= mission.target) {
+ mission.completed = true;
+ updated = true;
 
-        }
-      }
-    });
+ }
+ }
+ });
 
-    if (updated) {
-      this.save();
-    }
+ if (updated) {
+ this.save();
+ }
 
-    return updated;
-  }
+ return updated;
+ }
 
-  incrementProgress(type, amount = 1) {
-    let updated = false;
+ incrementProgress(type, amount = 1) {
+ let updated = false;
 
-    this.missions.missions.forEach(mission => {
-      if (mission.type === type && !mission.completed) {
-        mission.progress += amount;
+ this.missions.missions.forEach(mission => {
+ if (mission.type === type && !mission.completed) {
+ mission.progress += amount;
 
-        if (mission.progress >= mission.target) {
-          mission.completed = true;
-          updated = true;
+ if (mission.progress >= mission.target) {
+ mission.completed = true;
+ updated = true;
 
-        }
-      }
-    });
+ }
+ }
+ });
 
-    if (updated) {
-      this.save();
-    }
+ if (updated) {
+ this.save();
+ }
 
-    return updated;
-  }
+ return updated;
+ }
 
-  claimReward(missionId) {
-    const mission = this.missions.missions.find(m => m.id === missionId);
+ claimReward(missionId) {
+ const mission = this.missions.missions.find(m => m.id === missionId);
 
-    if (!mission) return { success: false, error: 'Mission not found' };
-    if (!mission.completed) return { success: false, error: 'Mission not completed' };
-    if (mission.claimed) return { success: false, error: 'Already claimed' };
+ if (!mission) return { success: false, error: 'Mission not found' };
+ if (!mission.completed) return { success: false, error: 'Mission not completed' };
+ if (mission.claimed) return { success: false, error: 'Already claimed' };
 
-    mission.claimed = true;
-    this.currencyService.addFish(mission.reward, `Mission: ${mission.title}`);
-    this.save();
+ mission.claimed = true;
+ this.currencyService.addFish(mission.reward, `Mission: ${mission.title}`);
+ this.save();
 
-    return {
-      success: true,
-      reward: mission.reward,
-      title: mission.title
-    };
-  }
+ return {
+ success: true,
+ reward: mission.reward,
+ title: mission.title
+ };
+ }
 
-  getStats() {
-    const total = this.missions.missions.length;
-    const completed = this.missions.missions.filter(m => m.completed).length;
-    const claimed = this.missions.missions.filter(m => m.claimed).length;
-    const totalRewards = this.missions.missions.reduce((sum, m) => sum + m.reward, 0);
-    const claimedRewards = this.missions.missions
-      .filter(m => m.claimed)
-      .reduce((sum, m) => sum + m.reward, 0);
+ getStats() {
+ const total = this.missions.missions.length;
+ const completed = this.missions.missions.filter(m => m.completed).length;
+ const claimed = this.missions.missions.filter(m => m.claimed).length;
+ const totalRewards = this.missions.missions.reduce((sum, m) => sum + m.reward, 0);
+ const claimedRewards = this.missions.missions
+ .filter(m => m.claimed)
+ .reduce((sum, m) => sum + m.reward, 0);
 
-    return {
-      total,
-      completed,
-      claimed,
-      totalRewards,
-      claimedRewards,
-      allCompleted: completed === total,
-      allClaimed: claimed === total
-    };
-  }
+ return {
+ total,
+ completed,
+ claimed,
+ totalRewards,
+ claimedRewards,
+ allCompleted: completed === total,
+ allClaimed: claimed === total
+ };
+ }
 
-  reset() {
-    this.missions = this.generateNewMissions();
-    this.save();
-  }
+ reset() {
+ this.missions = this.generateNewMissions();
+ this.save();
+ }
 }
 
 export { MISSION_TYPES };
-

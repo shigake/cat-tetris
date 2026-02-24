@@ -3,74 +3,73 @@ import { motion } from 'framer-motion';
 import { useI18n } from '../../hooks/useI18n';
 
 function IntroductionScreen({ lesson, onStartDemo, onStartPractice, gamepadSelectedIndex }) {
-  const { t } = useI18n();
-  return (
-    <motion.div
-      key="intro"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="max-w-lg mx-auto"
-    >
+ const { t } = useI18n();
+ return (
+ <motion.div
+ key="intro"
+ initial={{ opacity: 0, y: 20 }}
+ animate={{ opacity: 1, y: 0 }}
+ exit={{ opacity: 0, y: -20 }}
+ className="max-w-lg mx-auto"
+ >
 
-      <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-6 mb-5 text-center">
-        <div className="text-4xl mb-3">🎯</div>
-        <h3 className="text-lg font-bold text-white mb-2">{t('lesson.objective')}</h3>
-        <p className="text-white/70 text-base leading-relaxed">
-          {lesson.practice.objective}
-        </p>
-      </div>
+ <div className="bg-white/[0.06] border border-white/[0.08] rounded-xl p-6 mb-5 text-center">
 
-      {lesson.intro && lesson.intro.length > 0 && (
-        <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 mb-5">
-          <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wide mb-3">{t('lesson.howItWorks')}</h4>
-          <div className="space-y-2.5">
-            {lesson.intro.map((tip, idx) => (
-              <motion.p
-                key={idx}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.08 }}
-                className="text-white/70 text-sm leading-relaxed flex items-start gap-2"
-              >
-                <span className="text-white/25 font-mono text-xs mt-0.5 flex-shrink-0">{idx + 1}.</span>
-                <span>{tip}</span>
-              </motion.p>
-            ))}
-          </div>
-        </div>
-      )}
+ <h3 className="text-lg font-bold text-white mb-2">{t('lesson.objective')}</h3>
+ <p className="text-white/70 text-base leading-relaxed">
+ {lesson.practice.objective}
+ </p>
+ </div>
 
-      {lesson.rewards && (
-        <div className="flex justify-center gap-4 mb-5 text-xs text-white/30">
-          <span>🐟 {lesson.rewards.fishCoins}</span>
-          <span>⭐ {lesson.rewards.xp} XP</span>
-        </div>
-      )}
+ {lesson.intro && lesson.intro.length > 0 && (
+ <div className="bg-white/[0.04] border border-white/[0.06] rounded-xl p-5 mb-5">
+ <h4 className="text-sm font-semibold text-white/50 uppercase tracking-wide mb-3">{t('lesson.howItWorks')}</h4>
+ <div className="space-y-2.5">
+ {lesson.intro.map((tip, idx) => (
+ <motion.p
+ key={idx}
+ initial={{ opacity: 0, x: -10 }}
+ animate={{ opacity: 1, x: 0 }}
+ transition={{ delay: idx * 0.08 }}
+ className="text-white/70 text-sm leading-relaxed flex items-start gap-2"
+ >
+ <span className="text-white/25 font-mono text-xs mt-0.5 flex-shrink-0">{idx + 1}.</span>
+ <span>{tip}</span>
+ </motion.p>
+ ))}
+ </div>
+ </div>
+ )}
 
-      <div className="flex flex-col items-center gap-3">
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onStartDemo}
-          className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
-                   text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/30 transition-all
-                   flex items-center gap-2 ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
-        >
-          <span>🤖</span>
-          <span>{t('lesson.watchAIFirst')}</span>
-        </motion.button>
+ {lesson.rewards && (
+ <div className="flex justify-center gap-4 mb-5 text-xs text-white/30">
+ <span> {lesson.rewards.fishCoins}</span>
+ <span> {lesson.rewards.xp} XP</span>
+ </div>
+ )}
 
-        <button
-          onClick={onStartPractice}
-          className={`text-white/30 hover:text-white/50 text-xs transition-all ${gamepadSelectedIndex === 2 ? 'ring-2 ring-yellow-400 rounded-lg px-2 py-1' : ''}`}
-        >
-          {t('lesson.skipToPractice')}
-        </button>
-      </div>
-    </motion.div>
-  );
+ <div className="flex flex-col items-center gap-3">
+ <motion.button
+ whileHover={{ scale: 1.03 }}
+ whileTap={{ scale: 0.97 }}
+ onClick={onStartDemo}
+ className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
+ text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-900/30 transition-all
+ flex items-center gap-2 ${gamepadSelectedIndex === 1 ? 'ring-2 ring-yellow-400' : ''}`}
+ >
+
+ <span>{t('lesson.watchAIFirst')}</span>
+ </motion.button>
+
+ <button
+ onClick={onStartPractice}
+ className={`text-white/30 hover:text-white/50 text-xs transition-all ${gamepadSelectedIndex === 2 ? 'ring-2 ring-yellow-400 rounded-lg px-2 py-1' : ''}`}
+ >
+ {t('lesson.skipToPractice')}
+ </button>
+ </div>
+ </motion.div>
+ );
 }
 
 export default IntroductionScreen;
-

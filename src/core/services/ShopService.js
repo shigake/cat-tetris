@@ -1,294 +1,189 @@
+const STD = {
+ I: '#00F0F0', O: '#F0F000', T: '#A000F0',
+ S: '#00F000', Z: '#F00000', J: '#0000F0', L: '#F0A000'
+};
+const stdPieces = () => ({
+ I: { color: STD.I },
+ O: { color: STD.O },
+ T: { color: STD.T },
+ S: { color: STD.S },
+ Z: { color: STD.Z },
+ J: { color: STD.J },
+ L: { color: STD.L }
+});
+
 export const PIECE_THEMES = {
-  classic: {
-    id: 'classic',
-    name: '🎮 Tetris Clássico',
-    description: 'Cores oficiais do Tetris',
-    price: 0,
-    default: true,
-    pieces: {
-      I: { emoji: '🟦', color: '#00F0F0' },
-      O: { emoji: '🟨', color: '#F0F000' },
-      T: { emoji: '🟪', color: '#A000F0' },
-      S: { emoji: '🟩', color: '#00F000' },
-      Z: { emoji: '🟥', color: '#F00000' },
-      J: { emoji: '🔵', color: '#0000F0' },
-      L: { emoji: '🟧', color: '#F0A000' }
-    }
-  },
-  cats: {
-    id: 'cats',
-    name: '🐱 Gatos Clássicos',
-    description: 'Os gatinhos originais do Cat Tetris',
-    price: 0,
-    default: true,
-    pieces: {
-      I: { emoji: '🐱', color: '#00f0f0' },
-      O: { emoji: '😺', color: '#f0f000' },
-      T: { emoji: '😸', color: '#a000f0' },
-      S: { emoji: '😻', color: '#00f000' },
-      Z: { emoji: '😽', color: '#f00000' },
-      J: { emoji: '😹', color: '#f0a000' },
-      L: { emoji: '😿', color: '#ffc0cb' }
-    }
-  },
-  dogs: {
-    id: 'dogs',
-    name: '🐶 Cachorros Felizes',
-    description: 'Amigos caninos adoráveis',
-    price: 500,
-    pieces: {
-      I: { emoji: '🐶', color: '#8B4513' },
-      O: { emoji: '🐕', color: '#D2691E' },
-      T: { emoji: '🦮', color: '#CD853F' },
-      S: { emoji: '🐕‍🦺', color: '#DEB887' },
-      Z: { emoji: '🐩', color: '#F4A460' },
-      J: { emoji: '🦴', color: '#FFDEAD' },
-      L: { emoji: '🐾', color: '#FFE4B5' }
-    }
-  },
-  pandas: {
-    id: 'pandas',
-    name: '🐼 Pandas Fofos',
-    description: 'Ursinhos preto e branco',
-    price: 600,
-    pieces: {
-      I: { emoji: '🐼', color: '#000000' },
-      O: { emoji: '🐨', color: '#808080' },
-      T: { emoji: '🐻', color: '#A0A0A0' },
-      S: { emoji: '🐻‍❄️', color: '#FFFFFF' },
-      Z: { emoji: '🧸', color: '#D3D3D3' },
-      J: { emoji: '🎋', color: '#90EE90' },
-      L: { emoji: '🎍', color: '#98FB98' }
-    }
-  },
-  foxes: {
-    id: 'foxes',
-    name: '🦊 Raposas Astutas',
-    description: 'Raposinhas espertas e ágeis',
-    price: 700,
-    pieces: {
-      I: { emoji: '🦊', color: '#FF4500' },
-      O: { emoji: '🦝', color: '#FF6347' },
-      T: { emoji: '🐺', color: '#FF7F50' },
-      S: { emoji: '🌰', color: '#CD5C5C' },
-      Z: { emoji: '🍂', color: '#D2691E' },
-      J: { emoji: '🍁', color: '#8B4513' },
-      L: { emoji: '🌾', color: '#DAA520' }
-    }
-  },
-  unicorns: {
-    id: 'unicorns',
-    name: '🦄 Unicórnios Mágicos',
-    description: 'Criaturas místicas e coloridas',
-    price: 900,
-    pieces: {
-      I: { emoji: '🦄', color: '#FF00FF' },
-      O: { emoji: '🌈', color: '#FFD700' },
-      T: { emoji: '⭐', color: '#87CEEB' },
-      S: { emoji: '✨', color: '#FF69B4' },
-      Z: { emoji: '💫', color: '#9370DB' },
-      J: { emoji: '🌟', color: '#DA70D6' },
-      L: { emoji: '💖', color: '#FFC0CB' }
-    }
-  },
-  robots: {
-    id: 'robots',
-    name: '🤖 Robôs Futuristas',
-    description: 'Tecnologia do futuro',
-    price: 800,
-    pieces: {
-      I: { emoji: '🤖', color: '#708090' },
-      O: { emoji: '⚙️', color: '#778899' },
-      T: { emoji: '🔧', color: '#4682B4' },
-      S: { emoji: '🔩', color: '#5F9EA0' },
-      Z: { emoji: '⚡', color: '#00CED1' },
-      J: { emoji: '🔌', color: '#1E90FF' },
-      L: { emoji: '💡', color: '#4169E1' }
-    }
-  },
-  foods: {
-    id: 'foods',
-    name: '🍕 Comidas Deliciosas',
-    description: 'Para quem joga com fome',
-    price: 750,
-    pieces: {
-      I: { emoji: '🍕', color: '#FF6347' },
-      O: { emoji: '🍔', color: '#FFD700' },
-      T: { emoji: '🍟', color: '#FFA500' },
-      S: { emoji: '🌭', color: '#FF4500' },
-      Z: { emoji: '🍩', color: '#FFB6C1' },
-      J: { emoji: '🍰', color: '#DDA0DD' },
-      L: { emoji: '🍪', color: '#D2691E' }
-    }
-  },
-  crystals: {
-    id: 'crystals',
-    name: '💎 Cristais Brilhantes',
-    description: 'Gemas preciosas reluzentes',
-    price: 1000,
-    premium: true,
-    pieces: {
-      I: { emoji: '💎', color: '#00FFFF' },
-      O: { emoji: '💠', color: '#FFD700' },
-      T: { emoji: '🔷', color: '#9370DB' },
-      S: { emoji: '🔶', color: '#00FF00' },
-      Z: { emoji: '💠', color: '#FF0000' },
-      J: { emoji: '✨', color: '#FFA500' },
-      L: { emoji: '🌟', color: '#FF1493' }
-    }
-  },
-  ocean: {
-    id: 'ocean',
-    name: '🌊 Mundo Marinho',
-    description: 'Criaturas do oceano',
-    price: 850,
-    pieces: {
-      I: { emoji: '🐋', color: '#1E90FF' },
-      O: { emoji: '🐠', color: '#00CED1' },
-      T: { emoji: '🐡', color: '#4682B4' },
-      S: { emoji: '🐟', color: '#87CEEB' },
-      Z: { emoji: '🦈', color: '#5F9EA0' },
-      J: { emoji: '🐙', color: '#6495ED' },
-      L: { emoji: '🦀', color: '#FF6347' }
-    }
-  },
-  space: {
-    id: 'space',
-    name: '🚀 Espaço Sideral',
-    description: 'Exploração espacial',
-    price: 950,
-    pieces: {
-      I: { emoji: '🚀', color: '#4169E1' },
-      O: { emoji: '🛸', color: '#00FFFF' },
-      T: { emoji: '🌎', color: '#32CD32' },
-      S: { emoji: '🌙', color: '#FFD700' },
-      Z: { emoji: '⭐', color: '#FFFF00' },
-      J: { emoji: '🪐', color: '#FF8C00' },
-      L: { emoji: '☄️', color: '#FF4500' }
-    }
-  }
+ classic: {
+ id: 'classic',
+ name: 'Tetris Clássico',
+ description: 'Cores oficiais do Tetris',
+ blockShape: 'classic',
+ price: 0,
+ default: true,
+ pieces: stdPieces()
+ },
+ cats: {
+ id: 'cats',
+ name: 'Gatos Clássicos',
+ description: 'Os gatinhos originais do Cat Tetris',
+ blockShape: 'cats',
+ price: 0,
+ default: true,
+ pieces: stdPieces()
+ },
+ dogs: {
+ id: 'dogs',
+ name: 'Cachorros Felizes',
+ description: 'Amigos caninos adoráveis',
+ blockShape: 'dogs',
+ price: 500,
+ pieces: stdPieces()
+ },
+ pandas: {
+ id: 'pandas',
+ name: 'Pandas Fofos',
+ description: 'Ursinhos preto e branco',
+ blockShape: 'pandas',
+ price: 600,
+ pieces: stdPieces()
+ },
+ foxes: {
+ id: 'foxes',
+ name: 'Raposas Astutas',
+ description: 'Raposinhas espertas e ágeis',
+ blockShape: 'foxes',
+ price: 700,
+ pieces: stdPieces()
+ },
+ robots: {
+ id: 'robots',
+ name: 'Robôs Futuristas',
+ description: 'Tecnologia do futuro',
+ blockShape: 'robots',
+ price: 800,
+ pieces: stdPieces()
+ }
 };
 
 export class ShopService {
-  constructor(gameRepository, currencyService) {
-    this.gameRepository = gameRepository;
-    this.currencyService = currencyService;
-    this.inventory = this.loadInventory();
-  }
+ constructor(gameRepository, currencyService) {
+ this.gameRepository = gameRepository;
+ this.currencyService = currencyService;
+ this.inventory = this.loadInventory();
+ }
 
-  loadInventory() {
-    const saved = this.gameRepository.load('shopInventory');
-    if (saved) {
+ loadInventory() {
+ const saved = this.gameRepository.load('shopInventory');
+ if (saved) {
 
-      const freeThemes = Object.values(PIECE_THEMES)
-        .filter(t => t.price === 0)
-        .map(t => t.id);
-      let dirty = false;
-      for (const id of freeThemes) {
-        if (!saved.ownedThemes.includes(id)) {
-          saved.ownedThemes.push(id);
-          dirty = true;
-        }
-      }
-      if (dirty) this.gameRepository.save('shopInventory', saved);
-      return saved;
-    }
-    return {
-      ownedThemes: ['cats', 'classic'],
-      equippedTheme: 'cats',
-      purchaseHistory: []
-    };
-  }
+ const freeThemes = Object.values(PIECE_THEMES)
+ .filter(t => t.price === 0)
+ .map(t => t.id);
+ let dirty = false;
+ for (const id of freeThemes) {
+ if (!saved.ownedThemes.includes(id)) {
+ saved.ownedThemes.push(id);
+ dirty = true;
+ }
+ }
+ if (dirty) this.gameRepository.save('shopInventory', saved);
+ return saved;
+ }
+ return {
+ ownedThemes: ['cats', 'classic'],
+ equippedTheme: 'cats',
+ purchaseHistory: []
+ };
+ }
 
-  save() {
-    this.gameRepository.save('shopInventory', this.inventory);
-  }
+ save() {
+ this.gameRepository.save('shopInventory', this.inventory);
+ }
 
-  getAllThemes() {
-    return Object.values(PIECE_THEMES).map(theme => ({
-      ...theme,
-      owned: this.inventory.ownedThemes.includes(theme.id),
-      equipped: this.inventory.equippedTheme === theme.id
-    }));
-  }
+ getAllThemes() {
+ return Object.values(PIECE_THEMES).map(theme => ({
+ ...theme,
+ owned: this.inventory.ownedThemes.includes(theme.id),
+ equipped: this.inventory.equippedTheme === theme.id
+ }));
+ }
 
-  getOwnedThemes() {
-    return this.inventory.ownedThemes.map(id => PIECE_THEMES[id]);
-  }
+ getOwnedThemes() {
+ return this.inventory.ownedThemes.map(id => PIECE_THEMES[id]);
+ }
 
-  getEquippedTheme() {
-    return PIECE_THEMES[this.inventory.equippedTheme];
-  }
+ getEquippedTheme() {
+ return PIECE_THEMES[this.inventory.equippedTheme];
+ }
 
-  ownsTheme(themeId) {
-    return this.inventory.ownedThemes.includes(themeId);
-  }
+ ownsTheme(themeId) {
+ return this.inventory.ownedThemes.includes(themeId);
+ }
 
-  purchaseTheme(themeId) {
-    const theme = PIECE_THEMES[themeId];
+ purchaseTheme(themeId) {
+ const theme = PIECE_THEMES[themeId];
 
-    if (!theme) {
-      return { success: false, error: 'shop.error.notFound' };
-    }
+ if (!theme) {
+ return { success: false, error: 'shop.error.notFound' };
+ }
 
-    if (this.ownsTheme(themeId)) {
-      return { success: false, error: 'shop.error.alreadyOwned' };
-    }
+ if (this.ownsTheme(themeId)) {
+ return { success: false, error: 'shop.error.alreadyOwned' };
+ }
 
-    if (!this.currencyService.canAfford(theme.price)) {
-      return { success: false, error: 'shop.error.noFunds' };
-    }
+ if (!this.currencyService.canAfford(theme.price)) {
+ return { success: false, error: 'shop.error.noFunds' };
+ }
 
-    const success = this.currencyService.spendFish(theme.price, `Theme: ${theme.name}`);
+ const success = this.currencyService.spendFish(theme.price, `Theme: ${theme.name}`);
 
-    if (success) {
-      this.inventory.ownedThemes.push(themeId);
-      this.inventory.purchaseHistory.push({
-        themeId,
-        purchasedAt: new Date().toISOString(),
-        price: theme.price
-      });
-      this.save();
+ if (success) {
+ this.inventory.ownedThemes.push(themeId);
+ this.inventory.purchaseHistory.push({
+ themeId,
+ purchasedAt: new Date().toISOString(),
+ price: theme.price
+ });
+ this.save();
 
-      return { success: true, theme };
-    }
+ return { success: true, theme };
+ }
 
-    return { success: false, error: 'shop.error.failed' };
-  }
+ return { success: false, error: 'shop.error.failed' };
+ }
 
-  equipTheme(themeId) {
-    if (!this.ownsTheme(themeId)) {
-      return { success: false, error: 'shop.error.notOwned' };
-    }
+ equipTheme(themeId) {
+ if (!this.ownsTheme(themeId)) {
+ return { success: false, error: 'shop.error.notOwned' };
+ }
 
-    this.inventory.equippedTheme = themeId;
-    this.save();
+ this.inventory.equippedTheme = themeId;
+ this.save();
 
-    const theme = PIECE_THEMES[themeId];
+ const theme = PIECE_THEMES[themeId];
 
-    window.dispatchEvent(new CustomEvent('themeEquipped', {
-      detail: { themeId, theme }
-    }));
+ window.dispatchEvent(new CustomEvent('themeEquipped', {
+ detail: { themeId, theme }
+ }));
 
-    return { success: true, theme };
-  }
+ return { success: true, theme };
+ }
 
-  getStats() {
-    return {
-      totalThemes: Object.keys(PIECE_THEMES).length,
-      ownedThemes: this.inventory.ownedThemes.length,
-      totalSpent: this.inventory.purchaseHistory.reduce((sum, p) => sum + p.price, 0),
-      equippedTheme: this.inventory.equippedTheme
-    };
-  }
+ getStats() {
+ return {
+ totalThemes: Object.keys(PIECE_THEMES).length,
+ ownedThemes: this.inventory.ownedThemes.length,
+ totalSpent: this.inventory.purchaseHistory.reduce((sum, p) => sum + p.price, 0),
+ equippedTheme: this.inventory.equippedTheme
+ };
+ }
 
-  reset() {
-    this.inventory = {
-      ownedThemes: ['cats'],
-      equippedTheme: 'cats',
-      purchaseHistory: []
-    };
-    this.save();
-  }
+ reset() {
+ this.inventory = {
+ ownedThemes: ['cats'],
+ equippedTheme: 'cats',
+ purchaseHistory: []
+ };
+ this.save();
+ }
 }
-

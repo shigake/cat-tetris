@@ -1,27 +1,27 @@
 import { IGameState } from './IGameState.js';
 
 export class GameOverState extends IGameState {
-  enter(game) {
-    game.setGameOver(true);
-    game.saveHighScore();
-  }
+ enter(game) {
+ game.setGameOver(true);
+ game.saveHighScore();
+ }
 
-  exit(game) {
-    game.setGameOver(false);
-  }
+ exit(game) {
+ game.setGameOver(false);
+ }
 
-  update(game, deltaTime) {
-  }
+ update(game, deltaTime) {
+ }
 
-  handleInput(game, input) {
-    switch(input) {
-      case 'restart':
-        game.restart();
-        break;
-    }
-  }
+ handleInput(game, input) {
+ switch(input) {
+ case 'restart':
+ game.restart();
+ break;
+ }
+ }
 
-  getName() {
-    return 'gameOver';
-  }
+ getName() {
+ return 'gameOver';
+ }
 }

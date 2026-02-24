@@ -1,155 +1,161 @@
 export class Board {
-  constructor(width = 10, height = 20) {
-    this.width = width;
-    this.height = height;
-    this.bufferHeight = 4;
-    this.grid = this.createEmptyGrid();
-    this._buffer = this.createEmptyBuffer();
-  }
+ constructor(width = 10, height = 20) {
+ this.width = width;
+ this.height = height;
+ this.bufferHeight = 4;
+ this.grid = this.createEmptyGrid();
+ this._buffer = this.createEmptyBuffer();
+ }
 
-  createEmptyGrid() {
-    return Array(this.height).fill(null).map(() => Array(this.width).fill(null));
-  }
+ createEmptyGrid() {
+ return Array(this.height).fill(null).map(() => Array(this.width).fill(null));
+ }
 
-  createEmptyBuffer() {
-    return Array(this.bufferHeight).fill(null).map(() => Array(this.width).fill(null));
-  }
+ createEmptyBuffer() {
+ return Array(this.bufferHeight).fill(null).map(() => Array(this.width).fill(null));
+ }
 
-  clone() {
-    const newBoard = new Board(this.width, this.height);
-    newBoard.grid = this.grid.map(row => [...row]);
-    newBoard._buffer = this._buffer.map(row => [...row]);
-    return newBoard;
-  }
+ clone() {
+ const newBoard = new Board(this.width, this.height);
+ newBoard.grid = this.grid.map(row => [...row]);
+ newBoard._buffer = this._buffer.map(row => [...row]);
+ return newBoard;
+ }
 
-  isWithinBounds(x, y) {
-    return x >= 0 && x < this.width && y >= -this.bufferHeight && y < this.height;
-  }
+ isWithinBounds(x, y) {
+ return x >= 0 && x < this.width && y >= -this.bufferHeight && y < this.height;
+ }
 
-  getCell(x, y) {
-    if (x < 0 || x >= this.width) return undefined;
-    if (y < -this.bufferHeight || y >= this.height) return undefined;
-    if (y < 0) return this._buffer[this.bufferHeight + y][x];
-    return this.grid[y][x];
-  }
+ getCell(x, y) {
+ if (x < 0 || x >= this.width) return undefined;
+ if (y < -this.bufferHeight || y >= this.height) return undefined;
+ if (y < 0) return this._buffer[this.bufferHeight + y][x];
+ return this.grid[y][x];
+ }
 
-  setCell(x, y, cell) {
-    if (x < 0 || x >= this.width) return false;
-    if (y < -this.bufferHeight || y >= this.height) return false;
-    if (y < 0) {
-      this._buffer[this.bufferHeight + y][x] = cell;
-      return true;
-    }
-    this.grid[y][x] = cell;
-    return true;
-  }
+ setCell(x, y, cell) {
+ if (x < 0 || x >= this.width) return false;
+ if (y < -this.bufferHeight || y >= this.height) return false;
+ if (y < 0) {
+ this._buffer[this.bufferHeight + y][x] = cell;
+ return true;
+ }
+ this.grid[y][x] = cell;
+ return true;
+ }
 
-  clearCell(x, y) {
-    return this.setCell(x, y, null);
-  }
+ clearCell(x, y) {
+ return this.setCell(x, y, null);
+ }
 
-  placePiece(piece) {
-    const cells = piece.getCells();
-    cells.forEach(cell => {
-      this.setCell(cell.x, cell.y, {
-        type: cell.type,
-        color: cell.color,
-        emoji: cell.emoji
-      });
-    });
-  }
+ placePiece(piece) {
+ const cells = piece.getCells();
+ cells.forEach(cell => {
+ this.setCell(cell.x, cell.y, {
+ type: cell.type,
+ color: cell.color,
+ emoji: cell.emoji
+ });
+ });
+ }
 
-  canPlacePiece(piece) {
-    const cells = piece.getCells();
-    return cells.every(cell => {
-      if (cell.x < 0 || cell.x >= this.width) return false;
-      if (cell.y >= this.height) return false;
-      if (cell.y < -this.bufferHeight) return false;
-      const boardCell = this.getCell(cell.x, cell.y);
-      return boardCell === null;
-    });
-  }
+ canPlacePiece(piece) {
+ const cells = piece.getCells();
+ return cells.every(cell => {
+ if (cell.x < 0 || cell.x >= this.width) return false;
+ if (cell.y >= this.height) return false;
+ if (cell.y < -this.bufferHeight) return false;
+ const boardCell = this.getCell(cell.x, cell.y);
+ return boardCell === null;
+ });
+ }
 
-  clearLines() {
-    const fullGrid = [...this._buffer, ...this.grid];
-    const newFullGrid = [];
-    let linesCleared = 0;
+ clearLines() {
+ const fullGrid = [...this._buffer, ...this.grid];
+ const newFullGrid = [];
+ let linesCleared = 0;
 
-    for (let y = fullGrid.length - 1; y >= 0; y--) {
-      const isLineFull = fullGrid[y].every(cell => cell !== null);
+ for (let y = fullGrid.length - 1; y >= 0; y--) {
+ const isLineFull = fullGrid[y].every(cell => cell !== null);
 
-      if (!isLineFull) {
-        newFullGrid.unshift(fullGrid[y]);
-      } else {
-        linesCleared++;
-      }
-    }
+ if (!isLineFull) {
+ newFullGrid.unshift(fullGrid[y]);
+ } else {
+ linesCleared++;
+ }
+ }
 
-    while (newFullGrid.length < fullGrid.length) {
-      newFullGrid.unshift(Array(this.width).fill(null));
-    }
+ while (newFullGrid.length < fullGrid.length) {
+ newFullGrid.unshift(Array(this.width).fill(null));
+ }
 
-    this._buffer = newFullGrid.slice(0, this.bufferHeight);
-    this.grid = newFullGrid.slice(this.bufferHeight);
-    return linesCleared;
-  }
+ this._buffer = newFullGrid.slice(0, this.bufferHeight);
+ this.grid = newFullGrid.slice(this.bufferHeight);
+ return linesCleared;
+ }
 
-  getFilledRows() {
-    const filledRows = [];
-    for (let y = 0; y < this.height; y++) {
-      if (this.grid[y].every(cell => cell !== null)) {
-        filledRows.push(y);
-      }
-    }
-    return filledRows;
-  }
+ getFilledRows() {
+ const filledRows = [];
+ for (let y = 0; y < this.height; y++) {
+ if (this.grid[y].every(cell => cell !== null)) {
+ filledRows.push(y);
+ }
+ }
+ return filledRows;
+ }
 
-  isGameOver() {
-    return this._buffer.some(row => row.some(cell => cell !== null));
-  }
+ isGameOver() {
+ return this._buffer.some(row => row.some(cell => cell !== null));
+ }
 
-  getBoardState() {
-    return this.grid.map(row => [...row]);
-  }
+ getBoardState() {
+ return this.grid.map(row => [...row]);
+ }
 
-  setBoardState(grid) {
-    this.grid = grid.map(row => [...row]);
-    this._buffer = this.createEmptyBuffer();
-  }
+ setBoardState(grid) {
+ this.grid = grid.map(row => [...row]);
+ this._buffer = this.createEmptyBuffer();
+ }
 
-  clear() {
-    this.grid = this.createEmptyGrid();
-    this._buffer = this.createEmptyBuffer();
-  }
+ clear() {
+ this.grid = this.createEmptyGrid();
+ this._buffer = this.createEmptyBuffer();
+ }
 
-  addGarbageLines(count, gapColumn = -1) {
-    if (count <= 0) return false;
+ addGarbageLines(count, gapColumn = -1) {
+ if (count <= 0) return false;
 
-    const gap = gapColumn >= 0 ? gapColumn : Math.floor(Math.random() * this.width);
+ let gap = gapColumn >= 0 ? gapColumn : Math.floor(Math.random() * this.width);
 
-    const garbageRows = [];
-    for (let i = 0; i < count; i++) {
-      const row = Array(this.width).fill(null).map((_, x) =>
-        x === gap ? null : { type: 'garbage', color: '#808080', emoji: '⬜' }
-      );
-      garbageRows.push(row);
-    }
+ const MESSINESS = 0.3;
 
-    // Join buffer + grid + garbage, then keep only the bottom (bufferHeight + height) rows.
-    // This guarantees the grid and buffer never grow beyond their fixed sizes.
-    const fullBoard = [...this._buffer, ...this.grid, ...garbageRows];
-    const totalSize = this.bufferHeight + this.height;
+ const garbageRows = [];
+ for (let i = 0; i < count; i++) {
+ if (i > 0 && Math.random() < MESSINESS) {
+ let newGap;
+ do {
+ newGap = Math.floor(Math.random() * this.width);
+ } while (newGap === gap);
+ gap = newGap;
+ }
+ const row = Array(this.width).fill(null).map((_, x) =>
+ x === gap ? null : { type: 'garbage', color: '#808080' }
+ );
+ garbageRows.push(row);
+ }
 
-    // Rows pushed off the top are overflow
-    const overflowRows = fullBoard.length > totalSize
-      ? fullBoard.slice(0, fullBoard.length - totalSize)
-      : [];
-    const overflow = overflowRows.some(row => row.some(cell => cell !== null));
+ const fullBoard = [...this._buffer, ...this.grid, ...garbageRows];
+ const totalSize = this.bufferHeight + this.height;
 
-    const kept = fullBoard.slice(-totalSize);
-    this._buffer = kept.slice(0, this.bufferHeight);
-    this.grid = kept.slice(this.bufferHeight);
+ const overflowRows = fullBoard.length > totalSize
+ ? fullBoard.slice(0, fullBoard.length - totalSize)
+ : [];
+ const overflow = overflowRows.some(row => row.some(cell => cell !== null));
 
-    return overflow;
-  }
+ const kept = fullBoard.slice(-totalSize);
+ this._buffer = kept.slice(0, this.bufferHeight);
+ this.grid = kept.slice(this.bufferHeight);
+
+ return overflow;
+ }
 }

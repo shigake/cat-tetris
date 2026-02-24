@@ -4,358 +4,349 @@ import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { serviceContainer } from '../core/container/ServiceRegistration';
 import {
-  loadGamepadMappings,
-  saveGamepadMappings,
-  resetGamepadMappings,
-  DEFAULT_MAPPINGS,
-  BUTTON_LABELS,
-  ACTION_LABELS,
-  MENU_ACTIONS,
-  GAME_ACTIONS,
+ loadGamepadMappings,
+ saveGamepadMappings,
+ resetGamepadMappings,
+ DEFAULT_MAPPINGS,
+ BUTTON_LABELS,
+ ACTION_LABELS,
+ MENU_ACTIONS,
+ GAME_ACTIONS,
 } from '../config/GamepadConfig';
 import {
-  loadKeyboardMappings,
-  saveKeyboardMappings,
-  resetKeyboardMappings,
-  keyDisplayName,
-  KEYBOARD_ACTIONS,
+ loadKeyboardMappings,
+ saveKeyboardMappings,
+ resetKeyboardMappings,
+ keyDisplayName,
+ KEYBOARD_ACTIONS,
 } from '../config/KeyboardConfig';
 
 const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
-  const { t } = useI18n();
-  const [localSettings, setLocalSettings] = useState({
-    ...settings,
-    das: settings.das ?? 133,
-    arr: settings.arr ?? 10,
-  });
+ const { t } = useI18n();
+ const [localSettings, setLocalSettings] = useState({
+ ...settings,
+ das: settings.das ?? 133,
+ arr: settings.arr ?? 10,
+ });
 
-  // Gamepad remapping state
-  const [gamepadMappings, setGamepadMappings] = useState(() => loadGamepadMappings());
-  const [listeningAction, setListeningAction] = useState(null);
-  const listenIntervalRef = useRef(null);
+ const [gamepadMappings, setGamepadMappings] = useState(() => loadGamepadMappings());
+ const [listeningAction, setListeningAction] = useState(null);
+ const listenIntervalRef = useRef(null);
 
-  // Keyboard remapping state
-  const [keyMappings, setKeyMappings] = useState(() => loadKeyboardMappings());
-  const [listeningKeyAction, setListeningKeyAction] = useState(null);
+ const [keyMappings, setKeyMappings] = useState(() => loadKeyboardMappings());
+ const [listeningKeyAction, setListeningKeyAction] = useState(null);
 
-  // Refresh mappings when settings open
-  useEffect(() => {
-    if (isOpen) {
-      setGamepadMappings(loadGamepadMappings());
-      setKeyMappings(loadKeyboardMappings());
-    }
-  }, [isOpen]);
+ useEffect(() => {
+ if (isOpen) {
+ setGamepadMappings(loadGamepadMappings());
+ setKeyMappings(loadKeyboardMappings());
+ }
+ }, [isOpen]);
 
-  // Listen for button press to remap
-  useEffect(() => {
-    if (!listeningAction) {
-      if (listenIntervalRef.current) {
-        clearInterval(listenIntervalRef.current);
-        listenIntervalRef.current = null;
-      }
-      return;
-    }
+ useEffect(() => {
+ if (!listeningAction) {
+ if (listenIntervalRef.current) {
+ clearInterval(listenIntervalRef.current);
+ listenIntervalRef.current = null;
+ }
+ return;
+ }
 
-    // Wait a frame so the A press that started listening doesn't register
-    const startTime = Date.now();
+ const startTime = Date.now();
 
-    listenIntervalRef.current = setInterval(() => {
-      if (Date.now() - startTime < 200) return; // debounce
-      const gamepads = navigator.getGamepads();
-      const gp = Array.from(gamepads).find(g => g && g.connected);
-      if (!gp) return;
+ listenIntervalRef.current = setInterval(() => {
+ if (Date.now() - startTime < 200) return;
+ const gamepads = navigator.getGamepads();
+ const gp = Array.from(gamepads).find(g => g && g.connected);
+ if (!gp) return;
 
-      for (let i = 0; i < gp.buttons.length; i++) {
-        if (gp.buttons[i]?.pressed) {
-          // D-pad (12-15) can't be remapped — they're used for navigation
-          if (i >= 12 && i <= 15) continue;
-          const newMappings = { ...gamepadMappings, [listeningAction]: i };
-          setGamepadMappings(newMappings);
-          saveGamepadMappings(newMappings);
-          setListeningAction(null);
-          return;
-        }
-      }
-    }, 16);
+ for (let i = 0; i < gp.buttons.length; i++) {
+ if (gp.buttons[i]?.pressed) {
 
-    // Auto-cancel after 5 seconds
-    const timeout = setTimeout(() => setListeningAction(null), 5000);
+ if (i >= 12 && i <= 15) continue;
+ const newMappings = { ...gamepadMappings, [listeningAction]: i };
+ setGamepadMappings(newMappings);
+ saveGamepadMappings(newMappings);
+ setListeningAction(null);
+ return;
+ }
+ }
+ }, 16);
 
-    return () => {
-      clearInterval(listenIntervalRef.current);
-      listenIntervalRef.current = null;
-      clearTimeout(timeout);
-    };
-  }, [listeningAction, gamepadMappings]);
+ const timeout = setTimeout(() => setListeningAction(null), 5000);
 
-  const handleResetGamepad = useCallback(() => {
-    const defaults = resetGamepadMappings();
-    setGamepadMappings(defaults);
-  }, []);
+ return () => {
+ clearInterval(listenIntervalRef.current);
+ listenIntervalRef.current = null;
+ clearTimeout(timeout);
+ };
+ }, [listeningAction, gamepadMappings]);
 
-  // Listen for key press to remap keyboard
-  useEffect(() => {
-    if (!listeningKeyAction) return;
+ const handleResetGamepad = useCallback(() => {
+ const defaults = resetGamepadMappings();
+ setGamepadMappings(defaults);
+ }, []);
 
-    const handler = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const newMappings = { ...keyMappings, [listeningKeyAction]: e.key };
-      setKeyMappings(newMappings);
-      saveKeyboardMappings(newMappings);
-      setListeningKeyAction(null);
-    };
+ useEffect(() => {
+ if (!listeningKeyAction) return;
 
-    // Small delay so the click that triggered listen mode doesn't interfere
-    const timeout = setTimeout(() => {
-      window.addEventListener('keydown', handler, { capture: true });
-    }, 100);
+ const handler = (e) => {
+ e.preventDefault();
+ e.stopPropagation();
+ const newMappings = { ...keyMappings, [listeningKeyAction]: e.key };
+ setKeyMappings(newMappings);
+ saveKeyboardMappings(newMappings);
+ setListeningKeyAction(null);
+ };
 
-    // Auto-cancel after 5 seconds
-    const cancelTimeout = setTimeout(() => setListeningKeyAction(null), 5000);
+ const timeout = setTimeout(() => {
+ window.addEventListener('keydown', handler, { capture: true });
+ }, 100);
 
-    return () => {
-      clearTimeout(timeout);
-      clearTimeout(cancelTimeout);
-      window.removeEventListener('keydown', handler, { capture: true });
-    };
-  }, [listeningKeyAction, keyMappings]);
+ const cancelTimeout = setTimeout(() => setListeningKeyAction(null), 5000);
 
-  const handleResetKeyboard = useCallback(() => {
-    const defaults = resetKeyboardMappings();
-    setKeyMappings(defaults);
-  }, []);
+ return () => {
+ clearTimeout(timeout);
+ clearTimeout(cancelTimeout);
+ window.removeEventListener('keydown', handler, { capture: true });
+ };
+ }, [listeningKeyAction, keyMappings]);
 
-  const handleSave = () => {
-    onSettingsChange(localSettings);
-    // Reload keyboard mappings in the running service
-    try {
-      const kbService = serviceContainer.resolve('keyboardInputService');
-      kbService.reloadMappings();
-    } catch { /* ignore if not registered */ }
-    onClose();
-  };
+ const handleResetKeyboard = useCallback(() => {
+ const defaults = resetKeyboardMappings();
+ setKeyMappings(defaults);
+ }, []);
 
-  const handleCancel = () => {
-    setLocalSettings({ ...settings, das: settings.das ?? 133, arr: settings.arr ?? 10 });
-    onClose();
-  };
+ const handleSave = () => {
+ onSettingsChange(localSettings);
 
-  const settingsActions = [handleSave, handleCancel];
-  const handleConfirm = useCallback((index) => {
-    settingsActions[index]?.();
-  }, [handleSave, handleCancel]);
+ try {
+ const kbService = serviceContainer.resolve('keyboardInputService');
+ kbService.reloadMappings();
+ } catch {  }
+ onClose();
+ };
 
-  const { selectedIndex } = useGamepadNav({
-    itemCount: 2,
-    onConfirm: handleConfirm,
-    onBack: handleCancel,
-    active: isOpen && !listeningAction,
-    wrap: true,
-  });
+ const handleCancel = () => {
+ setLocalSettings({ ...settings, das: settings.das ?? 133, arr: settings.arr ?? 10 });
+ onClose();
+ };
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
-        >
-          <motion.div
-            initial={{ scale: 0.9, y: 10 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 10 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="bg-gray-900/90 p-6 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto"
-          >
-            <h2 className="text-2xl font-cat font-bold text-white mb-5 text-center">
-              {t('settings.title')}
-            </h2>
+ const settingsActions = [handleSave, handleCancel];
+ const handleConfirm = useCallback((index) => {
+ settingsActions[index]?.();
+ }, [handleSave, handleCancel]);
 
-            <div className="space-y-4">
+ const { selectedIndex } = useGamepadNav({
+ itemCount: 2,
+ onConfirm: handleConfirm,
+ onBack: handleCancel,
+ active: isOpen && !listeningAction,
+ wrap: true,
+ });
 
-              <div className="text-xs font-bold text-white/40 uppercase tracking-wider">{t('settings.audio')}</div>
+ return (
+ <AnimatePresence>
+ {isOpen && (
+ <motion.div
+ initial={{ opacity: 0 }}
+ animate={{ opacity: 1 }}
+ exit={{ opacity: 0 }}
+ transition={{ duration: 0.15 }}
+ className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+ >
+ <motion.div
+ initial={{ scale: 0.9, y: 10 }}
+ animate={{ scale: 1, y: 0 }}
+ exit={{ scale: 0.9, y: 10 }}
+ transition={{ duration: 0.15, ease: "easeOut" }}
+ className="bg-gray-900/90 p-6 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4 max-h-[85vh] overflow-y-auto"
+ >
+ <h2 className="text-2xl font-cat font-bold text-white mb-5 text-center">
+ {t('settings.title')}
+ </h2>
 
-              <div>
-                <label className="text-white/80 text-sm">{t('settings.volume')}</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={localSettings.volume}
-                  onChange={(e) => setLocalSettings({ ...localSettings, volume: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                />
-                <span className="text-white text-sm">{localSettings.volume}%</span>
-              </div>
+ <div className="space-y-4">
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="soundEnabled"
-                  checked={localSettings.soundEnabled}
-                  onChange={(e) => setLocalSettings({ ...localSettings, soundEnabled: e.target.checked })}
-                  className="mr-2"
-                />
-                <label htmlFor="soundEnabled" className="text-white/80 text-sm">{t('settings.soundEnabled')}</label>
-              </div>
+ <div className="text-xs font-bold text-white/40 uppercase tracking-wider">{t('settings.audio')}</div>
 
-              <div className="border-t border-white/10 pt-4 mt-4">
-                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.handling')}</div>
+ <div>
+ <label className="text-white/80 text-sm">{t('settings.volume')}</label>
+ <input
+ type="range"
+ min="0"
+ max="100"
+ value={localSettings.volume}
+ onChange={(e) => setLocalSettings({ ...localSettings, volume: parseInt(e.target.value) })}
+ className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+ />
+ <span className="text-white text-sm">{localSettings.volume}%</span>
+ </div>
 
-                <div>
-                  <div className="flex justify-between">
-                    <label className="text-white/80 text-sm">{t('settings.dasLabel')}</label>
-                    <span className="text-cyan-400 text-sm font-mono">{localSettings.das}ms</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="300"
-                    step="1"
-                    value={localSettings.das}
-                    onChange={(e) => setLocalSettings({ ...localSettings, das: parseInt(e.target.value) })}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                  />
-                  <p className="text-white/30 text-xs mt-0.5">{t('settings.dasHelp')}</p>
-                </div>
+ <div className="flex items-center">
+ <input
+ type="checkbox"
+ id="soundEnabled"
+ checked={localSettings.soundEnabled}
+ onChange={(e) => setLocalSettings({ ...localSettings, soundEnabled: e.target.checked })}
+ className="mr-2"
+ />
+ <label htmlFor="soundEnabled" className="text-white/80 text-sm">{t('settings.soundEnabled')}</label>
+ </div>
 
-                <div className="mt-3">
-                  <div className="flex justify-between">
-                    <label className="text-white/80 text-sm">{t('settings.arrLabel')}</label>
-                    <span className="text-cyan-400 text-sm font-mono">{localSettings.arr}ms</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={localSettings.arr}
-                    onChange={(e) => setLocalSettings({ ...localSettings, arr: parseInt(e.target.value) })}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                  />
-                  <p className="text-white/30 text-xs mt-0.5">{t('settings.arrHelp')}</p>
-                </div>
-              </div>
+ <div className="border-t border-white/10 pt-4 mt-4">
+ <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.handling')}</div>
 
-              <div className="border-t border-white/10 pt-4 mt-4">
-                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.keyboardTitle')}</div>
-                <div className="space-y-1">
-                  {KEYBOARD_ACTIONS.map(action => (
-                    <button
-                      key={action}
-                      onClick={() => { setListeningKeyAction(action); setListeningAction(null); }}
-                      className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
-                        ${listeningKeyAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
-                    >
-                      <span className="text-white/70">{t(`settings.keyAction.${action}`)}</span>
-                      <span className={`font-mono font-bold ${listeningKeyAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
-                        {listeningKeyAction === action ? t('settings.keyPress') : keyDisplayName(keyMappings[action])}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={handleResetKeyboard}
-                  className="w-full mt-2 bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white/90 text-xs py-1.5 rounded-lg transition-colors"
-                >
-                  {t('settings.keyReset')}
-                </button>
-              </div>
+ <div>
+ <div className="flex justify-between">
+ <label className="text-white/80 text-sm">{t('settings.dasLabel')}</label>
+ <span className="text-cyan-400 text-sm font-mono">{localSettings.das}ms</span>
+ </div>
+ <input
+ type="range"
+ min="0"
+ max="300"
+ step="1"
+ value={localSettings.das}
+ onChange={(e) => setLocalSettings({ ...localSettings, das: parseInt(e.target.value) })}
+ className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+ />
+ <p className="text-white/30 text-xs mt-0.5">{t('settings.dasHelp')}</p>
+ </div>
 
-              {/* Gamepad Button Remapping */}
-              <div className="border-t border-white/10 pt-4 mt-4">
-                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.gamepadButtons')}</div>
+ <div className="mt-3">
+ <div className="flex justify-between">
+ <label className="text-white/80 text-sm">{t('settings.arrLabel')}</label>
+ <span className="text-cyan-400 text-sm font-mono">{localSettings.arr}ms</span>
+ </div>
+ <input
+ type="range"
+ min="0"
+ max="100"
+ step="1"
+ value={localSettings.arr}
+ onChange={(e) => setLocalSettings({ ...localSettings, arr: parseInt(e.target.value) })}
+ className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+ />
+ <p className="text-white/30 text-xs mt-0.5">{t('settings.arrHelp')}</p>
+ </div>
+ </div>
 
-                <div className="mb-3">
-                  <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">{t('settings.gamepadMenu')}</div>
-                  <div className="space-y-1">
-                    {MENU_ACTIONS.map(action => (
-                      <button
-                        key={action}
-                        onClick={() => setListeningAction(action)}
-                        className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
-                          ${listeningAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
-                      >
-                        <span className="text-white/70">{t(ACTION_LABELS[action])}</span>
-                        <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
-                          {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+ <div className="border-t border-white/10 pt-4 mt-4">
+ <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.keyboardTitle')}</div>
+ <div className="space-y-1">
+ {KEYBOARD_ACTIONS.map(action => (
+ <button
+ key={action}
+ onClick={() => { setListeningKeyAction(action); setListeningAction(null); }}
+ className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
+ ${listeningKeyAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
+ >
+ <span className="text-white/70">{t(`settings.keyAction.${action}`)}</span>
+ <span className={`font-mono font-bold ${listeningKeyAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
+ {listeningKeyAction === action ? t('settings.keyPress') : keyDisplayName(keyMappings[action])}
+ </span>
+ </button>
+ ))}
+ </div>
+ <button
+ onClick={handleResetKeyboard}
+ className="w-full mt-2 bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white/90 text-xs py-1.5 rounded-lg transition-colors"
+ >
+ {t('settings.keyReset')}
+ </button>
+ </div>
 
-                <div className="mb-3">
-                  <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">{t('settings.gamepadGame')}</div>
-                  <div className="space-y-1">
-                    {GAME_ACTIONS.map(action => (
-                      <button
-                        key={action}
-                        onClick={() => setListeningAction(action)}
-                        className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
-                          ${listeningAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
-                      >
-                        <span className="text-white/70">{t(ACTION_LABELS[action])}</span>
-                        <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
-                          {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+ {/* Gamepad Button Remapping */}
+ <div className="border-t border-white/10 pt-4 mt-4">
+ <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.gamepadButtons')}</div>
 
-                <div className="text-white/30 text-[10px] mb-2">{t('settings.dpadNote')}</div>
+ <div className="mb-3">
+ <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">{t('settings.gamepadMenu')}</div>
+ <div className="space-y-1">
+ {MENU_ACTIONS.map(action => (
+ <button
+ key={action}
+ onClick={() => setListeningAction(action)}
+ className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
+ ${listeningAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
+ >
+ <span className="text-white/70">{t(ACTION_LABELS[action])}</span>
+ <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
+ {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
+ </span>
+ </button>
+ ))}
+ </div>
+ </div>
 
-                <button
-                  onClick={handleResetGamepad}
-                  className="w-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white/90 text-xs py-1.5 rounded-lg transition-colors"
-                >
-                  {t('settings.gamepadReset')}
-                </button>
-              </div>
+ <div className="mb-3">
+ <div className="text-white/50 text-[10px] uppercase tracking-wider mb-1.5">{t('settings.gamepadGame')}</div>
+ <div className="space-y-1">
+ {GAME_ACTIONS.map(action => (
+ <button
+ key={action}
+ onClick={() => setListeningAction(action)}
+ className={`w-full flex items-center justify-between bg-white/[0.04] rounded-lg px-3 py-1.5 text-xs transition-colors
+ ${listeningAction === action ? 'ring-2 ring-yellow-400 bg-yellow-400/10' : 'hover:bg-white/[0.08]'}`}
+ >
+ <span className="text-white/70">{t(ACTION_LABELS[action])}</span>
+ <span className={`font-mono font-bold ${listeningAction === action ? 'text-yellow-400 animate-pulse' : 'text-cyan-400'}`}>
+ {listeningAction === action ? t('settings.gamepadPress') : BUTTON_LABELS[gamepadMappings[action]] ?? '?'}
+ </span>
+ </button>
+ ))}
+ </div>
+ </div>
 
-              <div className="border-t border-white/10 pt-4 mt-4">
-                <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.visual')}</div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="particlesEnabled"
-                    checked={localSettings.particlesEnabled}
-                    onChange={(e) => setLocalSettings({ ...localSettings, particlesEnabled: e.target.checked })}
-                    className="mr-2"
-                  />
-                  <label htmlFor="particlesEnabled" className="text-white/80 text-sm">{t('settings.particles')}</label>
-                </div>
-              </div>
-            </div>
+ <div className="text-white/30 text-[10px] mb-2">{t('settings.dpadNote')}</div>
 
-            <div className="flex gap-3 mt-6">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleSave}
-                className={`flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900' : ''}`}
-              >
-                {t('settings.save')}
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleCancel}
-                className={`flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 ${selectedIndex === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900' : ''}`}
-              >
-                {t('settings.cancel')}
-              </motion.button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+ <button
+ onClick={handleResetGamepad}
+ className="w-full bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white/90 text-xs py-1.5 rounded-lg transition-colors"
+ >
+ {t('settings.gamepadReset')}
+ </button>
+ </div>
+
+ <div className="border-t border-white/10 pt-4 mt-4">
+ <div className="text-xs font-bold text-white/40 uppercase tracking-wider mb-3">{t('settings.visual')}</div>
+ <div className="flex items-center">
+ <input
+ type="checkbox"
+ id="particlesEnabled"
+ checked={localSettings.particlesEnabled}
+ onChange={(e) => setLocalSettings({ ...localSettings, particlesEnabled: e.target.checked })}
+ className="mr-2"
+ />
+ <label htmlFor="particlesEnabled" className="text-white/80 text-sm">{t('settings.particles')}</label>
+ </div>
+ </div>
+ </div>
+
+ <div className="flex gap-3 mt-6">
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onClick={handleSave}
+ className={`flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900' : ''}`}
+ >
+ {t('settings.save')}
+ </motion.button>
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onClick={handleCancel}
+ className={`flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 ${selectedIndex === 1 ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-gray-900' : ''}`}
+ >
+ {t('settings.cancel')}
+ </motion.button>
+ </div>
+ </motion.div>
+ </motion.div>
+ )}
+ </AnimatePresence>
+ );
 };
 
 export default SettingsMenu;

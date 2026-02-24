@@ -7,107 +7,106 @@ import Scoreboard from '../Scoreboard';
 import { useI18n } from '../../hooks/useI18n';
 
 function DemonstrationScreen({
-  gameState,
-  isInitialized,
-  demonstrationState,
-  onPause,
-  onResume,
-  onSkip
+ gameState,
+ isInitialized,
+ demonstrationState,
+ onPause,
+ onResume,
+ onSkip
 }) {
-  const { t } = useI18n();
-  return (
-    <motion.div
-      key="demo"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="flex flex-col items-center gap-6"
-    >
+ const { t } = useI18n();
+ return (
+ <motion.div
+ key="demo"
+ initial={{ opacity: 0, y: 20 }}
+ animate={{ opacity: 1, y: 0 }}
+ exit={{ opacity: 0, y: -20 }}
+ className="flex flex-col items-center gap-6"
+ >
 
-      {demonstrationState.currentNarration && (
-        <motion.div
-          key={demonstrationState.currentNarration}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 max-w-3xl"
-        >
-          <div className="text-xl text-white leading-relaxed">
-            {demonstrationState.currentNarration}
-          </div>
-        </motion.div>
-      )}
+ {demonstrationState.currentNarration && (
+ <motion.div
+ key={demonstrationState.currentNarration}
+ initial={{ opacity: 0, y: -20 }}
+ animate={{ opacity: 1, y: 0 }}
+ className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 max-w-3xl"
+ >
+ <div className="text-xl text-white leading-relaxed">
+ {demonstrationState.currentNarration}
+ </div>
+ </motion.div>
+ )}
 
-      {gameState && isInitialized && (
-        <div className="bg-gray-900/50 rounded-xl p-6">
-          <div className="text-white/80 mb-4 text-center">
-            <span className="text-2xl">🎬</span>
-            <span className="ml-2 text-lg font-bold">{t('lesson.cpuPlaying')}</span>
-          </div>
+ {gameState && isInitialized && (
+ <div className="bg-gray-900/50 rounded-xl p-6">
+ <div className="text-white/80 mb-4 text-center">
 
-          <div className="flex gap-4">
-            <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
+ <span className="ml-2 text-lg font-bold">{t('lesson.cpuPlaying')}</span>
+ </div>
 
-            <TetrisBoard
-              board={gameState.board}
-              currentPiece={gameState.currentPiece}
-              dropPreview={null}
-              gameOver={gameState.gameOver}
-            />
+ <div className="flex gap-4">
+ <HeldPiece heldPiece={gameState.heldPiece} canHold={gameState.canHold} />
 
-            <div className="flex flex-col gap-4">
-              <NextPieces pieces={gameState.nextPieces || []} />
-              <Scoreboard
-                score={gameState.score?.points || 0}
-                level={gameState.score?.level || 1}
-                lines={gameState.score?.lines || 0}
-                combo={gameState.score?.combo || 0}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+ <TetrisBoard
+ board={gameState.board}
+ currentPiece={gameState.currentPiece}
+ dropPreview={null}
+ gameOver={gameState.gameOver}
+ />
 
-      <div className="flex items-center gap-4">
-        {demonstrationState.isPlaying && (
-          demonstrationState.isPaused ? (
-            <button
-              onClick={onResume}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
-            >
-              {t('lesson.continue')}
-            </button>
-          ) : (
-            <button
-              onClick={onPause}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
-            >
-              {t('lesson.pause')}
-            </button>
-          )
-        )}
+ <div className="flex flex-col gap-4">
+ <NextPieces pieces={gameState.nextPieces || []} />
+ <Scoreboard
+ score={gameState.score?.points || 0}
+ level={gameState.score?.level || 1}
+ lines={gameState.score?.lines || 0}
+ combo={gameState.score?.combo || 0}
+ />
+ </div>
+ </div>
+ </div>
+ )}
 
-        <button
-          onClick={onSkip}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
-        >
-          {t('lesson.goToPractice')}
-        </button>
+ <div className="flex items-center gap-4">
+ {demonstrationState.isPlaying && (
+ demonstrationState.isPaused ? (
+ <button
+ onClick={onResume}
+ className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
+ >
+ {t('lesson.continue')}
+ </button>
+ ) : (
+ <button
+ onClick={onPause}
+ className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
+ >
+ {t('lesson.pause')}
+ </button>
+ )
+ )}
 
-        <div className="flex-1 bg-gray-700 rounded-full h-3 overflow-hidden min-w-[200px]">
-          <motion.div
-            className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${demonstrationState.progress * 100}%` }}
-            transition={{ duration: 0.3 }}
-          />
-        </div>
-        <div className="text-white/80 font-mono">
-          {Math.round(demonstrationState.progress * 100)}%
-        </div>
-      </div>
-    </motion.div>
-  );
+ <button
+ onClick={onSkip}
+ className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold text-lg"
+ >
+ {t('lesson.goToPractice')}
+ </button>
+
+ <div className="flex-1 bg-gray-700 rounded-full h-3 overflow-hidden min-w-[200px]">
+ <motion.div
+ className="bg-gradient-to-r from-blue-500 to-cyan-500 h-full"
+ initial={{ width: 0 }}
+ animate={{ width: `${demonstrationState.progress * 100}%` }}
+ transition={{ duration: 0.3 }}
+ />
+ </div>
+ <div className="text-white/80 font-mono">
+ {Math.round(demonstrationState.progress * 100)}%
+ </div>
+ </div>
+ </motion.div>
+ );
 }
 
 export default DemonstrationScreen;
-

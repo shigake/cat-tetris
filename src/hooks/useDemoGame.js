@@ -6,192 +6,191 @@ import { AIOpponentService } from '../core/services/AIOpponentService';
 
 const LESSON_HINTS = {
 
-  1: { difficulty: 'easy', forceHold: false, comboBoost: false, label: 'Movendo peças...' },
+ 1: { difficulty: 'easy', forceHold: false, comboBoost: false, label: 'Movendo peças...' },
 
-  2: { difficulty: 'easy', forceHold: true, comboBoost: false, label: 'Usando Hold (C)...' },
+ 2: { difficulty: 'easy', forceHold: true, comboBoost: false, label: 'Usando Hold (C)...' },
 
-  3: { difficulty: 'medium', forceHold: false, comboBoost: false, label: 'Planejando jogadas...' },
+ 3: { difficulty: 'medium', forceHold: false, comboBoost: false, label: 'Planejando jogadas...' },
 
-  4: { difficulty: 'medium', forceHold: false, comboBoost: true, label: 'Buscando combos...' },
+ 4: { difficulty: 'medium', forceHold: false, comboBoost: true, label: 'Buscando combos...' },
 
-  5: { difficulty: 'hard', forceHold: false, comboBoost: false, label: 'Montando Tetris...' },
+ 5: { difficulty: 'hard', forceHold: false, comboBoost: false, label: 'Montando Tetris...' },
 
-  6: { difficulty: 'expert', forceHold: true, comboBoost: false, label: 'Tentando T-Spins...' },
+ 6: { difficulty: 'expert', forceHold: true, comboBoost: false, label: 'Tentando T-Spins...' },
 
-  7: { difficulty: 'expert', forceHold: true, comboBoost: false, label: 'Buscando Back-to-Back...' },
+ 7: { difficulty: 'expert', forceHold: true, comboBoost: false, label: 'Buscando Back-to-Back...' },
 
-  8: { difficulty: 'hard', forceHold: true, comboBoost: false, label: 'Jogando no máximo...' },
+ 8: { difficulty: 'hard', forceHold: true, comboBoost: false, label: 'Jogando no máximo...' },
 };
 
 export function useDemoGame(active, lessonId) {
-  const [gameState, setGameState] = useState(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [demoComplete, setDemoComplete] = useState(false);
-  const [statusLabel, setStatusLabel] = useState('');
-  const gameServiceRef = useRef(null);
-  const aiRef = useRef(null);
-  const lastTimeRef = useRef(0);
-  const loopRef = useRef(null);
-  const aiTimerRef = useRef(0);
-  const piecesPlacedRef = useRef(0);
-  const holdCounterRef = useRef(0);
-  const hintsRef = useRef(null);
+ const [gameState, setGameState] = useState(null);
+ const [isInitialized, setIsInitialized] = useState(false);
+ const [demoComplete, setDemoComplete] = useState(false);
+ const [statusLabel, setStatusLabel] = useState('');
+ const gameServiceRef = useRef(null);
+ const aiRef = useRef(null);
+ const lastTimeRef = useRef(0);
+ const loopRef = useRef(null);
+ const aiTimerRef = useRef(0);
+ const piecesPlacedRef = useRef(0);
+ const holdCounterRef = useRef(0);
+ const hintsRef = useRef(null);
 
-  const AI_MOVE_INTERVAL = 250;
-  const MAX_PIECES = 25;
+ const AI_MOVE_INTERVAL = 250;
+ const MAX_PIECES = 25;
 
-  useEffect(() => {
-    if (!active) {
-      setGameState(null);
-      setIsInitialized(false);
-      setDemoComplete(false);
-      setStatusLabel('');
-      gameServiceRef.current = null;
-      aiRef.current = null;
-      piecesPlacedRef.current = 0;
-      holdCounterRef.current = 0;
-      if (loopRef.current) cancelAnimationFrame(loopRef.current);
-      return;
-    }
+ useEffect(() => {
+ if (!active) {
+ setGameState(null);
+ setIsInitialized(false);
+ setDemoComplete(false);
+ setStatusLabel('');
+ gameServiceRef.current = null;
+ aiRef.current = null;
+ piecesPlacedRef.current = 0;
+ holdCounterRef.current = 0;
+ if (loopRef.current) cancelAnimationFrame(loopRef.current);
+ return;
+ }
 
-    const hints = LESSON_HINTS[lessonId] || LESSON_HINTS[1];
-    hintsRef.current = hints;
-    setStatusLabel(hints.label);
+ const hints = LESSON_HINTS[lessonId] || LESSON_HINTS[1];
+ hintsRef.current = hints;
+ setStatusLabel(hints.label);
 
-    const service = new GameService(
-      new PieceFactory(),
-      new MovementStrategyFactory(),
-      null,
-      new ScoringService()
-    );
-    service.initializeGame();
-    service.isPlaying = true;
+ const service = new GameService(
+ new PieceFactory(),
+ new MovementStrategyFactory(),
+ null,
+ new ScoringService()
+ );
+ service.initializeGame();
+ service.isPlaying = true;
 
-    const ai = new AIOpponentService();
-    ai.setDifficulty(hints.difficulty);
-    ai.thinkingTime = 0;
+ const ai = new AIOpponentService();
+ ai.setDifficulty(hints.difficulty);
+ ai.thinkingTime = 0;
 
-    if (hints.comboBoost) {
-      const origEval = ai._evaluateBoard.bind(ai);
-      ai._evaluateBoard = (board, piece) => {
-        let score = origEval(board, piece);
+ if (hints.comboBoost) {
+ const origEval = ai._evaluateBoard.bind(ai);
+ ai._evaluateBoard = (board, piece) => {
+ let score = origEval(board, piece);
 
-        for (let y = 0; y < board.length; y++) {
-          const filled = board[y].filter(c => c != null).length;
-          if (filled >= 8) score += 200;
-          if (filled >= 9) score += 500;
-        }
-        return score;
-      };
-    }
+ for (let y = 0; y < board.length; y++) {
+ const filled = board[y].filter(c => c != null).length;
+ if (filled >= 8) score += 200;
+ if (filled >= 9) score += 500;
+ }
+ return score;
+ };
+ }
 
-    gameServiceRef.current = service;
-    aiRef.current = ai;
-    piecesPlacedRef.current = 0;
-    holdCounterRef.current = 0;
-    aiTimerRef.current = 0;
-    lastTimeRef.current = 0;
+ gameServiceRef.current = service;
+ aiRef.current = ai;
+ piecesPlacedRef.current = 0;
+ holdCounterRef.current = 0;
+ aiTimerRef.current = 0;
+ lastTimeRef.current = 0;
 
-    setGameState(service.getGameState());
-    setIsInitialized(true);
-    setDemoComplete(false);
+ setGameState(service.getGameState());
+ setIsInitialized(true);
+ setDemoComplete(false);
 
-    return () => {
-      if (loopRef.current) cancelAnimationFrame(loopRef.current);
-      gameServiceRef.current = null;
-      aiRef.current = null;
-    };
-  }, [active, lessonId]);
+ return () => {
+ if (loopRef.current) cancelAnimationFrame(loopRef.current);
+ gameServiceRef.current = null;
+ aiRef.current = null;
+ };
+ }, [active, lessonId]);
 
-  useEffect(() => {
-    if (!gameServiceRef.current || !isInitialized || !active) return;
-    lastTimeRef.current = 0;
-    aiTimerRef.current = 0;
+ useEffect(() => {
+ if (!gameServiceRef.current || !isInitialized || !active) return;
+ lastTimeRef.current = 0;
+ aiTimerRef.current = 0;
 
-    let lastPieceType = null;
+ let lastPieceType = null;
 
-    const loop = (currentTime) => {
-      if (!lastTimeRef.current) lastTimeRef.current = currentTime;
-      const dt = currentTime - lastTimeRef.current;
-      lastTimeRef.current = currentTime;
+ const loop = (currentTime) => {
+ if (!lastTimeRef.current) lastTimeRef.current = currentTime;
+ const dt = currentTime - lastTimeRef.current;
+ lastTimeRef.current = currentTime;
 
-      const svc = gameServiceRef.current;
-      const ai = aiRef.current;
-      const hints = hintsRef.current;
+ const svc = gameServiceRef.current;
+ const ai = aiRef.current;
+ const hints = hintsRef.current;
 
-      if (svc && ai && !svc.gameOver) {
-        if (svc.isPlaying && !svc.isPaused) {
-          svc.updateGame(dt);
-        }
+ if (svc && ai && !svc.gameOver) {
+ if (svc.isPlaying && !svc.isPaused) {
+ svc.updateGame(dt);
+ }
 
-        const state = svc.getGameState();
-        const curType = state.currentPiece?.type;
-        if (lastPieceType && curType !== lastPieceType) {
-          piecesPlacedRef.current++;
-          holdCounterRef.current++;
-          if (piecesPlacedRef.current >= MAX_PIECES) {
-            setDemoComplete(true);
-            setGameState(state);
-            return;
-          }
-        }
-        lastPieceType = curType;
+ const state = svc.getGameState();
+ const curType = state.currentPiece?.type;
+ if (lastPieceType && curType !== lastPieceType) {
+ piecesPlacedRef.current++;
+ holdCounterRef.current++;
+ if (piecesPlacedRef.current >= MAX_PIECES) {
+ setDemoComplete(true);
+ setGameState(state);
+ return;
+ }
+ }
+ lastPieceType = curType;
 
-        aiTimerRef.current += dt;
-        if (aiTimerRef.current >= AI_MOVE_INTERVAL) {
-          aiTimerRef.current = 0;
+ aiTimerRef.current += dt;
+ if (aiTimerRef.current >= AI_MOVE_INTERVAL) {
+ aiTimerRef.current = 0;
 
-          if (hints?.forceHold && holdCounterRef.current >= 3 && state.currentPiece) {
-            const canHold = state.canHold !== false;
-            if (canHold) {
-              svc.holdPiece();
-              holdCounterRef.current = 0;
-              setGameState(svc.getGameState());
-              loopRef.current = requestAnimationFrame(loop);
-              return;
-            }
-          }
+ if (hints?.forceHold && holdCounterRef.current >= 3 && state.currentPiece) {
+ const canHold = state.canHold !== false;
+ if (canHold) {
+ svc.holdPiece();
+ holdCounterRef.current = 0;
+ setGameState(svc.getGameState());
+ loopRef.current = requestAnimationFrame(loop);
+ return;
+ }
+ }
 
-          const action = ai.decideNextMove(state);
-          if (action) {
-            switch (action.action) {
-              case 'left':   svc.movePiece('left'); break;
-              case 'right':  svc.movePiece('right'); break;
-              case 'rotate': svc.rotatePiece(); break;
-              case 'down':   svc.movePiece('down'); break;
-              case 'drop':   svc.hardDrop(); break;
-              case 'hold':   svc.holdPiece(); break;
-            }
-          }
-        }
+ const action = ai.decideNextMove(state);
+ if (action) {
+ switch (action.action) {
+ case 'left': svc.movePiece('left'); break;
+ case 'right': svc.movePiece('right'); break;
+ case 'rotate': svc.rotatePiece(); break;
+ case 'down': svc.movePiece('down'); break;
+ case 'drop': svc.hardDrop(); break;
+ case 'hold': svc.holdPiece(); break;
+ }
+ }
+ }
 
-        setGameState(state);
-      } else if (svc?.gameOver) {
-        setDemoComplete(true);
-        setGameState(svc.getGameState());
-        return;
-      }
+ setGameState(state);
+ } else if (svc?.gameOver) {
+ setDemoComplete(true);
+ setGameState(svc.getGameState());
+ return;
+ }
 
-      loopRef.current = requestAnimationFrame(loop);
-    };
+ loopRef.current = requestAnimationFrame(loop);
+ };
 
-    loopRef.current = requestAnimationFrame(loop);
+ loopRef.current = requestAnimationFrame(loop);
 
-    return () => {
-      if (loopRef.current) cancelAnimationFrame(loopRef.current);
-    };
-  }, [isInitialized, active]);
+ return () => {
+ if (loopRef.current) cancelAnimationFrame(loopRef.current);
+ };
+ }, [isInitialized, active]);
 
-  const getDropPreview = useCallback(() => {
-    try { return gameServiceRef.current?.getDropPreview() || null; } catch { return null; }
-  }, []);
+ const getDropPreview = useCallback(() => {
+ try { return gameServiceRef.current?.getDropPreview() || null; } catch { return null; }
+ }, []);
 
-  return {
-    gameState,
-    isInitialized,
-    demoComplete,
-    statusLabel,
-    getDropPreview
-  };
+ return {
+ gameState,
+ isInitialized,
+ demoComplete,
+ statusLabel,
+ getDropPreview
+ };
 }
-

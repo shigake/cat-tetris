@@ -4,217 +4,217 @@ import { useMissions } from '../hooks/useMissions';
 import { useI18n } from '../hooks/useI18n';
 import Celebration from './Celebration';
 import { showToast } from './ToastNotification';
+import { CloseIcon, CheckIcon, CoinIcon } from './Icons';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 
 function DailyMissionsPanel({ onClose }) {
-  const { t } = useI18n();
-  const { missions, loading, claimReward, getMissionsStats } = useMissions();
-  const [showCelebration, setShowCelebration] = React.useState(false);
+ const { t } = useI18n();
+ const { missions, loading, claimReward, getMissionsStats } = useMissions();
+ const [showCelebration, setShowCelebration] = React.useState(false);
 
-  const { selectedIndex } = useGamepadNav({
-    itemCount: missions?.length || 0,
-    onConfirm: (index) => {
-      const mission = missions[index];
-      if (mission && mission.completed && !mission.claimed) {
-        handleClaim(mission.id);
-      }
-    },
-    onBack: onClose,
-    active: true,
-    wrap: true,
-  });
-  const stats = getMissionsStats();
+ const { selectedIndex } = useGamepadNav({
+ itemCount: missions?.length || 0,
+ onConfirm: (index) => {
+ const mission = missions[index];
+ if (mission && mission.completed && !mission.claimed) {
+ handleClaim(mission.id);
+ }
+ },
+ onBack: onClose,
+ active: true,
+ wrap: true,
+ });
+ const stats = getMissionsStats();
 
-  const handleClaim = (missionId) => {
-    const result = claimReward(missionId);
-    if (result.success) {
+ const handleClaim = (missionId) => {
+ const result = claimReward(missionId);
+ if (result.success) {
 
-      showToast(t('missions.claimSuccess', { reward: result.reward }), 'success');
+ showToast(t('missions.claimSuccess', { reward: result.reward }), 'success');
 
-      const updatedStats = getMissionsStats();
-      if (updatedStats.allClaimed) {
-        setShowCelebration(true);
-        setTimeout(() => setShowCelebration(false), 3000);
-      }
-    } else {
-      showToast(`❌ ${result.error}`, 'error');
-    }
-  };
+ const updatedStats = getMissionsStats();
+ if (updatedStats.allClaimed) {
+ setShowCelebration(true);
+ setTimeout(() => setShowCelebration(false), 3000);
+ }
+ } else {
+ showToast(` ${result.error}`, 'error');
+ }
+ };
 
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case 'easy': return 'text-green-400';
-      case 'medium': return 'text-yellow-400';
-      case 'hard': return 'text-red-400';
-      default: return 'text-white';
-    }
-  };
+ const getDifficultyColor = (difficulty) => {
+ switch (difficulty) {
+ case 'easy': return 'text-green-400';
+ case 'medium': return 'text-yellow-400';
+ case 'hard': return 'text-red-400';
+ default: return 'text-white';
+ }
+ };
 
-  const getDifficultyBadge = (difficulty) => {
-    switch (difficulty) {
-      case 'easy': return t('missions.easy');
-      case 'medium': return t('missions.medium');
-      case 'hard': return t('missions.hard');
-      default: return difficulty;
-    }
-  };
+ const getDifficultyBadge = (difficulty) => {
+ switch (difficulty) {
+ case 'easy': return t('missions.easy');
+ case 'medium': return t('missions.medium');
+ case 'hard': return t('missions.hard');
+ default: return difficulty;
+ }
+ };
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="text-white text-xl">{t('missions.loading')}</div>
-      </div>
-    );
-  }
+ if (loading) {
+ return (
+ <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+ <div className="text-white text-xl">{t('missions.loading')}</div>
+ </div>
+ );
+ }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        className="bg-gradient-to-br from-purple-900/95 to-blue-900/95 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+ return (
+ <motion.div
+ initial={{ opacity: 0 }}
+ animate={{ opacity: 1 }}
+ exit={{ opacity: 0 }}
+ className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+ onClick={onClose}
+ >
+ <motion.div
+ initial={{ scale: 0.9, y: 20 }}
+ animate={{ scale: 1, y: 0 }}
+ exit={{ scale: 0.9, y: 20 }}
+ className="bg-gradient-to-br from-purple-900/95 to-blue-900/95 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto border-2 border-white/20 shadow-2xl"
+ onClick={(e) => e.stopPropagation()}
+ >
 
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-3xl font-bold text-white flex items-center gap-2">
-              {t('missions.title')}
-            </h2>
-            <p className="text-white/60 text-sm mt-1">
-              {t('missions.subtitle')}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-white/60 hover:text-white text-2xl transition-colors"
-          >
-            ✕
-          </button>
-        </div>
+ <div className="flex justify-between items-center mb-6">
+ <div>
+ <h2 className="text-3xl font-bold text-white flex items-center gap-2">
+ {t('missions.title')}
+ </h2>
+ <p className="text-white/60 text-sm mt-1">
+ {t('missions.subtitle')}
+ </p>
+ </div>
+ <button
+ onClick={onClose}
+ className="text-white/60 hover:text-white text-2xl transition-colors"
+ >
+ <CloseIcon size={24} />
+ </button>
+ </div>
 
-        {stats && (
-          <div className="bg-black/30 rounded-lg p-4 mb-6">
-            <div className="flex justify-between items-center">
-              <span className="text-white/80">{t('missions.dailyProgress')}</span>
-              <span className="text-white font-bold">
-                {t('missions.completedOf', { completed: stats.completed, total: stats.total })}
-              </span>
-            </div>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-white/80">{t('missions.rewardsAvailable')}</span>
-              <span className="text-yellow-400 font-bold flex items-center gap-1">
-                🐟 {stats.claimedRewards}/{stats.totalRewards}
-              </span>
-            </div>
-          </div>
-        )}
+ {stats && (
+ <div className="bg-black/30 rounded-lg p-4 mb-6">
+ <div className="flex justify-between items-center">
+ <span className="text-white/80">{t('missions.dailyProgress')}</span>
+ <span className="text-white font-bold">
+ {t('missions.completedOf', { completed: stats.completed, total: stats.total })}
+ </span>
+ </div>
+ <div className="flex justify-between items-center mt-2">
+ <span className="text-white/80">{t('missions.rewardsAvailable')}</span>
+ <span className="text-yellow-400 font-bold flex items-center gap-1">
+ {stats.claimedRewards}/{stats.totalRewards}
+ </span>
+ </div>
+ </div>
+ )}
 
-        <div className="space-y-4">
-          {missions.map((mission, index) => {
-            const progress = Math.min(mission.progress, mission.target);
-            const percentage = (progress / mission.target) * 100;
+ <div className="space-y-4">
+ {missions.map((mission, index) => {
+ const progress = Math.min(mission.progress, mission.target);
+ const percentage = (progress / mission.target) * 100;
 
-            return (
-              <motion.div
-                key={mission.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`bg-black/40 rounded-lg p-4 border-2 ${
-                  mission.completed
-                    ? 'border-green-500/50'
-                    : 'border-white/10'
-                } ${index === selectedIndex ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-purple-900' : ''}`}
-              >
+ return (
+ <motion.div
+ key={mission.id}
+ initial={{ opacity: 0, x: -20 }}
+ animate={{ opacity: 1, x: 0 }}
+ transition={{ delay: index * 0.1 }}
+ className={`bg-black/40 rounded-lg p-4 border-2 ${
+ mission.completed
+ ? 'border-green-500/50'
+ : 'border-white/10'
+ } ${index === selectedIndex ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-purple-900' : ''}`}
+ >
 
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-white font-bold text-lg">
-                        {t('mission.' + mission.id + '.title')}
-                      </h3>
-                      {mission.completed && !mission.claimed && (
-                        <span className="text-green-400 text-xl animate-pulse">
-                          ✓
-                        </span>
-                      )}
-                      {mission.claimed && (
-                        <span className="text-white/40 text-sm">
-                          {t('missions.claimed')}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-white/60 text-sm">
-                      {t('mission.' + mission.id + '.desc')}
-                    </p>
-                    <span className={`text-xs ${getDifficultyColor(mission.difficulty)}`}>
-                      {getDifficultyBadge(mission.difficulty)}
-                    </span>
-                  </div>
+ <div className="flex justify-between items-start mb-2">
+ <div className="flex-1">
+ <div className="flex items-center gap-2 mb-1">
+ <h3 className="text-white font-bold text-lg">
+ {t('mission.' + mission.id + '.title')}
+ </h3>
+ {mission.completed && !mission.claimed && (
+ <span className="text-green-400 text-xl animate-pulse">
+ <CheckIcon size={20} />
+ </span>
+ )}
+ {mission.claimed && (
+ <span className="text-white/40 text-sm">
+ {t('missions.claimed')}
+ </span>
+ )}
+ </div>
+ <p className="text-white/60 text-sm">
+ {t('mission.' + mission.id + '.desc')}
+ </p>
+ <span className={`text-xs ${getDifficultyColor(mission.difficulty)}`}>
+ {getDifficultyBadge(mission.difficulty)}
+ </span>
+ </div>
 
-                  <div className="text-right">
-                    <div className="text-yellow-400 font-bold flex items-center gap-1">
-                      <span className="text-2xl">🐟</span>
-                      <span>{mission.reward}</span>
-                    </div>
-                  </div>
-                </div>
+ <div className="text-right">
+ <div className="text-yellow-400 font-bold flex items-center gap-1">
+ <CoinIcon size={20} className="text-yellow-400" />
+ <span>{mission.reward}</span>
+ </div>
+ </div>
+ </div>
 
-                <div className="mt-3">
-                  <div className="flex justify-between text-sm text-white/60 mb-1">
-                    <span>{t('missions.progress')}</span>
-                    <span>{progress}/{mission.target}</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${percentage}%` }}
-                      transition={{ duration: 0.5 }}
-                      className={`h-full ${
-                        mission.completed
-                          ? 'bg-green-500'
-                          : 'bg-blue-500'
-                      }`}
-                    />
-                  </div>
-                </div>
+ <div className="mt-3">
+ <div className="flex justify-between text-sm text-white/60 mb-1">
+ <span>{t('missions.progress')}</span>
+ <span>{progress}/{mission.target}</span>
+ </div>
+ <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+ <motion.div
+ initial={{ width: 0 }}
+ animate={{ width: `${percentage}%` }}
+ transition={{ duration: 0.5 }}
+ className={`h-full ${
+ mission.completed
+ ? 'bg-green-500'
+ : 'bg-blue-500'
+ }`}
+ />
+ </div>
+ </div>
 
-                {mission.completed && !mission.claimed && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleClaim(mission.id)}
-                    className="w-full mt-3 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    {t('missions.claimReward')}
-                  </motion.button>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
+ {mission.completed && !mission.claimed && (
+ <motion.button
+ whileHover={{ scale: 1.05 }}
+ whileTap={{ scale: 0.95 }}
+ onClick={() => handleClaim(mission.id)}
+ className="w-full mt-3 bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+ >
+ {t('missions.claimReward')}
+ </motion.button>
+ )}
+ </motion.div>
+ );
+ })}
+ </div>
 
-        <div className="mt-6 text-center text-white/40 text-sm">
-          {t('missions.resetNote')}
-        </div>
-      </motion.div>
+ <div className="mt-6 text-center text-white/40 text-sm">
+ {t('missions.resetNote')}
+ </div>
+ </motion.div>
 
-      <Celebration
-        trigger={showCelebration}
-        message={t('missions.allCompleted')}
-        duration={3000}
-      />
-    </motion.div>
-  );
+ <Celebration
+ trigger={showCelebration}
+ message={t('missions.allCompleted')}
+ duration={3000}
+ />
+ </motion.div>
+ );
 }
 
 export default DailyMissionsPanel;
-

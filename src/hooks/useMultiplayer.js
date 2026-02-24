@@ -2,132 +2,131 @@ import { useState, useEffect, useCallback } from 'react';
 import { serviceContainer } from '../core/container/ServiceRegistration.js';
 
 export function useMultiplayer() {
-  const [currentMode, setCurrentMode] = useState(null);
-  const [players, setPlayers] = useState([]);
-  const [matchState, setMatchState] = useState(null);
-  const [stats, setStats] = useState(null);
+ const [currentMode, setCurrentMode] = useState(null);
+ const [players, setPlayers] = useState([]);
+ const [matchState, setMatchState] = useState(null);
+ const [stats, setStats] = useState(null);
 
-  useEffect(() => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      setStats(multiplayerService.getStats());
-    } catch (error) {
+ useEffect(() => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ setStats(multiplayerService.getStats());
+ } catch (error) {
 
-    }
-  }, []);
+ }
+ }, []);
 
-  const startLocalMatch = useCallback((player1Name, player2Name) => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      const match = multiplayerService.startLocalMatch(player1Name, player2Name);
+ const startLocalMatch = useCallback((player1Name, player2Name) => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ const match = multiplayerService.startLocalMatch(player1Name, player2Name);
 
-      setCurrentMode(match.mode);
-      setPlayers(match.players);
-      setMatchState(multiplayerService.getMatchState());
+ setCurrentMode(match.mode);
+ setPlayers(match.players);
+ setMatchState(multiplayerService.getMatchState());
 
-      return match;
-    } catch (error) {
+ return match;
+ } catch (error) {
 
-      return null;
-    }
-  }, []);
+ return null;
+ }
+ }, []);
 
-  const startAIMatch = useCallback((playerName, aiDifficulty) => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      const match = multiplayerService.startAIMatch(playerName, aiDifficulty);
+ const startAIMatch = useCallback((playerName, aiDifficulty) => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ const match = multiplayerService.startAIMatch(playerName, aiDifficulty);
 
-      setCurrentMode(match.mode);
-      setPlayers(match.players);
-      setMatchState(multiplayerService.getMatchState());
+ setCurrentMode(match.mode);
+ setPlayers(match.players);
+ setMatchState(multiplayerService.getMatchState());
 
-      return match;
-    } catch (error) {
+ return match;
+ } catch (error) {
 
-      return null;
-    }
-  }, []);
+ return null;
+ }
+ }, []);
 
-  const startAIvsAIMatch = useCallback((ai1Difficulty, ai2Difficulty) => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      const match = multiplayerService.startAIvsAIMatch(ai1Difficulty, ai2Difficulty);
+ const startAIvsAIMatch = useCallback((ai1Difficulty, ai2Difficulty) => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ const match = multiplayerService.startAIvsAIMatch(ai1Difficulty, ai2Difficulty);
 
-      setCurrentMode(match.mode);
-      setPlayers(match.players);
-      setMatchState(multiplayerService.getMatchState());
+ setCurrentMode(match.mode);
+ setPlayers(match.players);
+ setMatchState(multiplayerService.getMatchState());
 
-      return match;
-    } catch (error) {
+ return match;
+ } catch (error) {
 
-      return null;
-    }
-  }, []);
+ return null;
+ }
+ }, []);
 
-  const updatePlayerState = useCallback((playerId, gameState) => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      multiplayerService.updatePlayerState(playerId, gameState);
+ const updatePlayerState = useCallback((playerId, gameState) => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ multiplayerService.updatePlayerState(playerId, gameState);
 
-      const newMatchState = multiplayerService.getMatchState();
-      setMatchState(newMatchState);
-      setPlayers(newMatchState.players);
+ const newMatchState = multiplayerService.getMatchState();
+ setMatchState(newMatchState);
+ setPlayers(newMatchState.players);
 
-      return newMatchState;
-    } catch (error) {
+ return newMatchState;
+ } catch (error) {
 
-      return null;
-    }
-  }, []);
+ return null;
+ }
+ }, []);
 
-  const endMatch = useCallback(() => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      const result = multiplayerService.endMatch();
+ const endMatch = useCallback(() => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ const result = multiplayerService.endMatch();
 
-      setCurrentMode(null);
-      setPlayers([]);
-      setMatchState(null);
-      setStats(multiplayerService.getStats());
+ setCurrentMode(null);
+ setPlayers([]);
+ setMatchState(null);
+ setStats(multiplayerService.getStats());
 
-      return result;
-    } catch (error) {
+ return result;
+ } catch (error) {
 
-      return null;
-    }
-  }, []);
+ return null;
+ }
+ }, []);
 
-  const getAvailableModes = useCallback(() => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      return multiplayerService.getAvailableModes();
-    } catch (error) {
+ const getAvailableModes = useCallback(() => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ return multiplayerService.getAvailableModes();
+ } catch (error) {
 
-      return [];
-    }
-  }, []);
+ return [];
+ }
+ }, []);
 
-  const refreshStats = useCallback(() => {
-    try {
-      const multiplayerService = serviceContainer.resolve('multiplayerService');
-      setStats(multiplayerService.getStats());
-    } catch (error) {
+ const refreshStats = useCallback(() => {
+ try {
+ const multiplayerService = serviceContainer.resolve('multiplayerService');
+ setStats(multiplayerService.getStats());
+ } catch (error) {
 
-    }
-  }, []);
+ }
+ }, []);
 
-  return {
-    currentMode,
-    players,
-    matchState,
-    stats,
-    startLocalMatch,
-    startAIMatch,
-    startAIvsAIMatch,
-    updatePlayerState,
-    endMatch,
-    getAvailableModes,
-    refreshStats
-  };
+ return {
+ currentMode,
+ players,
+ matchState,
+ stats,
+ startLocalMatch,
+ startAIMatch,
+ startAIvsAIMatch,
+ updatePlayerState,
+ endMatch,
+ getAvailableModes,
+ refreshStats
+ };
 }
-

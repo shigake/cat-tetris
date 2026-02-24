@@ -95,6 +95,16 @@ body {
   100% { filter: brightness(3); opacity: 0; }
 }
 
+@keyframes garbagePulse {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.3); }
+}
+
+@keyframes warningBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
