@@ -49,8 +49,15 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
  initial={{ scale: 0.8, y: 20 }}
  animate={{ scale: 1, y: 0 }}
  transition={{ type: "spring", damping: 15 }}
- className="bg-gray-900/90 p-8 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
+ className="bg-gray-900/90 p-8 rounded-2xl border-2 border-white/20 shadow-2xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto relative overflow-hidden"
  >
+ {/* Decorative corner blocks */}
+ <div className="absolute top-2 left-2 w-4 h-4 rounded bg-purple-500/15" />
+ <div className="absolute top-2 left-8 w-4 h-4 rounded bg-purple-500/10" />
+ <div className="absolute top-8 left-2 w-4 h-4 rounded bg-purple-500/10" />
+ <div className="absolute bottom-2 right-2 w-4 h-4 rounded bg-cyan-500/15" />
+ <div className="absolute bottom-2 right-8 w-4 h-4 rounded bg-cyan-500/10" />
+ <div className="absolute bottom-8 right-2 w-4 h-4 rounded bg-cyan-500/10" />
  <div className="text-center">
  <motion.h1
  initial={{ opacity: 0, y: 20 }}
@@ -131,10 +138,16 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
  transition={{ delay: 0.8 }}
- className="mt-6 text-center text-white/60 text-sm"
+ className="mt-6 text-center text-white/60 text-sm flex flex-col items-center gap-2"
  >
+ <div className="flex items-center gap-2 justify-center">
+ <span className="text-xs opacity-40">🐾</span>
  <p>{t('gameOver.tip1')}</p>
+ </div>
+ <div className="flex items-center gap-2 justify-center">
+ <span className="text-xs opacity-40">🐾</span>
  <p>{t('gameOver.tip2')}</p>
+ </div>
  </motion.div>
  </div>
  </motion.div>

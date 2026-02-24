@@ -19,35 +19,31 @@ function LoadingSpinner({ size = 'md', message }) {
  return (
  <div className="flex flex-col items-center justify-center gap-4 p-8">
 
+ <div className="relative">
  <motion.div
- animate={{
- rotate: 360
- }}
- transition={{
- duration: 2,
- repeat: Infinity,
- ease: 'linear'
- }}
+ animate={{ rotate: 360 }}
+ transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
  className={`${sizes[size]} flex items-center justify-center`}
  >
- <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full" />
+ <div className="w-10 h-10 border-4 border-purple-400/30 border-t-purple-400 rounded-full" />
  </motion.div>
-
- <div className="flex gap-2">
- {[0, 1, 2].map((i) => (
- <motion.div
- key={i}
- animate={{
- scale: [1, 1.5, 1],
- opacity: [1, 0.5, 1]
- }}
- transition={{
- duration: 1,
- repeat: Infinity,
- delay: i * 0.2
- }}
- className="w-3 h-3 bg-white rounded-full"
+ <motion.img
+ src={`${import.meta.env.BASE_URL}cats/cat-3.png`}
+ alt=""
+ className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full"
+ animate={{ scale: [1, 1.1, 1] }}
+ transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
  />
+ </div>
+
+ <div className="flex gap-1.5">
+ {['🐾', '🐾', '🐾'].map((paw, i) => (
+ <motion.span
+ key={i}
+ className="text-sm"
+ animate={{ opacity: [0.2, 1, 0.2], y: [0, -3, 0] }}
+ transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.2 }}
+ >{paw}</motion.span>
  ))}
  </div>
 

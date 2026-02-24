@@ -275,6 +275,10 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
  ref={boardRef}
  style={{ width: 'fit-content' }}
  >
+ {/* Subtle cat watermark */}
+ <div className="absolute inset-0 flex items-end justify-center pointer-events-none opacity-[0.03] overflow-hidden">
+ <img src={`${import.meta.env.BASE_URL}cats/cat-3.png`} alt="" className="w-32 h-32 mb-4" />
+ </div>
  <div className="relative">
 
  <div className="tetris-grid">

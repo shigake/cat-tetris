@@ -116,7 +116,10 @@ function GameModesPanel({ onClose, onStartGame }) {
  )}
 
  <div className="flex items-center gap-3 mb-3">
+ <div className="relative">
  <div className="text-white">{(() => { const Icon = GAME_MODE_ICONS[mode.id] || GameModeIcon; return <Icon size={40} />; })()}</div>
+ <img src={`${import.meta.env.BASE_URL}cats/cat-${(index % 6) + 1}.png`} alt="" className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full border border-white/20 shadow-sm" />
+ </div>
  <div className="flex-1">
  <h3 className="text-white font-bold text-xl">
  {t('gameMode.' + mode.id + '.name')}
@@ -196,7 +199,8 @@ function GameModesPanel({ onClose, onStartGame }) {
  )}
 
  {(!stats || stats.gamesPlayed === 0) && (
- <div className="bg-black/30 rounded-lg p-3 text-center">
+ <div className="bg-black/30 rounded-lg p-3 text-center flex flex-col items-center gap-2">
+ <img src={`${import.meta.env.BASE_URL}cats/tutor-${(index % 6) + 1}.png`} alt="" className="w-10 h-10 rounded-full opacity-40" />
  <div className="text-white/40 text-sm">
  {t('gameModes.noRecords')}
  </div>

@@ -123,12 +123,50 @@ export default function MainMenu({
  transition: { duration: 0.35, delay, ease: 'easeOut' }
  });
 
+ const stars = useMemo(() => Array.from({ length: 40 }, (_, i) => ({
+ id: i, x: Math.random() * 100, y: Math.random() * 100,
+ size: Math.random() * 2 + 1, delay: Math.random() * 3, dur: Math.random() * 2 + 2
+ })), []);
+
+ const floatingBlocks = useMemo(() => [
+ { x: '8%', y: '12%', color: '#9b59b6', rot: 15, size: 18, delay: 0 },
+ { x: '85%', y: '8%', color: '#00bcd4', rot: -20, size: 16, delay: 0.5 },
+ { x: '12%', y: '78%', color: '#e67e22', rot: 25, size: 14, delay: 1.2 },
+ { x: '88%', y: '82%', color: '#2ecc71', rot: -10, size: 20, delay: 0.8 },
+ { x: '5%', y: '45%', color: '#e74c3c', rot: 30, size: 12, delay: 1.5 },
+ { x: '92%', y: '50%', color: '#f1c40f', rot: -35, size: 15, delay: 0.3 },
+ ], []);
+
  return (
  <div className="h-screen bg-gradient-to-b from-slate-900 via-purple-950 to-slate-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
+ {/* Layer 1: Starfield */}
+ <div className="absolute inset-0 overflow-hidden pointer-events-none">
+ {stars.map(s => (
+ <motion.div key={s.id} className="absolute rounded-full bg-white"
+ style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size }}
+ animate={{ opacity: [0.1, 0.7, 0.1] }}
+ transition={{ duration: s.dur, repeat: Infinity, delay: s.delay, ease: 'easeInOut' }}
+ />
+ ))}
+ </div>
+
+ {/* Layer 2: Floating tetris blocks */}
+ <div className="absolute inset-0 overflow-hidden pointer-events-none">
+ {floatingBlocks.map((b, i) => (
+ <motion.div key={i} className="absolute rounded-md opacity-15"
+ style={{ left: b.x, top: b.y, width: b.size, height: b.size, backgroundColor: b.color, rotate: b.rot }}
+ animate={{ y: [-8, 8, -8], rotate: [b.rot - 5, b.rot + 5, b.rot - 5] }}
+ transition={{ duration: 4 + i, repeat: Infinity, delay: b.delay, ease: 'easeInOut' }}
+ />
+ ))}
+ </div>
+
+ {/* Layer 3: Ambient glow orbs */}
  <div className="absolute inset-0 overflow-hidden pointer-events-none">
  <div className="absolute top-1/4 -left-32 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl" />
  <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/5 rounded-full blur-3xl" />
  </div>
 
  <div className="fixed top-3 right-3 z-50">
@@ -172,10 +210,10 @@ export default function MainMenu({
  </motion.div>
 
  <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-2 gap-2 mb-4">
- <MenuCard icon={<SwordsIcon size={28} />} label={t('menu.vsAI')} sub={t('menu.vsAISub')} onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
- <MenuCard icon={<BookIcon size={28} />} label={t('menu.tutorial')} sub={t('menu.tutorialSub')} onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
- <MenuCard icon={<PaletteIcon size={28} />} label={t('menu.creator')} sub={t('menu.creatorSub')} onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
- <MenuCard icon={<BrainIcon size={28} />} label={t('menu.aiExpert')} sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
+ <MenuCard icon={<SwordsIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/cat-1.png`} label={t('menu.vsAI')} sub={t('menu.vsAISub')} onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
+ <MenuCard icon={<BookIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/tutor-2.png`} label={t('menu.tutorial')} sub={t('menu.tutorialSub')} onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
+ <MenuCard icon={<PaletteIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/cat-4.png`} label={t('menu.creator')} sub={t('menu.creatorSub')} onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
+ <MenuCard icon={<BrainIcon size={28} />} catImg={`${import.meta.env.BASE_URL}cats/cat-5.png`} label={t('menu.aiExpert')} sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
  </motion.div>
 
  <motion.div {...fadeUp(0.25)} className="w-full grid grid-cols-4 gap-1 mb-4">
@@ -186,6 +224,7 @@ export default function MainMenu({
  </motion.div>
 
  <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
+ <span className="text-[10px] opacity-40">🐾</span>
  <button
  onClick={toggleSound}
  className="hover:text-white/50 transition-colors"
@@ -202,6 +241,7 @@ export default function MainMenu({
  </button>
 
  <span className="select-none">v1.0</span>
+ <span className="text-[10px] opacity-40">🐾</span>
  </motion.div>
 
  {/* Language picker dropdown */}
@@ -227,12 +267,13 @@ export default function MainMenu({
  );
 }
 
-function MenuCard({ icon, label, sub, onClick, selected }) {
+function MenuCard({ icon, catImg, label, sub, onClick, selected }) {
  return (
  <button
  onClick={onClick}
- className={`flex flex-col items-center text-center p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150 ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.12] border-yellow-400/30 scale-[1.03]' : ''}`}
+ className={`relative flex flex-col items-center text-center p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] active:scale-[0.97] transition-all duration-150 overflow-hidden ${selected ? 'ring-2 ring-yellow-400 bg-white/[0.12] border-yellow-400/30 scale-[1.03]' : ''}`}
  >
+ {catImg && <img src={catImg} alt="" className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full opacity-20 pointer-events-none" />}
  <div className="text-white/80 mb-1">{icon}</div>
  <span className="text-white font-semibold text-sm leading-tight">{label}</span>
  <span className="text-white/40 text-[10px] mt-0.5 leading-tight">{sub}</span>

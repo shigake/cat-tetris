@@ -181,12 +181,11 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  </div>
 
  <div className="flex items-center gap-2 flex-shrink-0">
- <span className={`w-2 h-2 rounded-full ${
- lesson.difficulty === 'beginner' ? 'bg-green-400' :
- lesson.difficulty === 'intermediate' ? 'bg-yellow-400' :
- lesson.difficulty === 'advanced' ? 'bg-red-400' :
- 'bg-purple-400'
- }`} />
+ <span className="text-[10px]" title={lesson.difficulty}>
+ {lesson.difficulty === 'beginner' ? '🐾' :
+ lesson.difficulty === 'intermediate' ? '🐾🐾' :
+ lesson.difficulty === 'advanced' ? '🐾🐾🐾' : '🐾🐾🐾🐾'}
+ </span>
  {unlocked && (
  <svg className="w-4 h-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
