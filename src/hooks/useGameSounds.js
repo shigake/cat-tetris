@@ -1,8 +1,20 @@
-import { useCallback } from 'react';
-import { getAudioContext } from '../utils/sharedAudioContext';
+import { useCallback, useRef } from 'react';
+import { getAudioContext, canPlaySound, trackOscillatorStart, trackOscillatorEnd } from '../utils/sharedAudioContext';
 
 export function useGameSounds() {
+ // Throttle timestamps to prevent rapid-fire sounds
+ const lastPlayedRef = useRef({});
+
+ const throttle = useCallback((key, minInterval) => {
+ const now = Date.now();
+ const last = lastPlayedRef.current[key] || 0;
+ if (now - last < minInterval) return false;
+ lastPlayedRef.current[key] = now;
+ return true;
+ }, []);
+
  const createOscillator = useCallback((frequency, duration, type = 'sine', volume = 0.1) => {
+ if (!canPlaySound()) return;
  const audioContext = getAudioContext();
  if (!audioContext) return;
  try {
@@ -18,170 +30,78 @@ export function useGameSounds() {
  gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
  gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
 
+ trackOscillatorStart();
+ oscillator.onended = () => trackOscillatorEnd();
+
  oscillator.start(audioContext.currentTime);
  oscillator.stop(audioContext.currentTime + duration);
  } catch { }
  }, []);
 
- const playNoiseSound = useCallback((duration, volume = 0.05) => {
- const audioContext = getAudioContext();
- if (!audioContext) return;
- try {
- const bufferSize = audioContext.sampleRate * duration;
- const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
- const data = buffer.getChannelData(0);
-
- for (let i = 0; i < bufferSize; i++) {
- data[i] = (Math.random() * 2 - 1) * volume;
- }
-
- const source = audioContext.createBufferSource();
- source.buffer = buffer;
- source.connect(audioContext.destination);
- source.start();
- } catch { }
- }, []);
-
  const playPieceSound = useCallback((pieceType) => {
- switch (pieceType) {
- case 'I':
- [800, 700, 600, 500].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.1, 'square', 0.08), i * 50);
- });
- break;
- case 'O':
- createOscillator(600, 0.1, 'sine', 0.1);
- setTimeout(() => createOscillator(600, 0.1, 'sine', 0.1), 80);
- break;
- case 'T':
- createOscillator(523, 0.08, 'triangle', 0.08);
- setTimeout(() => createOscillator(659, 0.08, 'triangle', 0.08), 40);
- setTimeout(() => createOscillator(523, 0.08, 'triangle', 0.08), 80);
- break;
- case 'S':
- [440, 494, 523, 587].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.06, 'sawtooth', 0.06), i * 30);
- });
- break;
- case 'Z':
- [587, 523, 494, 440].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.06, 'sawtooth', 0.06), i * 30);
- });
- break;
- case 'J':
- [330, 415, 523].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.15, 'triangle', 0.07), i * 20);
- });
- break;
- case 'L':
- [392, 494, 659].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.15, 'sine', 0.08), i * 30);
- });
- break;
- default:
- createOscillator(440, 0.1, 'sine', 0.05);
- }
- }, [createOscillator]);
+ if (!throttle('pieceSound', 80)) return;
+ // Simplified: one short tone per piece type instead of cascading oscillators
+ const freqMap = { I: 500, O: 600, T: 523, S: 494, Z: 550, J: 415, L: 494 };
+ const freq = freqMap[pieceType] || 440;
+ createOscillator(freq, 0.1, 'triangle', 0.06);
+ }, [createOscillator, throttle]);
 
  const playLineClear = useCallback((linesCleared) => {
- switch (linesCleared) {
- case 1:
- [440, 494, 523].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.1, 'triangle', 0.1), i * 80);
- });
- break;
- case 2:
- [440, 523, 659, 784].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.12, 'triangle', 0.1), i * 60);
- });
- break;
- case 3:
- [523, 659, 784, 1047, 1319].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.15, 'triangle', 0.12), i * 50);
- });
- break;
- case 4:
- playNoiseSound(0.02);
- setTimeout(() => {
- [262, 330, 392, 523, 659, 784, 1047].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.2, 'sawtooth', 0.15), i * 40);
- });
- }, 50);
- setTimeout(() => {
- [1047, 1319, 1568, 2093].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.3, 'triangle', 0.2), i * 30);
- });
- }, 350);
- break;
+ if (!throttle('lineClear', 200)) return;
+ // Simplified line clear sounds - max 3 oscillators
+ const baseFreq = 440 + (linesCleared * 100);
+ createOscillator(baseFreq, 0.15, 'triangle', 0.08);
+ if (linesCleared >= 2) {
+ setTimeout(() => createOscillator(baseFreq * 1.25, 0.12, 'triangle', 0.07), 80);
  }
- }, [createOscillator, playNoiseSound]);
+ if (linesCleared >= 4) {
+ setTimeout(() => createOscillator(baseFreq * 1.5, 0.15, 'triangle', 0.09), 160);
+ }
+ }, [createOscillator, throttle]);
 
  const playLevelUp = useCallback(() => {
- const notes = [
- { freq: 523, delay: 0 },
- { freq: 659, delay: 100 },
- { freq: 784, delay: 200 },
- { freq: 1047, delay: 300 },
- { freq: 784, delay: 400 },
- { freq: 1047, delay: 500 },
- { freq: 1319, delay: 600 },
- { freq: 1568, delay: 700 }
- ];
-
- notes.forEach(note => {
- setTimeout(() => createOscillator(note.freq, 0.15, 'triangle', 0.12), note.delay);
- });
-
- setTimeout(() => {
- [1047, 1319, 1568, 2093].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.4, 'triangle', 0.15), i * 50);
- });
- }, 800);
- }, [createOscillator]);
+ if (!throttle('levelUp', 1000)) return;
+ // Simplified: 3-note ascending fanfare
+ createOscillator(523, 0.15, 'triangle', 0.1);
+ setTimeout(() => createOscillator(784, 0.15, 'triangle', 0.1), 150);
+ setTimeout(() => createOscillator(1047, 0.25, 'triangle', 0.12), 300);
+ }, [createOscillator, throttle]);
 
  const playPieceLand = useCallback(() => {
- createOscillator(200, 0.05, 'square', 0.03);
- createOscillator(120, 0.06, 'sine', 0.04);
- }, [createOscillator]);
+ if (!throttle('pieceLand', 80)) return;
+ createOscillator(150, 0.05, 'sine', 0.03);
+ }, [createOscillator, throttle]);
 
  const playHardDrop = useCallback(() => {
-
- playNoiseSound(0.04, 0.08);
- createOscillator(80, 0.08, 'square', 0.12);
- createOscillator(60, 0.1, 'sine', 0.1);
- }, [createOscillator, playNoiseSound]);
+ if (!throttle('hardDrop', 100)) return;
+ createOscillator(80, 0.08, 'square', 0.08);
+ }, [createOscillator, throttle]);
 
  const playTSpin = useCallback(() => {
-
- playNoiseSound(0.03, 0.04);
- [349, 440, 523, 659, 784].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.2, 'sawtooth', 0.1), i * 40);
- });
- setTimeout(() => {
- createOscillator(1047, 0.4, 'triangle', 0.15);
- }, 250);
- }, [createOscillator, playNoiseSound]);
+ if (!throttle('tSpin', 300)) return;
+ createOscillator(523, 0.15, 'triangle', 0.08);
+ setTimeout(() => createOscillator(784, 0.2, 'triangle', 0.1), 100);
+ }, [createOscillator, throttle]);
 
  const playBackToBack = useCallback(() => {
-
- [660, 880, 1100, 1320, 1760].forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.12, 'triangle', 0.08), i * 50);
- });
- }, [createOscillator]);
+ if (!throttle('b2b', 300)) return;
+ createOscillator(880, 0.12, 'triangle', 0.07);
+ setTimeout(() => createOscillator(1320, 0.1, 'triangle', 0.06), 80);
+ }, [createOscillator, throttle]);
 
  const playCombo = useCallback((comboCount) => {
-
- const baseFreq = 400 + (comboCount * 80);
- createOscillator(baseFreq, 0.1, 'triangle', 0.08);
- setTimeout(() => createOscillator(baseFreq * 1.25, 0.08, 'triangle', 0.06), 50);
- }, [createOscillator]);
+ if (!throttle('combo', 150)) return;
+ const baseFreq = 400 + (comboCount * 60);
+ createOscillator(baseFreq, 0.1, 'triangle', 0.06);
+ }, [createOscillator, throttle]);
 
  const playGameOver = useCallback(() => {
- const notes = [523, 494, 440, 392, 349, 330, 294, 262];
- notes.forEach((freq, i) => {
- setTimeout(() => createOscillator(freq, 0.3, 'sine', 0.1), i * 150);
- });
- }, [createOscillator]);
+ if (!throttle('gameOver', 1000)) return;
+ // Simple descending 3-note game over
+ createOscillator(440, 0.3, 'sine', 0.08);
+ setTimeout(() => createOscillator(349, 0.3, 'sine', 0.07), 200);
+ setTimeout(() => createOscillator(262, 0.5, 'sine', 0.06), 400);
+ }, [createOscillator, throttle]);
 
  const playPause = useCallback(() => {
  createOscillator(440, 0.2, 'triangle', 0.08);
@@ -193,17 +113,19 @@ export function useGameSounds() {
  }, [createOscillator]);
 
  const playHold = useCallback(() => {
- createOscillator(880, 0.1, 'sine', 0.06);
- setTimeout(() => createOscillator(1100, 0.08, 'sine', 0.05), 60);
- }, [createOscillator]);
+ if (!throttle('hold', 150)) return;
+ createOscillator(880, 0.08, 'sine', 0.05);
+ }, [createOscillator, throttle]);
 
  const playRotate = useCallback(() => {
- createOscillator(1200, 0.05, 'square', 0.04);
- }, [createOscillator]);
+ if (!throttle('rotate', 60)) return;
+ createOscillator(1200, 0.04, 'square', 0.03);
+ }, [createOscillator, throttle]);
 
  const playMove = useCallback(() => {
- createOscillator(800, 0.03, 'square', 0.02);
- }, [createOscillator]);
+ if (!throttle('move', 50)) return;
+ createOscillator(800, 0.03, 'square', 0.015);
+ }, [createOscillator, throttle]);
 
  return {
  playPieceSound,

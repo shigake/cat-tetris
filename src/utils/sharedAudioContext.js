@@ -1,5 +1,7 @@
 let _ctx = null;
 let _resumeListenerAdded = false;
+let _activeOscillators = 0;
+const MAX_OSCILLATORS = 20;
 
 function _resumeOnGesture() {
  if (_ctx && _ctx.state === 'suspended') {
@@ -30,4 +32,17 @@ export function getAudioContext() {
  } catch {
  return null;
  }
+}
+
+/** Returns false if oscillator limit is reached */
+export function canPlaySound() {
+ return _activeOscillators < MAX_OSCILLATORS;
+}
+
+export function trackOscillatorStart() {
+ _activeOscillators++;
+}
+
+export function trackOscillatorEnd() {
+ _activeOscillators = Math.max(0, _activeOscillators - 1);
 }

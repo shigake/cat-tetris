@@ -1,18 +1,16 @@
 import { useRef, useCallback, useEffect } from 'react';
+import { getAudioContext, canPlaySound, trackOscillatorStart, trackOscillatorEnd } from '../utils/sharedAudioContext';
 
 export function useAmbientMusic() {
- const audioContextRef = useRef(null);
  const currentMusicRef = useRef(null);
-
- const initAudioContext = useCallback(() => {
- if (!audioContextRef.current) {
- audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
- }
- return audioContextRef.current;
- }, []);
+ const gameMusicTimeoutRef = useRef(null);
 
  const createOscillator = useCallback((frequency, startTime, duration, type = 'sine', volume = 0.03) => {
- const audioContext = initAudioContext();
+ if (!canPlaySound()) return null;
+ const audioContext = getAudioContext();
+ if (!audioContext) return null;
+
+ try {
  const oscillator = audioContext.createOscillator();
  const gainNode = audioContext.createGain();
  const filterNode = audioContext.createBiquadFilter();
@@ -32,70 +30,35 @@ export function useAmbientMusic() {
  gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + startTime + 0.1);
  gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration - 0.1);
 
+ trackOscillatorStart();
+ oscillator.onended = () => trackOscillatorEnd();
+
  oscillator.start(audioContext.currentTime + startTime);
  oscillator.stop(audioContext.currentTime + startTime + duration);
 
  return oscillator;
- }, [initAudioContext]);
+ } catch {
+ return null;
+ }
+ }, []);
 
  const startAmbientMusic = useCallback(() => {
  if (currentMusicRef.current) return;
 
- const baseFreq = 220;
-
- const chordProgression = [
- baseFreq,
- baseFreq * 1.25,
- baseFreq * 1.5,
- baseFreq * 2
- ];
-
- const playChord = (frequencies, startTime, duration = 6) => {
- return frequencies.map(freq =>
- createOscillator(freq, startTime, duration, 'sine', 0.02)
- );
- };
-
- const melodyFreqs = [
- 261.63,
- 293.66,
- 329.63,
- 392.00,
- 440.00,
- 523.25
- ];
-
- const bassFreqs = [
- 174.61,
- 196.00,
- 220.00,
- 174.61
- ];
-
  const oscillators = [];
 
- bassFreqs.forEach((freq, index) => {
- setTimeout(() => {
- const chordOscs = playChord([freq, freq * 1.5, freq * 2], 0, 7);
- oscillators.push(...chordOscs);
- }, index * 8000);
- });
-
- melodyFreqs.forEach((freq, i) => {
- setTimeout(() => {
- const osc = createOscillator(freq, 0, 2, 'triangle', 0.015);
- oscillators.push(osc);
- }, i * 2500);
- });
+ // Simple ambient pad: just 2-3 gentle oscillators
+ const osc1 = createOscillator(220, 0, 6, 'sine', 0.015);
+ const osc2 = createOscillator(330, 0.5, 5, 'sine', 0.012);
+ const osc3 = createOscillator(440, 1, 4, 'triangle', 0.01);
+ if (osc1) oscillators.push(osc1);
+ if (osc2) oscillators.push(osc2);
+ if (osc3) oscillators.push(osc3);
 
  const musicLoop = setTimeout(() => {
+ currentMusicRef.current = null;
  startAmbientMusic();
- }, 32000);
-
- setTimeout(() => {
- const fadeChord = playChord([baseFreq, baseFreq * 1.25, baseFreq * 1.5], 0, 4);
- oscillators.push(...fadeChord);
- }, 500);
+ }, 8000);
 
  currentMusicRef.current = { oscillators, musicLoop };
  }, [createOscillator]);
@@ -115,33 +78,36 @@ export function useAmbientMusic() {
 
  const playGameMusic = useCallback(() => {
  stopAmbientMusic();
-
- const gameFreqs = [
- 220.00,
- 246.94,
- 261.63,
- 293.66
- ];
+ if (gameMusicTimeoutRef.current) {
+ clearTimeout(gameMusicTimeoutRef.current);
+ gameMusicTimeoutRef.current = null;
+ }
 
  const oscillators = [];
+ const gameFreqs = [220.00, 246.94, 261.63, 293.66];
 
  gameFreqs.forEach((freq, i) => {
  setTimeout(() => {
- const osc = createOscillator(freq, 0, 1.5, 'sawtooth', 0.025);
- oscillators.push(osc);
+ const osc = createOscillator(freq, 0, 1.5, 'sawtooth', 0.02);
+ if (osc) oscillators.push(osc);
  }, i * 400);
  });
 
- setTimeout(() => {
+ gameMusicTimeoutRef.current = setTimeout(() => {
+ gameMusicTimeoutRef.current = null;
  playGameMusic();
  }, 8000);
 
- currentMusicRef.current = { oscillators, musicLoop: null };
+ currentMusicRef.current = { oscillators, musicLoop: gameMusicTimeoutRef.current };
  }, [createOscillator, stopAmbientMusic]);
 
  useEffect(() => {
  return () => {
  stopAmbientMusic();
+ if (gameMusicTimeoutRef.current) {
+ clearTimeout(gameMusicTimeoutRef.current);
+ gameMusicTimeoutRef.current = null;
+ }
  };
  }, [stopAmbientMusic]);
 

@@ -181,12 +181,12 @@ function loadAllSetups() {
  } catch {}
 
  const defaults = DEFAULT_TEMPLATES.map(serializeSetup);
- localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults)); } catch {}
  return defaults;
 }
 
 function saveAllSetups(setups) {
- localStorage.setItem(STORAGE_KEY, JSON.stringify(setups));
+ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(setups)); } catch {}
 }
 
 function exportSetups(setups) {

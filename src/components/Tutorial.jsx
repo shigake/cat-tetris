@@ -9,9 +9,13 @@ function Tutorial({ onComplete }) {
  const { t } = useI18n();
 
  useEffect(() => {
-
+ try {
  const hasSeenTutorial = localStorage.getItem('catTetris_tutorialCompleted');
  if (!hasSeenTutorial) {
+ setShow(true);
+ }
+ } catch (e) {
+ // localStorage may not be available, show tutorial by default
  setShow(true);
  }
  }, []);
@@ -79,30 +83,30 @@ function Tutorial({ onComplete }) {
  }
  ];
 
- const handleNext = () => {
+ const isLastStep = currentStep === steps.length - 1;
+ const navItemCount = isLastStep ? 1 : 2;
+
+ const handleComplete = useCallback(() => {
+ try {
+ localStorage.setItem('catTetris_tutorialCompleted', 'true');
+ } catch (e) {
+ // localStorage may not be available
+ }
+ setShow(false);
+ if (onComplete) onComplete();
+ }, [onComplete]);
+
+ const handleNext = useCallback(() => {
  if (currentStep < steps.length - 1) {
  setCurrentStep(currentStep + 1);
  } else {
  handleComplete();
  }
- };
+ }, [currentStep, steps.length, handleComplete]);
 
- const handleSkip = () => {
+ const handleSkip = useCallback(() => {
  handleComplete();
- };
-
- const handleComplete = () => {
- localStorage.setItem('catTetris_tutorialCompleted', 'true');
- setShow(false);
- if (onComplete) onComplete();
- };
-
- if (!show) return null;
-
- const step = steps[currentStep];
- const isLastStep = currentStep === steps.length - 1;
-
- const navItemCount = isLastStep ? 1 : 2;
+ }, [handleComplete]);
 
  const handleNavConfirm = useCallback((idx) => {
  if (isLastStep) {
@@ -111,7 +115,7 @@ function Tutorial({ onComplete }) {
  if (idx === 0) handleSkip();
  else handleNext();
  }
- }, [isLastStep, currentStep]);
+ }, [isLastStep, handleNext, handleSkip]);
 
  const { selectedIndex: tutSelectedIndex } = useGamepadNav({
  itemCount: navItemCount,
@@ -119,6 +123,10 @@ function Tutorial({ onComplete }) {
  onBack: handleSkip,
  active: show,
  });
+
+ if (!show) return null;
+
+ const step = steps[currentStep];
 
  return (
  <motion.div
