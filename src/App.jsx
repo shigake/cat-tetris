@@ -588,7 +588,7 @@ function GameComponent() {
  if (showCreatorMode) {
  return (
  <Suspense fallback={<LoadingSpinner />}>
- <CreatorMode onExit={() => setShowCreatorMode(false)} />
+ <CreatorMode onExit={() => { setShowCreatorMode(false); if (settings?.soundEnabled) startBackgroundMusic?.(); }} />
  </Suspense>
  );
  }
@@ -596,7 +596,7 @@ function GameComponent() {
  if (showAIShowcase) {
  return (
  <Suspense fallback={<LoadingSpinner />}>
- <AIShowcase onClose={() => setShowAIShowcase(false)} />
+ <AIShowcase onClose={() => { setShowAIShowcase(false); if (settings?.soundEnabled) startBackgroundMusic?.(); }} />
  </Suspense>
  );
  }
@@ -612,6 +612,7 @@ function GameComponent() {
  onExit={() => {
  setMultiplayerMatch(null);
  setCurrentScreen('menu');
+ if (settings?.soundEnabled) startBackgroundMusic?.();
  }}
  />
  </Suspense>
@@ -632,8 +633,8 @@ function GameComponent() {
  onShowMultiplayer={() => setShowMultiplayer(true)}
  onShowTutorial={() => setShowTutorial(true)}
  onShowTutorialHub={() => setShowTutorialHub(true)}
- onShowAIShowcase={() => setShowAIShowcase(true)}
- onShowCreatorMode={() => setShowCreatorMode(true)}
+ onShowAIShowcase={() => { setShowAIShowcase(true); if (settings?.soundEnabled) startGameMusic?.(); }}
+ onShowCreatorMode={() => { setShowCreatorMode(true); if (settings?.soundEnabled) startGameMusic?.(); }}
  hasActiveGame={hasActiveGame}
  gameState={gameState}
  hasOverlayOpen={hasOverlayOpen}
@@ -647,6 +648,7 @@ function GameComponent() {
  onStartMatch={(match) => {
  setShowMultiplayer(false);
  setMultiplayerMatch(match);
+ if (settings?.soundEnabled) startGameMusic?.();
  }}
  />
  </Suspense>
