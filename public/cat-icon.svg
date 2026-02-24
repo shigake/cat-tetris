@@ -38,132 +38,130 @@
     <line x1="0" y1="384" x2="512" y2="384" stroke="#fff" stroke-width="1"/>
   </g>
 
-  <!-- Tetris pieces in background -->
-  <!-- T-piece (purple) top-left -->
-  <g opacity="0.5" filter="url(#glow)">
-    <rect x="38" y="50" width="42" height="42" rx="6" fill="#9b59b6"/>
-    <rect x="80" y="50" width="42" height="42" rx="6" fill="#9b59b6"/>
-    <rect x="122" y="50" width="42" height="42" rx="6" fill="#9b59b6"/>
-    <rect x="80" y="8" width="42" height="42" rx="6" fill="#9b59b6"/>
-  </g>
-  <!-- S-piece (green) bottom-right -->
-  <g opacity="0.5" filter="url(#glow)">
-    <rect x="348" y="420" width="42" height="42" rx="6" fill="#2ecc71"/>
-    <rect x="390" y="420" width="42" height="42" rx="6" fill="#2ecc71"/>
-    <rect x="390" y="462" width="42" height="42" rx="6" fill="#2ecc71"/>
-    <rect x="432" y="462" width="42" height="42" rx="6" fill="#2ecc71"/>
+  <!-- Tetris pieces in background corners -->
+  <!-- S-piece (green) top-left -->
+  <g opacity="0.35">
+    <rect x="30" y="42" width="34" height="34" rx="5" fill="#2ecc71"/>
+    <rect x="64" y="42" width="34" height="34" rx="5" fill="#2ecc71"/>
+    <rect x="64" y="76" width="34" height="34" rx="5" fill="#2ecc71"/>
+    <rect x="98" y="76" width="34" height="34" rx="5" fill="#2ecc71"/>
   </g>
   <!-- L-piece (orange) top-right -->
-  <g opacity="0.4" filter="url(#glow)">
-    <rect x="380" y="65" width="36" height="36" rx="5" fill="#e67e22"/>
-    <rect x="380" y="101" width="36" height="36" rx="5" fill="#e67e22"/>
-    <rect x="380" y="137" width="36" height="36" rx="5" fill="#e67e22"/>
-    <rect x="416" y="137" width="36" height="36" rx="5" fill="#e67e22"/>
+  <g opacity="0.35">
+    <rect x="395" y="35" width="32" height="32" rx="5" fill="#e67e22"/>
+    <rect x="395" y="67" width="32" height="32" rx="5" fill="#e67e22"/>
+    <rect x="395" y="99" width="32" height="32" rx="5" fill="#e67e22"/>
+    <rect x="427" y="99" width="32" height="32" rx="5" fill="#e67e22"/>
   </g>
   <!-- I-piece (cyan) bottom-left -->
-  <g opacity="0.4" filter="url(#glow)">
-    <rect x="40" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
-    <rect x="76" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
-    <rect x="112" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
-    <rect x="148" y="400" width="36" height="36" rx="5" fill="#00bcd4"/>
+  <g opacity="0.3">
+    <rect x="28" y="438" width="30" height="30" rx="4" fill="#00bcd4"/>
+    <rect x="58" y="438" width="30" height="30" rx="4" fill="#00bcd4"/>
+    <rect x="88" y="438" width="30" height="30" rx="4" fill="#00bcd4"/>
+    <rect x="118" y="438" width="30" height="30" rx="4" fill="#00bcd4"/>
+  </g>
+  <!-- Z-piece (red) bottom-right -->
+  <g opacity="0.3">
+    <rect x="380" y="430" width="32" height="32" rx="5" fill="#e74c3c"/>
+    <rect x="412" y="430" width="32" height="32" rx="5" fill="#e74c3c"/>
+    <rect x="412" y="462" width="32" height="32" rx="5" fill="#e74c3c"/>
+    <rect x="444" y="462" width="32" height="32" rx="5" fill="#e74c3c"/>
   </g>
 
-  <!-- ===== CAT ===== -->
-  <g filter="url(#shadow)">
-    <!-- Cat ears -->
-    <polygon points="145,185 175,95 225,170" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
-    <polygon points="367,185 337,95 287,170" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
-    <!-- Inner ears -->
-    <polygon points="160,178 180,115 215,168" fill="#FFB6C1"/>
-    <polygon points="352,178 332,115 297,168" fill="#FFB6C1"/>
+  <!-- ===== T-PIECE (below cat, clearly separated) ===== -->
+  <g filter="url(#glow)">
+    <rect x="186" y="410" width="40" height="40" rx="7" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+    <rect x="226" y="410" width="40" height="40" rx="7" fill="#af7ac5" stroke="#7d3c98" stroke-width="2"/>
+    <rect x="266" y="410" width="40" height="40" rx="7" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+    <rect x="226" y="450" width="40" height="40" rx="7" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
+    <!-- Block shine -->
+    <rect x="191" y="415" width="14" height="5" rx="2" fill="#fff" opacity="0.45"/>
+    <rect x="231" y="415" width="14" height="5" rx="2" fill="#fff" opacity="0.45"/>
+    <rect x="271" y="415" width="14" height="5" rx="2" fill="#fff" opacity="0.45"/>
+    <rect x="231" y="455" width="14" height="5" rx="2" fill="#fff" opacity="0.45"/>
+  </g>
 
-    <!-- Cat head -->
-    <ellipse cx="256" cy="230" rx="115" ry="100" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+  <!-- ===== CAT (sitting on top of T-piece) ===== -->
+  <g filter="url(#shadow)">
+    <!-- Tail (behind body) -->
+    <path d="M 340 310 Q 400 260 405 305 Q 410 355 370 370" fill="none" stroke="url(#catFur)" stroke-width="20" stroke-linecap="round"/>
+    <path d="M 340 310 Q 400 260 405 305 Q 410 355 370 370" fill="none" stroke="#E8A020" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
+    <circle cx="370" cy="368" r="11" fill="#E8A020" opacity="0.5"/>
 
     <!-- Cat body -->
-    <ellipse cx="256" cy="370" rx="100" ry="80" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+    <ellipse cx="256" cy="330" rx="90" ry="68" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
     <!-- Belly -->
-    <ellipse cx="256" cy="375" rx="65" ry="55" fill="url(#belly)"/>
+    <ellipse cx="256" cy="335" rx="58" ry="48" fill="url(#belly)"/>
 
-    <!-- Tail -->
-    <path d="M 356 360 Q 410 310 420 350 Q 430 400 390 420" fill="none" stroke="url(#catFur)" stroke-width="22" stroke-linecap="round"/>
-    <path d="M 356 360 Q 410 310 420 350 Q 430 400 390 420" fill="none" stroke="#E8A020" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
-    <!-- Tail tip darker -->
-    <circle cx="390" cy="418" r="12" fill="#E8A020" opacity="0.5"/>
+    <!-- Cat ears -->
+    <polygon points="155,155 180,72 222,142" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+    <polygon points="357,155 332,72 290,142" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
+    <!-- Inner ears -->
+    <polygon points="167,150 185,90 215,140" fill="#FFB6C1"/>
+    <polygon points="345,150 327,90 297,140" fill="#FFB6C1"/>
+
+    <!-- Cat head -->
+    <ellipse cx="256" cy="195" rx="105" ry="90" fill="url(#catFur)" stroke="#E8A020" stroke-width="3"/>
 
     <!-- Tabby stripes on forehead -->
-    <path d="M 230 175 Q 256 160 282 175" stroke="#D4891A" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.5"/>
-    <path d="M 220 190 Q 256 172 292 190" stroke="#D4891A" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
+    <path d="M 232 145 Q 256 130 280 145" stroke="#D4891A" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+    <path d="M 224 158 Q 256 142 288 158" stroke="#D4891A" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.4"/>
 
     <!-- Eyes - big anime-style -->
-    <ellipse cx="215" cy="225" rx="28" ry="30" fill="#fff"/>
-    <ellipse cx="297" cy="225" rx="28" ry="30" fill="#fff"/>
+    <ellipse cx="218" cy="190" rx="26" ry="28" fill="#fff"/>
+    <ellipse cx="294" cy="190" rx="26" ry="28" fill="#fff"/>
     <!-- Iris -->
-    <ellipse cx="220" cy="228" rx="18" ry="22" fill="#4CAF50"/>
-    <ellipse cx="292" cy="228" rx="18" ry="22" fill="#4CAF50"/>
+    <ellipse cx="222" cy="193" rx="17" ry="21" fill="#4CAF50"/>
+    <ellipse cx="290" cy="193" rx="17" ry="21" fill="#4CAF50"/>
     <!-- Pupil -->
-    <ellipse cx="222" cy="230" rx="10" ry="15" fill="#1B5E20"/>
-    <ellipse cx="290" cy="230" rx="10" ry="15" fill="#1B5E20"/>
+    <ellipse cx="224" cy="195" rx="9" ry="14" fill="#1B5E20"/>
+    <ellipse cx="288" cy="195" rx="9" ry="14" fill="#1B5E20"/>
     <!-- Eye highlights -->
-    <circle cx="228" cy="218" r="7" fill="#fff" opacity="0.9"/>
-    <circle cx="296" cy="218" r="7" fill="#fff" opacity="0.9"/>
-    <circle cx="215" cy="235" r="4" fill="#fff" opacity="0.5"/>
-    <circle cx="285" cy="235" r="4" fill="#fff" opacity="0.5"/>
+    <circle cx="230" cy="184" r="6.5" fill="#fff" opacity="0.9"/>
+    <circle cx="296" cy="184" r="6.5" fill="#fff" opacity="0.9"/>
+    <circle cx="218" cy="200" r="3.5" fill="#fff" opacity="0.5"/>
+    <circle cx="284" cy="200" r="3.5" fill="#fff" opacity="0.5"/>
 
     <!-- Nose -->
-    <ellipse cx="256" cy="260" rx="10" ry="7" fill="#FF8A80"/>
-    <!-- Nose highlight -->
-    <ellipse cx="254" cy="258" rx="4" ry="3" fill="#FFB6C1" opacity="0.6"/>
+    <ellipse cx="256" cy="224" rx="9" ry="6.5" fill="#FF8A80"/>
+    <ellipse cx="254" cy="222" rx="3.5" ry="2.5" fill="#FFB6C1" opacity="0.6"/>
 
     <!-- Mouth -->
-    <path d="M 245 268 Q 250 278 256 268" stroke="#8D6E63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <path d="M 256 268 Q 262 278 267 268" stroke="#8D6E63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <!-- Tongue peeking out -->
-    <ellipse cx="256" cy="277" rx="6" ry="4" fill="#FF8A80" opacity="0.7"/>
+    <path d="M 247 232 Q 251 241 256 232" stroke="#8D6E63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M 256 232 Q 261 241 265 232" stroke="#8D6E63" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <!-- Tongue -->
+    <ellipse cx="256" cy="240" rx="5" ry="3.5" fill="#FF8A80" opacity="0.7"/>
 
     <!-- Whiskers -->
-    <line x1="120" y1="245" x2="185" y2="255" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-    <line x1="125" y1="260" x2="185" y2="262" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-    <line x1="130" y1="275" x2="188" y2="270" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-    <line x1="392" y1="245" x2="327" y2="255" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-    <line x1="387" y1="260" x2="327" y2="262" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-    <line x1="382" y1="275" x2="324" y2="270" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="132" y1="210" x2="192" y2="218" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="136" y1="224" x2="192" y2="225" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="140" y1="238" x2="195" y2="233" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="380" y1="210" x2="320" y2="218" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="376" y1="224" x2="320" y2="225" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <line x1="372" y1="238" x2="318" y2="233" stroke="#8D6E63" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
 
     <!-- Cheek blush -->
-    <circle cx="185" cy="256" r="18" fill="#FF8A80" opacity="0.25"/>
-    <circle cx="327" cy="256" r="18" fill="#FF8A80" opacity="0.25"/>
+    <circle cx="192" cy="220" r="16" fill="#FF8A80" opacity="0.25"/>
+    <circle cx="320" cy="220" r="16" fill="#FF8A80" opacity="0.25"/>
 
-    <!-- Paws holding a T-piece! -->
+    <!-- Paws resting on T-piece -->
     <!-- Left paw -->
-    <ellipse cx="185" cy="385" rx="28" ry="18" fill="url(#catFur)" stroke="#E8A020" stroke-width="2"/>
-    <circle cx="175" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
-    <circle cx="188" cy="393" r="6" fill="url(#belly)" opacity="0.8"/>
-    <circle cx="200" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
+    <ellipse cx="195" cy="395" rx="26" ry="20" fill="url(#catFur)" stroke="#E8A020" stroke-width="2"/>
+    <circle cx="185" cy="400" r="5.5" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="197" cy="403" r="5.5" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="209" cy="400" r="5.5" fill="url(#belly)" opacity="0.8"/>
     <!-- Right paw -->
-    <ellipse cx="327" cy="385" rx="28" ry="18" fill="url(#catFur)" stroke="#E8A020" stroke-width="2"/>
-    <circle cx="317" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
-    <circle cx="330" cy="393" r="6" fill="url(#belly)" opacity="0.8"/>
-    <circle cx="343" cy="390" r="6" fill="url(#belly)" opacity="0.8"/>
-
-    <!-- T-piece the cat is holding -->
-    <g filter="url(#glow)">
-      <rect x="210" y="395" width="30" height="30" rx="5" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
-      <rect x="240" y="395" width="30" height="30" rx="5" fill="#af7ac5" stroke="#7d3c98" stroke-width="2"/>
-      <rect x="270" y="395" width="30" height="30" rx="5" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
-      <rect x="240" y="425" width="30" height="30" rx="5" fill="#9b59b6" stroke="#7d3c98" stroke-width="2"/>
-      <!-- Block shine -->
-      <rect x="214" y="399" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
-      <rect x="244" y="399" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
-      <rect x="274" y="399" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
-      <rect x="244" y="429" width="10" height="4" rx="2" fill="#fff" opacity="0.4"/>
-    </g>
+    <ellipse cx="317" cy="395" rx="26" ry="20" fill="url(#catFur)" stroke="#E8A020" stroke-width="2"/>
+    <circle cx="307" cy="400" r="5.5" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="319" cy="403" r="5.5" fill="url(#belly)" opacity="0.8"/>
+    <circle cx="331" cy="400" r="5.5" fill="url(#belly)" opacity="0.8"/>
   </g>
 
   <!-- Sparkles -->
   <g fill="#FFD700" opacity="0.8">
-    <polygon points="80,300 84,290 88,300 84,310" transform="rotate(22,84,300)"/>
-    <polygon points="430,200 434,190 438,200 434,210" transform="rotate(-15,434,200)"/>
-    <polygon points="100,150 103,143 106,150 103,157" transform="rotate(10,103,150)"/>
-    <polygon points="420,330 423,323 426,330 423,337"/>
+    <polygon points="80,280 84,270 88,280 84,290" transform="rotate(22,84,280)"/>
+    <polygon points="432,180 436,170 440,180 436,190" transform="rotate(-15,436,180)"/>
+    <polygon points="100,130 103,123 106,130 103,137" transform="rotate(10,103,130)"/>
+    <polygon points="420,310 423,303 426,310 423,317"/>
   </g>
 </svg> 
