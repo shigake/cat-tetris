@@ -240,8 +240,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
  style={{
  ...themeStyle,
  background: '#fff',
- boxShadow: `0 0 20px #fff, 0 0 40px ${color}`,
- transform: 'scale(1.1)',
+ transform: 'scale(1.05)',
  transition: 'all 0.15s ease-out',
  zIndex: 10,
  }}

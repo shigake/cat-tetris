@@ -131,7 +131,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  }, [mode, aiDifficulty, ai1Difficulty, ai2Difficulty]);
 
  const lastRenderRef = useRef(0);
- const RENDER_INTERVAL = 16; // ms - throttle React renders to ~60fps, skip unnecessary frames
+ const P2_RENDER_INTERVAL = 50; // throttle AI board renders to ~20fps
  const p1DirtyForRenderRef = useRef(false);
  const p2DirtyForRenderRef = useRef(false);
 
@@ -234,21 +234,21 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  if (p1.isDirty) { p1DirtyForRenderRef.current = true; p1.clearDirty(); }
  if (p2.isDirty) { p2DirtyForRenderRef.current = true; p2.clearDirty(); }
 
- // Flush React state updates at a controlled rate to avoid excessive re-renders
+ // Always flush P1 (player) immediately when dirty for responsive input
+ if (p1DirtyForRenderRef.current) {
+  const s1 = p1.getGameState();
+  setPlayer1State(s1);
+  setP1Extra({ garbage: p1.pendingGarbage, incoming: s1.incomingGarbage, queue: s1.garbageQueue, sent: p1SentRef.current });
+  p1DirtyForRenderRef.current = false;
+ }
+
+ // Throttle P2 (AI/opponent) renders to reduce load
  const sinceLastRender = currentTime - lastRenderRef.current;
- if (sinceLastRender >= RENDER_INTERVAL || p1DirtyForRenderRef.current || p2DirtyForRenderRef.current) {
-  if (p1DirtyForRenderRef.current) {
-   const s1 = p1.getGameState();
-   setPlayer1State(s1);
-   setP1Extra({ garbage: p1.pendingGarbage, incoming: s1.incomingGarbage, queue: s1.garbageQueue, sent: p1SentRef.current });
-   p1DirtyForRenderRef.current = false;
-  }
-  if (p2DirtyForRenderRef.current) {
-   const s2 = p2.getGameState();
-   setPlayer2State(s2);
-   setP2Extra({ garbage: p2.pendingGarbage, incoming: s2.incomingGarbage, queue: s2.garbageQueue, sent: p2SentRef.current });
-   p2DirtyForRenderRef.current = false;
-  }
+ if (p2DirtyForRenderRef.current && sinceLastRender >= P2_RENDER_INTERVAL) {
+  const s2 = p2.getGameState();
+  setPlayer2State(s2);
+  setP2Extra({ garbage: p2.pendingGarbage, incoming: s2.incomingGarbage, queue: s2.garbageQueue, sent: p2SentRef.current });
+  p2DirtyForRenderRef.current = false;
   lastRenderRef.current = currentTime;
  }
 

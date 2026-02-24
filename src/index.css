@@ -60,7 +60,6 @@ body {
   align-items: center;
   justify-content: center;
   font-size: min(12px, 1.6vh);
-  transition: background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .cat-block {
