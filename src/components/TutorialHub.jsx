@@ -4,6 +4,7 @@ import LessonPlayer from './LessonPlayer';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { BackIcon } from './Icons';
+import Starfield from './Starfield';
 
 function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  const [selectedLesson, setSelectedLesson] = useState(null);
@@ -70,6 +71,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  exit={{ opacity: 0 }}
  className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-40 overflow-y-auto"
  >
+ <Starfield />
  <div className="min-h-screen max-w-lg mx-auto px-4 py-6 flex flex-col">
 
  <div className="flex items-center gap-3 mb-6">

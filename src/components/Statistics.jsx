@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useI18n } from '../hooks/useI18n';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { CloseIcon } from './Icons';
+import Starfield from './Starfield';
 
 const Statistics = ({ stats, onClose }) => {
  const { t } = useI18n();
@@ -33,6 +34,7 @@ const Statistics = ({ stats, onClose }) => {
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
  onClick={onClose}
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.9, y: 10 }}
  animate={{ scale: 1, y: 0 }}

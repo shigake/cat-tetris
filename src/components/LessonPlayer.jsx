@@ -10,6 +10,7 @@ import CelebrationParticles from './CelebrationParticles';
 import IntroductionScreen from './lesson/IntroductionScreen';
 import DemoScreen from './lesson/DemoScreen';
 import PracticeScreen from './lesson/PracticeScreen';
+import Starfield from './Starfield';
 
 function LessonPlayer({ lesson, onComplete, onExit }) {
  const { t } = useI18n();
@@ -113,6 +114,7 @@ function LessonPlayer({ lesson, onComplete, onExit }) {
  return (
  <div className="fixed inset-0 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 z-50 flex flex-col">
 
+ <Starfield />
  <div className="bg-black/30 border-b border-white/[0.06] px-4 py-2 flex-shrink-0">
  <div className="flex items-center justify-between max-w-4xl mx-auto">
  <div className="flex items-center gap-3">

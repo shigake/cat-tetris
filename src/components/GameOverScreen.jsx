@@ -4,6 +4,7 @@ import ShareButtons from './ShareButtons';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { SadCatIcon, HappyCatIcon, HeartCatIcon } from './Icons';
+import Starfield from './Starfield';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
 
@@ -45,6 +46,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
  exit={{ opacity: 0 }}
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.8, y: 20 }}
  animate={{ scale: 1, y: 0 }}

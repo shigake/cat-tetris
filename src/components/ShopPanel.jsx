@@ -8,6 +8,7 @@ import { CloseIcon } from './Icons';
 import { ThemePieceIcon } from './ThemeIcons';
 import { getThemedCellStyle, SHAPE_NAMES, THEME_LABELS } from '../utils/BlockShapes';
 import { useI18n } from '../hooks/useI18n';
+import Starfield from './Starfield';
 
 function ShopPanel({ onClose }) {
 
@@ -94,6 +95,7 @@ function ShopPanel({ onClose }) {
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
  onClick={onClose}
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.9, y: 20 }}
  animate={{ scale: 1, y: 0 }}

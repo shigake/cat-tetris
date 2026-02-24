@@ -5,6 +5,7 @@ import { useAIOpponent } from '../hooks/useAIOpponent';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { CloseIcon, SwordsIcon, RobotIcon, DIFFICULTY_ICONS } from './Icons';
+import Starfield from './Starfield';
 
 function MultiplayerPanel({ onClose, onStartMatch }) {
  const { getAvailableModes, stats, startLocalMatch, startAIMatch, startAIvsAIMatch } = useMultiplayer();
@@ -102,6 +103,7 @@ function MultiplayerPanel({ onClose, onStartMatch }) {
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
  onClick={onClose}
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.9, y: 20 }}
  animate={{ scale: 1, y: 0 }}

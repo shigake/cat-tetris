@@ -7,6 +7,7 @@ import Scoreboard from './Scoreboard';
 import { useTSpinShowcase } from '../hooks/useTSpinShowcase';
 import { useI18n } from '../hooks/useI18n';
 import { BackIcon } from './Icons';
+import Starfield from './Starfield';
 
 export default function TSpinShowcase({ onClose }) {
  const { t } = useI18n();
@@ -22,6 +23,7 @@ export default function TSpinShowcase({ onClose }) {
  if (!gameState) {
  return (
  <div className="min-h-screen bg-gradient-to-b from-slate-950 via-violet-950 to-slate-950 flex items-center justify-center">
+ <Starfield />
  <p className="text-white/50 animate-pulse">{t('tspinShowcase.loading')}</p>
  </div>
  );
@@ -32,6 +34,7 @@ export default function TSpinShowcase({ onClose }) {
  return (
  <div className="min-h-screen bg-gradient-to-b from-slate-950 via-violet-950 to-slate-950 flex flex-col items-center p-3 relative overflow-hidden select-none">
 
+ <Starfield />
  <div className="absolute inset-0 pointer-events-none overflow-hidden">
  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px]" />
  </div>

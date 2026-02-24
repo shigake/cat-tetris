@@ -16,6 +16,7 @@ import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useKeyboardInput } from '../hooks/useKeyboardInput';
 import { useI18n } from '../hooks/useI18n';
 import { TrophyIcon, RobotIcon, SadCatIcon, BackIcon } from './Icons';
+import Starfield from './Starfield';
 
 const SPEED_ZONES = [
  { time: 0,   level: 1,  name: 'START',      color: 'text-green-400',  bg: 'bg-green-500/20' },
@@ -397,6 +398,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  if (!player1State || !player2State) {
  return (
  <div className="h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 to-blue-900">
+ <Starfield />
  <div className="text-white text-2xl">{t('multiplayer.loading')}</div>
  </div>
  );
@@ -405,6 +407,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  return (
  <div className="h-screen flex flex-col items-center bg-gradient-to-br from-purple-900 to-blue-900 p-2 overflow-hidden">
 
+ <Starfield />
  {isGamepadActive && (
  <GamepadIndicator
  isConnected={isGamepadActive}
@@ -517,6 +520,7 @@ function MultiplayerGame({ mode, aiDifficulty, ai1Difficulty, ai2Difficulty, onE
  <AnimatePresence>
  {winner && (
  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+ <Starfield />
  <motion.div initial={{ scale: 0.8, y: 50 }} animate={{ scale: 1, y: 0 }} className="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl p-12 text-center">
  <div className="text-8xl mb-4 flex justify-center">{winner === 'player1' ? <TrophyIcon size={80} className="text-yellow-300" /> : (mode === 'aiVsAI' ? <RobotIcon size={80} className="text-white" /> : <SadCatIcon size={80} className="text-white/60" />)}</div>
  <h2 className="text-5xl font-bold text-white mb-4">

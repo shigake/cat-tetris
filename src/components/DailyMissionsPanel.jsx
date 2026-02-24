@@ -6,6 +6,7 @@ import Celebration from './Celebration';
 import { showToast } from './ToastNotification';
 import { CloseIcon, CheckIcon, CoinIcon } from './Icons';
 import { useGamepadNav } from '../hooks/useGamepadNav';
+import Starfield from './Starfield';
 
 function DailyMissionsPanel({ onClose }) {
  const { t } = useI18n();
@@ -76,6 +77,7 @@ function DailyMissionsPanel({ onClose }) {
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
  onClick={onClose}
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.9, y: 20 }}
  animate={{ scale: 1, y: 0 }}

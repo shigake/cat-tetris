@@ -23,6 +23,7 @@ import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 import { onAudioUnlocked } from './utils/audioManager';
+import Starfield from './components/Starfield';
 import { useGamepad } from './hooks/useGamepad';
 import { useMissions } from './hooks/useMissions';
 import { useAchievements } from './hooks/useAchievements';
@@ -141,6 +142,7 @@ function GameScreen({
  return (
  <div className="h-screen cat-bg flex flex-col overflow-hidden">
 
+ <Starfield />
  <div className="flex items-center justify-between px-3 py-1.5 bg-black/30 backdrop-blur-sm border-b border-white/10 shrink-0">
  <div className="flex items-center gap-2">
  <motion.button
@@ -789,6 +791,7 @@ function GameComponent() {
  if (!gameState) {
  return (
  <div className="h-screen cat-bg flex items-center justify-center overflow-hidden">
+ <Starfield />
  <div className="text-white text-xl">{t('common.loading')}</div>
  </div>
  );

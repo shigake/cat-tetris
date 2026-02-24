@@ -13,6 +13,7 @@ import { useGamepad } from '../hooks/useGamepad';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { buildKeyToActionMap, loadKeyboardMappings } from '../config/KeyboardConfig';
+import Starfield from './Starfield';
 import { CREATOR_TEMPLATE_ICONS, CloseIcon, BackIcon } from './Icons';
 
 const BOARD_W = 10;
@@ -405,6 +406,7 @@ export default function CreatorMode({ onExit }) {
 
  return (
  <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-4 overflow-auto">
+ <Starfield />
  <div className="flex items-center gap-2 w-full max-w-lg mb-4">
  <motion.button onClick={onExit} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors ${menuSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>
  <BackIcon size={16} />
@@ -627,6 +629,7 @@ function PlayScreen({ template, onBack, onExit }) {
 
  return (
  <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-2 overflow-hidden">
+ <Starfield />
  <div className="flex items-center gap-2 w-full max-w-xl mb-2">
  <motion.button onClick={onBack} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors">
  <BackIcon size={16} />
@@ -711,6 +714,7 @@ function EditorScreen({ board, setBoard, queue, setQueue, name, setName, emoji, 
 
  return (
  <div className="h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center p-3 overflow-auto">
+ <Starfield />
  <div className="flex items-center gap-2 w-full max-w-2xl mb-3">
  <motion.button onClick={onBack} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`bg-white/15 hover:bg-white/25 text-white p-1.5 rounded-lg transition-colors ${editorSelIdx === 0 ? 'ring-2 ring-yellow-400' : ''}`}>
  <BackIcon size={16} />

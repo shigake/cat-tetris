@@ -20,6 +20,7 @@ import {
  keyDisplayName,
  KEYBOARD_ACTIONS,
 } from '../config/KeyboardConfig';
+import Starfield from './Starfield';
 
 const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
  const { t } = useI18n();
@@ -155,6 +156,7 @@ const SettingsMenu = ({ isOpen, onClose, settings, onSettingsChange }) => {
  transition={{ duration: 0.15 }}
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.9, y: 10 }}
  animate={{ scale: 1, y: 0 }}

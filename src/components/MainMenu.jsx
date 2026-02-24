@@ -5,6 +5,7 @@ import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n, LANGUAGES } from '../hooks/useI18n';
 import CurrencyDisplay from './CurrencyDisplay';
 import { SwordsIcon, BookIcon, PaletteIcon, BrainIcon, ShopBagIcon, ClipboardIcon, TrophyIcon, GearIcon, SoundOnIcon, SoundOffIcon, GlobeIcon } from './Icons';
+import Starfield from './Starfield';
 
 export default function MainMenu({
  onStartGame,
@@ -123,11 +124,6 @@ export default function MainMenu({
  transition: { duration: 0.35, delay, ease: 'easeOut' }
  });
 
- const stars = useMemo(() => Array.from({ length: 40 }, (_, i) => ({
- id: i, x: Math.random() * 100, y: Math.random() * 100,
- size: Math.random() * 2 + 1, delay: Math.random() * 3, dur: Math.random() * 2 + 2
- })), []);
-
  const floatingBlocks = useMemo(() => [
  { x: '8%', y: '12%', color: '#9b59b6', rot: 15, size: 18, delay: 0 },
  { x: '85%', y: '8%', color: '#00bcd4', rot: -20, size: 16, delay: 0.5 },
@@ -141,15 +137,7 @@ export default function MainMenu({
  <div className="h-screen bg-gradient-to-b from-slate-900 via-purple-950 to-slate-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
  {/* Layer 1: Starfield */}
- <div className="absolute inset-0 overflow-hidden pointer-events-none">
- {stars.map(s => (
- <motion.div key={s.id} className="absolute rounded-full bg-white"
- style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size }}
- animate={{ opacity: [0.1, 0.7, 0.1] }}
- transition={{ duration: s.dur, repeat: Infinity, delay: s.delay, ease: 'easeInOut' }}
- />
- ))}
- </div>
+ <Starfield />
 
  {/* Layer 2: Floating tetris blocks */}
  <div className="absolute inset-0 overflow-hidden pointer-events-none">

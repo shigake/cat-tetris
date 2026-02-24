@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
+import Starfield from './Starfield';
 
 function Tutorial({ onComplete }) {
  const [currentStep, setCurrentStep] = useState(0);
@@ -135,6 +136,7 @@ function Tutorial({ onComplete }) {
  exit={{ opacity: 0 }}
  className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
  >
+ <Starfield />
  <motion.div
  key={currentStep}
  initial={{ scale: 0.9, opacity: 0 }}

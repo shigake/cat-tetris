@@ -4,6 +4,7 @@ import { useGameModes } from '../hooks/useGameModes';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { CloseIcon, GAME_MODE_ICONS, GameModeIcon } from './Icons';
+import Starfield from './Starfield';
 
 function GameModesPanel({ onClose, onStartGame }) {
  const { modes, currentMode, modeStats, loading, selectMode } = useGameModes();
@@ -65,6 +66,7 @@ function GameModesPanel({ onClose, onStartGame }) {
  className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
  onClick={onClose}
  >
+ <Starfield />
  <motion.div
  initial={{ scale: 0.9, y: 20 }}
  animate={{ scale: 1, y: 0 }}
