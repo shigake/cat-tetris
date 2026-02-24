@@ -9,6 +9,8 @@ import { ThemePieceIcon } from './ThemeIcons';
 import { getThemedCellStyle, SHAPE_NAMES, THEME_LABELS } from '../utils/BlockShapes';
 import { useI18n } from '../hooks/useI18n';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { shop as shopAssets } from '../config/assetPlacementManifest.js';
 
 function ShopPanel({ onClose }) {
 
@@ -122,7 +124,7 @@ function ShopPanel({ onClose }) {
  </div>
 
  <div className="bg-black/30 rounded-lg p-4 mb-6 relative">
- <img src={`${import.meta.env.BASE_URL}cats/btn-loja.png`} alt="" className="absolute -top-5 -right-3 w-14 h-auto object-contain drop-shadow-lg rotate-12 opacity-80" />
+ <img src={shopAssets.entryButton} alt="" className="absolute -top-5 -right-3 w-14 h-auto object-contain drop-shadow-lg rotate-12 opacity-80" aria-hidden="true" />
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
  <div className="text-center">
  <div className="text-2xl font-bold text-yellow-400 flex items-center justify-center gap-1">

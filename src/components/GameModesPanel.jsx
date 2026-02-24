@@ -5,6 +5,8 @@ import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { CloseIcon, GAME_MODE_ICONS, GameModeIcon } from './Icons';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { ALL_SPRITES } from '../assets/catTetrisAssets.js';
 
 function GameModesPanel({ onClose, onStartGame }) {
  const { modes, currentMode, modeStats, loading, selectMode } = useGameModes();
@@ -120,7 +122,7 @@ function GameModesPanel({ onClose, onStartGame }) {
  <div className="flex items-center gap-3 mb-3">
  <div className="relative">
  <div className="text-white">{(() => { const Icon = GAME_MODE_ICONS[mode.id] || GameModeIcon; return <Icon size={40} />; })()}</div>
- <img src={`${import.meta.env.BASE_URL}cats/sprite-${(index % 24) + 1}.png`} alt="" className="absolute -bottom-1 -right-1 w-8 h-8 object-contain drop-shadow-md" />
+ <img src={ALL_SPRITES[index % ALL_SPRITES.length]} alt="" className="absolute -bottom-1 -right-1 w-8 h-8 object-contain drop-shadow-md" aria-hidden="true" style={{pointerEvents:'none'}} />
  </div>
  <div className="flex-1">
  <h3 className="text-white font-bold text-xl">
@@ -202,7 +204,7 @@ function GameModesPanel({ onClose, onStartGame }) {
 
  {(!stats || stats.gamesPlayed === 0) && (
  <div className="bg-black/30 rounded-lg p-3 text-center flex flex-col items-center gap-2">
- <img src={`${import.meta.env.BASE_URL}cats/sprite-${(index % 24) + 1}.png`} alt="" className="w-12 h-12 object-contain opacity-50" />
+ <img src={ALL_SPRITES[index % ALL_SPRITES.length]} alt="" className="w-12 h-12 object-contain opacity-50" aria-hidden="true" />
  <div className="text-white/40 text-sm">
  {t('gameModes.noRecords')}
  </div>

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { tutorial as tutorialAssets } from '../config/assetPlacementManifest.js';
 
 function Tutorial({ onComplete }) {
  const [currentStep, setCurrentStep] = useState(0);
@@ -157,7 +159,7 @@ function Tutorial({ onComplete }) {
  </div>
 
  <div className="flex justify-center mb-3">
- <img src={`${import.meta.env.BASE_URL}cats/professor-${(currentStep % 6) + 1}.png`} alt="" className="w-20 h-auto rounded-lg border-2 border-white/20 shadow-lg" />
+ <img src={tutorialAssets.professors[currentStep % tutorialAssets.professors.length]} alt="" className="w-20 h-auto rounded-lg border-2 border-white/20 shadow-lg" aria-hidden="true" />
  </div>
 
  <motion.h2

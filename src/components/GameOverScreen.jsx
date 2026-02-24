@@ -4,6 +4,8 @@ import ShareButtons from './ShareButtons';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { SadCatIcon, HappyCatIcon, HeartCatIcon } from './Icons';
+// DO NOT infer by filename; use manifest aliases.
+import { global as globalAssets } from '../config/assetPlacementManifest.js';
 import Starfield from './Starfield';
 
 const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
@@ -76,7 +78,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
  transition={{ delay: 0.35 }}
  className="flex justify-center mb-2"
  >
- <img src={`${import.meta.env.BASE_URL}cats/sprite-${scoreValue < 5000 ? 19 : scoreValue < 10000 ? 5 : 1}.png`} alt="" className="w-20 h-20 rounded-xl object-contain border-2 border-white/20 shadow-lg" />
+ <img src={scoreValue < 5000 ? globalAssets.gameOver.lowScoreCat : scoreValue < 10000 ? globalAssets.gameOver.midScoreCat : globalAssets.gameOver.highScoreCat} alt="" className="w-20 h-20 rounded-xl object-contain border-2 border-white/20 shadow-lg" aria-hidden="true" />
  </motion.div>
 
  <motion.div
@@ -143,11 +145,11 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
  className="mt-6 text-center text-white/60 text-sm flex flex-col items-center gap-2"
  >
  <div className="flex items-center gap-2 justify-center">
- <img src={`${import.meta.env.BASE_URL}cats/paw-white.png`} alt="" className="w-4 h-3 object-contain opacity-40" />
+ <img src={globalAssets.gameOver.tipsPaw} alt="" className="w-4 h-3 object-contain opacity-40" aria-hidden="true" />
  <p>{t('gameOver.tip1')}</p>
  </div>
  <div className="flex items-center gap-2 justify-center">
- <img src={`${import.meta.env.BASE_URL}cats/paw-white.png`} alt="" className="w-4 h-3 object-contain opacity-40" />
+ <img src={globalAssets.gameOver.tipsPaw} alt="" className="w-4 h-3 object-contain opacity-40" aria-hidden="true" />
  <p>{t('gameOver.tip2')}</p>
  </div>
  </motion.div>

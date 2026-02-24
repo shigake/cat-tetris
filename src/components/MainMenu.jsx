@@ -6,6 +6,8 @@ import { useI18n, LANGUAGES } from '../hooks/useI18n';
 import CurrencyDisplay from './CurrencyDisplay';
 import { SwordsIcon, BookIcon, PaletteIcon, BrainIcon, ShopBagIcon, ClipboardIcon, TrophyIcon, GearIcon, SoundOnIcon, SoundOffIcon, GlobeIcon } from './Icons';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { mainMenu } from '../config/assetPlacementManifest.js';
 
 export default function MainMenu({
  onStartGame,
@@ -164,7 +166,7 @@ export default function MainMenu({
  <div className="w-full max-w-sm relative z-10 flex flex-col items-center">
 
  <motion.div {...fadeUp(0)} className="flex flex-col items-center mb-5">
- <img src={`${import.meta.env.BASE_URL}cat-icon.png`} alt="Cat Tetris" className="w-52 aspect-square object-contain drop-shadow-[0_0_25px_rgba(118,75,162,0.5)] rounded-3xl" />
+ <img src={mainMenu.logo} alt="Cat Tetris" className="w-52 aspect-square object-contain drop-shadow-[0_0_25px_rgba(118,75,162,0.5)] rounded-3xl" />
  <p className="text-white/40 text-xs mt-2 tracking-widest uppercase">{t('menu.subtitle')}</p>
  </motion.div>
 
@@ -175,7 +177,7 @@ export default function MainMenu({
  onClick={() => play(onStartGame)}
  className={`w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-bold text-lg shadow-lg shadow-emerald-500/20 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('continue') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
- <img src={`${import.meta.env.BASE_URL}cats/btn-continuar.png`} alt="" className="w-12 h-auto drop-shadow-md" />
+ <img src={mainMenu.buttons.continuar} alt="" className="w-12 h-auto drop-shadow-md" />
  <div className="text-left">
  {t('menu.continue')}
  <span className="block text-emerald-100/70 text-xs font-normal mt-0.5">
@@ -187,7 +189,7 @@ export default function MainMenu({
  onClick={() => play(onNewGame)}
  className={`w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 active:scale-[0.98] text-white font-semibold text-base border border-white/10 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('newGame') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
- <img src={`${import.meta.env.BASE_URL}cats/btn-novo-jogo.png`} alt="" className="w-10 h-auto drop-shadow-md" />
+ <img src={mainMenu.buttons.novoJogo} alt="" className="w-10 h-auto drop-shadow-md" />
  {t('menu.newGame')}
  </button>
  </>
@@ -196,28 +198,28 @@ export default function MainMenu({
  onClick={() => play(onStartGame)}
  className={`w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 active:scale-[0.98] text-white font-bold text-xl shadow-lg shadow-emerald-500/25 transition-all duration-150 flex items-center justify-center gap-3 ${isSelected('play') ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-900 scale-[1.02]' : ''}`}
  >
- <img src={`${import.meta.env.BASE_URL}cats/btn-continuar.png`} alt="" className="w-14 h-auto drop-shadow-md" />
+ <img src={mainMenu.buttons.continuar} alt="" className="w-14 h-auto drop-shadow-md" />
  {t('menu.play')}
  </button>
  )}
  </motion.div>
 
  <motion.div {...fadeUp(0.18)} className="w-full grid grid-cols-2 gap-2 mb-4">
- <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-vs-ia.png`} label={t('menu.vsAI')} sub={t('menu.vsAISub')} onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
- <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-tutorial.png`} label={t('menu.tutorial')} sub={t('menu.tutorialSub')} onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
- <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-criador.png`} label={t('menu.creator')} sub={t('menu.creatorSub')} onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
- <MenuCard catImg={`${import.meta.env.BASE_URL}cats/btn-ia-expert.png`} label={t('menu.aiExpert')} sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
+ <MenuCard catImg={mainMenu.buttons.vsIA} label={t('menu.vsAI')} sub={t('menu.vsAISub')} onClick={() => play(onShowMultiplayer)} selected={isSelected('vsAI')} />
+ <MenuCard catImg={mainMenu.buttons.tutorial} label={t('menu.tutorial')} sub={t('menu.tutorialSub')} onClick={() => play(onShowTutorialHub)} selected={isSelected('tutorial')} />
+ <MenuCard catImg={mainMenu.buttons.criador} label={t('menu.creator')} sub={t('menu.creatorSub')} onClick={() => play(onShowCreatorMode)} selected={isSelected('creator')} />
+ <MenuCard catImg={mainMenu.buttons.iaExpert} label={t('menu.aiExpert')} sub={t('menu.aiExpertSub')} onClick={() => play(onShowAIShowcase)} selected={isSelected('aiExpert')} />
  </motion.div>
 
  <motion.div {...fadeUp(0.25)} className="w-full grid grid-cols-4 gap-1 mb-4">
- <QuickBtn catImg={`${import.meta.env.BASE_URL}cats/btn-loja.png`} icon={<ShopBagIcon size={20} />} label={t('menu.shop')} onClick={() => play(onShowShop)} selected={isSelected('shop')} />
- <QuickBtn catImg={`${import.meta.env.BASE_URL}cats/paw-gold.png`} icon={<ClipboardIcon size={20} />} label={t('menu.missions')} onClick={() => play(onShowMissions)} selected={isSelected('missions')} />
- <QuickBtn catImg={`${import.meta.env.BASE_URL}cats/paw-purple-star.png`} icon={<TrophyIcon size={20} />} label={t('menu.achievements')} onClick={() => play(onShowAchievements)} selected={isSelected('achievements')} />
+ <QuickBtn catImg={mainMenu.quickButtons.shop} icon={<ShopBagIcon size={20} />} label={t('menu.shop')} onClick={() => play(onShowShop)} selected={isSelected('shop')} />
+ <QuickBtn catImg={mainMenu.quickButtons.missions} icon={<ClipboardIcon size={20} />} label={t('menu.missions')} onClick={() => play(onShowMissions)} selected={isSelected('missions')} />
+ <QuickBtn catImg={mainMenu.quickButtons.achievements} icon={<TrophyIcon size={20} />} label={t('menu.achievements')} onClick={() => play(onShowAchievements)} selected={isSelected('achievements')} />
  <QuickBtn icon={<GearIcon size={20} />} label={t('menu.settings')} onClick={() => play(onShowSettings)} selected={isSelected('settings')} />
  </motion.div>
 
  <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
- <img src={`${import.meta.env.BASE_URL}cats/paw-white.png`} alt="" className="w-4 h-3 object-contain opacity-30" />
+ <img src={mainMenu.paws.neutral} alt="" className="w-4 h-3 object-contain opacity-30" aria-hidden="true" />
  <button
  onClick={toggleSound}
  className="hover:text-white/50 transition-colors"
@@ -234,7 +236,7 @@ export default function MainMenu({
  </button>
 
  <span className="select-none">v1.0</span>
- <img src={`${import.meta.env.BASE_URL}cats/paw-white.png`} alt="" className="w-4 h-3 object-contain opacity-30" />
+ <img src={mainMenu.paws.neutral} alt="" className="w-4 h-3 object-contain opacity-30" aria-hidden="true" />
  </motion.div>
 
  {/* Language picker dropdown */}

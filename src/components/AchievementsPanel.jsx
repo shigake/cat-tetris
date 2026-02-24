@@ -5,6 +5,8 @@ import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { CloseIcon, MedalBronzeIcon, MedalSilverIcon, MedalGoldIcon, MedalPlatinumIcon, CheckIcon, MEDAL_ICONS } from './Icons';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { global as globalAssets } from '../config/assetPlacementManifest.js';
 
 function AchievementsPanel({ onClose }) {
  const { achievements, loading, getStats, getAchievementsByTier } = useAchievements();
@@ -234,7 +236,7 @@ function AchievementsPanel({ onClose }) {
 
  {filteredAchievements.length === 0 && (
  <div className="text-center text-white/40 py-8 flex flex-col items-center gap-3">
- <img src={`${import.meta.env.BASE_URL}cats/sprite-21.png`} alt="" className="w-20 h-20 object-contain opacity-60" />
+ <img src={globalAssets.achievementsPanel.emptyState} alt="" className="w-20 h-20 object-contain opacity-60" aria-hidden="true" />
  {t('achievements.noneInCategory')}
  </div>
  )}

@@ -7,6 +7,8 @@ import { showToast } from './ToastNotification';
 import { CloseIcon, CheckIcon, CoinIcon } from './Icons';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { global as globalAssets } from '../config/assetPlacementManifest.js';
 
 function DailyMissionsPanel({ onClose }) {
  const { t } = useI18n();
@@ -206,7 +208,7 @@ function DailyMissionsPanel({ onClose }) {
  </div>
 
  <div className="mt-6 text-center text-white/40 text-sm flex flex-col items-center gap-2">
- <img src={`${import.meta.env.BASE_URL}cats/sprite-10.png`} alt="" className="w-16 h-16 object-contain opacity-50" />
+ <img src={globalAssets.dailyMissions.emptyState} alt="" className="w-16 h-16 object-contain opacity-50" aria-hidden="true" />
  {t('missions.resetNote')}
  </div>
  </motion.div>

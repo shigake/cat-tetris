@@ -5,6 +5,8 @@ import { useGamepadNav } from '../hooks/useGamepadNav';
 import { useI18n } from '../hooks/useI18n';
 import { BackIcon } from './Icons';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { tutorial as tutorialAssets } from '../config/assetPlacementManifest.js';
 
 function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  const [selectedLesson, setSelectedLesson] = useState(null);
@@ -81,7 +83,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  >
  <BackIcon size={16} />
  </button>
- <img src={`${import.meta.env.BASE_URL}cats/professor-1.png`} alt="" className="w-12 h-auto rounded-lg" />
+ <img src={tutorialAssets.hubHeader} alt="" className="w-12 h-auto rounded-lg" aria-hidden="true" />
  <div>
  <h1 className="text-2xl font-extrabold text-white">{t('tutorial.title')}</h1>
  <p className="text-white/40 text-sm mt-0.5">{t('tutorial.subtitle')}</p>
@@ -185,7 +187,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  <div className="flex items-center gap-1 flex-shrink-0">
  <span className="flex gap-0.5" title={lesson.difficulty}>
  {Array.from({ length: lesson.difficulty === 'beginner' ? 1 : lesson.difficulty === 'intermediate' ? 2 : lesson.difficulty === 'advanced' ? 3 : 4 }).map((_, i) => (
- <img key={i} src={`${import.meta.env.BASE_URL}cats/${lesson.difficulty === 'beginner' ? 'paw-green' : lesson.difficulty === 'intermediate' ? 'paw-blue' : lesson.difficulty === 'advanced' ? 'paw-purple' : 'paw-gold'}.png`} alt="" className="w-4 h-3 object-contain" />
+ <img key={i} src={tutorialAssets.difficultyPaws[lesson.difficulty] || tutorialAssets.difficultyPaws.beginner} alt="" className="w-4 h-3 object-contain" aria-hidden="true" />
  ))}
  </span>
  {unlocked && (

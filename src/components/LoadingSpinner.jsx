@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+// DO NOT infer by filename; use manifest aliases.
+import { global as globalAssets } from '../config/assetPlacementManifest.js';
 
 function LoadingSpinner({ size = 'md', message }) {
  const sizes = {
@@ -28,7 +30,7 @@ function LoadingSpinner({ size = 'md', message }) {
  <div className="w-10 h-10 border-4 border-purple-400/30 border-t-purple-400 rounded-full" />
  </motion.div>
  <motion.img
- src={`${import.meta.env.BASE_URL}cats/sprite-7.png`}
+ src={globalAssets.loadingSpinner.centerCat}
  alt=""
  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full"
  animate={{ scale: [1, 1.1, 1] }}
@@ -40,7 +42,7 @@ function LoadingSpinner({ size = 'md', message }) {
  {[1, 2, 3].map((_, i) => (
  <motion.img
  key={i}
- src={`${import.meta.env.BASE_URL}cats/paw-purple.png`}
+ src={globalAssets.loadingSpinner.pawDots}
  alt=""
  className="w-5 h-4 object-contain"
  animate={{ opacity: [0.2, 1, 0.2], y: [0, -3, 0] }}

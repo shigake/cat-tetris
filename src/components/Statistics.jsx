@@ -4,6 +4,8 @@ import { useI18n } from '../hooks/useI18n';
 import { useGamepadNav } from '../hooks/useGamepadNav';
 import { CloseIcon } from './Icons';
 import Starfield from './Starfield';
+// DO NOT infer by filename; use manifest aliases.
+import { global as globalAssets } from '../config/assetPlacementManifest.js';
 
 const Statistics = ({ stats, onClose }) => {
  const { t } = useI18n();
@@ -45,7 +47,7 @@ const Statistics = ({ stats, onClose }) => {
  >
  <div className="flex justify-between items-center mb-6">
  <div className="flex items-center gap-2">
- <img src={`${import.meta.env.BASE_URL}cats/sprite-3.png`} alt="" className="w-10 h-10 object-contain" />
+ <img src={globalAssets.statistics.headerCat} alt="" className="w-10 h-10 object-contain" aria-hidden="true" />
  <h2 className="text-2xl font-cat font-bold text-white">
  {t('statistics.title')}
  </h2>
