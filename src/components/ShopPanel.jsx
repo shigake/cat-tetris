@@ -186,7 +186,11 @@ function ShopPanel({ onClose }) {
 
  {/* Theme illustration */}
  <div className="flex justify-center mb-3 py-3 bg-gradient-to-b from-white/5 to-transparent rounded-lg">
+ {theme.preview ? (
+ <img src={`${import.meta.env.BASE_URL}${theme.preview}`} alt={theme.name} className="h-20 w-auto object-contain rounded-md drop-shadow-lg" />
+ ) : (
  <ThemePieceIcon themeId={theme.id} size={80} />
+ )}
  </div>
 
  <div className="mb-3">
@@ -208,7 +212,7 @@ function ShopPanel({ onClose }) {
  <div
  key={type}
  className="w-8 h-8 flex items-center justify-center"
- style={getThemedCellStyle(theme.blockShape, piece.color)}
+ style={getThemedCellStyle(theme.blockShape, piece.color, type)}
  title={type}
  />
  ))}
@@ -280,7 +284,11 @@ function ShopPanel({ onClose }) {
  >
  {/* Theme illustration large */}
  <div className="flex justify-center mb-4 py-4 bg-gradient-to-b from-white/5 to-transparent rounded-lg">
+ {selectedTheme.preview ? (
+ <img src={`${import.meta.env.BASE_URL}${selectedTheme.preview}`} alt={selectedTheme.name} className="h-28 w-auto object-contain rounded-md drop-shadow-lg" />
+ ) : (
  <ThemePieceIcon themeId={selectedTheme.id} size={120} />
+ )}
  </div>
 
  <h3 className="text-white font-bold text-2xl mb-1 text-center">
@@ -301,7 +309,7 @@ function ShopPanel({ onClose }) {
  <div key={type} className="text-center">
  <div
  className="w-12 h-12 mx-auto flex items-center justify-center mb-1"
- style={getThemedCellStyle(selectedTheme.blockShape, piece.color)}
+ style={getThemedCellStyle(selectedTheme.blockShape, piece.color, type)}
  />
  <div className="text-white/60 text-[10px] font-bold">{type}</div>
  </div>

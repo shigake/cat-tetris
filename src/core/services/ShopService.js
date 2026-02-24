@@ -62,6 +62,36 @@ export const PIECE_THEMES = {
  blockShape: 'robots',
  price: 800,
  pieces: stdPieces()
+ },
+ cat_ear_orb: {
+ id: 'cat_ear_orb',
+ name: 'Cat Ear Orb',
+ description: 'Bolinhas com orelhas de gato — básico e clean',
+ blockShape: 'cat_ear_orb',
+ price: 400,
+ pieces: stdPieces(),
+ preview: 'themes/cat_ear_orb/preview.png',
+ imageTheme: true
+ },
+ cathead_block: {
+ id: 'cathead_block',
+ name: 'Cat Head Block',
+ description: 'Blocos em silhueta de cabeça de gato',
+ blockShape: 'cathead_block',
+ price: 400,
+ pieces: stdPieces(),
+ preview: 'themes/cathead_block/preview.png',
+ imageTheme: true
+ },
+ neko_badge: {
+ id: 'neko_badge',
+ name: 'Neko Badge Premium',
+ description: 'Badges premium com emblema neko',
+ blockShape: 'neko_badge',
+ price: 1200,
+ pieces: stdPieces(),
+ preview: 'themes/neko_badge/preview.png',
+ imageTheme: true
  }
 };
 

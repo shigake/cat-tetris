@@ -32,7 +32,7 @@ const HeldPiece = ({ heldPiece, canHold }) => {
  {heldPiece.shape.map((row, y) =>
  row.map((cell, x) => {
  const color = cell ? getPieceColor(heldPiece.color) : null;
- const themeStyle = cell ? getThemedCellStyle(getBlockShape(), color) : {};
+ const themeStyle = cell ? getThemedCellStyle(getBlockShape(), color, heldPiece.type) : {};
  return (
  <div
  key={`${x}-${y}`}

@@ -27,7 +27,7 @@ const NextPieces = ({ pieces }) => {
  {piece.shape.map((row, y) =>
  row.map((cell, x) => {
  const color = cell ? getPieceColor(piece.color) : null;
- const themeStyle = cell ? getThemedCellStyle(getBlockShape(), color) : {};
+ const themeStyle = cell ? getThemedCellStyle(getBlockShape(), color, piece.type) : {};
  return (
  <div
  key={`${x}-${y}`}

@@ -225,17 +225,54 @@ const THEME_STYLES = {
   },
 };
 
-export const THEME_LABELS = Object.fromEntries(
-  Object.entries(THEME_STYLES).map(([k, v]) => [k, { label: v.label, desc: v.desc }])
-);
+const IMG_THEME_LABELS = {
+  cat_ear_orb: { label: 'Cat Ear Orb', desc: 'Bolinhas com orelhas de gato' },
+  cathead_block: { label: 'Cat Head Block', desc: 'Silhueta de cabeça de gato' },
+  neko_badge: { label: 'Neko Badge', desc: 'Badges premium com emblema neko' },
+};
 
-export const SHAPE_NAMES = Object.fromEntries(
-  Object.entries(THEME_STYLES).map(([k, v]) => [k, v.label])
-);
+export const THEME_LABELS = {
+  ...Object.fromEntries(Object.entries(THEME_STYLES).map(([k, v]) => [k, { label: v.label, desc: v.desc }])),
+  ...IMG_THEME_LABELS,
+};
+
+export const SHAPE_NAMES = {
+  ...Object.fromEntries(Object.entries(THEME_STYLES).map(([k, v]) => [k, v.label])),
+  ...Object.fromEntries(Object.entries(IMG_THEME_LABELS).map(([k, v]) => [k, v.label])),
+};
 
 const _styleCache = new Map();
 
-export function getThemedCellStyle(themeName, baseColor) {
+// Image-based theme helper: maps theme folder + pieceType → CSS background-image
+const IMG_THEMES = {
+  cat_ear_orb: 'themes/cat_ear_orb/32px',
+  cathead_block: 'themes/cathead_block/32px',
+  neko_badge: 'themes/neko_badge/32px',
+};
+
+function imgThemeStyle(folder, pieceType) {
+  const base = typeof import.meta !== 'undefined' ? import.meta.env.BASE_URL : '/cat-tetris/';
+  const file = pieceType || 'T'; // fallback to T if no piece type
+  return {
+    borderRadius: '2px',
+    border: 'none',
+    background: `url("${base}${folder}/${file}.png") center/cover no-repeat`,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+    imageRendering: 'pixelated',
+  };
+}
+
+export function getThemedCellStyle(themeName, baseColor, pieceType) {
+  // Image-based themes — use tile images per piece type
+  if (IMG_THEMES[themeName]) {
+    const key = `${themeName}\0${pieceType || 'T'}`;
+    const cached = _styleCache.get(key);
+    if (cached) return cached;
+    const style = imgThemeStyle(IMG_THEMES[themeName], pieceType);
+    _styleCache.set(key, style);
+    return style;
+  }
+  // CSS-based themes — existing logic
   const key = `${themeName}\0${baseColor}`;
   const cached = _styleCache.get(key);
   if (cached) return cached;

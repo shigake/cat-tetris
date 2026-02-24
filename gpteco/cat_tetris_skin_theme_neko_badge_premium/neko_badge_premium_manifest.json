@@ -1,0 +1,32 @@
+{
+  "theme": "neko_badge_premium",
+  "label": "Neko Badge Premium",
+  "tileSizes": {
+    "hd": 64,
+    "game": 32
+  },
+  "pieces64": {
+    "I": "neko_badge_premium/I.png",
+    "O": "neko_badge_premium/O.png",
+    "T": "neko_badge_premium/T.png",
+    "S": "neko_badge_premium/S.png",
+    "Z": "neko_badge_premium/Z.png",
+    "J": "neko_badge_premium/J.png",
+    "L": "neko_badge_premium/L.png",
+    "ghost": "neko_badge_premium/ghost.png",
+    "garbage": "neko_badge_premium/garbage.png"
+  },
+  "pieces32": {
+    "I": "neko_badge_premium/32px/I.png",
+    "O": "neko_badge_premium/32px/O.png",
+    "T": "neko_badge_premium/32px/T.png",
+    "S": "neko_badge_premium/32px/S.png",
+    "Z": "neko_badge_premium/32px/Z.png",
+    "J": "neko_badge_premium/32px/J.png",
+    "L": "neko_badge_premium/32px/L.png",
+    "ghost": "neko_badge_premium/32px/ghost.png",
+    "garbage": "neko_badge_premium/32px/garbage.png"
+  },
+  "spritesheet64": "neko_badge_premium/neko_badge_premium_spritesheet_64.png",
+  "preview": "neko_badge_premium/neko_badge_premium_preview.png"
+}

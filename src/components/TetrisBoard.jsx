@@ -212,14 +212,14 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
  <div
  key={`${x}-${boardY}`}
  className="tetris-cell flex items-center justify-center"
- style={getThemedCellStyle(themeName, color)}
+ style={getThemedCellStyle(themeName, color, currentPiece.type)}
  />
  );
  }
 
  if (isPreview) {
  const color = getPieceColor(dropPreview.color);
- const themeStyle = getThemedCellStyle(themeName, color);
+ const themeStyle = getThemedCellStyle(themeName, color, dropPreview.type);
  return (
  <div
  key={`${x}-${boardY}`}
@@ -231,7 +231,7 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
 
  if (cell) {
  const color = getPieceColor(cell.color);
- const themeStyle = getThemedCellStyle(themeName, color);
+ const themeStyle = getThemedCellStyle(themeName, color, cell.type);
  if (isClearing) {
  return (
  <div
