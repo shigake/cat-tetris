@@ -138,7 +138,7 @@ export default function MainMenu({
  <div className="w-full max-w-sm relative z-10 flex flex-col items-center">
 
  <motion.div {...fadeUp(0)} className="flex flex-col items-center mb-5">
- <img src={`${import.meta.env.BASE_URL}cat-icon.png`} alt="Cat Tetris" className="w-40 h-40 drop-shadow-[0_0_25px_rgba(118,75,162,0.5)] rounded-3xl" />
+ <img src={`${import.meta.env.BASE_URL}cat-icon.png`} alt="Cat Tetris" className="w-52 aspect-square object-contain drop-shadow-[0_0_25px_rgba(118,75,162,0.5)] rounded-3xl" />
  <p className="text-white/40 text-xs mt-2 tracking-widest uppercase">{t('menu.subtitle')}</p>
  </motion.div>
 
