@@ -638,6 +638,8 @@ function GameComponent() {
  hasActiveGame={hasActiveGame}
  gameState={gameState}
  hasOverlayOpen={hasOverlayOpen}
+ settings={settings}
+ onSettingsChange={handleSettingsChange}
  />
 
  <AnimatePresence>

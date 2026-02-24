@@ -20,12 +20,19 @@ export default function MainMenu({
  onShowCreatorMode,
  hasActiveGame,
  gameState,
- hasOverlayOpen
+ hasOverlayOpen,
+ settings,
+ onSettingsChange
 }) {
- const [soundEnabled, setSoundEnabled] = useState(true);
+ const soundEnabled = settings?.soundEnabled ?? true;
  const [showLangPicker, setShowLangPicker] = useState(false);
  const sounds = useMenuSounds();
  const { t, language, setLanguage } = useI18n();
+
+ const toggleSound = useCallback(() => {
+ const newVal = !soundEnabled;
+ onSettingsChange?.({ ...settings, soundEnabled: newVal });
+ }, [soundEnabled, settings, onSettingsChange]);
 
  const play = useCallback((fn) => {
  if (soundEnabled) sounds.playMenuSelect?.();
@@ -182,7 +189,7 @@ export default function MainMenu({
 
  <motion.div {...fadeUp(0.3)} className="flex items-center gap-3 text-xs text-white/25">
  <button
- onClick={() => setSoundEnabled(!soundEnabled)}
+ onClick={toggleSound}
  className="hover:text-white/50 transition-colors"
  >
  {soundEnabled ? <SoundOnIcon size={16} /> : <SoundOffIcon size={16} />}
