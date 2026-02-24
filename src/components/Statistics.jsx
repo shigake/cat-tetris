@@ -42,9 +42,12 @@ const Statistics = ({ stats, onClose }) => {
  onClick={(e) => e.stopPropagation()}
  >
  <div className="flex justify-between items-center mb-6">
+ <div className="flex items-center gap-2">
+ <img src={`${import.meta.env.BASE_URL}cats/cat-2.png`} alt="" className="w-9 h-9 rounded-full border border-white/20" />
  <h2 className="text-2xl font-cat font-bold text-white">
  {t('statistics.title')}
  </h2>
+ </div>
  <button
  onClick={onClose}
  className={`text-white/60 hover:text-white text-2xl transition-colors ${selectedIndex === 0 ? 'ring-2 ring-yellow-400 rounded-lg' : ''}`}

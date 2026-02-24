@@ -119,7 +119,8 @@ function ShopPanel({ onClose }) {
  </button>
  </div>
 
- <div className="bg-black/30 rounded-lg p-4 mb-6">
+ <div className="bg-black/30 rounded-lg p-4 mb-6 relative">
+ <img src={`${import.meta.env.BASE_URL}cats/cat-1.png`} alt="" className="absolute -top-5 -right-3 w-12 h-12 rounded-full border-2 border-yellow-400/30 shadow-lg rotate-12 opacity-80" />
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
  <div className="text-center">
  <div className="text-2xl font-bold text-yellow-400 flex items-center justify-center gap-1">

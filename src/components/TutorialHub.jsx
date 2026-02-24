@@ -79,6 +79,7 @@ function TutorialHub({ tutorialService, onClose, onLessonComplete }) {
  >
  <BackIcon size={16} />
  </button>
+ <img src={`${import.meta.env.BASE_URL}cats/tutor-1.png`} alt="" className="w-10 h-10 rounded-full border border-white/20" />
  <div>
  <h1 className="text-2xl font-extrabold text-white">{t('tutorial.title')}</h1>
  <p className="text-white/40 text-sm mt-0.5">{t('tutorial.subtitle')}</p>

@@ -143,7 +143,7 @@ function Tutorial({ onComplete }) {
  className="bg-gradient-to-br from-purple-900/95 to-indigo-900/95 rounded-2xl p-8 max-w-lg w-full border-2 border-white/20 shadow-2xl max-h-[90vh] overflow-y-auto"
  >
 
- <div className="flex gap-2 mb-6">
+ <div className="flex gap-2 mb-4">
  {steps.map((_, index) => (
  <div
  key={index}
@@ -152,6 +152,10 @@ function Tutorial({ onComplete }) {
  }`}
  />
  ))}
+ </div>
+
+ <div className="flex justify-center mb-3">
+ <img src={`${import.meta.env.BASE_URL}cats/tutor-${(currentStep % 6) + 1}.png`} alt="" className="w-16 h-16 rounded-full border-2 border-white/20 shadow-lg" />
  </div>
 
  <motion.h2

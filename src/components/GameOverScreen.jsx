@@ -67,7 +67,7 @@ const GameOverScreen = ({ score, onRestart, onBackToMenu }) => {
  transition={{ delay: 0.35 }}
  className="flex justify-center mb-2"
  >
- {getCatEmoji(scoreValue)}
+ <img src={`${import.meta.env.BASE_URL}cats/cat-${scoreValue < 5000 ? 3 : scoreValue < 10000 ? 2 : 1}.png`} alt="" className="w-20 h-20 rounded-full border-2 border-white/20 shadow-lg" />
  </motion.div>
 
  <motion.div
