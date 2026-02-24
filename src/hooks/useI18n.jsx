@@ -100,6 +100,7 @@ const en = {
 'shop.equip': 'Equip',
 'shop.inUse': 'In Use',
 'shop.close': 'Close',
+'shop.preview': 'Preview',
 'shop.purchaseSuccess': '{name} purchased!',
 'shop.equipSuccess': '{name} equipped!',
 
@@ -726,6 +727,7 @@ const pt = {
 'shop.equip': 'Equipar',
 'shop.inUse': 'Em Uso',
 'shop.close': 'Fechar',
+'shop.preview': 'Visualizar',
 'shop.purchaseSuccess': '{name} comprado com sucesso!',
 'shop.equipSuccess': '{name} equipado!',
 
