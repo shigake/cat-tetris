@@ -7,16 +7,17 @@ import { useI18n } from '../hooks/useI18n';
 
 const BUFFER_ROWS = 2;
 
-function FloatingText({ text, color, id }) {
+function FloatingText({ text, color, id, index = 0 }) {
+ const offsetY = index * 36;
  return (
  <motion.div
  key={id}
- initial={{ opacity: 1, y: 0, scale: 0.5 }}
- animate={{ opacity: 0, y: -60, scale: 1.3 }}
+ initial={{ opacity: 1, y: offsetY, scale: 0.5 }}
+ animate={{ opacity: 0, y: offsetY - 60, scale: 1.3 }}
  exit={{ opacity: 0 }}
  transition={{ duration: 1.2, ease: 'easeOut' }}
  className="absolute left-1/2 top-1/3 -translate-x-1/2 pointer-events-none font-black text-lg drop-shadow-lg whitespace-nowrap"
- style={{ color, zIndex: 50, textShadow: `0 0 12px ${color}` }}
+ style={{ color, zIndex: 50 - index, textShadow: `0 0 12px ${color}` }}
  >
  {text}
  </motion.div>
@@ -306,9 +307,8 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
  </AnimatePresence>
 
  <AnimatePresence>
- {floatingTexts.map(ft => (
- <FloatingText key={ft.id} id={ft.id} text={ft.text} color={ft.color} />
- ))}
+ {floatingTexts.map((ft, i) => (
+ <FloatingText key={ft.id} id={ft.id} text={ft.text} color={ft.color} index={i} />
  </AnimatePresence>
 
  {gameOver && (
