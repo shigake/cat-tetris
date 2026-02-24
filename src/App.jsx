@@ -22,6 +22,7 @@ import { useSettings } from './hooks/useSettings';
 import { useKeyboardInput } from './hooks/useKeyboardInput';
 import { useSoundManager } from './hooks/useSoundManager';
 import { useBackgroundMusic } from './hooks/useBackgroundMusic';
+import { onAudioUnlocked } from './utils/audioManager';
 import { useGamepad } from './hooks/useGamepad';
 import { useMissions } from './hooks/useMissions';
 import { useAchievements } from './hooks/useAchievements';
@@ -498,6 +499,25 @@ function GameComponent() {
  stopMusic();
  };
  }, [currentScreen, settings?.soundEnabled, startBackgroundMusic, startGameMusic, stopMusic]);
+
+ // Keep refs so the onAudioUnlocked callback always sees current values
+ const screenRef = React.useRef(currentScreen);
+ const soundEnabledRef = React.useRef(settings?.soundEnabled);
+ const startBgRef = React.useRef(startBackgroundMusic);
+ const startGameRef = React.useRef(startGameMusic);
+ React.useEffect(() => { screenRef.current = currentScreen; }, [currentScreen]);
+ React.useEffect(() => { soundEnabledRef.current = settings?.soundEnabled; }, [settings?.soundEnabled]);
+ React.useEffect(() => { startBgRef.current = startBackgroundMusic; }, [startBackgroundMusic]);
+ React.useEffect(() => { startGameRef.current = startGameMusic; }, [startGameMusic]);
+
+ // Retry music after browser autoplay is unlocked by first user interaction
+ React.useEffect(() => {
+ onAudioUnlocked(() => {
+ if (!soundEnabledRef.current) return;
+ if (screenRef.current === 'menu') startBgRef.current?.();
+ else if (screenRef.current === 'game') startGameRef.current?.();
+ });
+ }, []); // run once on mount
 
  const hasOverlayOpen = showSettings || showShop || showMissions || showAchievements ||
  showGameModes || showMultiplayer || showTutorialHub;

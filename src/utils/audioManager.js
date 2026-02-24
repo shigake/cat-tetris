@@ -128,10 +128,31 @@ const ALL_SOUNDS = [
 
 // Lazy preload after first user interaction
 let _preloaded = false;
+const _unlockCallbacks = [];
+
 function preloadAll() {
  if (_preloaded) return;
  _preloaded = true;
  ALL_SOUNDS.forEach(preloadSound);
+ // Notify anyone waiting for audio unlock
+ _unlockCallbacks.forEach(cb => { try { cb(); } catch {} });
+ _unlockCallbacks.length = 0;
+}
+
+/**
+ * Returns true if audio has been unlocked by a user interaction.
+ */
+export function isAudioUnlocked() {
+ return _preloaded;
+}
+
+/**
+ * Register a callback to run once audio is unlocked by user interaction.
+ * If already unlocked, fires immediately.
+ */
+export function onAudioUnlocked(cb) {
+ if (_preloaded) { cb(); return; }
+ _unlockCallbacks.push(cb);
 }
 
 ['click', 'touchstart', 'keydown'].forEach(evt => {
