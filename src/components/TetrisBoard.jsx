@@ -309,8 +309,9 @@ const TetrisBoard = ({ board, currentPiece, dropPreview, gameOver, bufferRows, e
  <AnimatePresence>
  {floatingTexts.map((ft, i) => (
  <FloatingText key={ft.id} id={ft.id} text={ft.text} color={ft.color} index={i} />
- ))}
- <motion.div
+ ))} </AnimatePresence>
+
+ {gameOver && ( <motion.div
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
  className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-lg"
