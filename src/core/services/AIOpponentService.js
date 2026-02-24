@@ -16,7 +16,7 @@ export class AIOpponentService {
  case 'easy': this.thinkingTime = 600; break;
  case 'medium': this.thinkingTime = 350; break;
  case 'hard': this.thinkingTime = 180; break;
- case 'expert': this.thinkingTime = 80; break;
+ case 'expert': this.thinkingTime = 150; break;
  default: this.thinkingTime = 350;
  }
  }
@@ -35,8 +35,7 @@ export class AIOpponentService {
  return this._actionQueue.shift();
  }
 
- if (!this._isExpert && now - this.lastDecision < effectiveDelay) return null;
- if (this._visualMode && now - this.lastDecision < effectiveDelay) return null;
+ if (now - this.lastDecision < effectiveDelay) return null;
  this.lastDecision = now;
 
  const { currentPiece, board, heldPiece, canHold, nextPieces } = gameState;
@@ -138,8 +137,8 @@ export class AIOpponentService {
  score += (Math.random() - 0.5) * 2000;
  } else if (this.difficulty === 'hard' && Math.random() < 0.3) {
  score += (Math.random() - 0.5) * 800;
- } else if (this.difficulty === 'expert' && Math.random() < 0.12) {
- score += (Math.random() - 0.5) * 600;
+ } else if (this.difficulty === 'expert' && Math.random() < 0.15) {
+ score += (Math.random() - 0.5) * 500;
  }
 
  if (score > bestScore) {
