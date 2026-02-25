@@ -63,35 +63,207 @@ export const PIECE_THEMES = {
  price: 800,
  pieces: stdPieces()
  },
- cat_ear_orb: {
- id: 'cat_ear_orb',
- name: 'Cat Ear Orb',
- description: 'Bolinhas com orelhas de gato — básico e clean',
- blockShape: 'cat_ear_orb',
- price: 400,
- pieces: stdPieces(),
- preview: 'themes/cat_ear_orb/preview.png',
- imageTheme: true
+ neko_kawaii: {
+ id: 'neko_kawaii',
+ name: 'Neko Kawaii',
+ description: 'Gatinhos anime super fofos com olhos brilhantes',
+ blockShape: 'neko_kawaii',
+ price: 500,
+ pieces: stdPieces()
  },
- cathead_block: {
- id: 'cathead_block',
- name: 'Cat Head Block',
- description: 'Blocos em silhueta de cabeça de gato',
- blockShape: 'cathead_block',
- price: 400,
- pieces: stdPieces(),
- preview: 'themes/cathead_block/preview.png',
- imageTheme: true
+ shadow_cat: {
+ id: 'shadow_cat',
+ name: 'Shadow Cat',
+ description: 'Gato misterioso das sombras com olhos brilhantes',
+ blockShape: 'shadow_cat',
+ price: 800,
+ pieces: stdPieces()
  },
- neko_badge: {
- id: 'neko_badge',
- name: 'Neko Badge Premium',
- description: 'Badges premium com emblema neko',
- blockShape: 'neko_badge',
+ maneki_neko: {
+ id: 'maneki_neko',
+ name: 'Maneki Neko',
+ description: 'Gato da sorte japonês com moeda de ouro',
+ blockShape: 'maneki_neko',
  price: 1200,
- pieces: stdPieces(),
- preview: 'themes/neko_badge/preview.png',
- imageTheme: true
+ pieces: stdPieces()
+ },
+ cyber_cat: {
+ id: 'cyber_cat',
+ name: 'Cyber Cat',
+ description: 'Gato cyberpunk com circuitos neon',
+ blockShape: 'cyber_cat',
+ price: 900,
+ pieces: stdPieces()
+ },
+ royal_cat: {
+ id: 'royal_cat',
+ name: 'Royal Cat',
+ description: 'Gato real com coroa e joias preciosas',
+ blockShape: 'royal_cat',
+ price: 1000,
+ pieces: stdPieces()
+ },
+ pirate_cat: {
+ id: 'pirate_cat',
+ name: 'Pirate Cat',
+ description: 'Gato pirata com tapa-olho e cicatriz',
+ blockShape: 'pirate_cat',
+ price: 700,
+ pieces: stdPieces()
+ },
+ astro_cat: {
+ id: 'astro_cat',
+ name: 'Astro Cat',
+ description: 'Gato astronauta com capacete espacial',
+ blockShape: 'astro_cat',
+ price: 1100,
+ pieces: stdPieces()
+ },
+ sakura_cat: {
+ id: 'sakura_cat',
+ name: 'Sakura Cat',
+ description: 'Gato delicado com flores de cerejeira',
+ blockShape: 'sakura_cat',
+ price: 600,
+ pieces: stdPieces()
+ },
+ ice_cat: {
+ id: 'ice_cat',
+ name: 'Ice Cat',
+ description: 'Gato gelado com olhos de cristal',
+ blockShape: 'ice_cat',
+ price: 800,
+ pieces: stdPieces()
+ },
+ lava_cat: {
+ id: 'lava_cat',
+ name: 'Lava Cat',
+ description: 'Gato vulc\u00e2nico com olhos de fogo e presas',
+ blockShape: 'lava_cat',
+ price: 1000,
+ pieces: stdPieces()
+ },
+ ninja_cat: {
+ id: 'ninja_cat',
+ name: 'Ninja Cat',
+ description: 'Gato ninja furtivo com m\u00e1scara e shuriken',
+ blockShape: 'ninja_cat',
+ price: 900,
+ pieces: stdPieces()
+ },
+ galaxy_cat: {
+ id: 'galaxy_cat',
+ name: 'Galaxy Cat',
+ description: 'Gato c\u00f3smico com olhos de nebulosa',
+ blockShape: 'galaxy_cat',
+ price: 1500,
+ pieces: stdPieces()
+ },
+ chef_cat: {
+ id: 'chef_cat',
+ name: 'Chef Cat',
+ description: 'Gato chef gourmet com chapéu e bigode',
+ blockShape: 'chef_cat',
+ price: 600,
+ pieces: stdPieces()
+ },
+ // ── newskins: cat skins ──
+ squished_cat: {
+ id: 'squished_cat',
+ name: 'Gatos Amassados',
+ description: 'Gatinhos espremidos no formato do bloco',
+ blockShape: 'squished_cat',
+ price: 300,
+ pieces: stdPieces()
+ },
+ box_cat: {
+ id: 'box_cat',
+ name: 'Gatos na Caixa',
+ description: 'Gatinhos escondidos em caixas de papelão',
+ blockShape: 'box_cat',
+ price: 500,
+ pieces: stdPieces()
+ },
+ cat_face: {
+ id: 'cat_face',
+ name: 'Carinhas de Gato',
+ description: 'Rostos redondinhos de gato',
+ blockShape: 'cat_face',
+ price: 200,
+ pieces: stdPieces()
+ },
+ yarn_ball: {
+ id: 'yarn_ball',
+ name: 'Novelos de Lã',
+ description: 'Bolinhas de lã coloridas',
+ blockShape: 'yarn_ball',
+ price: 400,
+ pieces: stdPieces()
+ },
+ paw_print: {
+ id: 'paw_print',
+ name: 'Patinhas',
+ description: 'Almofadinhas fofas de gato',
+ blockShape: 'paw_print',
+ price: 350,
+ pieces: stdPieces()
+ },
+ fish_block: {
+ id: 'fish_block',
+ name: 'Peixinhos',
+ description: 'Peixes deliciosos para gatinhos',
+ blockShape: 'fish_block',
+ price: 300,
+ pieces: stdPieces()
+ },
+ milk_carton: {
+ id: 'milk_carton',
+ name: 'Caixa de Leite',
+ description: 'Caixinhas de leite fresco',
+ blockShape: 'milk_carton',
+ price: 450,
+ pieces: stdPieces()
+ },
+ mouse_toy: {
+ id: 'mouse_toy',
+ name: 'Ratinhos',
+ description: 'Ratinhos de brinquedo',
+ blockShape: 'mouse_toy',
+ price: 400,
+ pieces: stdPieces()
+ },
+ // ── newskins: dog skins ──
+ dog_face: {
+ id: 'dog_face',
+ name: 'Dog Face',
+ description: 'Cachorros felizes e babões',
+ blockShape: 'dog_face',
+ price: 500,
+ pieces: stdPieces()
+ },
+ pug_face: {
+ id: 'pug_face',
+ name: 'Pugs',
+ description: 'Pugs enrugados e fofos',
+ blockShape: 'pug_face',
+ price: 600,
+ pieces: stdPieces()
+ },
+ bone_block: {
+ id: 'bone_block',
+ name: 'Ossinhos',
+ description: 'Ossos para roer',
+ blockShape: 'bone_block',
+ price: 450,
+ pieces: stdPieces()
+ },
+ dog_house: {
+ id: 'dog_house',
+ name: 'Casinhas',
+ description: 'Casinhas de cachorro com telhado',
+ blockShape: 'dog_house',
+ price: 550,
+ pieces: stdPieces()
  }
 };
 

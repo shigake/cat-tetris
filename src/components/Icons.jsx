@@ -227,8 +227,14 @@ export function MedalPlatinumIcon({ size = D.size, className = D.className }) {
 export function CoinIcon({ size = D.size, className = D.className }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2"/>
-      <path d="M12 6v12M8 9.5c0-1.38 1.79-2.5 4-2.5s4 1.12 4 2.5-1.79 2.5-4 2.5-4 1.12-4 2.5 1.79 2.5 4 2.5 4-1.12 4-2.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      {/* Cat ears */}
+      <path d="M6.5 8L8.5 3L10.5 8" fill="currentColor" opacity="0.85"/>
+      <path d="M13.5 8L15.5 3L17.5 8" fill="currentColor" opacity="0.85"/>
+      {/* Coin body */}
+      <circle cx="12" cy="14" r="8.5" stroke="currentColor" strokeWidth="2"/>
+      {/* $ sign */}
+      <path d="M12 9v10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M9.5 12c0-1.1 1.12-2 2.5-2s2.5.9 2.5 2-1.12 2-2.5 2-2.5.9-2.5 2 1.12 2 2.5 2 2.5-.9 2.5-2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
     </svg>
   );
 }
