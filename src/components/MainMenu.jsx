@@ -166,7 +166,7 @@ export default function MainMenu({
  <div className="w-full max-w-sm relative z-10 flex flex-col items-center">
 
  <motion.div {...fadeUp(0)} className="flex flex-col items-center mb-5">
- <img src={mainMenu.logo} alt="Cat Tetris" className="w-96 aspect-square object-contain drop-shadow-[0_0_25px_rgba(118,75,162,0.5)] rounded-3xl" />
+ <img src={mainMenu.logo} alt="Cat Tetris" className="w-[28rem] h-48 object-contain drop-shadow-[0_0_25px_rgba(118,75,162,0.5)] rounded-3xl" />
  </motion.div>
 
  <motion.div {...fadeUp(0.1)} className="w-full space-y-2 mb-4">

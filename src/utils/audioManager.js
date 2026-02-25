@@ -35,10 +35,14 @@ export function playSound(filename, { volume = 0.5, loop = false } = {}) {
   try {
     const ctx = getAudioContext();
 
-    // BGM (looping) — delegate to music generators
+    // BGM (looping) — menu uses game-theme-cat.wav file, game uses synth
     if (loop && filename === 'bgm_menu_theme_loop.wav') {
-      const stop = generateMenuTheme(ctx, volume);
-      return { _type: 'bgm', stop, pause: stop, play: () => {}, currentTime: 0 };
+      const base = import.meta.env.BASE_URL || '/';
+      const audio = new Audio(`${base}sounds/game-theme-cat.wav`);
+      audio.loop = true;
+      audio.volume = Math.min(1, volume);
+      audio.play().catch(() => {});
+      return { _type: 'bgm', stop: () => { audio.pause(); audio.currentTime = 0; }, pause: () => audio.pause(), play: () => audio.play().catch(() => {}), currentTime: 0 };
     }
     if (loop && filename === 'bgm_game_theme_loop.wav') {
       const stop = generateGameTheme(ctx, volume);
