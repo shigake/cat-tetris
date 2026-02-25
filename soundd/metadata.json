@@ -1,0 +1,5 @@
+{
+  "name": "Cat Tetris Sound Generator",
+  "description": "A sound effect and music generator for Cat Tetris, featuring synthesized meows and retro 8-bit sounds.",
+  "requestFramePermissions": []
+}
